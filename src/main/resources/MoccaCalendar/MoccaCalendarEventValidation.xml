@@ -1,0 +1,87 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<xwikidoc>
+  <web>MoccaCalendar</web>
+  <name>MoccaCalendarEventValidation</name>
+  <language/>
+  <defaultLanguage/>
+  <translation>0</translation>
+  <parent>MoccaCalendar.MoccaCalendarEventClass</parent>
+  <creator>xwiki:XWiki.Admin</creator>
+  <author>xwiki:XWiki.Admin</author>
+  <customClass/>
+  <contentAuthor>xwiki:XWiki.Admin</contentAuthor>
+  <creationDate>1377502319000</creationDate>
+  <date>1373961627000</date>
+  <contentUpdateDate>1373961627000</contentUpdateDate>
+  <version>1.1</version>
+  <title>MoccaCalendarEventValidation</title>
+  <defaultTemplate/>
+  <validationScript/>
+  <comment/>
+  <minorEdit>false</minorEdit>
+  <syntaxId>xwiki/2.1</syntaxId>
+  <hidden>true</hidden>
+  <content>import com.xpn.xwiki.validation.*;
+
+import com.xpn.xwiki.XWikiContext;
+import com.xpn.xwiki.objects.BaseObject;
+import com.xpn.xwiki.doc.XWikiDocument;
+
+public class Val implements XWikiValidationInterface  {
+	private String MoccaCalendarEventClass = "MoccaCalendar.MoccaCalendarEventClass";
+  
+
+	public boolean validateDocument(XWikiDocument doc, XWikiContext context) {
+		try{
+			
+			def classDocumentReference = doc.resolveClassReference(MoccaCalendarEventClass);
+		
+			BaseObject obj = doc.getXObject(classDocumentReference, 0);
+			if (obj == null) {
+				return true;
+			}
+			Date startDate = obj.getDateValue("startDate");
+			Date endDate = obj.getDateValue("endDate");
+			String title = obj.getStringValue("title");
+			//	boolean allDay = obj.getIntValue("allDay") == 1
+		
+			boolean valid = true;
+			if(startDate == null) {
+                                obj.setDateValue("startDate",new Date());
+                                startDate=obj.getDateValue("startDate");
+			}
+		
+			if(endDate!=null &amp;&amp; startDate !=null) {
+				if(endDate.getTime()&lt;startDate.getTime()) {
+					valid = false;
+					XWikiValidationStatus.addErrorToContext(MoccaCalendarEventClass, "endDate", "End Date", "val_endDate", context);
+				}
+			}
+			
+			com.xpn.xwiki.web.XWikiRequest request = context.getRequest();
+			String action = request.getParameter("ocalcaction");
+			if(action!=null &amp;&amp; "create".equals(action)) {
+				if(title == null &amp;&amp; "".equals(title.trim())) {
+					valid = false;
+					XWikiValidationStatus.addErrorToContext(MoccaCalendarEventClass, "title", "Title", "val_title_notempty", context);
+				}
+				else if(!doc.isNew()) {
+					valid = false;
+					XWikiValidationStatus.addErrorToContext(MoccaCalendarEventClass, "title", "Title", "val_title_already_exists", context);
+				}
+			}
+			return valid;
+		}catch(Exception e) {
+			System.out.println("VALIDATION EXCEPTION");
+			e.printStackTrace();
+			throw e;
+		}
+	}
+
+	public boolean validateObject(BaseObject object, XWikiContext context) {
+		return true;
+	}
+
+}</content>
+</xwikidoc>

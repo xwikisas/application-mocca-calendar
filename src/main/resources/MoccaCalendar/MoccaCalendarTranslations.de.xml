@@ -1,0 +1,146 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<xwikidoc>
+  <web>MoccaCalendar</web>
+  <name>MoccaCalendarTranslations</name>
+  <language>de</language>
+  <defaultLanguage/>
+  <translation>1</translation>
+  <parent>MoccaCalendarClass</parent>
+  <creator>xwiki:XWiki.Admin</creator>
+  <author>xwiki:XWiki.Admin</author>
+  <customClass/>
+  <contentAuthor>xwiki:XWiki.Admin</contentAuthor>
+  <creationDate>1383574877000</creationDate>
+  <date>1385135957000</date>
+  <contentUpdateDate>1385135957000</contentUpdateDate>
+  <version>1.1</version>
+  <title/>
+  <defaultTemplate/>
+  <validationScript/>
+  <comment/>
+  <minorEdit>false</minorEdit>
+  <syntaxId>xwiki/2.1</syntaxId>
+  <hidden>true</hidden>
+  <object>
+    <class>
+      <name>XWiki.TranslationDocumentClass</name>
+      <customClass/>
+      <customMapping/>
+      <defaultViewSheet/>
+      <defaultEditSheet/>
+      <defaultWeb/>
+      <nameField/>
+      <validationScript/>
+      <scope>
+        <cache>0</cache>
+        <disabled>0</disabled>
+        <displayType>select</displayType>
+        <multiSelect>0</multiSelect>
+        <name>scope</name>
+        <number>1</number>
+        <prettyName>Scope</prettyName>
+        <relationalStorage>0</relationalStorage>
+        <separator> </separator>
+        <separators> ,|</separators>
+        <size>1</size>
+        <unmodifiable>0</unmodifiable>
+        <values>GLOBAL|WIKI|USER|ON_DEMAND</values>
+        <classType>com.xpn.xwiki.objects.classes.StaticListClass</classType>
+      </scope>
+    </class>
+    <name>MoccaCalendar.MoccaCalendarTranslations</name>
+    <number>0</number>
+    <className>XWiki.TranslationDocumentClass</className>
+    <guid>f5d1be7a-4a54-44f5-b263-4bc248308297</guid>
+    <property>
+      <scope>ON_DEMAND</scope>
+    </property>
+  </object>
+  <content>#general
+MoccaCalendar.calendar=Kalender
+MoccaCalendar.calendar.title=Kalender Übersicht
+MoccaCalendar.calendar.defaultCalendarTitle=Sonstige Termine
+MoccaCalendar.calendar.viewall=Übersicht über alle Kalender
+MoccaCalendar.calendar.create=Neuen Kalender anlegen
+MoccaCalendar.calendar.today=Heute
+MoccaCalendar.calendar.day=Tag
+MoccaCalendar.calendar.week=Woche
+MoccaCalendar.calendar.month=Monat
+MoccaCalendar.calendar.monthNames='Januar','Februar','März','April','Mai','Juni','Juli','August','September','Oktober','November','Dezember'
+MoccaCalendar.calendar.monthNamesShort='Januar','Februar','März','April','Mai','Juni','Juli','August','September','Oktober','November','Dezember'
+MoccaCalendar.calendar.dayNames='Sonntag','Montag','Dienstag','Mittwoch','Donnerstag','Freitag','Samstag'
+MoccaCalendar.calendar.dayNamesShort='So','Mo','Di','Mi','Do','Fr','Sa'
+MoccaCalendar.calendar.allday=Ganzer Tag
+MoccaCalendar.calendar.firstDayOfWeek=1
+
+MoccaCalendar.calendarevent.viewall=Alle Termine
+MoccaCalendar.calendarevent.create=Neuen Termin anlegen
+MoccaCalendar.calendarevent.backlink=Zurück zum Kalender &amp;#8222;{0}&amp;#8220;
+
+# Class fields
+MoccaCalendar.MoccaCalendarClass_title=Titel
+MoccaCalendar.MoccaCalendarClass_color=Farbe der Einträge im Kalender
+MoccaCalendar.MoccaCalendarClass_description=Beschreibung
+MoccaCalendar.MoccaCalendarClass_content1=Inhalt
+
+# Live table generic keys
+moccacalendar.livetable.doc.title=Seiten Titel
+moccacalendar.livetable.doc.name=Seiten Name
+moccacalendar.livetable.doc.space=Bereich
+moccacalendar.livetable.doc.fullname=vollst. Seiten Name
+moccacalendar.livetable.doc.author=letzter Autor
+moccacalendar.livetable.doc.creator=Ersteller
+moccacalendar.livetable.doc.date=Aktualisierungsdatum
+moccacalendar.livetable.doc.creationDate=Erstellungsdatum
+moccacalendar.livetable._avatar=Avatar
+moccacalendar.livetable._images=Bilder
+moccacalendar.livetable._attachments=Anhänge
+moccacalendar.livetable._actions=Aktionen
+moccacalendar.livetable._actions.edit=Bearbeiten
+moccacalendar.livetable._actions.delete=Löschen
+moccacalendar.livetable.emptyvalue=-
+
+
+# Mocca Calendar Events keys
+# Class fields
+MoccaCalendar.MoccaCalendarEventClass_title=Titel
+MoccaCalendar.MoccaCalendarEventClass_startDate=Startdatum
+MoccaCalendar.MoccaCalendarEventClass_endDate=Enddatum
+MoccaCalendar.MoccaCalendarEventClass_description=Beschreibung
+MoccaCalendar.MoccaCalendarEventClass_allDay=Ganztägig
+
+# Live table generic keys
+moccacalendarevent.livetable.doc.title=Seiten Titel
+moccacalendarevent.livetable.doc.name=Seiten Name
+moccacalendarevent.livetable.doc.space=Bereich
+moccacalendarevent.livetable.doc.fullname=vollst. Seiten Name
+moccacalendarevent.livetable.doc.author=letzter Autor
+moccacalendarevent.livetable.doc.creator=Ersteller
+moccacalendarevent.livetable.doc.date=Aktualisierungsdatum
+moccacalendarevent.livetable.doc.creationDate=Erstellungsdatum
+moccacalendarevent.livetable._avatar=Avatar
+moccacalendarevent.livetable._images=Bilder
+moccacalendarevent.livetable._attachments=Anhänge
+moccacalendarevent.livetable._actions=Aktionen
+moccacalendarevent.livetable._actions.edit=Bearbeiten
+moccacalendarevent.livetable._actions.delete=Löschen
+moccacalendarevent.livetable.emptyvalue=-
+
+# Live table specific keys
+moccacalendarevent.livetable.title=Titel
+moccacalendarevent.livetable.startDate=Startdatum
+moccacalendarevent.livetable.endDate=Enddatum
+moccacalendarevent.livetable.description=Beschreibung
+
+moccacalendar.livetable.title=Titel
+moccacalendar.livetable.description=Beschreibung
+moccacalendar.livetable.content1=Inhalt
+
+
+# validation messgaes
+val_title_notvalid=Der Titel enthält ungültige Zeichen
+val_title_notempty=Bitte geben Sie einen Titel ein
+val_endDate=Das Enddatum muss nach dem Startdatum liegen
+val_title_already_exists=Ein Termin mit diesem Namen existiert bereits</content>
+</xwikidoc>

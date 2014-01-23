@@ -1,0 +1,1379 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<xwikidoc>
+  <web>MoccaCalendar</web>
+  <name>Macro</name>
+  <language/>
+  <defaultLanguage/>
+  <translation>0</translation>
+  <parent>MoccaCalendar.WebHome</parent>
+  <creator>xwiki:XWiki.Admin</creator>
+  <author>xwiki:XWiki.Admin</author>
+  <customClass/>
+  <contentAuthor>xwiki:XWiki.Admin</contentAuthor>
+  <creationDate>1379057815000</creationDate>
+  <date>1379341112000</date>
+  <contentUpdateDate>1379334556000</contentUpdateDate>
+  <version>1.1</version>
+  <title>Calendar Macro</title>
+  <defaultTemplate/>
+  <validationScript/>
+  <comment/>
+  <minorEdit>false</minorEdit>
+  <syntaxId>xwiki/2.1</syntaxId>
+  <hidden>true</hidden>
+  <object>
+    <class>
+      <name>XWiki.JavaScriptExtension</name>
+      <customClass/>
+      <customMapping/>
+      <defaultViewSheet/>
+      <defaultEditSheet/>
+      <defaultWeb/>
+      <nameField/>
+      <validationScript/>
+      <cache>
+        <cache>0</cache>
+        <disabled>0</disabled>
+        <displayType>select</displayType>
+        <multiSelect>0</multiSelect>
+        <name>cache</name>
+        <number>5</number>
+        <prettyName>Caching policy</prettyName>
+        <relationalStorage>0</relationalStorage>
+        <separator> </separator>
+        <separators> ,|</separators>
+        <size>1</size>
+        <unmodifiable>0</unmodifiable>
+        <values>long|short|default|forbid</values>
+        <classType>com.xpn.xwiki.objects.classes.StaticListClass</classType>
+      </cache>
+      <code>
+        <disabled>0</disabled>
+        <name>code</name>
+        <number>2</number>
+        <prettyName>Code</prettyName>
+        <rows>20</rows>
+        <size>50</size>
+        <unmodifiable>0</unmodifiable>
+        <classType>com.xpn.xwiki.objects.classes.TextAreaClass</classType>
+      </code>
+      <name>
+        <disabled>0</disabled>
+        <name>name</name>
+        <number>1</number>
+        <prettyName>Name</prettyName>
+        <size>30</size>
+        <unmodifiable>0</unmodifiable>
+        <classType>com.xpn.xwiki.objects.classes.StringClass</classType>
+      </name>
+      <parse>
+        <disabled>0</disabled>
+        <displayFormType>select</displayFormType>
+        <displayType>yesno</displayType>
+        <name>parse</name>
+        <number>4</number>
+        <prettyName>Parse content</prettyName>
+        <unmodifiable>0</unmodifiable>
+        <classType>com.xpn.xwiki.objects.classes.BooleanClass</classType>
+      </parse>
+      <use>
+        <cache>0</cache>
+        <disabled>0</disabled>
+        <displayType>select</displayType>
+        <multiSelect>0</multiSelect>
+        <name>use</name>
+        <number>3</number>
+        <prettyName>Use this extension</prettyName>
+        <relationalStorage>0</relationalStorage>
+        <separator> </separator>
+        <separators> ,|</separators>
+        <size>1</size>
+        <unmodifiable>0</unmodifiable>
+        <values>currentPage=Always on this page|onDemand=On demand|always=Always on this wiki</values>
+        <classType>com.xpn.xwiki.objects.classes.StaticListClass</classType>
+      </use>
+    </class>
+    <name>MoccaCalendar.Macro</name>
+    <number>0</number>
+    <className>XWiki.JavaScriptExtension</className>
+    <guid>f8f9ab2d-9632-4662-af2b-e53db70f9191</guid>
+    <property>
+      <cache>forbid</cache>
+    </property>
+    <property>
+      <code>// Make sure the XWiki 'namespace' and the ModalPopup class exist.
+if (typeof(XWiki) == "undefined" || typeof(XWiki.widgets) == "undefined" || typeof(XWiki.widgets.ModalPopup) == "undefined") {
+	if (typeof console != "undefined" &amp;&amp; typeof console.warn == "function") {
+		console.warn("[MessageBox widget] Required class missing: XWiki.widgets.ModalPopup");
+	}
+} else {
+	if (typeof(XWiki.MoccaCalendar) == "undefined") {
+		XWiki.MoccaCalendar = {};
+	}
+
+
+	XWiki.MoccaCalendar.MoccaCalendarPopup = Class.create(XWiki.widgets.ModalPopup, {
+		/** Default parameters can be added to the custom class. */
+		defaultInteractionParameters: {
+		},
+		/** Constructor. Registers the key listener that pops up the dialog. */
+		initialize: function($super, interactionParameters) {
+			this.interactionParameters = Object.extend(Object.clone(this.defaultInteractionParameters), interactionParameters || {});
+			// call constructor from ModalPopup with params content, shortcuts, options
+			$super(
+					this.createContent(this.interactionParameters),
+					{
+						"show": {method: this.showDialog, keys: []},
+						"close": {method: this.closeDialog, keys: ['Esc']}
+					},
+			{
+				displayCloseButton: true,
+				verticalPosition: "top",
+				backgroundColor: "#FFF"
+			}
+			);
+			this.showDialog();
+			this.setClass("my-modal-popup");
+
+			this.savingBox = new XWiki.widgets.Notification("$services.localization.render('core.widgets.confirmationBox.notification.inProgress')", "inprogress", {inactive: true});
+			this.savedBox = new XWiki.widgets.Notification("$services.localization.render('core.widgets.confirmationBox.notification.done')", "done", {inactive: true});
+			this.failedBox = new XWiki.widgets.Notification("$services.localization.render('core.widgets.confirmationBox.notification.failed')"+"&lt;span id=\"ajaxRequestFailureReason\"&gt;&lt;/span&gt;", "error", {inactive: true});
+			this.savingBox.hide();
+			this.savedBox.hide();
+			this.failedBox.hide();
+
+			this.saveButtonText = "$services.localization.render('save')";
+
+		},
+		submitForm: function(e) {
+			
+			var content = $(e.target.form);
+			e.preventDefault();
+			var titleField = content.down('[name="title"]');
+
+			var title = $(titleField).getValue();
+			if (title.length == 0) {
+				$$(".val_title_notempty").each(Element.show);
+				return false;
+			}
+			else {
+				$$(".val_title_notempty").each(Element.hide);
+			}
+
+            if(title.indexOf('/')&gt;-1) {
+                 $$(".val_title_notvalid").each(Element.show);
+ 				return false;
+            }else {
+                  $$(".val_title_notvalid").each(Element.hide);
+            }
+
+			title = encodeURIComponent(title);
+			this.savingBox.show();
+			this.savedBox.hide();
+			content.writeAttribute('action', createCalendarEventUrlTemplate.replace("__page__", title));
+			content.request({
+				onSuccess: function() {
+					this.savingBox.hide();
+					this.savedBox.show();
+					this.closeDialog();
+					XWiki.MoccaCalendar.calendar.fullCalendar('refetchEvents');
+
+				}.bind(this),
+				onFailure: function(e) {
+					try {
+						var responseText = e.responseText;
+
+						$("formcontent").innerHTML = responseText;
+
+
+						this.savingBox.hide();
+						this.failedBox.show();
+						$$('input.datetime').each(function(dateTimeInput) {
+							    new XWiki.DateTimePicker(dateTimeInput, dateTimeInput.title);
+						});
+						// console.log("done");
+
+					} catch (e) {
+						// console.log(e);
+					}
+				}.bind(this)
+			})
+			return false;
+
+		},
+		/** Get the content of the modal dialog using ajax */
+		createContent: function(data) {
+			var container = new Element('div', {'class': 'modal-popup'});
+
+			var content = new Element('form');
+			// get page content for the pageURL
+			new Ajax.Request(data.pageURL,
+					{
+						method: 'get',
+						onSuccess: function(transport) {
+							var response = transport.responseText || "no response text";
+							var old = $('formcontent');
+							if (old) {
+								old.remove();
+							}
+							content.insert('&lt;div id="formcontent"&gt;' + response + '&lt;/div&gt;');
+							content.insert('&lt;div class="buttons"&gt;&lt;span class="buttonwrapper"&gt;&lt;input class="button save-moccacalendar-event" type="submit" name="action_save" title="Alt+S" value="' + this.saveButtonText+'"&gt;&lt;/span&gt;&lt;/div&gt;');
+							$$('input.datetime').each(function(dateTimeInput) {
+								    new XWiki.DateTimePicker(dateTimeInput, dateTimeInput.title);
+							  });
+							var popup = this;
+
+							content.down('.save-moccacalendar-event').observe('click', popup.submitForm.bindAsEventListener(popup, content));
+							container.insert('content');
+						}.bind(this),
+						onFailure: function() {
+							container.insert('Something went wrong...');
+						}
+					});
+
+			return content;
+		}
+	});
+} // if the parent widget is defined</code>
+    </property>
+    <property>
+      <name/>
+    </property>
+    <property>
+      <parse>1</parse>
+    </property>
+    <property>
+      <use>onDemand</use>
+    </property>
+  </object>
+  <object>
+    <class>
+      <name>XWiki.StyleSheetExtension</name>
+      <customClass/>
+      <customMapping/>
+      <defaultViewSheet/>
+      <defaultEditSheet/>
+      <defaultWeb/>
+      <nameField/>
+      <validationScript/>
+      <cache>
+        <cache>0</cache>
+        <disabled>0</disabled>
+        <displayType>select</displayType>
+        <multiSelect>0</multiSelect>
+        <name>cache</name>
+        <number>5</number>
+        <prettyName>Caching policy</prettyName>
+        <relationalStorage>0</relationalStorage>
+        <separator> </separator>
+        <separators> ,|</separators>
+        <size>1</size>
+        <unmodifiable>0</unmodifiable>
+        <values>long|short|default|forbid</values>
+        <classType>com.xpn.xwiki.objects.classes.StaticListClass</classType>
+      </cache>
+      <code>
+        <disabled>0</disabled>
+        <name>code</name>
+        <number>2</number>
+        <prettyName>Code</prettyName>
+        <rows>20</rows>
+        <size>50</size>
+        <unmodifiable>0</unmodifiable>
+        <classType>com.xpn.xwiki.objects.classes.TextAreaClass</classType>
+      </code>
+      <name>
+        <disabled>0</disabled>
+        <name>name</name>
+        <number>1</number>
+        <prettyName>Name</prettyName>
+        <size>30</size>
+        <unmodifiable>0</unmodifiable>
+        <classType>com.xpn.xwiki.objects.classes.StringClass</classType>
+      </name>
+      <parse>
+        <disabled>0</disabled>
+        <displayFormType>select</displayFormType>
+        <displayType>yesno</displayType>
+        <name>parse</name>
+        <number>4</number>
+        <prettyName>Parse content</prettyName>
+        <unmodifiable>0</unmodifiable>
+        <classType>com.xpn.xwiki.objects.classes.BooleanClass</classType>
+      </parse>
+      <use>
+        <cache>0</cache>
+        <disabled>0</disabled>
+        <displayType>select</displayType>
+        <multiSelect>0</multiSelect>
+        <name>use</name>
+        <number>3</number>
+        <prettyName>Use this extension</prettyName>
+        <relationalStorage>0</relationalStorage>
+        <separator> </separator>
+        <separators> ,|</separators>
+        <size>1</size>
+        <unmodifiable>0</unmodifiable>
+        <values>currentPage=Always on this page|onDemand=On demand|always=Always on this wiki</values>
+        <classType>com.xpn.xwiki.objects.classes.StaticListClass</classType>
+      </use>
+    </class>
+    <name>MoccaCalendar.Macro</name>
+    <number>0</number>
+    <className>XWiki.StyleSheetExtension</className>
+    <guid>39fbab16-bd28-4179-b01b-be606a79f869</guid>
+    <property>
+      <cache>default</cache>
+    </property>
+    <property>
+      <code>div.calendar_date_select {
+z-index: 1010;
+}</code>
+    </property>
+    <property>
+      <name/>
+    </property>
+    <property>
+      <parse/>
+    </property>
+    <property>
+      <use>onDemand</use>
+    </property>
+  </object>
+  <object>
+    <class>
+      <name>XWiki.WikiMacroClass</name>
+      <customClass/>
+      <customMapping/>
+      <defaultViewSheet/>
+      <defaultEditSheet/>
+      <defaultWeb/>
+      <nameField/>
+      <validationScript/>
+      <code>
+        <disabled>0</disabled>
+        <name>code</name>
+        <number>9</number>
+        <prettyName>Macro code</prettyName>
+        <rows>20</rows>
+        <size>40</size>
+        <unmodifiable>0</unmodifiable>
+        <classType>com.xpn.xwiki.objects.classes.TextAreaClass</classType>
+      </code>
+      <contentDescription>
+        <disabled>0</disabled>
+        <name>contentDescription</name>
+        <number>8</number>
+        <prettyName>Content description (Not applicable for "No content" type)</prettyName>
+        <rows>5</rows>
+        <size>40</size>
+        <unmodifiable>0</unmodifiable>
+        <classType>com.xpn.xwiki.objects.classes.TextAreaClass</classType>
+      </contentDescription>
+      <contentType>
+        <cache>0</cache>
+        <disabled>0</disabled>
+        <displayType>select</displayType>
+        <multiSelect>0</multiSelect>
+        <name>contentType</name>
+        <number>7</number>
+        <prettyName>Macro content type</prettyName>
+        <relationalStorage>0</relationalStorage>
+        <separator>|</separator>
+        <separators>|</separators>
+        <size>1</size>
+        <unmodifiable>0</unmodifiable>
+        <values>Optional|Mandatory|No content</values>
+        <classType>com.xpn.xwiki.objects.classes.StaticListClass</classType>
+      </contentType>
+      <defaultCategory>
+        <disabled>0</disabled>
+        <name>defaultCategory</name>
+        <number>4</number>
+        <prettyName>Default category</prettyName>
+        <size>30</size>
+        <unmodifiable>0</unmodifiable>
+        <classType>com.xpn.xwiki.objects.classes.StringClass</classType>
+      </defaultCategory>
+      <description>
+        <disabled>0</disabled>
+        <name>description</name>
+        <number>3</number>
+        <prettyName>Macro description</prettyName>
+        <rows>5</rows>
+        <size>40</size>
+        <unmodifiable>0</unmodifiable>
+        <classType>com.xpn.xwiki.objects.classes.TextAreaClass</classType>
+      </description>
+      <id>
+        <disabled>0</disabled>
+        <name>id</name>
+        <number>1</number>
+        <prettyName>Macro id</prettyName>
+        <size>30</size>
+        <unmodifiable>0</unmodifiable>
+        <classType>com.xpn.xwiki.objects.classes.StringClass</classType>
+      </id>
+      <name>
+        <disabled>0</disabled>
+        <name>name</name>
+        <number>2</number>
+        <prettyName>Macro name</prettyName>
+        <size>30</size>
+        <unmodifiable>0</unmodifiable>
+        <classType>com.xpn.xwiki.objects.classes.StringClass</classType>
+      </name>
+      <supportsInlineMode>
+        <disabled>0</disabled>
+        <displayFormType>select</displayFormType>
+        <displayType>yesno</displayType>
+        <name>supportsInlineMode</name>
+        <number>5</number>
+        <prettyName>Supports inline mode</prettyName>
+        <unmodifiable>0</unmodifiable>
+        <classType>com.xpn.xwiki.objects.classes.BooleanClass</classType>
+      </supportsInlineMode>
+      <visibility>
+        <cache>0</cache>
+        <disabled>0</disabled>
+        <displayType>select</displayType>
+        <multiSelect>0</multiSelect>
+        <name>visibility</name>
+        <number>6</number>
+        <prettyName>Macro visibility</prettyName>
+        <relationalStorage>0</relationalStorage>
+        <separator>|</separator>
+        <separators>|</separators>
+        <size>1</size>
+        <unmodifiable>0</unmodifiable>
+        <values>Current User|Current Wiki|Global</values>
+        <classType>com.xpn.xwiki.objects.classes.StaticListClass</classType>
+      </visibility>
+    </class>
+    <name>MoccaCalendar.Macro</name>
+    <number>0</number>
+    <className>XWiki.WikiMacroClass</className>
+    <guid>c3a17b3d-6af7-4265-bbf0-844451bb73f1</guid>
+    <property>
+      <code>{{velocity filter="html"}}
+#set ($discard = $services.localization.use('document', 'MoccaCalendar.MoccaCalendarTranslations'))
+#if("$!request.getParameter('debug')" != "")
+#foreach( $mparam in $xcontext.macro.params.getParameterNames() )
+ * $mparam = $xcontext.macro.params.get($mparam) $nl
+#end
+#end
+$xwiki.jsx.use("MoccaCalendar.JQuery", {'defer': false})
+$xwiki.jsx.use("MoccaCalendar.JQueryUI", {'defer': false})
+$xwiki.jsx.use("MoccaCalendar.FullCalendar", {'defer': false})
+$xwiki.jsx.use("MoccaCalendar.Macro", {'defer': false})
+$xwiki.ssx.use("MoccaCalendar.FullCalendar")
+$xwiki.jsx.use("MoccaCalendar.DatePickerExtension", {'defer': false})
+## A simple date picker widget.
+#set ($discard = $xwiki.ssfx.use('uicomponents/widgets/datepicker/calendarDateSelect.css', true))
+#set ($discard = $xwiki.jsfx.use('uicomponents/widgets/datepicker/calendarDateSelect.js', true))
+## Used to parse and serialize the selected date using the date format specified in the XClass.
+#set ($discard = $xwiki.jsfx.use('uicomponents/widgets/datepicker/simpleDateFormat.js', true))
+## A wrapper over the CalendarDateSelect widget that uses the SimpleDateFormat to parse/serialize the dates.
+#set ($discard = $xwiki.ssfx.use('uicomponents/widgets/datepicker/dateTimePicker.css', true))
+#set ($discard = $xwiki.jsfx.use('uicomponents/widgets/datepicker/dateTimePicker.js'))
+$xwiki.ssx.use("MoccaCalendar.Macro")
+#if($calcounter)
+ #set($calcounter = $calcounter + 1)
+#else
+ #set($calcounter = 1)
+#end
+##(% id="calendar${calcounter}" %)
+##(((
+##)))
+## ESP
+#set($calendarDoc = $xcontext.macro.params.calendarDoc)
+#if(!$calendarDoc)
+#set($calendarDoc = $doc.fullName)
+#end
+#set($filter = $xcontext.macro.params.filter)
+#if(!$filter)
+#set($filter = 'page') ## possible values are wiki, space, page
+#end
+
+#set($startfield = $xcontext.macro.params.startfield)
+#if(!$startfield)
+#set($startfield = "startDate")
+#end
+#set($endfield = $xcontext.macro.params.endfield)
+#if(!$endfield)
+#set($endfield = "endDate")
+#end
+
+#set($classname=$!{xcontext.macro.params.classname})
+#if(!$classname)
+#set($classname = "MoccaCalendar.MoccaCalendarEventClass")
+#end
+#set($debug = $classname)
+##DEBUG: $debug
+##ESP
+
+#set($left = $xcontext.macro.params.left)
+#if(!$left)
+ #set($left = "prev,next today")
+#end
+#set($center = $xcontext.macro.params.center)
+#if(!$center)
+ #set($center = "title")
+#end
+#set($right = $xcontext.macro.params.right)
+#if(!$right)
+ #set($right = "month,agendaWeek,agendaDay")
+#end
+#set($timeFormat = $xcontext.macro.params.timeFormat)
+#if(!$timeFormat)
+ #set($timeFormat = "HH(:mm)")
+#end
+#set($dateFormat =$!xwiki.getClass($classname).get("startDate").getProperty('dateFormat').value)
+#if($!dateFormat=="")
+#set($dateFormat ="dd.MM.yyyy HH:mm:ss")
+#end
+#set($defaultView = $xcontext.macro.params.defaultView)
+#if(!$defaultView)
+ #set($defaultView = "")
+#end
+#set($defaultView = $xcontext.macro.params.defaultView)
+#if(!$defaultView)
+ #set($defaultView = "")
+#end
+#set($year = $xcontext.macro.params.year)
+#if(!$year)
+ #set($year = "")
+#end
+#set($month = $xcontext.macro.params.month)
+#if(!$month)
+ #set($month = "")
+#end
+#set($date = $xcontext.macro.params.date)
+#if(!$date)
+ #set($date = "")
+#end
+#set($firstDay = $xcontext.macro.params.firstDay)
+#if(!$firstDay)
+ #set($firstDay = "")
+#end
+#set($firstHour = $xcontext.macro.params.firstHour)
+#if(!$firstHour)
+ #set($firstHour = "")
+#end
+#set($minTime = $xcontext.macro.params.minTime)
+#if(!$minTime)
+ #set($minTime = "")
+#end
+#set($maxTime = $xcontext.macro.params.maxTime)
+#if(!$maxTime)
+ #set($maxTime = "")
+#end
+#set($editable = $xcontext.macro.params.editable)
+#if(!$editable)
+ #set($editable = "true")
+#end
+#set($json = $xcontext.macro.params.get('json'))
+#if(!$json)
+ #set($json = $xwiki.getDocument("MoccaCalendar.JSONService").getURL("get"))
+#end
+#set($updateurl = $xcontext.macro.params.updateurl)
+#if(!$updateurl)
+ #set($updateurl = $xwiki.getDocument("MoccaCalendar.UpdateService").getURL("get"))
+#end
+#set($pageParams = "template=MoccaCalendar.MoccaCalendarEventTemplate&amp;xhidden=1&amp;parentFROM=${escapetool.url($calendarDoc)}&amp;xpage=plain&amp;form_token=$services.csrf.getToken()&amp;ocalcaction=create")
+#set($dummyDocUrl = $xwiki.getURL('__page__','edit',$pageParams))
+#set($randomDocUrl = $xwiki.getURL("randomPage${util.generateRandomString(5)}",'edit',$pageParams))
+{{/velocity}}
+{{velocity}}
+#if($xcontext.action=='view')
+{{html clean="false"}}
+&lt;script type="text/javascript"&gt;
+var createCalendarEventUrlTemplate = "$dummyDocUrl";
+&lt;/script&gt;
+## CREATE EVENT LINK
+&lt;a href="#" onclick="new XWiki.MoccaCalendar.MoccaCalendarPopup({pageURL: '$randomDocUrl'});"&gt;$services.localization.render('MoccaCalendar.calendarevent.create')&lt;/a&gt;
+&lt;div id="calendar${calcounter}"&gt;&lt;/div&gt;
+## END CREATE EVENT LINK
+&lt;script&gt;
+if (typeof(XWiki.MoccaCalendar) == "undefined") {
+	XWiki.MoccaCalendar = {};
+}
+
+XWiki.MoccaCalendar.Helper = Class.create({
+	initialize: function() {
+	
+	},
+	showCreateEventForm:function(start,end,allDay) {
+
+var mySimpleDateFormatter = new Externals.SimpleDateFormat('$dateFormat');
+start = mySimpleDateFormatter.format(start);
+end = mySimpleDateFormatter.format(end);
+var paramPrefix = "MoccaCalendar.MoccaCalendarEventClass_0_";
+var params = "&amp;"+paramPrefix +"startDate="+start;
+params += "&amp;"+paramPrefix +"endDate="+end;
+params += "&amp;"+paramPrefix +"allDay="+allDay;
+params += "&amp;xhidden=1";
+                var randomDocUrl = "$randomDocUrl" + params;
+                new XWiki.MoccaCalendar.MoccaCalendarPopup({pageURL: randomDocUrl});
+	}
+		
+	
+});
+
+
+function updateEvent(page,isResize, dayDelta,minuteDelta,allDay,revertFunc,calendar) {
+        page = encodeURIComponent(page);
+        var savingBox = new XWiki.widgets.Notification("Saving...", "inprogress", {inactive: true});
+        var savedBox = new XWiki.widgets.Notification("Saved", "done", {inactive: true});
+        var failedBox = new XWiki.widgets.Notification("Failed to save the document. Reason: &lt;span id=\"ajaxRequestFailureReason\"&gt;&lt;/span&gt;", "error", {inactive: true});
+        savingBox.show();
+        savedBox.hide();
+        failedBox.hide();
+
+           // let's call the calendar update
+           var url = '$updateurl';
+           url = url + "?xpage=plain&amp;outputSyntax=plain&amp;calendarDoc=${escapetool.url(${calendarDoc})}&amp;filter=$!{filter}&amp;classname=$!{classname}&amp;startfield=$!{startfield}&amp;endfield=$!{endfield}&amp;durationfield=$!{durationfield}&amp;page=" + page + "&amp;isResize=" + (isResize ? "1" : "0") + "&amp;dayDelta=" + dayDelta + "&amp;minuteDelta=" + minuteDelta + ((allDay) ? "&amp;allDay=1" : "");
+           // alert(url);
+           jQuery.ajax({ url: url}).fail(function ( data ) {
+              savingBox.hide();
+              failedBox.show();
+              $('ajaxRequestFailureReason').update("update failed");
+              revertFunc();
+           }).success(function ( data ) {
+              if (data.indexOf("OK ")==0) {
+                savingBox.hide();
+                savedBox.show();
+                calendar.fullCalendar('refetchEvents');
+                // alert("Update success");
+              } else {
+               savingBox.hide();
+               failedBox.show();
+               $('ajaxRequestFailureReason').update("update failed");
+               // alert("Update failed: " + data);
+               revertFunc();
+              }
+           });
+    }
+
+
+jQuery(document).ready(function() {
+
+    // page is now ready, initialize the calendar...
+   var calendar=  jQuery('#calendar${calcounter}').fullCalendar({
+
+        events: "${json}?xpage=plain&amp;outputSyntax=plain&amp;calendarDoc=${escapetool.url(${calendarDoc})}&amp;filter=$!{filter}&amp;classname=$!{classname}&amp;startfield=$!{startfield}&amp;endfield=$!{endfield}&amp;durationfield=$!{durationfield}&amp;wheresql=$!{escapetool.url($!{xcontext.macro.params.wheresql})}",
+        header: {
+		  left: '$left',
+		  center: '$center',
+		  right: '$right'
+	}
+        #if($timeFormat!=""), timeFormat: '$timeFormat' #end 
+        #if($defaultView!=""), defaultView: '$defaultView' #end
+        #if($year!=""), year: $year#end
+        #if($month!=""), month: $month #end
+        #if($date!=""), date: $date #end
+        #if($firstDay!=""), firstDay: $firstDay #end
+        #if($firstHour!=""), firstHour: $firstHour #end
+        #if($minTime!=""), minTime: $minTime #end
+        #if($maxTime!=""), maxTime: $maxTime #end
+        ,editable: $editable
+,selectable: true
+,selectHelper: true
+,select: function(start, end, allDay) {
+        new XWiki.MoccaCalendar.Helper().showCreateEventForm(start,end,allDay);
+			calendar.fullCalendar('unselect');
+	}
+,eventDrop: function(event,dayDelta,minuteDelta,allDay,revertFunc) {
+           updateEvent(event.id, false, dayDelta, minuteDelta, allDay, revertFunc,calendar);
+}
+,eventResize: function(event,dayDelta,minuteDelta,revertFunc) {
+      updateEvent(event.id, true, dayDelta, minuteDelta, false, revertFunc,calendar);
+}
+,aspectRatio:1.8
+// TODO use xwiki translations here
+#set ($discard = $services.localization.use('document', 'MoccaCalendar.MoccaCalendarTranslations'))
+
+
+,buttonText: {
+    today: '$services.localization.render('MoccaCalendar.calendar.today')',
+    day: '$services.localization.render('MoccaCalendar.calendar.day')',
+    week:'$services.localization.render('MoccaCalendar.calendar.week')',
+    month:'$services.localization.render('MoccaCalendar.calendar.month')'
+}
+,monthNames: [$services.localization.render('MoccaCalendar.calendar.monthNames')] 
+,monthNamesShort: [$services.localization.render('MoccaCalendar.calendar.monthNamesShort')]
+,dayNames: [$services.localization.render('MoccaCalendar.calendar.dayNames')] 
+,dayNamesShort: [$services.localization.render('MoccaCalendar.calendar.dayNamesShort')]
+,firstDay:$services.localization.render('MoccaCalendar.calendar.firstDayOfWeek')
+,allDayText:"$services.localization.render('MoccaCalendar.calendar.allday')"
+,axisFormat: 'HH:mm'
+,timeFormat: {
+    '': 'HH:mm ', 
+    agenda: 'HH:mm{ - HH:mm}'
+}
+,columnFormat: {
+    month: 'ddd',
+week: 'ddd d',
+day: ''
+}
+
+    })
+XWiki.MoccaCalendar.calendar = calendar;
+});
+&lt;/script&gt;
+{{/html}}
+#else ## of #if($xcontext.action=='view')
+Mocca Calendar Macro
+#end
+{{velocity}}</code>
+    </property>
+    <property>
+      <contentDescription/>
+    </property>
+    <property>
+      <contentType>No content</contentType>
+    </property>
+    <property>
+      <defaultCategory>Content</defaultCategory>
+    </property>
+    <property>
+      <description>Displays a Calendar</description>
+    </property>
+    <property>
+      <id>moccacalendar</id>
+    </property>
+    <property>
+      <name>Mocca Calendar</name>
+    </property>
+    <property>
+      <supportsInlineMode>0</supportsInlineMode>
+    </property>
+    <property>
+      <visibility>Current Wiki</visibility>
+    </property>
+  </object>
+  <object>
+    <class>
+      <name>XWiki.WikiMacroParameterClass</name>
+      <customClass/>
+      <customMapping/>
+      <defaultViewSheet/>
+      <defaultEditSheet/>
+      <defaultWeb/>
+      <nameField/>
+      <validationScript/>
+      <defaultValue>
+        <disabled>0</disabled>
+        <name>defaultValue</name>
+        <number>4</number>
+        <prettyName>Parameter default value</prettyName>
+        <size>30</size>
+        <unmodifiable>0</unmodifiable>
+        <classType>com.xpn.xwiki.objects.classes.StringClass</classType>
+      </defaultValue>
+      <description>
+        <disabled>0</disabled>
+        <name>description</name>
+        <number>2</number>
+        <prettyName>Parameter description</prettyName>
+        <rows>5</rows>
+        <size>40</size>
+        <unmodifiable>0</unmodifiable>
+        <classType>com.xpn.xwiki.objects.classes.TextAreaClass</classType>
+      </description>
+      <mandatory>
+        <disabled>0</disabled>
+        <displayFormType>select</displayFormType>
+        <displayType>yesno</displayType>
+        <name>mandatory</name>
+        <number>3</number>
+        <prettyName>Parameter mandatory</prettyName>
+        <unmodifiable>0</unmodifiable>
+        <classType>com.xpn.xwiki.objects.classes.BooleanClass</classType>
+      </mandatory>
+      <name>
+        <disabled>0</disabled>
+        <name>name</name>
+        <number>1</number>
+        <prettyName>Parameter name</prettyName>
+        <size>30</size>
+        <unmodifiable>0</unmodifiable>
+        <classType>com.xpn.xwiki.objects.classes.StringClass</classType>
+      </name>
+    </class>
+    <name>MoccaCalendar.Macro</name>
+    <number>6</number>
+    <className>XWiki.WikiMacroParameterClass</className>
+    <guid>b87943f2-eeba-4d00-94e5-2ca115bb7332</guid>
+    <property>
+      <defaultValue>month</defaultValue>
+    </property>
+    <property>
+      <description>default agenda to show on load of the agenda. Possible values are:
+month
+agendaWeek
+agendaDay</description>
+    </property>
+    <property>
+      <mandatory>0</mandatory>
+    </property>
+    <property>
+      <name>defaultView</name>
+    </property>
+  </object>
+  <object>
+    <class>
+      <name>XWiki.WikiMacroParameterClass</name>
+      <customClass/>
+      <customMapping/>
+      <defaultViewSheet/>
+      <defaultEditSheet/>
+      <defaultWeb/>
+      <nameField/>
+      <validationScript/>
+      <defaultValue>
+        <disabled>0</disabled>
+        <name>defaultValue</name>
+        <number>4</number>
+        <prettyName>Parameter default value</prettyName>
+        <size>30</size>
+        <unmodifiable>0</unmodifiable>
+        <classType>com.xpn.xwiki.objects.classes.StringClass</classType>
+      </defaultValue>
+      <description>
+        <disabled>0</disabled>
+        <name>description</name>
+        <number>2</number>
+        <prettyName>Parameter description</prettyName>
+        <rows>5</rows>
+        <size>40</size>
+        <unmodifiable>0</unmodifiable>
+        <classType>com.xpn.xwiki.objects.classes.TextAreaClass</classType>
+      </description>
+      <mandatory>
+        <disabled>0</disabled>
+        <displayFormType>select</displayFormType>
+        <displayType>yesno</displayType>
+        <name>mandatory</name>
+        <number>3</number>
+        <prettyName>Parameter mandatory</prettyName>
+        <unmodifiable>0</unmodifiable>
+        <classType>com.xpn.xwiki.objects.classes.BooleanClass</classType>
+      </mandatory>
+      <name>
+        <disabled>0</disabled>
+        <name>name</name>
+        <number>1</number>
+        <prettyName>Parameter name</prettyName>
+        <size>30</size>
+        <unmodifiable>0</unmodifiable>
+        <classType>com.xpn.xwiki.objects.classes.StringClass</classType>
+      </name>
+    </class>
+    <name>MoccaCalendar.Macro</name>
+    <number>7</number>
+    <className>XWiki.WikiMacroParameterClass</className>
+    <guid>b6bb2e26-07c8-4b87-a628-e9f3d59faf0f</guid>
+    <property>
+      <defaultValue/>
+    </property>
+    <property>
+      <description>Year of the date to show when loading the calendar. Leave empty for today
+</description>
+    </property>
+    <property>
+      <mandatory>0</mandatory>
+    </property>
+    <property>
+      <name>year</name>
+    </property>
+  </object>
+  <object>
+    <class>
+      <name>XWiki.WikiMacroParameterClass</name>
+      <customClass/>
+      <customMapping/>
+      <defaultViewSheet/>
+      <defaultEditSheet/>
+      <defaultWeb/>
+      <nameField/>
+      <validationScript/>
+      <defaultValue>
+        <disabled>0</disabled>
+        <name>defaultValue</name>
+        <number>4</number>
+        <prettyName>Parameter default value</prettyName>
+        <size>30</size>
+        <unmodifiable>0</unmodifiable>
+        <classType>com.xpn.xwiki.objects.classes.StringClass</classType>
+      </defaultValue>
+      <description>
+        <disabled>0</disabled>
+        <name>description</name>
+        <number>2</number>
+        <prettyName>Parameter description</prettyName>
+        <rows>5</rows>
+        <size>40</size>
+        <unmodifiable>0</unmodifiable>
+        <classType>com.xpn.xwiki.objects.classes.TextAreaClass</classType>
+      </description>
+      <mandatory>
+        <disabled>0</disabled>
+        <displayFormType>select</displayFormType>
+        <displayType>yesno</displayType>
+        <name>mandatory</name>
+        <number>3</number>
+        <prettyName>Parameter mandatory</prettyName>
+        <unmodifiable>0</unmodifiable>
+        <classType>com.xpn.xwiki.objects.classes.BooleanClass</classType>
+      </mandatory>
+      <name>
+        <disabled>0</disabled>
+        <name>name</name>
+        <number>1</number>
+        <prettyName>Parameter name</prettyName>
+        <size>30</size>
+        <unmodifiable>0</unmodifiable>
+        <classType>com.xpn.xwiki.objects.classes.StringClass</classType>
+      </name>
+    </class>
+    <name>MoccaCalendar.Macro</name>
+    <number>8</number>
+    <className>XWiki.WikiMacroParameterClass</className>
+    <guid>b42462f5-12d3-4775-a2e5-feccc98532ab</guid>
+    <property>
+      <defaultValue/>
+    </property>
+    <property>
+      <description>Month (from 0 to 11) of the date to show when loading the calendar. Leave empty for today
+</description>
+    </property>
+    <property>
+      <mandatory>0</mandatory>
+    </property>
+    <property>
+      <name>month</name>
+    </property>
+  </object>
+  <object>
+    <class>
+      <name>XWiki.WikiMacroParameterClass</name>
+      <customClass/>
+      <customMapping/>
+      <defaultViewSheet/>
+      <defaultEditSheet/>
+      <defaultWeb/>
+      <nameField/>
+      <validationScript/>
+      <defaultValue>
+        <disabled>0</disabled>
+        <name>defaultValue</name>
+        <number>4</number>
+        <prettyName>Parameter default value</prettyName>
+        <size>30</size>
+        <unmodifiable>0</unmodifiable>
+        <classType>com.xpn.xwiki.objects.classes.StringClass</classType>
+      </defaultValue>
+      <description>
+        <disabled>0</disabled>
+        <name>description</name>
+        <number>2</number>
+        <prettyName>Parameter description</prettyName>
+        <rows>5</rows>
+        <size>40</size>
+        <unmodifiable>0</unmodifiable>
+        <classType>com.xpn.xwiki.objects.classes.TextAreaClass</classType>
+      </description>
+      <mandatory>
+        <disabled>0</disabled>
+        <displayFormType>select</displayFormType>
+        <displayType>yesno</displayType>
+        <name>mandatory</name>
+        <number>3</number>
+        <prettyName>Parameter mandatory</prettyName>
+        <unmodifiable>0</unmodifiable>
+        <classType>com.xpn.xwiki.objects.classes.BooleanClass</classType>
+      </mandatory>
+      <name>
+        <disabled>0</disabled>
+        <name>name</name>
+        <number>1</number>
+        <prettyName>Parameter name</prettyName>
+        <size>30</size>
+        <unmodifiable>0</unmodifiable>
+        <classType>com.xpn.xwiki.objects.classes.StringClass</classType>
+      </name>
+    </class>
+    <name>MoccaCalendar.Macro</name>
+    <number>9</number>
+    <className>XWiki.WikiMacroParameterClass</className>
+    <guid>3f0c549b-6617-4e17-965c-b9b7586dc47d</guid>
+    <property>
+      <defaultValue/>
+    </property>
+    <property>
+      <description>Day (from 1 to 31) of the date to show when loading the calendar. Leave empty for today
+</description>
+    </property>
+    <property>
+      <mandatory>0</mandatory>
+    </property>
+    <property>
+      <name>date</name>
+    </property>
+  </object>
+  <object>
+    <class>
+      <name>XWiki.WikiMacroParameterClass</name>
+      <customClass/>
+      <customMapping/>
+      <defaultViewSheet/>
+      <defaultEditSheet/>
+      <defaultWeb/>
+      <nameField/>
+      <validationScript/>
+      <defaultValue>
+        <disabled>0</disabled>
+        <name>defaultValue</name>
+        <number>4</number>
+        <prettyName>Parameter default value</prettyName>
+        <size>30</size>
+        <unmodifiable>0</unmodifiable>
+        <classType>com.xpn.xwiki.objects.classes.StringClass</classType>
+      </defaultValue>
+      <description>
+        <disabled>0</disabled>
+        <name>description</name>
+        <number>2</number>
+        <prettyName>Parameter description</prettyName>
+        <rows>5</rows>
+        <size>40</size>
+        <unmodifiable>0</unmodifiable>
+        <classType>com.xpn.xwiki.objects.classes.TextAreaClass</classType>
+      </description>
+      <mandatory>
+        <disabled>0</disabled>
+        <displayFormType>select</displayFormType>
+        <displayType>yesno</displayType>
+        <name>mandatory</name>
+        <number>3</number>
+        <prettyName>Parameter mandatory</prettyName>
+        <unmodifiable>0</unmodifiable>
+        <classType>com.xpn.xwiki.objects.classes.BooleanClass</classType>
+      </mandatory>
+      <name>
+        <disabled>0</disabled>
+        <name>name</name>
+        <number>1</number>
+        <prettyName>Parameter name</prettyName>
+        <size>30</size>
+        <unmodifiable>0</unmodifiable>
+        <classType>com.xpn.xwiki.objects.classes.StringClass</classType>
+      </name>
+    </class>
+    <name>MoccaCalendar.Macro</name>
+    <number>10</number>
+    <className>XWiki.WikiMacroParameterClass</className>
+    <guid>d07837c6-fa51-4eac-a1b0-a79aab60511e</guid>
+    <property>
+      <defaultValue>0</defaultValue>
+    </property>
+    <property>
+      <description>First day (from 0 being Sunday to 6 being Monday) of the week to show in the calendar. Leave empty for Monday</description>
+    </property>
+    <property>
+      <mandatory>0</mandatory>
+    </property>
+    <property>
+      <name>firstDay</name>
+    </property>
+  </object>
+  <object>
+    <class>
+      <name>XWiki.WikiMacroParameterClass</name>
+      <customClass/>
+      <customMapping/>
+      <defaultViewSheet/>
+      <defaultEditSheet/>
+      <defaultWeb/>
+      <nameField/>
+      <validationScript/>
+      <defaultValue>
+        <disabled>0</disabled>
+        <name>defaultValue</name>
+        <number>4</number>
+        <prettyName>Parameter default value</prettyName>
+        <size>30</size>
+        <unmodifiable>0</unmodifiable>
+        <classType>com.xpn.xwiki.objects.classes.StringClass</classType>
+      </defaultValue>
+      <description>
+        <disabled>0</disabled>
+        <name>description</name>
+        <number>2</number>
+        <prettyName>Parameter description</prettyName>
+        <rows>5</rows>
+        <size>40</size>
+        <unmodifiable>0</unmodifiable>
+        <classType>com.xpn.xwiki.objects.classes.TextAreaClass</classType>
+      </description>
+      <mandatory>
+        <disabled>0</disabled>
+        <displayFormType>select</displayFormType>
+        <displayType>yesno</displayType>
+        <name>mandatory</name>
+        <number>3</number>
+        <prettyName>Parameter mandatory</prettyName>
+        <unmodifiable>0</unmodifiable>
+        <classType>com.xpn.xwiki.objects.classes.BooleanClass</classType>
+      </mandatory>
+      <name>
+        <disabled>0</disabled>
+        <name>name</name>
+        <number>1</number>
+        <prettyName>Parameter name</prettyName>
+        <size>30</size>
+        <unmodifiable>0</unmodifiable>
+        <classType>com.xpn.xwiki.objects.classes.StringClass</classType>
+      </name>
+    </class>
+    <name>MoccaCalendar.Macro</name>
+    <number>11</number>
+    <className>XWiki.WikiMacroParameterClass</className>
+    <guid>3c7db435-6bd2-41d4-8836-1a1bd68a9881</guid>
+    <property>
+      <defaultValue/>
+    </property>
+    <property>
+      <description>First hour to show in the calendar. Leave empty for default
+</description>
+    </property>
+    <property>
+      <mandatory>0</mandatory>
+    </property>
+    <property>
+      <name>firstHour</name>
+    </property>
+  </object>
+  <object>
+    <class>
+      <name>XWiki.WikiMacroParameterClass</name>
+      <customClass/>
+      <customMapping/>
+      <defaultViewSheet/>
+      <defaultEditSheet/>
+      <defaultWeb/>
+      <nameField/>
+      <validationScript/>
+      <defaultValue>
+        <disabled>0</disabled>
+        <name>defaultValue</name>
+        <number>4</number>
+        <prettyName>Parameter default value</prettyName>
+        <size>30</size>
+        <unmodifiable>0</unmodifiable>
+        <classType>com.xpn.xwiki.objects.classes.StringClass</classType>
+      </defaultValue>
+      <description>
+        <disabled>0</disabled>
+        <name>description</name>
+        <number>2</number>
+        <prettyName>Parameter description</prettyName>
+        <rows>5</rows>
+        <size>40</size>
+        <unmodifiable>0</unmodifiable>
+        <classType>com.xpn.xwiki.objects.classes.TextAreaClass</classType>
+      </description>
+      <mandatory>
+        <disabled>0</disabled>
+        <displayFormType>select</displayFormType>
+        <displayType>yesno</displayType>
+        <name>mandatory</name>
+        <number>3</number>
+        <prettyName>Parameter mandatory</prettyName>
+        <unmodifiable>0</unmodifiable>
+        <classType>com.xpn.xwiki.objects.classes.BooleanClass</classType>
+      </mandatory>
+      <name>
+        <disabled>0</disabled>
+        <name>name</name>
+        <number>1</number>
+        <prettyName>Parameter name</prettyName>
+        <size>30</size>
+        <unmodifiable>0</unmodifiable>
+        <classType>com.xpn.xwiki.objects.classes.StringClass</classType>
+      </name>
+    </class>
+    <name>MoccaCalendar.Macro</name>
+    <number>12</number>
+    <className>XWiki.WikiMacroParameterClass</className>
+    <guid>77d5c912-4d56-452d-a4f6-f4eabc42c52c</guid>
+    <property>
+      <defaultValue>8</defaultValue>
+    </property>
+    <property>
+      <description>First time to show in the calendar. Users won't see hours before this time. Leave empty for default (8.00)
+</description>
+    </property>
+    <property>
+      <mandatory>0</mandatory>
+    </property>
+    <property>
+      <name>minTime</name>
+    </property>
+  </object>
+  <object>
+    <class>
+      <name>XWiki.WikiMacroParameterClass</name>
+      <customClass/>
+      <customMapping/>
+      <defaultViewSheet/>
+      <defaultEditSheet/>
+      <defaultWeb/>
+      <nameField/>
+      <validationScript/>
+      <defaultValue>
+        <disabled>0</disabled>
+        <name>defaultValue</name>
+        <number>4</number>
+        <prettyName>Parameter default value</prettyName>
+        <size>30</size>
+        <unmodifiable>0</unmodifiable>
+        <classType>com.xpn.xwiki.objects.classes.StringClass</classType>
+      </defaultValue>
+      <description>
+        <disabled>0</disabled>
+        <name>description</name>
+        <number>2</number>
+        <prettyName>Parameter description</prettyName>
+        <rows>5</rows>
+        <size>40</size>
+        <unmodifiable>0</unmodifiable>
+        <classType>com.xpn.xwiki.objects.classes.TextAreaClass</classType>
+      </description>
+      <mandatory>
+        <disabled>0</disabled>
+        <displayFormType>select</displayFormType>
+        <displayType>yesno</displayType>
+        <name>mandatory</name>
+        <number>3</number>
+        <prettyName>Parameter mandatory</prettyName>
+        <unmodifiable>0</unmodifiable>
+        <classType>com.xpn.xwiki.objects.classes.BooleanClass</classType>
+      </mandatory>
+      <name>
+        <disabled>0</disabled>
+        <name>name</name>
+        <number>1</number>
+        <prettyName>Parameter name</prettyName>
+        <size>30</size>
+        <unmodifiable>0</unmodifiable>
+        <classType>com.xpn.xwiki.objects.classes.StringClass</classType>
+      </name>
+    </class>
+    <name>MoccaCalendar.Macro</name>
+    <number>13</number>
+    <className>XWiki.WikiMacroParameterClass</className>
+    <guid>1bf587c1-14b2-4b51-b1f4-babbf1d13ecf</guid>
+    <property>
+      <defaultValue>23</defaultValue>
+    </property>
+    <property>
+      <description>Last time to show in the calendar. Users won't see hours before this time. Leave empty for default (23.00)
+</description>
+    </property>
+    <property>
+      <mandatory>0</mandatory>
+    </property>
+    <property>
+      <name>maxTime</name>
+    </property>
+  </object>
+  <object>
+    <class>
+      <name>XWiki.WikiMacroParameterClass</name>
+      <customClass/>
+      <customMapping/>
+      <defaultViewSheet/>
+      <defaultEditSheet/>
+      <defaultWeb/>
+      <nameField/>
+      <validationScript/>
+      <defaultValue>
+        <disabled>0</disabled>
+        <name>defaultValue</name>
+        <number>4</number>
+        <prettyName>Parameter default value</prettyName>
+        <size>30</size>
+        <unmodifiable>0</unmodifiable>
+        <classType>com.xpn.xwiki.objects.classes.StringClass</classType>
+      </defaultValue>
+      <description>
+        <disabled>0</disabled>
+        <name>description</name>
+        <number>2</number>
+        <prettyName>Parameter description</prettyName>
+        <rows>5</rows>
+        <size>40</size>
+        <unmodifiable>0</unmodifiable>
+        <classType>com.xpn.xwiki.objects.classes.TextAreaClass</classType>
+      </description>
+      <mandatory>
+        <disabled>0</disabled>
+        <displayFormType>select</displayFormType>
+        <displayType>yesno</displayType>
+        <name>mandatory</name>
+        <number>3</number>
+        <prettyName>Parameter mandatory</prettyName>
+        <unmodifiable>0</unmodifiable>
+        <classType>com.xpn.xwiki.objects.classes.BooleanClass</classType>
+      </mandatory>
+      <name>
+        <disabled>0</disabled>
+        <name>name</name>
+        <number>1</number>
+        <prettyName>Parameter name</prettyName>
+        <size>30</size>
+        <unmodifiable>0</unmodifiable>
+        <classType>com.xpn.xwiki.objects.classes.StringClass</classType>
+      </name>
+    </class>
+    <name>MoccaCalendar.Macro</name>
+    <number>17</number>
+    <className>XWiki.WikiMacroParameterClass</className>
+    <guid>2b173925-b2b6-496b-b18f-8a8092663b88</guid>
+    <property>
+      <defaultValue>wiki</defaultValue>
+    </property>
+    <property>
+      <description>Possible values are 'wiki','space' or 'page'
+* page: only events which are on the calendarDoc or are children of the calendarDoc will be included
+* space: only events which are in the space of the calendar doc will be included
+* wiki: all events will be included</description>
+    </property>
+    <property>
+      <mandatory/>
+    </property>
+    <property>
+      <name>filter</name>
+    </property>
+  </object>
+  <content>Example usage:
+
+{{code}}
+
+{{moccacalendar /}}
+
+or
+
+{{moccacalendar filter="space" /}}
+
+or
+
+{{moccacalendar filter="wiki" /}}
+{{/code}}
+
+{{moccacalendar filter="wiki"/}}
+</content>
+</xwikidoc>
