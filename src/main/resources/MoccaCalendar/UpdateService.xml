@@ -60,23 +60,20 @@
 	#set($pagedoc = $xwiki.getDocument($page))
 	#if(!$pagedoc.isNew())
 		#set($ok = $pagedoc.use($classname))
-			#if("$!{request.isResize}"=="1")
-				#set($datetime = $pagedoc.getValue($endfield))
-			#else
-				#set($datetime = $pagedoc.getValue($startfield))
-			#end
-			#if(!$datetime)
-				#set($datetime = $xwiki.jodatime.getDateTime(2012, 7, 22, 8, 0, 0, 0).toDate())
-			#end
+		#if("$!{request.isResize}"=="1")
+			#set($datetime = $pagedoc.getValue($endfield))
+		#else
+			#set($datetime = $pagedoc.getValue($startfield))
+		#end
+		#if($datetime)
 			#set($jdatetime = $xwiki.jodatime.getDateTime($datetime.getTime()))
 			#set($jdatetime = $jdatetime.plusDays($util.parseInt($request.dayDelta)))
 			#set($jdatetime = $jdatetime.plusMinutes($util.parseInt($request.minuteDelta)))
-                        
-                        #set($ok = $pagedoc.set($alldayfield,$allDay))
-                        
-			#if("$!{request.isResize}"=="1")
-				#set($ok = $pagedoc.set($endfield, $jdatetime.toDate()))
-			#else
+			#set($ok = $pagedoc.set($alldayfield,$allDay))
+
+    		#if("$!{request.isResize}"=="1")
+		    	#set($ok = $pagedoc.set($endfield, $jdatetime.toDate()))
+	    	#else
 				## move start date
 				#set($ok = $pagedoc.set($startfield, $jdatetime.toDate()))
 				## and also move end date
@@ -90,13 +87,16 @@
 
 			#end
 			#set($success = true)
-	
-			#if($success)
-				#set($ok = $pagedoc.save("Update session time"))
-				OK $startfield: $pagedoc.getValue($startfield) - $endfield: $pagedoc.getValue($endfield) - allDay:$pagedoc.getValue($alldayfield)  ; $message $duration
-			#else
-				FAIL $message ($pagedoc.fullName  $pagedoc.getValue($startfield) $pagedoc.getValue($endfield))
-			#end
+        #else
+            #set($message="$!message could not read date")
+		#end
+
+		#if($success)
+			#set($ok = $pagedoc.save("Update session time"))
+			OK $startfield: $pagedoc.getValue($startfield) - $endfield: $pagedoc.getValue($endfield) - allDay:$pagedoc.getValue($alldayfield)  ; $message $duration
+		#else
+			FAIL $message ($pagedoc.fullName  $pagedoc.getValue($startfield) $pagedoc.getValue($endfield))
+		#end
 	#else
 		FAIL No Document
 	#end
