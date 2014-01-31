@@ -61,12 +61,8 @@ public class Val implements XWikiValidationInterface  {
 			
 			com.xpn.xwiki.web.XWikiRequest request = context.getRequest();
 			String action = request.getParameter("ocalcaction");
-			if(action!=null &amp;&amp; "create".equals(action)) {
-				if(title == null &amp;&amp; "".equals(title.trim())) {
-					valid = false;
-					XWikiValidationStatus.addErrorToContext(MoccaCalendarEventClass, "title", "Title", "val_title_notempty", context);
-				}
-				else if(!doc.isNew()) {
+			if("create".equals(action)) {
+				if(!doc.isNew()) {
 					valid = false;
 					XWikiValidationStatus.addErrorToContext(MoccaCalendarEventClass, "title", "Title", "val_title_already_exists", context);
 				}

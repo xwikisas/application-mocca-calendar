@@ -140,7 +140,7 @@
   #if($idx&gt;0)
     #set($format = $format.substring(0,$idx).trim())
   #end
-#set($formattedValue = $escapetool.xml($datetool.format($format, $doc.getValue($field))))
+  #set($formattedValue = $escapetool.xml($datetool.format($format, $doc.getValue($field))))
 $!formattedValue
 #else
 $doc.display($field)
@@ -149,15 +149,24 @@ $doc.display($field)
 ##
 #set($discard=$xwiki.jsx.use("MoccaCalendar.DatePickerExtension", {'defer': false}))
 #if($xcontext.getAction()=="edit")
-#set($discard=$xwiki.jsx.use("MoccaCalendar.MoccaCalendarEventSheet"))
+  #set($discard=$xwiki.jsx.use("MoccaCalendar.MoccaCalendarEventSheet"))
 #end
 #set($calendar = $parentDoc.getObject('MoccaCalendar.MoccaCalendarClass'))
 #if($calendar)
-#set($calendarDoc = $xwiki.getDocument($parentDoc))
+  #set($calendarDoc = $xwiki.getDocument($parentDoc))
 #end
 #if(!$calendar &amp;&amp; "$!request.getParameter('parentFROM')" != "")
-#set($calendarDoc = $xwiki.getDocument($request.getParameter('parentFROM')))
-#set($calendar = $calendarDoc.getObject('MoccaCalendar.MoccaCalendarClass'))
+  #set($calendarDoc = $xwiki.getDocument($request.getParameter('parentFROM')))
+  #set($calendar = $calendarDoc.getObject('MoccaCalendar.MoccaCalendarClass'))
+#end
+#if($xcontext.getAction()=="edit")
+  #if($request.xpage=="plain")
+    ## we are in modal dialog edit view - no separate parent page widget
+    #set($parentParamName="parent")
+  #else
+    #set($discard=$xwiki.jsx.use("MoccaCalendar.MoccaCalendarEventSheet"))
+    #set($parentParamName="_parent")
+  #end
 #end
 {{/velocity}}
 
@@ -184,7 +193,7 @@ $doc.display($field)
   ; &lt;label for="calendar"&gt;$escapetool.xml($services.localization.render('MoccaCalendar.calendar'))&lt;/label&gt;
   : {{html}}
 #set($started = false)
-&lt;select id="calendarParent" name="_parent"&gt;
+&lt;select id="calendarParent" name="$parentParamName"&gt;
 #foreach($item in $services.query.hql($hql).execute())
 #set($itemdoc = $xwiki.getDocument($item))
 #set($selected="")
