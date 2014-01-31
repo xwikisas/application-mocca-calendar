@@ -113,6 +113,12 @@ icon=icon:calendar</parameters>
   <content>{{velocity}}
 #set ($discard = $services.localization.use('document', 'MoccaCalendar.MoccaCalendarTranslations'))
 
+== $services.localization.render('MoccaCalendar.calendarevent.viewall') ==
+{{/velocity}}
+
+{{moccacalendar filter="wiki"/}}
+
+{{velocity}}
 == $services.localization.render('MoccaCalendar.calendar.viewall') ==
 
 {{html}}&lt;a href="$doc.getURL('create','template=MoccaCalendar.MoccaCalendarTemplate')"&gt;$services.localization.render('MoccaCalendar.calendar.create')&lt;/a&gt;{{/html}}
@@ -134,11 +140,6 @@ icon=icon:calendar</parameters>
   'defaultOrder': 'asc'
 })
 #set ($columns = ['doc.title', 'doc.creator', '_actions'])
-#livetable('moccacalendar' $columns $columnsProperties $options)
-
-
-== $services.localization.render('MoccaCalendar.calendarevent.viewall') ==
-{{/velocity}}
-
-{{moccacalendar filter="wiki"/}}</content>
+#livetable('moccacalendar' $columns $columnsProperties $options){{/velocity}}
+</content>
 </xwikidoc>
