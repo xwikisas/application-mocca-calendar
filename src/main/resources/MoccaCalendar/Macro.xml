@@ -486,7 +486,7 @@ $xwiki.ssx.use("MoccaCalendar.Macro")
 ##(% id="calendar${calcounter}" %)
 ##(((
 ##)))
-## ESP
+## 
 #set($calendarDoc = $xcontext.macro.params.calendarDoc)
 #if(!$calendarDoc)
 #set($calendarDoc = $doc.fullName)
@@ -509,9 +509,6 @@ $xwiki.ssx.use("MoccaCalendar.Macro")
 #if(!$classname)
 #set($classname = "MoccaCalendar.MoccaCalendarEventClass")
 #end
-#set($debug = $classname)
-##DEBUG: $debug
-##ESP
 
 #set($left = $xcontext.macro.params.left)
 #if(!$left)
@@ -691,10 +688,7 @@ jQuery(document).ready(function() {
       updateEvent(event.id, true, dayDelta, minuteDelta, false, revertFunc,calendar);
 }
 ,aspectRatio:1.8
-// TODO use xwiki translations here
 #set ($discard = $services.localization.use('document', 'MoccaCalendar.MoccaCalendarTranslations'))
-
-
 ,buttonText: {
     today: '$services.localization.render('MoccaCalendar.calendar.today')',
     day: '$services.localization.render('MoccaCalendar.calendar.day')',
