@@ -122,7 +122,7 @@
   <content>{{velocity output="false"}}
 ### this macro shows a validation error message if it exists
 #macro(showvalidationmessage $message $force)
-#if($context.validationStatus.errors.contains($message) || "$!force" == "true") ##
+#if($xcontext.validationStatus.errors.contains($message) || "$!force" == "true") ##
 &lt;font color="red"&gt;$xwiki.parseMessage($message)&lt;/font&gt;
 #else ##
 &amp;nbsp; ##
@@ -229,7 +229,7 @@ $doc.display($field)
 
 {{/html}}
 
-#if(($context.validationStatus.errors&amp;&amp;$context.validationStatus.errors.size()&gt;0))
+#if(($xcontext.validationStatus.errors&amp;&amp;$xcontext.validationStatus.errors.size()&gt;0))
 $response.setStatus(400)
 #end
 {{/velocity}}</content>
