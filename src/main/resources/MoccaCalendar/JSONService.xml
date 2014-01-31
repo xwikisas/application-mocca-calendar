@@ -52,7 +52,7 @@
 #end
 [
 #set($started = false)
-#foreach($item in $xwiki.searchDocuments($hql))
+#foreach($item in $services.query.hql($hql).execute())
 #set($itemdoc = $xwiki.getDocument($item))
 #set($parentCalDocName=$itemdoc.getParent())
 #if($parentCalDocName == "$!lastparentCalDocName")
