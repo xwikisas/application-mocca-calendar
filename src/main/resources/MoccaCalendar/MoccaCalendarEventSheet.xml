@@ -12,8 +12,8 @@
   <customClass/>
   <contentAuthor>xwiki:XWiki.Admin</contentAuthor>
   <creationDate>1383574876000</creationDate>
-  <date>1385135945000</date>
-  <contentUpdateDate>1385135945000</contentUpdateDate>
+  <date>1391168920000</date>
+  <contentUpdateDate>1391168363000</contentUpdateDate>
   <version>1.1</version>
   <title/>
   <defaultTemplate/>
@@ -22,6 +22,103 @@
   <minorEdit>false</minorEdit>
   <syntaxId>xwiki/2.1</syntaxId>
   <hidden>true</hidden>
+  <object>
+    <class>
+      <name>XWiki.JavaScriptExtension</name>
+      <customClass/>
+      <customMapping/>
+      <defaultViewSheet/>
+      <defaultEditSheet/>
+      <defaultWeb/>
+      <nameField/>
+      <validationScript/>
+      <cache>
+        <cache>0</cache>
+        <disabled>0</disabled>
+        <displayType>select</displayType>
+        <multiSelect>0</multiSelect>
+        <name>cache</name>
+        <number>5</number>
+        <prettyName>Caching policy</prettyName>
+        <relationalStorage>0</relationalStorage>
+        <separator> </separator>
+        <separators> ,|</separators>
+        <size>1</size>
+        <unmodifiable>0</unmodifiable>
+        <values>long|short|default|forbid</values>
+        <classType>com.xpn.xwiki.objects.classes.StaticListClass</classType>
+      </cache>
+      <code>
+        <disabled>0</disabled>
+        <name>code</name>
+        <number>2</number>
+        <prettyName>Code</prettyName>
+        <rows>20</rows>
+        <size>50</size>
+        <unmodifiable>0</unmodifiable>
+        <classType>com.xpn.xwiki.objects.classes.TextAreaClass</classType>
+      </code>
+      <name>
+        <disabled>0</disabled>
+        <name>name</name>
+        <number>1</number>
+        <prettyName>Name</prettyName>
+        <size>30</size>
+        <unmodifiable>0</unmodifiable>
+        <classType>com.xpn.xwiki.objects.classes.StringClass</classType>
+      </name>
+      <parse>
+        <disabled>0</disabled>
+        <displayFormType>select</displayFormType>
+        <displayType>yesno</displayType>
+        <name>parse</name>
+        <number>4</number>
+        <prettyName>Parse content</prettyName>
+        <unmodifiable>0</unmodifiable>
+        <classType>com.xpn.xwiki.objects.classes.BooleanClass</classType>
+      </parse>
+      <use>
+        <cache>0</cache>
+        <disabled>0</disabled>
+        <displayType>select</displayType>
+        <multiSelect>0</multiSelect>
+        <name>use</name>
+        <number>3</number>
+        <prettyName>Use this extension</prettyName>
+        <relationalStorage>0</relationalStorage>
+        <separator> </separator>
+        <separators> ,|</separators>
+        <size>1</size>
+        <unmodifiable>0</unmodifiable>
+        <values>currentPage=Always on this page|onDemand=On demand|always=Always on this wiki</values>
+        <classType>com.xpn.xwiki.objects.classes.StaticListClass</classType>
+      </use>
+    </class>
+    <name>MoccaCalendar.MoccaCalendarEventSheet</name>
+    <number>0</number>
+    <className>XWiki.JavaScriptExtension</className>
+    <guid>8341ad2a-8410-4cad-9ad3-15fc96efeb8b</guid>
+    <property>
+      <cache>long</cache>
+    </property>
+    <property>
+      <code>document.observe("xwiki:dom:loaded", function() {
+  $('calendarParent').observe("change", function() {
+       $('xwikidocparentinput').setValue( $F('calendarParent'));
+       Event.fire($('xwikidocparentinput'), 'xwiki:suggest:selected');
+  })
+});</code>
+    </property>
+    <property>
+      <name>Edit Parent</name>
+    </property>
+    <property>
+      <parse>0</parse>
+    </property>
+    <property>
+      <use>onDemand</use>
+    </property>
+  </object>
   <content>{{velocity output="false"}}
 ### this macro shows a validation error message if it exists
 #macro(showvalidationmessage $message $force)
@@ -51,6 +148,9 @@ $doc.display($field)
 #end
 ##
 #set($discard=$xwiki.jsx.use("MoccaCalendar.DatePickerExtension", {'defer': false}))
+#if($xcontext.getAction()=="edit")
+#set($discard=$xwiki.jsx.use("MoccaCalendar.MoccaCalendarEventSheet"))
+#end
 #set($calendar = $parentDoc.getObject('MoccaCalendar.MoccaCalendarClass'))
 #if($calendar)
 #set($calendarDoc = $xwiki.getDocument($parentDoc))
@@ -79,24 +179,22 @@ $doc.display($field)
 #if($xcontext.action=='view' &amp;&amp; $calendar)
   ; &lt;label for="calendar"&gt;$escapetool.xml($services.localization.render('MoccaCalendar.calendar'))&lt;/label&gt;
   : [[$escapetool.xml($calendarDoc.getDisplayTitle())&gt;&gt;$parentDoc.fullName]]
-#elseif($xcontext.action=='edit' &amp;&amp; !$calendar)
+#elseif($xcontext.action=='edit')
 #set($hql =", BaseObject as obj where doc.fullName=obj.name  and doc.name!='MoccaCalendarTemplate' and obj.className='MoccaCalendar.MoccaCalendarClass'")
   ; &lt;label for="calendar"&gt;$escapetool.xml($services.localization.render('MoccaCalendar.calendar'))&lt;/label&gt;
   : {{html}}
 #set($started = false)
-&lt;select name="parent"&gt;
-#foreach($item in $xwiki.searchDocuments($hql))
+&lt;select id="calendarParent" name="_parent"&gt;
+#foreach($item in $services.query.hql($hql).execute())
 #set($itemdoc = $xwiki.getDocument($item))
-&lt;option value="$itemdoc"&gt;$itemdoc.getDisplayTitle()&lt;/option&gt;
+#set($selected="")
+#if($itemdoc.getId() == $calendarDoc.getId())
+#set($selected=" selected='selected'")
+#end
+&lt;option value="$itemdoc"$selected&gt;$itemdoc.getDisplayTitle()&lt;/option&gt;
 #end
 &lt;/select&gt;{{/html}}
-
-#elseif($xcontext.action=='edit' &amp;&amp; $calendar)
- ; &lt;label for="calendar"&gt;$escapetool.xml($services.localization.render('MoccaCalendar.calendar'))&lt;/label&gt;
- : {{html}}&lt;input type="hidden" name="parent" value="$calendarDoc" /&gt; $xwiki.getDocument($calendarDoc).getDisplayTitle() {{/html}}
-
 #end
-
 
   ; &lt;label for="MoccaCalendarEvent.MoccaCalendarEventClass_0_title"&gt;$escapetool.xml($doc.displayPrettyName('title', false, false))&lt;/label&gt;
   : $doc.display('title') #showvalidationmessage("val_title_already_exists") &lt;span class="val_title_notempty" style="display:none;"&gt;&lt;font color="red"&gt;$xwiki.parseMessage('val_title_notempty')&lt;/font&gt;&lt;/span&gt; &lt;span class="val_title_notvalid" style="display:none;"&gt;&lt;font color="red"&gt;$xwiki.parseMessage('val_title_notvalid')&lt;/font&gt;&lt;/span&gt;
@@ -115,13 +213,8 @@ $doc.display($field)
 ----
 
 #if($xcontext.action=='view')
-  #set($calendarDoc = $!request.getParameter('calendarDoc'))
-  #if("$!calendarDoc" == "")
-    #set($calendarDoc=$parentDoc)
-  #end
-#set($backToCalendar = $xwiki.getDocument($calendarDoc).getObject('MoccaCalendar.MoccaCalendarClass'))
-#if($backToCalendar)
-[[$services.localization.render('MoccaCalendar.calendarevent.backlink', $backToCalendar.getProperty('title').getValue()) &gt;&gt;$calendarDoc]]
+#if($calendarDoc)
+[[$services.localization.render('MoccaCalendar.calendarevent.backlink', [ $calendarDoc.getDisplayTitle()])&gt;&gt;$calendarDoc]]
 #end
 #end
 
