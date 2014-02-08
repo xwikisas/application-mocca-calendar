@@ -1,19 +1,19 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<xwikidoc>
+<xwikidoc version="1.1">
   <web>MoccaCalendar</web>
   <name>JSONService</name>
   <language/>
   <defaultLanguage/>
   <translation>0</translation>
-  <parent/>
   <creator>xwiki:XWiki.Admin</creator>
+  <creationDate>1377502319000</creationDate>
+  <parent/>
   <author>xwiki:XWiki.Admin</author>
   <customClass/>
   <contentAuthor>xwiki:XWiki.Admin</contentAuthor>
-  <creationDate>1377502319000</creationDate>
-  <date>1373961627000</date>
-  <contentUpdateDate>1373961627000</contentUpdateDate>
+  <date>1391880836000</date>
+  <contentUpdateDate>1391880836000</contentUpdateDate>
   <version>1.1</version>
   <title/>
   <defaultTemplate/>
@@ -22,68 +22,101 @@
   <minorEdit>false</minorEdit>
   <syntaxId>xwiki/2.0</syntaxId>
   <hidden>true</hidden>
-  <content>{{velocity filter="html" wiki="false"}}
-#if($xcontext.action == 'get')
-#if($xcontext.action == 'get' &amp;&amp; "$!{request.outputSyntax}" == 'plain')
+  <content>{{velocity output="false"}}
+#if("$!{request.outputSyntax}" == 'plain')
   $response.setContentType('application/json')
 #end
+{{/velocity}}
+{{groovy}}
+// special case: find a new unused event name
+// here we need a longer "while" loop
+if (request.newEvent) {
+  def wiki = doc.wiki
+  def space = request.space
+  if (!space) {
+     space = doc.space
+  }
+  def eventNameBase = request.newEvent
+  def eventName = eventNameBase
 
+  def counter = 0
+  def error = null
+  // XXX no implicit jsontool or other means to jsonize, so create one
+  def jsontool = new org.xwiki.velocity.tools.JSONTool()
+
+  while (! xwiki.getDocument(services.model.createDocumentReference(wiki, space, eventName)).isNew() &amp;&amp; (error == null)) {
+     counter++;
+     eventName = eventNameBase + (counter as String);
+     if (counter &gt; 999) {
+       error = "val_title_already_exists";
+     }
+  }
+  if (error != null) {
+      services.localization.use('document', 'MoccaCalendar.MoccaCalendarTranslations')
+      print jsontool.serialize( [ 'error' : services.localization.render(error) ] )
+  } else {
+    print jsontool.serialize( [ 'name' : eventName ] )
+  }
+}
+{{/groovy}}
+
+{{velocity filter="html" wiki="false"}}
+#if($xcontext.action == 'get')
+#if("$!{request.newEvent}"!="")
+  #break
+#end
+#set($wherePageLocation="")
 #if("$!{request.filter}"!="" &amp;&amp; "$!{request.calendarDoc}"!="")
-#set($document = $xwiki.getDocument($request.calendarDoc))
-#set($wherePageLocation ="")
-#if("$!{request.filter}"=="page")
-#set($wherePageLocation ="($wherePageLocation doc.fullName = '${request.calendarDoc}' or doc.parent='${request.calendarDoc}')")
+  #set($document = $xwiki.getDocument($request.calendarDoc))
+  #if("$!{request.filter}"=="page")
+    #set($wherePageLocation ="($wherePageLocation doc.fullName = '${request.calendarDoc}' or doc.parent='${request.calendarDoc}')")
+  #end
+  #if("$!{request.filter}"=="space")
+    #set($translated = $document.getTranslatedDocument())
+    ##set($name = $translated.getName())
+    #set($space = $translated.getSpace())
+    #set($wherePageLocation ="doc.space = '$space'")
+  #end
 #end
-#if("$!{request.filter}"=="space")
-#set($translated = $document.getTranslatedDocument())
-##set($name = $translated.getName())
-#set($space = $translated.getSpace())
-#set($wherePageLocation ="doc.space = '$space'")
-#end
-#end
-#if("$wherePageLocation" !="")
-#set($wherePageLocation =" and $wherePageLocation")
+#if("$wherePageLocation"!="")
+  #set($wherePageLocation=" and $wherePageLocation")
 #end
 
-#if("$!{request.sql}"!="")
- #set($hql = $request.sql)
-#else
- #set($hql =", BaseObject as obj $!{request.fromsql} where doc.fullName=obj.name $!{wherePageLocation} and doc.name!='MoccaCalendarEventTemplate' and obj.className='${request.classname}' $!{request.wheresql}")
-#end
+#set($hql =", BaseObject as obj $!{request.fromsql} where doc.fullName=obj.name $!{wherePageLocation} and doc.name!='MoccaCalendarEventTemplate' and obj.className='${request.classname}'")
 [
 #set($started = false)
 #foreach($item in $services.query.hql($hql).execute())
-#set($itemdoc = $xwiki.getDocument($item))
-#set($parentCalDocName=$itemdoc.getParent())
-#if($parentCalDocName == "$!lastparentCalDocName")
-#set($color="$!lastColor")
-#else
-#set($lastparentCalDocName = $parentCalDocName)
-#set($color="$!xwiki.getDocument($parentCalDocName).getValue('color')")
-#set($lastColor = $color)
-#end
-#set($startdate = $itemdoc.getValue($request.startfield))
-#set($enddate = $itemdoc.getValue($request.endfield))
-#set($duration = $itemdoc.getValue($request.durationfield))
-#if(!$duration)
- #set($duration = "30")
-#end
-#if($startdate)
-#if($enddate)
-#set($enddate =$xwiki.jodatime.getDateTime($enddate.getTime()))
-#else
-#set($enddate = $xwiki.jodatime.getDateTime($startdate.getTime()))
-#set($enddate = $enddate.plusMinutes($util.parseInt($duration)))
-#end
-#if($started)
+  #set($itemdoc = $xwiki.getDocument($item))
+  #set($parentCalDocName=$itemdoc.getParent())
+  #if($parentCalDocName == "$!lastparentCalDocName")
+    #set($color="$!lastColor")
+  #else
+    #set($lastparentCalDocName = $parentCalDocName)
+    #set($color="$!xwiki.getDocument($parentCalDocName).getValue('color')")
+    #set($lastColor = $color)
+  #end
+  #set($startdate = $itemdoc.getValue($request.startfield))
+  #set($enddate = $itemdoc.getValue($request.endfield))
+  #set($duration = $itemdoc.getValue($request.durationfield))
+  #if(!$duration)
+    #set($duration = "30")
+  #end
+  #if($startdate)
+    #if($enddate)
+      #set($enddate =$xwiki.jodatime.getDateTime($enddate.getTime()))
+    #else
+      #set($enddate = $xwiki.jodatime.getDateTime($startdate.getTime()))
+      #set($enddate = $enddate.plusMinutes($util.parseInt($duration)))
+    #end
+    #if($started)
 ,
-#else
-#set($started = true)
-#end
-#set($allDay=false)
-#if("$!itemdoc.getValue('allDay')"==1)
-#set($allDay=true)
-#end
+    #else
+      #set($started = true)
+    #end
+    #set($allDay=false)
+    #if("$!itemdoc.getValue('allDay')"==1)
+      #set($allDay=true)
+    #end
 { "id" : "${escapetool.javascript($itemdoc.fullName)}", "title" : "${escapetool.javascript($itemdoc.getPlainTitle())}", "url" : "${escapetool.javascript($itemdoc.getURL('view',"calendarDoc=$!request.calendarDoc"))}", "start" : "$!{xwiki.formatDate($startdate, "yyyy-MM-dd'T'HH:mm")}", "end" : "$!{xwiki.formatDate($enddate.toDate(), "yyyy-MM-dd'T'HH:mm")}","allDay":$allDay, "color":"$color" }
 #end
 #end
