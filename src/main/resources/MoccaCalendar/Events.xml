@@ -86,7 +86,7 @@
         <classType>com.xpn.xwiki.objects.classes.StringClass</classType>
       </title>
     </class>
-    <name>MoccaCalendar.Sonstige Termine</name>
+    <name>MoccaCalendar.Events</name>
     <number>0</number>
     <className>MoccaCalendar.MoccaCalendarClass</className>
     <guid>c8ad62ee-3ea9-4d17-9095-50a74a68b825</guid>
@@ -97,7 +97,7 @@
       <description/>
     </property>
     <property>
-      <title>Sonstige Termine</title>
+      <title>Events</title>
     </property>
   </object>
   <content>{{moccacalendar filter="page"/}}</content>
