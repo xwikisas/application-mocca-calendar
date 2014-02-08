@@ -129,6 +129,7 @@ if (typeof(XWiki) == "undefined" || typeof(XWiki.widgets) == "undefined" || type
     XWiki.MoccaCalendar = {};
   }
 
+  #set ($discard = $services.localization.use('document', 'MoccaCalendar.MoccaCalendarTranslations'))
 
   XWiki.MoccaCalendar.MoccaCalendarPopup = Class.create(XWiki.widgets.ModalPopup, {
     /** Default parameters can be added to the custom class. */
@@ -145,13 +146,13 @@ if (typeof(XWiki) == "undefined" || typeof(XWiki.widgets) == "undefined" || type
             "close": {method: this.closeDialog, keys: ['Esc']}
           },
       {
-        displayCloseButton: true,
         verticalPosition: "top",
-        backgroundColor: "#FFF"
+        backgroundColor: "#FFF",
+        title : "$services.localization.render('MoccaCalendar.calendarevent.create')"
       }
       );
       this.showDialog();
-      this.setClass("my-modal-popup");
+      this.setClass("moccacal-modal-popup");
 
       this.savingBox = new XWiki.widgets.Notification("$services.localization.render('core.widgets.confirmationBox.notification.inProgress')", "inprogress", {inactive: true});
       this.savedBox = new XWiki.widgets.Notification("$services.localization.render('core.widgets.confirmationBox.notification.done')", "done", {inactive: true});
@@ -212,7 +213,7 @@ if (typeof(XWiki) == "undefined" || typeof(XWiki.widgets) == "undefined" || type
 
       } // end createEvent
 
-      // as the JSONService to create an unused event name for us      
+      // ask the JSONService to create an unused event name for us      
       new Ajax.Request( XWiki.MoccaCalendar.calendar.jsonUrl, {
         method: 'get',
         parameters: { 'outputSyntax': 'plain', 'newEvent' : name },
@@ -246,7 +247,7 @@ if (typeof(XWiki) == "undefined" || typeof(XWiki.widgets) == "undefined" || type
     createContent: function(data) {
       var container = new Element('div', {'class': 'modal-popup'});
 
-      var content = new Element('form');
+      var content = new Element('form', {'class' : 'xform'} );
       // get page content for the pageURL
       new Ajax.Request(data.pageURL,
           {

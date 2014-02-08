@@ -1,19 +1,19 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<xwikidoc>
+<xwikidoc version="1.1">
   <web>MoccaCalendar</web>
   <name>MoccaCalendarEventSheet</name>
   <language/>
   <defaultLanguage/>
   <translation>0</translation>
-  <parent>MoccaCalendarEventClass</parent>
   <creator>xwiki:XWiki.Admin</creator>
+  <creationDate>1383574876000</creationDate>
+  <parent>MoccaCalendarEventClass</parent>
   <author>xwiki:XWiki.Admin</author>
   <customClass/>
   <contentAuthor>xwiki:XWiki.Admin</contentAuthor>
-  <creationDate>1383574876000</creationDate>
-  <date>1391168920000</date>
-  <contentUpdateDate>1391168363000</contentUpdateDate>
+  <date>1391894517000</date>
+  <contentUpdateDate>1391894517000</contentUpdateDate>
   <version>1.1</version>
   <title/>
   <defaultTemplate/>
@@ -22,7 +22,123 @@
   <minorEdit>false</minorEdit>
   <syntaxId>xwiki/2.1</syntaxId>
   <hidden>true</hidden>
+  <content>{{velocity output="false"}}
+### this macro shows a validation error message if it exists
+#macro(showvalidationmessage $message $force)
+#if($xcontext.validationStatus.errors.contains($message) || "$!force" == "true") ##
+&lt;span class="xErrorMsg"&gt;$services.localization.render($message)&lt;/span&gt;
+#else ##
+&amp;nbsp; ##
+#end ##
+#end ## end showvalidationmessage
+##
+#macro(displayDate $field)
+#if($xcontext.getAction()=="view" &amp;&amp; $doc.getValue('allDay')==1)
+  #set($format = $!doc.getObject('MoccaCalendar.MoccaCalendarEventClass').getxWikiClass().get($field).getProperty('dateFormat').value)
+  #if($!format=="")
+    #set($format = $xwiki.getSpacePreference('dateformat', 'dd.MM.yyyy'))
+  #end
+  ## try to cut the time because this event has the all day flag 
+  #set($idx=$format.indexOf("H"))
+  #if($idx&gt;0)
+    #set($format = $format.substring(0,$idx).trim())
+  #end
+  #set($formattedValue = $escapetool.xml($datetool.format($format, $doc.getValue($field))))
+$!formattedValue
+#else
+$doc.display($field)
+#end
+#end
+##
+#set($discard=$xwiki.jsx.use("MoccaCalendar.DatePickerExtension", {'defer': false}))
+#if($xcontext.getAction()=="edit")
+  #set($discard=$xwiki.jsx.use("MoccaCalendar.MoccaCalendarEventSheet"))
+#end
+#set($calendar = $parentDoc.getObject('MoccaCalendar.MoccaCalendarClass'))
+#if($calendar)
+  #set($calendarDoc = $xwiki.getDocument($parentDoc))
+#end
+#if(!$calendar &amp;&amp; "$!request.getParameter('parentFROM')" != "")
+  #set($calendarDoc = $xwiki.getDocument($request.getParameter('parentFROM')))
+  #set($calendar = $calendarDoc.getObject('MoccaCalendar.MoccaCalendarClass'))
+#end
+#if($xcontext.getAction()=="edit")
+  #if($request.xpage=="plain")
+    ## we are in modal dialog edit view - no separate parent page widget
+    #set($parentParamName="parent")
+  #else
+    #set($discard=$xwiki.jsx.use("MoccaCalendar.MoccaCalendarEventSheet"))
+    #set($parentParamName="_parent")
+  #end
+#end
+{{/velocity}}
+
+{{velocity}}
+{{html wiki="true"}}
+#set($eventClass = 'MoccaCalendar.MoccaCalendarEventClass')
+#set($eventValidationDoc = 'MoccaCalendar.MoccaCalendarEventValidation')
+#set ($discard = $doc.use($eventClass))
+#set ($discard = $services.localization.use('document', 'MoccaCalendar.MoccaCalendarTranslations'))
+## add the groovy script to the validation (the xvalidation parameter in the request also works to set the groovy script validation)
+#set ($discard =$doc.setValidationScript($eventValidationDoc))
+## this will launch a validation on a document. All errors are added to the context
+#set($isValid=$doc.validate())
+&lt;input type="hidden" name="xvalidate" value="1" /&gt;
+&lt;input type="hidden" name="xvalidation" value="$eventValidationDoc" /&gt;
+(((
+#if($xcontext.action=='view' &amp;&amp; $calendar)
+  ; &lt;label for="calendar"&gt;$escapetool.xml($services.localization.render('MoccaCalendar.calendar'))&lt;/label&gt;
+  : [[$escapetool.xml($calendarDoc.getDisplayTitle())&gt;&gt;$parentDoc.fullName]]
+#elseif($xcontext.action=='edit')
+#set($hql =", BaseObject as obj where doc.fullName=obj.name  and doc.name!='MoccaCalendarTemplate' and obj.className='MoccaCalendar.MoccaCalendarClass'")
+  ; &lt;label for="calendar"&gt;$escapetool.xml($services.localization.render('MoccaCalendar.calendar'))&lt;/label&gt;
+  : {{html}}
+#set($started = false)
+&lt;select id="calendarParent" name="$parentParamName"&gt;
+#foreach($item in $services.query.hql($hql).execute())
+#set($itemdoc = $xwiki.getDocument($item))
+#set($selected="")
+#if($itemdoc.getId() == $calendarDoc.getId())
+#set($selected=" selected='selected'")
+#end
+&lt;option value="$itemdoc"$selected&gt;$itemdoc.getDisplayTitle()&lt;/option&gt;
+#end
+&lt;/select&gt;{{/html}}
+#end
+
+  ; &lt;label for="MoccaCalendarEvent.MoccaCalendarEventClass_0_title"&gt;$escapetool.xml($doc.displayPrettyName('title', false, false))&lt;span class="xRequired"&gt;&lt;/span&gt;&lt;/label&gt;
+  : $doc.display('title') #showvalidationmessage("val_title_already_exists") &lt;span class="val_title_notempty xErrorMsg" style="display:none;"&gt;$services.localization.render('val_title_notempty')&lt;/span&gt; &lt;span class="val_title_notvalid xErrorMsg" style="display:none;"&gt;$services.localization.render('val_title_notvalid')&lt;/span&gt;
+  ; &lt;label for="MoccaCalendarEvent.MoccaCalendarEventClass_0_startDate"&gt;$escapetool.xml($doc.displayPrettyName('startDate', false, false))&lt;span class="xRequired"&gt;&lt;/span&gt;&lt;/label&gt;
+  : #displayDate('startDate')
+  ; &lt;label for="MoccaCalendarEvent.MoccaCalendarEventClass_0_endDate"&gt;$escapetool.xml($doc.displayPrettyName('endDate', false, false))&lt;/label&gt;
+  : #displayDate('endDate')#showvalidationmessage("val_endDate")
+
+  ; &lt;label for="MoccaCalendarEvent.MoccaCalendarEventClass_0_allDay"&gt;$escapetool.xml($doc.displayPrettyName('allDay', false, false))&lt;/label&gt;
+  : $doc.display('allDay')
+
+  ; &lt;label for="MoccaCalendarEvent.MoccaCalendarEventClass_0_description"&gt;$escapetool.xml($doc.displayPrettyName('description', false, false))&lt;/label&gt;
+  : $doc.display('description')
+)))
+
+----
+
+#if($xcontext.action=='view')
+#if($calendarDoc)
+[[$services.localization.render('MoccaCalendar.calendarevent.backlink', [ $calendarDoc.getDisplayTitle()])&gt;&gt;$calendarDoc]]
+#end
+#end
+
+{{/html}}
+
+#if(($xcontext.validationStatus.errors&amp;&amp;$xcontext.validationStatus.errors.size()&gt;0))
+$response.setStatus(400)
+#end
+{{/velocity}}</content>
   <object>
+    <name>MoccaCalendar.MoccaCalendarEventSheet</name>
+    <number>0</number>
+    <className>XWiki.JavaScriptExtension</className>
+    <guid>8341ad2a-8410-4cad-9ad3-15fc96efeb8b</guid>
     <class>
       <name>XWiki.JavaScriptExtension</name>
       <customClass/>
@@ -94,10 +210,6 @@
         <classType>com.xpn.xwiki.objects.classes.StaticListClass</classType>
       </use>
     </class>
-    <name>MoccaCalendar.MoccaCalendarEventSheet</name>
-    <number>0</number>
-    <className>XWiki.JavaScriptExtension</className>
-    <guid>8341ad2a-8410-4cad-9ad3-15fc96efeb8b</guid>
     <property>
       <cache>long</cache>
     </property>
@@ -119,118 +231,4 @@
       <use>onDemand</use>
     </property>
   </object>
-  <content>{{velocity output="false"}}
-### this macro shows a validation error message if it exists
-#macro(showvalidationmessage $message $force)
-#if($xcontext.validationStatus.errors.contains($message) || "$!force" == "true") ##
-&lt;font color="red"&gt;$services.localization.render($message)&lt;/font&gt;
-#else ##
-&amp;nbsp; ##
-#end ##
-#end ## end showvalidationmessage
-##
-#macro(displayDate $field)
-#if($xcontext.getAction()=="view" &amp;&amp; $doc.getValue('allDay')==1)
-  #set($format = $!doc.getObject('MoccaCalendar.MoccaCalendarEventClass').getxWikiClass().get($field).getProperty('dateFormat').value)
-  #if($!format=="")
-    #set($format = "dd.MM.yyyy")
-  #end
-  ## try to cut the time because this event has the all day flag 
-  #set($idx=$format.indexOf("H"))
-  #if($idx&gt;0)
-    #set($format = $format.substring(0,$idx).trim())
-  #end
-  #set($formattedValue = $escapetool.xml($datetool.format($format, $doc.getValue($field))))
-$!formattedValue
-#else
-$doc.display($field)
-#end
-#end
-##
-#set($discard=$xwiki.jsx.use("MoccaCalendar.DatePickerExtension", {'defer': false}))
-#if($xcontext.getAction()=="edit")
-  #set($discard=$xwiki.jsx.use("MoccaCalendar.MoccaCalendarEventSheet"))
-#end
-#set($calendar = $parentDoc.getObject('MoccaCalendar.MoccaCalendarClass'))
-#if($calendar)
-  #set($calendarDoc = $xwiki.getDocument($parentDoc))
-#end
-#if(!$calendar &amp;&amp; "$!request.getParameter('parentFROM')" != "")
-  #set($calendarDoc = $xwiki.getDocument($request.getParameter('parentFROM')))
-  #set($calendar = $calendarDoc.getObject('MoccaCalendar.MoccaCalendarClass'))
-#end
-#if($xcontext.getAction()=="edit")
-  #if($request.xpage=="plain")
-    ## we are in modal dialog edit view - no separate parent page widget
-    #set($parentParamName="parent")
-  #else
-    #set($discard=$xwiki.jsx.use("MoccaCalendar.MoccaCalendarEventSheet"))
-    #set($parentParamName="_parent")
-  #end
-#end
-{{/velocity}}
-
-{{velocity}}
-{{html wiki="true"}}
-#set($eventClass = 'MoccaCalendar.MoccaCalendarEventClass')
-#set($eventValidationDoc = 'MoccaCalendar.MoccaCalendarEventValidation')
-#set ($discard = $doc.use($eventClass))
-#set ($discard = $services.localization.use('document', 'MoccaCalendar.MoccaCalendarTranslations'))
-## add the groovy script to the validation (the xvalidation parameter in the request also works to set the groovy script validation)
-#set ($discard =$doc.setValidationScript($eventValidationDoc))
-## this will launch a validation on a document. All errors are added to the context
-#set($isValid=$doc.validate())
-## Valid: $isValid
-(% class="xform" %)
-&lt;input type="hidden" name="xvalidate" value="1" /&gt;
-&lt;input type="hidden" name="xvalidation" value="$eventValidationDoc" /&gt;
-(((
-#if($xcontext.action=='view' &amp;&amp; $calendar)
-  ; &lt;label for="calendar"&gt;$escapetool.xml($services.localization.render('MoccaCalendar.calendar'))&lt;/label&gt;
-  : [[$escapetool.xml($calendarDoc.getDisplayTitle())&gt;&gt;$parentDoc.fullName]]
-#elseif($xcontext.action=='edit')
-#set($hql =", BaseObject as obj where doc.fullName=obj.name  and doc.name!='MoccaCalendarTemplate' and obj.className='MoccaCalendar.MoccaCalendarClass'")
-  ; &lt;label for="calendar"&gt;$escapetool.xml($services.localization.render('MoccaCalendar.calendar'))&lt;/label&gt;
-  : {{html}}
-#set($started = false)
-&lt;select id="calendarParent" name="$parentParamName"&gt;
-#foreach($item in $services.query.hql($hql).execute())
-#set($itemdoc = $xwiki.getDocument($item))
-#set($selected="")
-#if($itemdoc.getId() == $calendarDoc.getId())
-#set($selected=" selected='selected'")
-#end
-&lt;option value="$itemdoc"$selected&gt;$itemdoc.getDisplayTitle()&lt;/option&gt;
-#end
-&lt;/select&gt;{{/html}}
-#end
-
-  ; &lt;label for="MoccaCalendarEvent.MoccaCalendarEventClass_0_title"&gt;$escapetool.xml($doc.displayPrettyName('title', false, false))&lt;/label&gt;
-  : $doc.display('title') #showvalidationmessage("val_title_already_exists") &lt;span class="val_title_notempty" style="display:none;"&gt;&lt;font color="red"&gt;$services.localization.render('val_title_notempty')&lt;/font&gt;&lt;/span&gt; &lt;span class="val_title_notvalid" style="display:none;"&gt;&lt;font color="red"&gt;$services.localization.render('val_title_notvalid')&lt;/font&gt;&lt;/span&gt;
-  ; &lt;label for="MoccaCalendarEvent.MoccaCalendarEventClass_0_startDate"&gt;$escapetool.xml($doc.displayPrettyName('startDate', false, false))&lt;/label&gt;
-  : #displayDate('startDate')
-  ; &lt;label for="MoccaCalendarEvent.MoccaCalendarEventClass_0_endDate"&gt;$escapetool.xml($doc.displayPrettyName('endDate', false, false))&lt;/label&gt;
-  : #displayDate('endDate')#showvalidationmessage("val_endDate")
-
-  ; &lt;label for="MoccaCalendarEvent.MoccaCalendarEventClass_0_allDay"&gt;$escapetool.xml($doc.displayPrettyName('allDay', false, false))&lt;/label&gt;
-  : $doc.display('allDay')
-
-  ; &lt;label for="MoccaCalendarEvent.MoccaCalendarEventClass_0_description"&gt;$escapetool.xml($doc.displayPrettyName('description', false, false))&lt;/label&gt;
-  : $doc.display('description')
-)))
-
-----
-
-#if($xcontext.action=='view')
-#if($calendarDoc)
-[[$services.localization.render('MoccaCalendar.calendarevent.backlink', [ $calendarDoc.getDisplayTitle()])&gt;&gt;$calendarDoc]]
-#end
-#end
-
-{{/html}}
-
-#if(($xcontext.validationStatus.errors&amp;&amp;$xcontext.validationStatus.errors.size()&gt;0))
-$response.setStatus(400)
-#end
-{{/velocity}}</content>
 </xwikidoc>
