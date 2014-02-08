@@ -62,7 +62,7 @@ MoccaCalendar.calendar=Event Calendar
 MoccaCalendar.calendar.title=Calendar Overview
 MoccaCalendar.calendar.defaultCalendarTitle=Other Events
 MoccaCalendar.calendar.viewall=Overview of all calendars
-MoccaCalendar.calendar.create=Create new calendar
+MoccaCalendar.calendar.create=Create a new calendar
 MoccaCalendar.calendar.today=Today
 MoccaCalendar.calendar.day=Day
 MoccaCalendar.calendar.week=Week
@@ -75,7 +75,7 @@ MoccaCalendar.calendar.allday=All Day
 MoccaCalendar.calendar.firstDayOfWeek=1
 
 MoccaCalendar.calendarevent.viewall=All events
-MoccaCalendar.calendarevent.create=Create event
+MoccaCalendar.calendarevent.create=Create an event
 MoccaCalendar.calendarevent.backlink=Back to calendar &amp;#171;{0}&amp;#187;
 
 # Class fields
