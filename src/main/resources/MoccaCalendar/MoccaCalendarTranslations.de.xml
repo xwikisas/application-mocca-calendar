@@ -85,7 +85,7 @@ MoccaCalendar.MoccaCalendarClass_description=Beschreibung
 MoccaCalendar.MoccaCalendarClass_content1=Inhalt
 
 # Live table generic keys
-moccacalendar.livetable.doc.title=Seiten Titel
+moccacalendar.livetable.doc.title=Kalender
 moccacalendar.livetable.doc.name=Seiten Name
 moccacalendar.livetable.doc.space=Bereich
 moccacalendar.livetable.doc.fullname=vollst. Seiten Name

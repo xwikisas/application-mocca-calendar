@@ -51,7 +51,7 @@ MoccaCalendar.MoccaCalendarClass_content1=Contenue
 
 
 # Live table generic keys
-moccacalendar.livetable.doc.title=Titre de la page
+moccacalendar.livetable.doc.title=Calendrier
 moccacalendar.livetable.doc.name=Nom de la page
 moccacalendar.livetable.doc.space=Espace
 moccacalendar.livetable.doc.fullname=Nom complet de la page
