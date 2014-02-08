@@ -12,8 +12,8 @@
   <author>xwiki:XWiki.Admin</author>
   <customClass/>
   <contentAuthor>xwiki:XWiki.Admin</contentAuthor>
-  <date>1391880813000</date>
-  <contentUpdateDate>1391878858000</contentUpdateDate>
+  <date>1391883993000</date>
+  <contentUpdateDate>1391883294000</contentUpdateDate>
   <version>1.1</version>
   <title>Calendar Macro</title>
   <defaultTemplate/>
@@ -182,7 +182,7 @@ if (typeof(XWiki) == "undefined" || typeof(XWiki.widgets) == "undefined" || type
       this.savedBox.hide();
 
       // calculate "automatic" document name:
-      var name = title.replace('^ +','').replace(' +$','').replace('[/?]','');
+      var name = title.replace(/[\/?]/g,'').replace(/^ +/,'').replace(/ +$/,'');
 
       this.createEvent = function(eventName) {
 
@@ -218,10 +218,11 @@ if (typeof(XWiki) == "undefined" || typeof(XWiki.widgets) == "undefined" || type
         parameters: { 'outputSyntax': 'plain', 'newEvent' : name },
         onSuccess: function(response) {
           try {
-            if (response.responseJSON['error']) {
+            var error = (response.responseJSON)?response.responseJSON['error']:'Internal Server Error'
+            if (error) {
               this.savingBox.hide();
               this.failedBox.show();
-              $('ajaxRequestFailureReason').update(response.responseJSON['error']);
+              $('ajaxRequestFailureReason').update(error);
             } else {
               var eventName = response.responseJSON['name'];
               this.createEvent(eventName);

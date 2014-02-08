@@ -123,7 +123,7 @@
 ### this macro shows a validation error message if it exists
 #macro(showvalidationmessage $message $force)
 #if($xcontext.validationStatus.errors.contains($message) || "$!force" == "true") ##
-&lt;font color="red"&gt;$xwiki.parseMessage($message)&lt;/font&gt;
+&lt;font color="red"&gt;$services.localization.render($message)&lt;/font&gt;
 #else ##
 &amp;nbsp; ##
 #end ##
@@ -206,7 +206,7 @@ $doc.display($field)
 #end
 
   ; &lt;label for="MoccaCalendarEvent.MoccaCalendarEventClass_0_title"&gt;$escapetool.xml($doc.displayPrettyName('title', false, false))&lt;/label&gt;
-  : $doc.display('title') #showvalidationmessage("val_title_already_exists") &lt;span class="val_title_notempty" style="display:none;"&gt;&lt;font color="red"&gt;$xwiki.parseMessage('val_title_notempty')&lt;/font&gt;&lt;/span&gt; &lt;span class="val_title_notvalid" style="display:none;"&gt;&lt;font color="red"&gt;$xwiki.parseMessage('val_title_notvalid')&lt;/font&gt;&lt;/span&gt;
+  : $doc.display('title') #showvalidationmessage("val_title_already_exists") &lt;span class="val_title_notempty" style="display:none;"&gt;&lt;font color="red"&gt;$services.localization.render('val_title_notempty')&lt;/font&gt;&lt;/span&gt; &lt;span class="val_title_notvalid" style="display:none;"&gt;&lt;font color="red"&gt;$services.localization.render('val_title_notvalid')&lt;/font&gt;&lt;/span&gt;
   ; &lt;label for="MoccaCalendarEvent.MoccaCalendarEventClass_0_startDate"&gt;$escapetool.xml($doc.displayPrettyName('startDate', false, false))&lt;/label&gt;
   : #displayDate('startDate')
   ; &lt;label for="MoccaCalendarEvent.MoccaCalendarEventClass_0_endDate"&gt;$escapetool.xml($doc.displayPrettyName('endDate', false, false))&lt;/label&gt;

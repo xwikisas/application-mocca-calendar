@@ -12,8 +12,8 @@
   <author>xwiki:XWiki.Admin</author>
   <customClass/>
   <contentAuthor>xwiki:XWiki.Admin</contentAuthor>
-  <date>1391880836000</date>
-  <contentUpdateDate>1391880836000</contentUpdateDate>
+  <date>1391882384000</date>
+  <contentUpdateDate>1391882384000</contentUpdateDate>
   <version>1.1</version>
   <title/>
   <defaultTemplate/>
@@ -106,7 +106,7 @@ if (request.newEvent) {
       #set($enddate =$xwiki.jodatime.getDateTime($enddate.getTime()))
     #else
       #set($enddate = $xwiki.jodatime.getDateTime($startdate.getTime()))
-      #set($enddate = $enddate.plusMinutes($util.parseInt($duration)))
+      #set($enddate = $enddate.plusMinutes($numbertool.integer($duration)))
     #end
     #if($started)
 ,
