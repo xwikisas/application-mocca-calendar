@@ -82,8 +82,6 @@ if (request.newEvent) {
   #set($wherePageLocation=" and $wherePageLocation")
 #end
 
-#set($whereDate = "")
-#if("$!{request.outputView}"=="plainList")
 #set($startQuery = $datetool.getDate())
 #set($startTime = $mathtool.toNumber($request.start))
 #set($startTime = $mathtool.mul($startTime ,1000))
@@ -103,7 +101,6 @@ if (request.newEvent) {
 #set($qem = $mathtool.add($datetool.getMonth($endQuery),1))
 #set($qed = $datetool.getDay($endQuery))
 #set($whereDate = "$whereDate and (year(date.value) &lt; $qey or ( year(date.value) = $qey and (month(date.value) &lt; $qem or (month(date.value) = $qem and day(date.value) &lt;= $qed))))")
-#end
 
 #set($hql =", BaseObject as obj, DateProperty as date where doc.fullName=obj.name and obj.id=date.id.id and date.id.name='startDate' $!{wherePageLocation} and doc.name!='MoccaCalendarEventTemplate' and obj.className='${request.classname}' $whereDate order by date.value asc")
 [
