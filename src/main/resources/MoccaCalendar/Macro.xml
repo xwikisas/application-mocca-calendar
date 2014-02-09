@@ -12,8 +12,8 @@
   <author>xwiki:XWiki.Admin</author>
   <customClass/>
   <contentAuthor>xwiki:XWiki.Admin</contentAuthor>
-  <date>1391883993000</date>
-  <contentUpdateDate>1391883294000</contentUpdateDate>
+  <date>1391935282000</date>
+  <contentUpdateDate>1391932652000</contentUpdateDate>
   <version>1.1</version>
   <title>Calendar Macro</title>
   <defaultTemplate/>
@@ -504,9 +504,9 @@ z-index: 1010;
  * $mparam = $xcontext.macro.params.get($mparam) $nl
 #end
 #end
-$xwiki.jsx.use("MoccaCalendar.JQuery", {'defer': false})
-$xwiki.jsx.use("MoccaCalendar.JQueryUI", {'defer': false})
-$xwiki.jsx.use("MoccaCalendar.FullCalendar", {'defer': false})
+$xwiki.jsx.use("MoccaCalendar.JQuery", {'defer': false, 'minify': false})
+$xwiki.jsx.use("MoccaCalendar.JQueryUI", {'defer': false, 'minify': false})
+$xwiki.jsx.use("MoccaCalendar.FullCalendar", {'defer': false, 'minify': false})
 $xwiki.jsx.use("MoccaCalendar.Macro", {'defer': false})
 $xwiki.ssx.use("MoccaCalendar.FullCalendar")
 $xwiki.jsx.use("MoccaCalendar.DatePickerExtension", {'defer': false})
@@ -642,10 +642,9 @@ XWiki.MoccaCalendar.Helper = Class.create({
     start = mySimpleDateFormatter.format(start);
     end = mySimpleDateFormatter.format(end);
     var paramPrefix = "MoccaCalendar.MoccaCalendarEventClass_0_";
-    var params = "&amp;"+paramPrefix +"startDate="+start;
-    params += "&amp;"+paramPrefix +"endDate="+end;
+    var params = "&amp;"+paramPrefix +"startDate="+encodeURIComponent(start);
+    params += "&amp;"+paramPrefix +"endDate="+encodeURIComponent(end);
     params += "&amp;"+paramPrefix +"allDay="+allDay;
-    params += "&amp;xhidden=1";
     var randomDocUrl = "$randomDocUrl" + params;
     new XWiki.MoccaCalendar.MoccaCalendarPopup({pageURL: randomDocUrl});
   }
@@ -686,19 +685,41 @@ function updateEvent(page,isResize,dayDelta,minuteDelta,allDay,revertFunc,calend
 }
 
 
+function getCalendarView(defaultVal) {
+  var cookieName = 'MoccaCalendar_view=';
+  if (document.cookie) {
+    var ca = document.cookie.split(';');
+    for(var i=0;i&lt;ca.length;i++) {
+      var c = ca[i];
+      while (c.charAt(0)==' ') c = c.substring(1,c.length);
+      if (c.indexOf(cookieName) == 0) return c.substring(cookieName.length,c.length);
+    }
+  }
+  return defaultVal;
+}
+function setCalendarView(value) {
+  var cookieName = 'MoccaCalendar_view=';
+  document.cookie = cookieName + value + "; path=/";
+}
+
 jQuery(document).ready(function() {
+
+  var defaultView = getCalendarView('$defaultView');
 
   // page is now ready, initialize the calendar...
   var calendar = jQuery('#calendar${calcounter}').fullCalendar({
 
-  events: "${json}?xpage=plain&amp;outputSyntax=plain&amp;calendarDoc=${escapetool.url(${calendarDoc})}&amp;filter=$!{filter}&amp;classname=$!{classname}&amp;startfield=$!{startfield}&amp;endfield=$!{endfield}&amp;durationfield=$!{durationfield}&amp;wheresql=$!{escapetool.url($!{xcontext.macro.params.wheresql})}",
+  events: "${json}?xpage=plain&amp;outputSyntax=plain&amp;calendarDoc=${escapetool.url(${calendarDoc})}&amp;filter=$!{filter}&amp;classname=$!{classname}&amp;startfield=$!{startfield}&amp;endfield=$!{endfield}&amp;durationfield=$!{durationfield}",
+  viewRender: function(view, element) {
+    setCalendarView(view.name);
+  },
   header: {
     left: '$left',
     center: '$center',
     right: '$right'
-  }
+  },
+  defaultView: defaultView
 #if($timeFormat!=""), timeFormat: '$timeFormat' #end 
-#if($defaultView!=""), defaultView: '$defaultView' #end
 #if($year!=""), year: $year#end
 #if($month!=""), month: $month #end
 #if($date!=""), date: $date #end
@@ -744,7 +765,7 @@ jQuery(document).ready(function() {
   day: ''
 }
   })
-  // TODO: any better way to pass this information "up" ?
+  // TODO: any better way to pass this information around ?
   calendar.jsonUrl = "${json}";
   // TODO: the last calendar on the page "wins" 
   XWiki.MoccaCalendar.calendar = calendar;
