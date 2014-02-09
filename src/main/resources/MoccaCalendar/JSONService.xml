@@ -12,8 +12,8 @@
   <author>xwiki:XWiki.Admin</author>
   <customClass/>
   <contentAuthor>xwiki:XWiki.Admin</contentAuthor>
-  <date>1391963454000</date>
-  <contentUpdateDate>1391963454000</contentUpdateDate>
+  <date>1391974785000</date>
+  <contentUpdateDate>1391974785000</contentUpdateDate>
   <version>1.1</version>
   <title/>
   <defaultTemplate/>
@@ -81,12 +81,31 @@ if (request.newEvent) {
 #if("$wherePageLocation"!="")
   #set($wherePageLocation=" and $wherePageLocation")
 #end
+
+#set($whereDate = "")
 #if("$!{request.outputView}"=="plainList")
+#set($startQuery = $datetool.getDate())
+#set($startTime = $mathtool.toNumber($request.start))
+#set($startTime = $mathtool.mul($startTime ,1000))
+#set($discard = $startQuery.setTime($startTime))
 
+#set($qsy = $datetool.getYear($startQuery))
+#set($qsm = $mathtool.add($datetool.getMonth($startQuery),1))
+#set($qsd = $datetool.getDay($startQuery))
+#set($whereDate = "and (year(date.value) &gt; $qsy or ( year(date.value) = $qsy and (month(date.value) &gt; $qsm or (month(date.value) = $qsm and day(date.value) &gt;= $qsd))))")
+
+#set($endQuery = $datetool.getDate())
+#set($endTime = $mathtool.toNumber($request.end))
+#set($endTime = $mathtool.mul($endTime, 1000))
+#set($discard = $endQuery.setTime($endTime))
+
+#set($qey = $datetool.getYear($endQuery))
+#set($qem = $mathtool.add($datetool.getMonth($endQuery),1))
+#set($qed = $datetool.getDay($endQuery))
+#set($whereDate = "$whereDate and (year(date.value) &lt; $qey or ( year(date.value) = $qey and (month(date.value) &lt; $qem or (month(date.value) = $qem and day(date.value) &lt;= $qed))))")
 #end
- 
 
-#set($hql =", BaseObject as obj, DateProperty as date where doc.fullName=obj.name and obj.id=date.id.id and date.id.name='startDate' $!{wherePageLocation} and doc.name!='MoccaCalendarEventTemplate' and obj.className='${request.classname}' order by date.value asc")
+#set($hql =", BaseObject as obj, DateProperty as date where doc.fullName=obj.name and obj.id=date.id.id and date.id.name='startDate' $!{wherePageLocation} and doc.name!='MoccaCalendarEventTemplate' and obj.className='${request.classname}' $whereDate order by date.value asc")
 [
 #set($started = false)
 #foreach($item in $services.query.hql($hql).execute())

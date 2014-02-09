@@ -12,8 +12,8 @@
   <author>xwiki:XWiki.Admin</author>
   <customClass/>
   <contentAuthor>xwiki:XWiki.Admin</contentAuthor>
-  <date>1391960789000</date>
-  <contentUpdateDate>1391952899000</contentUpdateDate>
+  <date>1391971971000</date>
+  <contentUpdateDate>1391963938000</contentUpdateDate>
   <version>1.1</version>
   <title>Calendar Macro</title>
   <defaultTemplate/>
@@ -354,13 +354,26 @@ jQuery.fullCalendar.views.plainList = function(element, calendar) {
   var t = this;
 
   function render(date, delta) {
-    this.start = date;
-    this.end = date;
+    // console.log('render '+ date +' with ' + delta);
+    // we intentionally ignore the date given
+    // this also avoids "caching" which is a problem if events lack the html attribute
+    this.start = new Date();
+    this.end = new Date();
     this.visStart = this.start;
+    this.visStart.setHours(0);
+    this.visStart.setMinutes(0);
     this.visEnd = this.end;
+    if (delta &lt; 0) {
+      this.visStart.setFullYear(this.start.getFullYear() - 10);
+      this.title = 'Past Events';
+    } else if (delta &gt;= 0) {
+      this.visEnd.setFullYear(this.start.getFullYear() + 10);
+      this.title = 'Upcoming Events';
+    }
     this.element.empty();
     this.element.append('&lt;div class="fc-timeline-box" style="width:100%"/&gt;');
     this.container = jQuery('.fc-timeline-box',this.element);
+    this.container.append('&lt;img src="$xwiki.getSkinFile('icons/xwiki/ajax-loader-large.gif')" alt="loading ..." /&gt;');
   }
 
   function triggerEventDestroy() {
@@ -381,9 +394,11 @@ jQuery.fullCalendar.views.plainList = function(element, calendar) {
   }
   function renderEvents(events, modifiedEventID) {
     // console.log('renderEvents ' + events.length);
+    this.container.empty();
     for(var i=0;i&lt;events.length;i++) {
       var ev = events[i];
       this.container.append(ev.html)
+      // console.log('adding '+ev.html);
     }
   }
   function clearEvents() {
