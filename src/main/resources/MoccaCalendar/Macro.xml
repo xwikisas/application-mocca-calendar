@@ -813,10 +813,10 @@ jQuery(document).ready(function() {
       return opts;
     } 
   },
-  eventClick: function(calEvent, jsEvent, view) {
-    new XWiki.MoccaCalendar.MoccaCalendarPopup({pageURL: calEvent.url+'&amp;xpage=plain&amp;xhidden=1'});
-    return false;
-  },
+  //eventClick: function(calEvent, jsEvent, view) {
+  //  new XWiki.MoccaCalendar.MoccaCalendarPopup({pageURL: calEvent.url+'&amp;xpage=plain&amp;xhidden=1'});
+  //  return false;
+  //},
   viewRender: function(view, element) {
     XWiki.MoccaCalendar.Helper.setCalendarView(view.name);
   },
