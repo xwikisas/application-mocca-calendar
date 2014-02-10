@@ -356,24 +356,26 @@ jQuery.fullCalendar.views.plainList = function(element, calendar) {
   function render(date, delta) {
     // console.log('render '+ date +' with ' + delta);
     // we intentionally ignore the date given
-    // this also avoids "caching" which is a problem if events lack the html attribute
+    // setting the time to 00:00:01 also avoids mixing with the event cache
+    // of the other events which is a problem as they lack the html attribute
     this.start = new Date();
     this.end = new Date();
     this.visStart = this.start;
     this.visStart.setHours(0);
     this.visStart.setMinutes(0);
+    this.visStart.setSeconds(1);
     this.visEnd = this.end;
     if (delta &lt; 0) {
       this.visStart.setFullYear(this.start.getFullYear() - 10);
-      this.title = 'Past Events';
+      this.title = "$services.localization.render('MoccaCalendar.calendar.plainlist.titlepast')";
     } else if (delta &gt;= 0) {
       this.visEnd.setFullYear(this.start.getFullYear() + 10);
-      this.title = 'Upcoming Events';
+      this.title = "$services.localization.render('MoccaCalendar.calendar.plainlist.titleupcoming')";
     }
     this.element.empty();
     this.element.append('&lt;div class="fc-timeline-box" style="width:100%"/&gt;');
     this.container = jQuery('.fc-timeline-box',this.element);
-    this.container.append('&lt;img src="$xwiki.getSkinFile('icons/xwiki/ajax-loader-large.gif')" alt="loading ..." /&gt;');
+    this.container.append('&lt;img src="$xwiki.getSkinFile('icons/xwiki/ajax-loader-large.gif')" alt="$services.localization.render('platform.livetable.loading')" /&gt;');
   }
 
   function triggerEventDestroy() {
