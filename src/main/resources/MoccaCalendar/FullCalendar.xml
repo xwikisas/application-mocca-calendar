@@ -370,7 +370,7 @@ html .fc,
 
 .fc-text-arrow {
 	margin: 0 .1em;
-	font-size: 2em;
+	font-size: 1.5em;
 	font-family: "Courier New", Courier, monospace;
 	vertical-align: baseline; /* for IE7 */
 	}
@@ -474,6 +474,7 @@ html .fc,
 
 a.fc-event {
 	text-decoration: none;
+	color: #fff;               /* need to repeat from above to override a:hover */
 	}
 	
 a.fc-event,
