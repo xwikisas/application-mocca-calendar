@@ -126,7 +126,7 @@ if (request.newEvent) {
       #set($enddate = $xwiki.jodatime.getDateTime($enddate.getTime()))
     #else
       #set($enddate = $xwiki.jodatime.getDateTime($startdate.getTime()))
-      #set($enddate = $enddate.plusMinutes($numbertool.integer($duration)))
+      #set($enddate = $enddate.plusMinutes($duration))
     #end
     #if($started)
 ,

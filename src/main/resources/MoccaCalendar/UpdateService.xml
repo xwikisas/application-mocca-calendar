@@ -67,8 +67,8 @@
 		#end
 		#if($datetime)
 			#set($jdatetime = $xwiki.jodatime.getDateTime($datetime.getTime()))
-			#set($jdatetime = $jdatetime.plusDays($util.parseInt($request.dayDelta)))
-			#set($jdatetime = $jdatetime.plusMinutes($util.parseInt($request.minuteDelta)))
+			#set($jdatetime = $jdatetime.plusDays($mathtool.toInteger($request.dayDelta)))
+			#set($jdatetime = $jdatetime.plusMinutes($mathtool.toInteger($request.minuteDelta)))
 			#set($ok = $pagedoc.set($alldayfield,$allDay))
 
     		#if("$!{request.isResize}"=="1")
@@ -80,8 +80,8 @@
 				#set($datetime = $pagedoc.getValue($endfield))
 				#if("$!{datetime}" != "")
 					#set($jdatetime = $xwiki.jodatime.getDateTime($datetime.getTime()))
-					#set($jdatetime = $jdatetime.plusDays($util.parseInt($request.dayDelta)))
-					#set($jdatetime = $jdatetime.plusMinutes($util.parseInt($request.minuteDelta)))
+					#set($jdatetime = $jdatetime.plusDays($mathtool.toInteger($request.dayDelta)))
+					#set($jdatetime = $jdatetime.plusMinutes($mathtool.toInteger($request.minuteDelta)))
 				#end
 				#set($ok = $pagedoc.set($endfield, $jdatetime.toDate()))
 
