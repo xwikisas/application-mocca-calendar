@@ -895,6 +895,9 @@ jQuery(document).ready(function() {
   week: 'ddd d',
   day: ''
 }
+,titleFormat: { 
+  week: "MMM d[',' yyyy]{ '&amp;#8212;'[ MMM] d',' yyyy}"
+}
   })
   // TODO: any better way to pass this information around ?
   calendar.jsonUrl = "${json}";
