@@ -1,6 +1,5 @@
-<?xml version="1.0" encoding="UTF-8"?>
-
-<xwikidoc>
+<?xml version='1.0' encoding='UTF-8'?>
+<xwikidoc version="1.1">
   <web>MoccaCalendar</web>
   <name>MoccaCalendarTranslations</name>
   <language/>
@@ -13,7 +12,7 @@
   <contentAuthor>xwiki:XWiki.Admin</contentAuthor>
   <creationDate>1383574877000</creationDate>
   <date>1385136439000</date>
-  <contentUpdateDate>1385136422000</contentUpdateDate>
+  <contentUpdateDate>1392400158000</contentUpdateDate>
   <version>1.1</version>
   <title/>
   <defaultTemplate/>
@@ -75,7 +74,7 @@ MoccaCalendar.calendar.monthNamesShort='Jan','Feb','Mar','Apr','May','Jun','Jul'
 MoccaCalendar.calendar.dayNames='Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'
 MoccaCalendar.calendar.dayNamesShort='Sun','Mon','Tue','Wed','Thu','Fri','Sat'
 MoccaCalendar.calendar.allday=All Day
-MoccaCalendar.calendar.firstDayOfWeek=1
+MoccaCalendar.calendar.firstDayOfWeek=0
 
 MoccaCalendar.calendarevent.viewall=All events
 MoccaCalendar.calendarevent.create=Create an event
@@ -86,7 +85,6 @@ MoccaCalendar.MoccaCalendarClass_title=Title
 MoccaCalendar.MoccaCalendarClass_color=Color of entries in the calendar view
 MoccaCalendar.MoccaCalendarClass_description=Description
 MoccaCalendar.MoccaCalendarClass_content1=Content
-
 
 # Live table generic keys
 moccacalendar.livetable.doc.title=Calendar
@@ -104,6 +102,9 @@ moccacalendar.livetable._actions=Actions
 moccacalendar.livetable._actions.edit=Edit
 moccacalendar.livetable._actions.delete=Delete
 moccacalendar.livetable.emptyvalue=-
+moccacalendar.livetable.title=Title
+moccacalendar.livetable.description=Description
+moccacalendar.livetable.content1=Content
 
 
 # Mocca Calendar Events keys
@@ -114,9 +115,7 @@ MoccaCalendar.MoccaCalendarEventClass_endDate=End date
 MoccaCalendar.MoccaCalendarEventClass_description=Description
 MoccaCalendar.MoccaCalendarEventClass_allDay=All day
 
-
-
-# Live table generic keys
+# Event live table generic keys (currently unsued)
 moccacalendarevent.livetable.doc.title=Page title
 moccacalendarevent.livetable.doc.name=Page name
 moccacalendarevent.livetable.doc.space=Space
@@ -139,9 +138,9 @@ moccacalendarevent.livetable.startDate=Start date
 moccacalendarevent.livetable.endDate=End date
 moccacalendarevent.livetable.description=Description
 
-moccacalendar.livetable.title=Title
-moccacalendar.livetable.description=Description
-moccacalendar.livetable.content1=Content
+# date picker extras
+MoccaCalendar.datepicker.ok=OK
+MoccaCalendar.datepicker.now=Now
 
 
 # validation messgaes

@@ -760,7 +760,7 @@ $xwiki.ssx.use("MoccaCalendar.Macro")
 #end
 #set($firstDay = $xcontext.macro.params.firstDay)
 #if(!$firstDay)
- #set($firstDay = "")
+ #set($firstDay = "$services.localization.render('MoccaCalendar.calendar.firstDayOfWeek')")
 #end
 #set($firstHour = $xcontext.macro.params.firstHour)
 #if(!$firstHour)
@@ -847,7 +847,7 @@ jQuery(document).ready(function() {
 #if($year!=""), year: $year#end
 #if($month!=""), month: $month #end
 #if($date!=""), date: $date #end
-#if($firstDay!=""), firstDay: $firstDay #end
+, firstDay: $firstDay
 #if($firstHour!=""), firstHour: $firstHour #end
 #if($minTime!=""), minTime: $minTime #end
 #if($maxTime!=""), maxTime: $maxTime #end
@@ -876,7 +876,6 @@ jQuery(document).ready(function() {
 ,monthNamesShort: [$services.localization.render('MoccaCalendar.calendar.monthNamesShort')]
 ,dayNames: [$services.localization.render('MoccaCalendar.calendar.dayNames')] 
 ,dayNamesShort: [$services.localization.render('MoccaCalendar.calendar.dayNamesShort')]
-,firstDay:$services.localization.render('MoccaCalendar.calendar.firstDayOfWeek')
 ,allDayText:"$services.localization.render('MoccaCalendar.calendar.allday')"
 ,axisFormat: 'HH:mm'
 ,timeFormat: {

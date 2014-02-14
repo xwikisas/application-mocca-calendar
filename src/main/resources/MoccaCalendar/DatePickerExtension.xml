@@ -1,6 +1,5 @@
-<?xml version="1.0" encoding="UTF-8"?>
-
-<xwikidoc>
+<?xml version='1.0' encoding='UTF-8'?>
+<xwikidoc version="1.1">
   <web>MoccaCalendar</web>
   <name>DatePickerExtension</name>
   <language/>
@@ -102,35 +101,38 @@
       <cache>long</cache>
     </property>
     <property>
-      <code>document.observe("dom:loaded", function() {
-/* TODO: add german translations for : platform.appwithinminutes.classEditorDatePicker* */
+      <code>#set($discard = $services.localization.use('document', 'MoccaCalendar.MoccaCalendarTranslations'))
+
+document.observe("dom:loaded", function() {
   _translations = {
-    "OK": "OK",
-    "Now": "Jetzt",
-    "Today": "Heute"
+    "OK": "$services.localization.render('MoccaCalendar.datepicker.ok')",
+    "Now": "$services.localization.render('MoccaCalendar.datepicker.now')",
+    "Today": "$services.localization.render('MoccaCalendar.calendar.today')"
   }
-  Date.first_day_of_week = 1;
-  Date.weekdays = $w("Mo Di Mi Do Fr Sa So");
 
-  Date.months = $w("Januar Februar März April May Juni Juli August September Oktober November Dezember" );
+  Date.first_day_of_week = $services.localization.render('MoccaCalendar.calendar.firstDayOfWeek');
+  Date.weekdays = [ $services.localization.render('MoccaCalendar.calendar.dayNamesShort') ];
+## because the date picker, unlike the FullCalander, expects our weekday names with the n-th day, not sunday   
+  for (var i=0; i&lt;Date.first_day_of_week; i++) {
+    Date.weekdays.push(Date.weekdays.shift());
+  }
 
+  Date.months = [ $services.localization.render('MoccaCalendar.calendar.monthNames') ] ;
 
-Date.prototype.getAMPMHour = function() {
-  var hour = this.getHours();
-  return hour;
-}
-Date.prototype.getAMPM = function() {
-  return "";
-}
-
-
+  Date.prototype.getAMPMHour = function() {
+    var hour = this.getHours();
+    return hour;
+  }
+  Date.prototype.getAMPM = function() {
+    return "";
+  }
 });</code>
     </property>
     <property>
       <name>DatePickerExtension</name>
     </property>
     <property>
-      <parse>0</parse>
+      <parse>1</parse>
     </property>
     <property>
       <use>onDemand</use>
