@@ -58,7 +58,7 @@
     </property>
   </object>
   <content>#general
-MoccaCalendar.calendar=Event Calendar
+MoccaCalendar.calendar=Calendar
 MoccaCalendar.calendar.title=Calendar Overview
 MoccaCalendar.calendar.defaultCalendarTitle=Other Events
 MoccaCalendar.calendar.viewall=Overview of all calendars
