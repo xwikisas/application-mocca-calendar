@@ -368,9 +368,11 @@ jQuery.fullCalendar.views.plainList = function(element, calendar) {
     if (delta &lt; 0) {
       this.visStart.setFullYear(this.start.getFullYear() - 10);
       this.title = "$services.localization.render('MoccaCalendar.calendar.plainlist.titlepast')";
+      this.noEventMsg = "$services.localization.render('MoccaCalendar.calendar.plainlist.nopastevents')";
     } else if (delta &gt;= 0) {
       this.visEnd.setFullYear(this.start.getFullYear() + 10);
       this.title = "$services.localization.render('MoccaCalendar.calendar.plainlist.titleupcoming')";
+      this.noEventMsg = "$services.localization.render('MoccaCalendar.calendar.plainlist.noupcomingevents')";
     }
     this.element.empty();
     this.element.append('&lt;div class="fc-timeline-box" style="width:100%"/&gt;');
@@ -397,10 +399,12 @@ jQuery.fullCalendar.views.plainList = function(element, calendar) {
   function renderEvents(events, modifiedEventID) {
     // console.log('renderEvents ' + events.length);
     this.container.empty();
-    for(var i=0;i&lt;events.length;i++) {
+    if (events.length==0) {
+	    this.container.append('&lt;p&gt;&lt;/p&gt;');
+	    jQuery('p', this.container).addClass('noevents').text(this.noEventMsg);
+	} else for (var i=0;i&lt;events.length;i++) {
       var ev = events[i];
       this.container.append(ev.html)
-      // console.log('adding '+ev.html);
     }
   }
   function clearEvents() {
@@ -540,6 +544,10 @@ padding-left: 5px;
 }
 div.moccaevent h5 {
 margin-bottom: 5px;
+}
+div.fc-timeline-box p.noevents {
+font-style:italic;
+text-align: center;
 }
 </code>
     </property>
