@@ -90,7 +90,7 @@ $doc.display($field)
   ; &lt;label for="calendar"&gt;$escapetool.xml($services.localization.render('MoccaCalendar.calendar'))&lt;/label&gt;
   : [[$escapetool.xml($calendarDoc.getDisplayTitle())&gt;&gt;$parentDoc.fullName]]
 #elseif($xcontext.action=='edit')
-#set($hql =", BaseObject as obj where doc.fullName=obj.name  and doc.name!='MoccaCalendarTemplate' and obj.className='MoccaCalendar.MoccaCalendarClass'")
+#set($hql =", BaseObject as obj where doc.fullName=obj.name and doc.name!='MoccaCalendarTemplate' and obj.className='MoccaCalendar.MoccaCalendarClass' order by doc.title, doc.name")
   ; &lt;label for="calendar"&gt;$escapetool.xml($services.localization.render('MoccaCalendar.calendar'))&lt;/label&gt;
   : {{html}}
 #set($started = false)
@@ -101,11 +101,10 @@ $doc.display($field)
 #if($itemdoc.getId() == $calendarDoc.getId())
 #set($selected=" selected='selected'")
 #end
-&lt;option value="$itemdoc"$selected&gt;$itemdoc.getDisplayTitle()&lt;/option&gt;
+&lt;option value="$escapetool.html($itemdoc.getFullName())"$selected&gt;$itemdoc.getDisplayTitle()&lt;/option&gt;
 #end
 &lt;/select&gt;{{/html}}
 #end
-
   ; &lt;label for="MoccaCalendarEvent.MoccaCalendarEventClass_0_title"&gt;$escapetool.xml($doc.displayPrettyName('title', false, false))&lt;span class="xRequired"&gt;&lt;/span&gt;&lt;/label&gt;
   : $doc.display('title') #showvalidationmessage("val_title_already_exists") &lt;span class="val_title_notempty xErrorMsg" style="display:none;"&gt;$services.localization.render('val_title_notempty')&lt;/span&gt; &lt;span class="val_title_notvalid xErrorMsg" style="display:none;"&gt;$services.localization.render('val_title_notvalid')&lt;/span&gt;
   ; &lt;label for="MoccaCalendarEvent.MoccaCalendarEventClass_0_startDate"&gt;$escapetool.xml($doc.displayPrettyName('startDate', false, false))&lt;span class="xRequired"&gt;&lt;/span&gt;&lt;/label&gt;
