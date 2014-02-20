@@ -122,11 +122,9 @@ if (request.newEvent) {
     #set($duration = "30")
   #end
   #if($startdate)
-    #if($enddate)
-      #set($enddate = $xwiki.jodatime.getDateTime($enddate.getTime()))
-    #else
+    #if(!$enddate)
       #set($enddate = $xwiki.jodatime.getDateTime($startdate.getTime()))
-      #set($enddate = $enddate.plusMinutes($duration))
+      #set($enddate = $enddate.plusMinutes($duration).toDate())
     #end
     #if($started)
 ,
@@ -137,7 +135,7 @@ if (request.newEvent) {
     #if("$!itemdoc.getValue('allDay')"==1)
       #set($allDay=true)
     #end
-{ "id" : "${escapetool.javascript($itemdoc.fullName)}", "title" : "${escapetool.javascript($itemdoc.getPlainTitle())}", "url" : "${escapetool.javascript($itemdoc.getURL('view',"calendarDoc=$!request.calendarDoc"))}", "start" : "$!{xwiki.formatDate($startdate, "yyyy-MM-dd'T'HH:mm")}", "end" : "$!{xwiki.formatDate($enddate.toDate(), "yyyy-MM-dd'T'HH:mm")}","allDay":$allDay, "color":"$color"
+{ "id" : "${escapetool.javascript($itemdoc.fullName)}", "title" : "${escapetool.javascript($itemdoc.getPlainTitle())}", "url" : "${escapetool.javascript($itemdoc.getURL('view',"calendarDoc=$!request.calendarDoc"))}", "start" : "$!{xwiki.formatDate($startdate, "yyyy-MM-dd'T'HH:mm")}", "end" : "$!{xwiki.formatDate($enddate, "yyyy-MM-dd'T'HH:mm")}","allDay":$allDay, "color":"$color"
     #if("$!{request.outputView}"=="plainList")
       #set($format = $!itemdoc.getObject("${request.classname}").getxWikiClass().get($request.startfield).getProperty('dateFormat').value)
       #if($!format=="")
@@ -153,9 +151,19 @@ if (request.newEvent) {
       #set($html = "${html}"+'&lt;h5&gt;&lt;a href="'+${itemdoc.getURL("view")}+'"&gt;'+$itemdoc.getPlainTitle()+'&lt;/a&gt;&lt;/h5&gt;')
       #if($allDay)
          #set($discard = $services.localization.use('document', 'MoccaCalendar.MoccaCalendarTranslations'))
-         #set($html = "${html}" + '&lt;p class="date"&gt;' + $xwiki.formatDate($startdate, $format) + ' ' + $services.localization.render('MoccaCalendar.calendar.allday')+'&lt;/p&gt;')
+        #set($html = "${html}" + '&lt;p class="date"&gt;' + $xwiki.formatDate($startdate, $format) + ' ' + $services.localization.render('MoccaCalendar.calendar.allday')+'&lt;/p&gt;')
       #else
-         #set($html = "${html}" + '&lt;p class="date"&gt;' + $xwiki.formatDate($startdate, $format) + ' - ' + $xwiki.formatDate($enddate.toDate(), $format) + '&lt;/p&gt;')
+        #if($enddate.getYear() == $startdate.getYear() &amp;&amp; $enddate.getMonth() == $startdate.getMonth() &amp;&amp; $enddate.getDay() == $startdate.getDay())
+          #set($idx = $format.indexOf("H"))
+          #if($idx &gt; 0)
+            #set($timeformat = $format.substring($idx).trim())
+          #else
+            #set($timeformat = "HH:mm")
+          #end
+          #set($html = "${html}" + '&lt;p class="date"&gt;' + $xwiki.formatDate($startdate, $format) + ' - ' + $xwiki.formatDate($enddate, $timeformat) + '&lt;/p&gt;')
+        #else
+          #set($html = "${html}" + '&lt;p class="date"&gt;' + $xwiki.formatDate($startdate, $format) + ' - ' + $xwiki.formatDate($enddate, $format) + '&lt;/p&gt;')
+        #end
       #end
       #set($desc = $itemdoc.getValue('description'))
       #if($desc)
