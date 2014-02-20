@@ -999,7 +999,8 @@ Mocca Calendar Macro
       <description>default calendar view. Possible values are:
 month
 agendaWeek
-agendaDay</description>
+agendaDay
+plainList</description>
     </property>
     <property>
       <mandatory>0</mandatory>
@@ -1530,7 +1531,7 @@ agendaDay</description>
       </name>
     </class>
     <property>
-      <defaultValue>wiki</defaultValue>
+      <defaultValue>page</defaultValue>
     </property>
     <property>
       <description>Possible values are 'wiki','space' or 'page'
