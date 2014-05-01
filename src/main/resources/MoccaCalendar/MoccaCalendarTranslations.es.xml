@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<xwikidoc>
+  <web>MoccaCalendar</web>
+  <name>MoccaCalendarTranslations</name>
+  <language>es</language>
+  <defaultLanguage/>
+  <translation>1</translation>
+  <parent>MoccaCalendarClass</parent>
+  <creator>xwiki:XWiki.Admin</creator>
+  <author>xwiki:XWiki.Admin</author>
+  <customClass/>
+  <contentAuthor>xwiki:XWiki.Admin</contentAuthor>
+  <creationDate>1383574877000</creationDate>
+  <date>1385136439000</date>
+  <contentUpdateDate>1392400158000</contentUpdateDate>
+  <version>1.1</version>
+  <title/>
+  <template/>
+  <defaultTemplate/>
+  <validationScript/>
+  <comment/>
+  <minorEdit>false</minorEdit>
+  <syntaxId>xwiki/2.1</syntaxId>
+  <hidden>true</hidden>
+  <content>## XWiki Translation for language es generated from http://www.l10n.xwiki.org
+MoccaCalendar.MoccaCalendarEventClass_allDay=Todo el día
+MoccaCalendar.calendar=Calendario
+MoccaCalendar.calendar.allday=Todo el Día
+MoccaCalendar.calendar.create=Crear un nuevo calendario
+MoccaCalendar.calendar.day=Día
+MoccaCalendar.calendar.dayNames='Domingo','Lunes','Martes','Miércoles','Jueves','Viernes','Sábado'
+MoccaCalendar.calendar.month=Mes
+MoccaCalendar.calendar.monthNames='Enero','Febrero','Marzo','Abril','Mayo','Junio','Julio','Agosto','Setiembre','Octubre','Noviembre','Diciembre'
+MoccaCalendar.calendar.plainlist=Orden del Día
+MoccaCalendar.calendar.plainlist.nopastevents=No hay eventos pasados ​​encontrado.
+MoccaCalendar.calendar.plainlist.noupcomingevents=No hay próximos eventos encontrados.
+MoccaCalendar.calendar.plainlist.titlepast=Eventos Pasados
+MoccaCalendar.calendar.plainlist.titleupcoming=Próximos Eventos
+MoccaCalendar.calendar.title=Vista general del calendario
+MoccaCalendar.calendar.today=Hoy
+MoccaCalendar.calendar.viewall=Visión general de todos los calendarios
+MoccaCalendar.calendar.week=Semana
+MoccaCalendar.calendarevent.create=Crear un evento
+moccacalendar.livetable._actions=Acciones
+moccacalendar.livetable._actions.delete=Borrar
+moccacalendar.livetable._actions.edit=Editar
+moccacalendar.livetable._attachments=Adjuntos
+moccacalendar.livetable.doc.creator=Creador
+moccacalendar.livetable.doc.name=Nombre de la página
+moccacalendar.livetable.doc.title=Calendario
+moccacalendarevent.livetable._actions=Acción
+moccacalendarevent.livetable._actions.delete=Borrar
+moccacalendarevent.livetable._actions.edit=Editar
+moccacalendarevent.livetable._attachments=Adjuntos
+moccacalendarevent.livetable.doc.creator=Creador
+moccacalendarevent.livetable.doc.name=Nombre de la página
+</content>
+</xwikidoc>
