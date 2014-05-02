@@ -29,18 +29,32 @@
   <description>A Calendar Application</description>
   <url>http://extensions.xwiki.org/xwiki/bin/view/Extension/MoccaCalendar</url>
   <packaging>xar</packaging>
-
+  <developers>
+    <developer>
+      <id>dgotthans</id>
+      <name>Denis Gotthans</name>
+    </developer>
+    <developer>
+      <id>ClemensRobbenhaar</id>
+      <name>Clemens Robbenhaar</name>
+    </developer>
+  </developers>
   <scm>
     <connection>scm:git:git://github.com/xwiki-contrib/application-mocca-calendar.git</connection>
     <developerConnection>scm:git:git@github.com:xwiki-contrib/application-mocca-calendar.git</developerConnection>
     <url>https://github.com/xwiki-contrib/application-mocca-calendar</url>
   </scm>
-
+  <distributionManagement>
+    <repository>
+      <id>xwiki-staging</id>
+      <name>XWiki Staging Repository</name>
+      <url>http://nexus.xwiki.org/nexus/service/local/staging/deploy/maven2/</url>
+    </repository>
+  </distributionManagement>
   <organization>
     <name>EsPresto AG</name>
     <url>http://www.espresto.com</url>
   </organization>
-
   <dependencies>
     
   </dependencies>
@@ -63,5 +77,4 @@
       </plugin>
     </plugins>
   </build>
-
 </project>
