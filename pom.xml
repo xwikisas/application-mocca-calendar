@@ -22,11 +22,16 @@
 -->
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
   <modelVersion>4.0.0</modelVersion>
-  <groupId>org.xwiki.contrib.calendars</groupId>
+  <parent>
+    <groupId>org.xwiki.commons</groupId>
+    <artifactId>xwiki-commons-pom</artifactId>
+    <version>5.0.3</version>
+  </parent>
+  <groupId>org.xwiki.contrib</groupId>
   <artifactId>application-mocca-calendar</artifactId>
   <version>2.1.7-SNAPSHOT</version>
-  <name>XWiki Mocca Calendar Application</name>
-  <description>A Calendar Application</description>
+  <name>Mocca Calendar Application</name>
+  <description>A Calendar Application supporting several Calendars</description>
   <url>http://extensions.xwiki.org/xwiki/bin/view/Extension/MoccaCalendar</url>
   <packaging>xar</packaging>
   <developers>
@@ -51,12 +56,21 @@
       <url>http://nexus.xwiki.org/nexus/service/local/staging/deploy/maven2/</url>
     </repository>
   </distributionManagement>
-  <organization>
-    <name>EsPresto AG</name>
-    <url>http://www.espresto.com</url>
-  </organization>
+  <properties>
+    <!-- Don't run CLIRR here since there's no Java code. -->
+    <xwiki.clirr.skip>true</xwiki.clirr.skip>
+    <!-- alias for pre 2.1.7-versions with an incorrect group id -->
+    <xwiki.extension.features>org.xwiki.contrib.calendars:application-mocca-calendar</xwiki.extension.features>
+  </properties>
   <dependencies>
-    
+    <!-- to be done: finish list of dependencies -->
+    <dependency>
+      <groupId>org.xwiki.platform</groupId>
+      <artifactId>xwiki-platform-livetable-ui</artifactId>
+      <version>${commons.version}</version>
+      <scope>runtime</scope>
+      <type>xar</type>
+    </dependency>
   </dependencies>
   <build>
     <extensions>
