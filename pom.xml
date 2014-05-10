@@ -30,10 +30,21 @@
   <groupId>org.xwiki.contrib</groupId>
   <artifactId>application-mocca-calendar</artifactId>
   <version>2.2-SNAPSHOT</version>
-  <name>Mocca Calendar Application</name>
-  <description>A Calendar Application supporting several Calendars</description>
-  <url>http://extensions.xwiki.org/xwiki/bin/view/Extension/MoccaCalendar</url>
-  <packaging>xar</packaging>
+  <name>Mocca Calendar Application - Parent POM</name>
+  <packaging>pom</packaging>
+  <properties>
+    <platform.version>${commons.version}</platform.version>
+    <rendering.version>${commons.version}</rendering.version>
+  </properties>
+  <modules>
+    <module>application-mocca-calendar-ui</module>
+  </modules>
+  <scm>
+    <connection>scm:git:git://github.com/xwiki-contrib/application-mocca-calendar.git</connection>
+    <developerConnection>scm:git:git@github.com:xwiki-contrib/application-mocca-calendar.git</developerConnection>
+    <url>https://github.com/xwiki-contrib/application-mocca-calendar</url>
+    <tag>HEAD</tag>
+  </scm>
   <developers>
     <developer>
       <id>edgo</id>
@@ -44,12 +55,6 @@
       <name>Clemens Robbenhaar</name>
     </developer>
   </developers>
-  <scm>
-    <connection>scm:git:git://github.com/xwiki-contrib/application-mocca-calendar.git</connection>
-    <developerConnection>scm:git:git@github.com:xwiki-contrib/application-mocca-calendar.git</developerConnection>
-    <url>https://github.com/xwiki-contrib/application-mocca-calendar</url>
-    <tag>HEAD</tag>
-  </scm>
   <distributionManagement>
     <repository>
       <id>xwiki-staging</id>
@@ -57,22 +62,6 @@
       <url>http://nexus.xwiki.org/nexus/service/local/staging/deploy/maven2/</url>
     </repository>
   </distributionManagement>
-  <properties>
-    <!-- Don't run CLIRR here since there's no Java code. -->
-    <xwiki.clirr.skip>true</xwiki.clirr.skip>
-    <!-- alias for pre 2.1.7-versions with an incorrect group id -->
-    <xwiki.extension.features>org.xwiki.contrib.calendars:application-mocca-calendar</xwiki.extension.features>
-  </properties>
-  <dependencies>
-    <!-- to be done: finish list of dependencies -->
-    <dependency>
-      <groupId>org.xwiki.platform</groupId>
-      <artifactId>xwiki-platform-livetable-ui</artifactId>
-      <version>${commons.version}</version>
-      <scope>runtime</scope>
-      <type>xar</type>
-    </dependency>
-  </dependencies>
   <build>
     <extensions>
       <extension>
@@ -92,4 +81,12 @@
       </plugin>
     </plugins>
   </build>
+  <profiles>
+    <profile>
+      <id>integration-tests</id>
+      <modules>
+        <module>application-mocca-calendar-tests</module>
+      </modules>
+    </profile>
+  </profiles>
 </project>
