@@ -32,7 +32,7 @@
   <packaging>jar</packaging>
   <description>Tests for the Mocca Calendar</description>
   <properties>
-    <!-- Override in order to add the WatchlistPlugin itself and its dependencies -->
+    <!-- Override in order to add the plugins we need -->
     <xwikiCfgPlugins>\
       com.xpn.xwiki.plugin.skinx.JsSkinExtensionPlugin,\
       com.xpn.xwiki.plugin.skinx.JsSkinFileExtensionPlugin,\

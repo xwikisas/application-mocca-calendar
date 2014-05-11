@@ -27,19 +27,10 @@
     <artifactId>application-mocca-calendar</artifactId>
     <version>2.2-SNAPSHOT</version>
   </parent>
-  <groupId>org.xwiki.contrib</groupId>
   <artifactId>application-mocca-calendar-ui</artifactId>
-  <version>2.2-SNAPSHOT</version>
   <name>Mocca Calendar Application - UI</name>
   <description>A Calendar Application supporting several Calendars</description>
   <packaging>xar</packaging>
-  <distributionManagement>
-    <repository>
-      <id>xwiki-staging</id>
-      <name>XWiki Staging Repository</name>
-      <url>http://nexus.xwiki.org/nexus/service/local/staging/deploy/maven2/</url>
-    </repository>
-  </distributionManagement>
   <properties>
     <!-- Don't run CLIRR here since there's no Java code. -->
     <xwiki.clirr.skip>true</xwiki.clirr.skip>
