@@ -19,20 +19,26 @@
  */
 package org.xwiki.contrib.moccacalendar;
 
+import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
+// import org.junit.Rule;
+
 import org.xwiki.panels.test.po.ApplicationsPanel;
 import org.xwiki.test.ui.AbstractTest;
+// import org.xwiki.test.ui.SuperAdminAuthenticationRule;
 import org.xwiki.test.ui.po.LiveTableElement;
 import org.xwiki.test.ui.po.ViewPage;
 
-import org.junit.Assert;
-
 /**
- * UI Tests for the MoccaCalendar application.
+ * UI Tests for the MoccaCalendar application - Stub.
  */
 public class CalendarTest extends AbstractTest
 {
+
+    // use this when dependency on xwiki > 5.1
+    // @Rule
+    // public SuperAdminAuthenticationRule authenticationRule = new SuperAdminAuthenticationRule(getUtil(), getDriver());
 
     @Before
     public void setUp()
@@ -45,6 +51,10 @@ public class CalendarTest extends AbstractTest
     @Test
     public void testViewCalendar()
     {
-		// TODO: really test something ...
+        ApplicationsPanel applicationPanel = ApplicationsPanel.gotoPage();
+        ViewPage vp = applicationPanel.clickApplication("Calendar");
+        Assert.assertEquals("MoccaCalendar", vp.getMetaDataValue("space"));
+        Assert.assertEquals("WebHome", vp.getMetaDataValue("page"));
+        // TODO: really test something ...
     }
 }
