@@ -10,14 +10,11 @@
   <creationDate>1379057815000</creationDate>
   <parent>MoccaCalendar.WebHome</parent>
   <author>xwiki:XWiki.Admin</author>
-  <customClass/>
   <contentAuthor>xwiki:XWiki.Admin</contentAuthor>
   <date>1391971971000</date>
-  <contentUpdateDate>1391963938000</contentUpdateDate>
+  <contentUpdateDate>1391971971000</contentUpdateDate>
   <version>1.1</version>
   <title>Calendar Macro</title>
-  <defaultTemplate/>
-  <validationScript/>
   <comment/>
   <minorEdit>false</minorEdit>
   <syntaxId>xwiki/2.1</syntaxId>
@@ -111,7 +108,7 @@ or
         <separators> ,|</separators>
         <size>1</size>
         <unmodifiable>0</unmodifiable>
-        <values>currentPage=Always on this page|onDemand=On demand|always=Always on this wiki</values>
+        <values>currentPage|onDemand|always</values>
         <classType>com.xpn.xwiki.objects.classes.StaticListClass</classType>
       </use>
     </class>
@@ -526,7 +523,7 @@ jQuery.fullCalendar.views.plainList = function(element, calendar) {
         <separators> ,|</separators>
         <size>1</size>
         <unmodifiable>0</unmodifiable>
-        <values>currentPage=Always on this page|onDemand=On demand|always=Always on this wiki</values>
+        <values>currentPage|onDemand|always</values>
         <classType>com.xpn.xwiki.objects.classes.StaticListClass</classType>
       </use>
     </class>
@@ -726,6 +723,10 @@ $xwiki.ssx.use("MoccaCalendar.Macro")
 #if(!$endfield)
 #set($endfield = "endDate")
 #end
+#set($durationfield=$!{xcontext.macro.params.durationfield})
+#if(!$durationfield)
+#set($durationfield = "")
+#end
 
 #set($classname=$!{xcontext.macro.params.classname})
 #if(!$classname)
@@ -804,7 +805,7 @@ $xwiki.ssx.use("MoccaCalendar.Macro")
 #if($xcontext.action=='view')
 {{html clean="false"}}
 &lt;script type="text/javascript"&gt;
-var createCalendarEventUrlTemplate = "$eventUrlTemplate";
+var createCalendarEventUrlTemplate = "$escapetool.javascript($eventUrlTemplate)";
 &lt;/script&gt;
 ## create event link - ToDo: get rid of onclick handler
 &lt;a href="#" onclick="new XWiki.MoccaCalendar.MoccaCalendarPopup({pageURL: '$randomDocUrl'}); return false"&gt;$services.localization.render('MoccaCalendar.calendarevent.create')&lt;/a&gt;&lt;div id="calendar${calcounter}"&gt;&lt;/div&gt;
@@ -813,24 +814,24 @@ var createCalendarEventUrlTemplate = "$eventUrlTemplate";
 
 jQuery(document).ready(function() {
 
-  var defaultView = XWiki.MoccaCalendar.Helper.getCalendarView('$defaultView');
+  var defaultView = XWiki.MoccaCalendar.Helper.getCalendarView("$!escapetool.javascript($defaultView)");
 
   var defaultEventData = {
      xpage: 'plain',
      outputSyntax: 'plain',
-     calendarDoc: '${calendarDoc}',
-     filter: '$!{filter}',
-     classname: '$!{classname}',
-     startfield: '$!{startfield}',
-     endfield: '$!{endfield}',
-     durationfield: '$!{durationfield}'
+     calendarDoc: "$!escapetool.javascript($calendarDoc)",
+     filter: "$!escapetool.javascript($filter)",
+     classname: "$!escapetool.javascript($classname)",
+     startfield: "$!escapetool.javascript($startfield)",
+     endfield: "$!escapetool.javascript($endfield)",
+     durationfield: "$!escapetool.javascript($durationfield)"
   };
 
   // page is now ready, initialize the calendar...
   var calendar = jQuery('#calendar${calcounter}').fullCalendar({
 
   events: {
-    url : "${json}",
+    url : "$!escapetool.javascript($json)",
     type: 'GET',
     data : function() {
       // as we also get called before the calendar is fully initialized
@@ -848,24 +849,24 @@ jQuery(document).ready(function() {
     XWiki.MoccaCalendar.Helper.setCalendarView(view.name);
   },
   header: {
-    left: '$left',
-    center: '$center',
-    right: '$right'
+    left: "$!escapetool.javascript($left)",
+    center: "$!escapetool.javascript($center)",
+    right: "$!escapetool.javascript($right)"
   },
   defaultView: defaultView
-#if($timeFormat!=""), timeFormat: '$timeFormat' #end 
-#if($year!=""), year: $year#end
-#if($month!=""), month: $month #end
-#if($date!=""), date: $date #end
-, firstDay: $firstDay
-#if($firstHour!=""), firstHour: $firstHour #end
-#if($minTime!=""), minTime: $minTime #end
-#if($maxTime!=""), maxTime: $maxTime #end
-,editable: $editable
+#if($timeFormat!=""), timeFormat: "$!escapetool.javascript($timeFormat)" #end 
+#if($year!=""), year: $!escapetool.javascript($year)#end
+#if($month!=""), month: $!escapetool.javascript($month) #end
+#if($date!=""), date: $!escapetool.javascript($date) #end
+, firstDay: $escapetool.javascript($firstDay)
+#if($firstHour!=""), firstHour: $escapetool.javascript($firstHour) #end
+#if($minTime!=""), minTime: $escapetool.javascript($minTime) #end
+#if($maxTime!=""), maxTime: $escapetool.javascript($maxTime) #end
+,editable: $escapetool.javascript($editable)
 ,selectable: true
 ,selectHelper: true
 ,select: function(start, end, allDay) {
-    calendar.helper.showCreateEventForm(start, end, allDay, '$dateFormat');
+    calendar.helper.showCreateEventForm(start, end, allDay, "$!escapetool.javascript($dateFormat)");
     calendar.fullCalendar('unselect');
   }
 ,eventDrop: function(event, dayDelta, minuteDelta, allDay, revertFunc) {
@@ -902,8 +903,8 @@ jQuery(document).ready(function() {
 }
   })
   // TODO: any better way to pass this information around ?
-  calendar.jsonUrl = "${json}";
-  calendar.helper = new XWiki.MoccaCalendar.Helper(calendar, "$randomDocUrl", "${updateurl}?xpage=plain&amp;outputSyntax=plain&amp;calendarDoc=${escapetool.url(${calendarDoc})}&amp;filter=$!{filter}&amp;classname=$!{classname}&amp;startfield=$!{startfield}&amp;endfield=$!{endfield}&amp;durationfield=$!{durationfield}&amp;");
+  calendar.jsonUrl = "$!escapetool.javascript($json)";
+  calendar.helper = new XWiki.MoccaCalendar.Helper(calendar, "$randomDocUrl", "${updateurl}?xpage=plain&amp;outputSyntax=plain&amp;calendarDoc=${escapetool.url(${calendarDoc})}&amp;filter=$!escapetool.url(${filter})&amp;classname=$!escapetool.url(${classname})}&amp;startfield=$!{startfield}&amp;endfield=$!{endfield}&amp;durationfield=$!{durationfield}&amp;");
   // TODO: the last calendar on the page "wins" 
   XWiki.MoccaCalendar.calendar = calendar;
 });&lt;/script&gt;
@@ -1534,10 +1535,10 @@ plainList</description>
       <defaultValue>page</defaultValue>
     </property>
     <property>
-      <description>Possible values are 'wiki','space' or 'page'
-* page: only events which are children pages of this page will be included
-* space: only events which are in the space of the calendar doc will be included
-* wiki: all events will be included</description>
+      <description>Possible values are 'wiki','space' or 'page', where:
+ page: only events which are children pages of this page will be included,
+ space: only events which are in the space of the calendar doc will be included,
+ wiki: all events will be included</description>
     </property>
     <property>
       <mandatory/>

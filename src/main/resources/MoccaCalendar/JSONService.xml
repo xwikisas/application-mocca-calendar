@@ -17,7 +17,7 @@
   <title/>
   <comment/>
   <minorEdit>false</minorEdit>
-  <syntaxId>xwiki/2.0</syntaxId>
+  <syntaxId>xwiki/2.1</syntaxId>
   <hidden>true</hidden>
   <content>{{velocity output="false"}}
 #if("$!{request.outputSyntax}" == 'plain')
@@ -59,21 +59,6 @@ if (request.newEvent) {
 #if("$!{request.newEvent}"!="")
   #break
 #end
-#set($wherePageLocation="")
-#if("$!{request.filter}"!="" &amp;&amp; "$!{request.calendarDoc}"!="")
-  #set($document = $xwiki.getDocument($request.calendarDoc))
-  #if("$!{request.filter}"=="page")
-    #set($wherePageLocation ="($wherePageLocation doc.fullName = '${request.calendarDoc}' or doc.parent='${request.calendarDoc}')")
-  #end
-  #if("$!{request.filter}"=="space")
-    #set($translated = $document.getTranslatedDocument())
-    #set($space = $translated.getSpace())
-    #set($wherePageLocation ="doc.space = '$space'")
-  #end
-#end
-#if("$wherePageLocation"!="")
-  #set($wherePageLocation=" and $wherePageLocation")
-#end
 
 #set($startQuery = $datetool.getDate())
 #set($startTime = $mathtool.toNumber($request.start))
@@ -83,7 +68,7 @@ if (request.newEvent) {
 #set($qsy = $datetool.getYear($startQuery))
 #set($qsm = $mathtool.add($datetool.getMonth($startQuery),1))
 #set($qsd = $datetool.getDay($startQuery))
-#set($whereDate = "and (year(date.value) &gt; $qsy or ( year(date.value) = $qsy and (month(date.value) &gt; $qsm or (month(date.value) = $qsm and day(date.value) &gt;= $qsd))))")
+#set($whereQuery = "and (year(date.value) &gt; :startyear or ( year(date.value) = :startyear and (month(date.value) &gt; :startmonth or (month(date.value) = :startmonth and day(date.value) &gt;= :startday))))")
 
 #set($endQuery = $datetool.getDate())
 #set($endTime = $mathtool.toNumber($request.end))
@@ -93,13 +78,37 @@ if (request.newEvent) {
 #set($qey = $datetool.getYear($endQuery))
 #set($qem = $mathtool.add($datetool.getMonth($endQuery),1))
 #set($qed = $datetool.getDay($endQuery))
-#set($whereDate = "$whereDate and (year(date.value) &lt; $qey or ( year(date.value) = $qey and (month(date.value) &lt; $qem or (month(date.value) = $qem and day(date.value) &lt;= $qed))))")
+#set($whereQuery = "$whereQuery and (year(date.value) &lt; :endyear or ( year(date.value) = :endyear and (month(date.value) &lt; :endmonth or (month(date.value) = :endmonth and day(date.value) &lt;= :endday))))")
 
-#set($hql =", BaseObject as obj, DateProperty as date where doc.fullName=obj.name and obj.id=date.id.id and date.id.name='startDate' $!{wherePageLocation} and doc.name!='MoccaCalendarEventTemplate' and obj.className='${request.classname}' $whereDate order by date.value asc")
+#set($queryParams = { "startyear" : $qsy, "startmonth" : $qsm, "startday" : $qsd, "endyear" : $qey, "endmonth" : $qem, "endday" : $qed })
+
+#if("$!{request.filter}" != "" &amp;&amp; "$!{request.calendarDoc}" != "")
+  #set($document = $xwiki.getDocument($request.calendarDoc))
+  #if("$!{request.filter}" == "page")
+    #set($whereQuery = "$whereQuery and (doc.parent = :parentDoc)")
+    #set($discard = $queryParams.put('parentDoc', $request.calendarDoc))
+  #end
+  #if("$!{request.filter}" == "space")
+    #set($document = $xwiki.getDocument($request.calendarDoc))
+    #set($translated = $document.getTranslatedDocument())
+    #set($space = $translated.getSpace())
+    #set($whereQuery = "$whereQuery and (doc.space = :space)")
+    #set($discard = $queryParams.put('space', $space))
+  #end
+#end
+
+#set($discard = $queryParams.put('startDateField', $request.startfield))
+#set($discard = $queryParams.put('eventClass', $request.classname))
+#set($hql =", BaseObject as obj, DateProperty as date where doc.fullName=obj.name and obj.id=date.id.id and date.id.name= :startDateField and doc.name!='MoccaCalendarEventTemplate' and obj.className= :eventClass $whereQuery order by date.value asc")
+
+#set($query = $services.query.hql($hql))
+#foreach($param in $queryParams.entrySet())
+  #set($query = $query.bindValue($param.key, $param.value))
+#end
 
 #set($jsondateformat = $xwiki.jodatime.getDateTimeFormatterForPattern("yyyy-MM-dd'T'HH:mm"))
 #set($results = [])
-#foreach($item in $services.query.hql($hql).execute())
+#foreach($item in $query.execute())
   #set($itemdoc = $xwiki.getDocument($item))
   #set($parentCalDocName = $itemdoc.getParent())
   #if($parentCalDocName == "$!lastparentCalDocName")
