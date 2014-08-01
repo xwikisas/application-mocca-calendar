@@ -10,14 +10,11 @@
   <creationDate>1383574876000</creationDate>
   <parent>MoccaCalendarEventClass</parent>
   <author>xwiki:XWiki.Admin</author>
-  <customClass/>
   <contentAuthor>xwiki:XWiki.Admin</contentAuthor>
   <date>1391894517000</date>
   <contentUpdateDate>1391894517000</contentUpdateDate>
   <version>1.1</version>
   <title/>
-  <defaultTemplate/>
-  <validationScript/>
   <comment/>
   <minorEdit>false</minorEdit>
   <syntaxId>xwiki/2.1</syntaxId>
@@ -92,20 +89,19 @@ $doc.display($field)
 #elseif($xcontext.action=='edit')
 #set($hql =", BaseObject as obj where doc.fullName=obj.name  and doc.name!='MoccaCalendarTemplate' and obj.className='MoccaCalendar.MoccaCalendarClass'")
   ; &lt;label for="calendar"&gt;$escapetool.xml($services.localization.render('MoccaCalendar.calendar'))&lt;/label&gt;
-  : {{html}}
-#set($started = false)
-&lt;select id="calendarParent" name="$parentParamName"&gt;
+  : &lt;select id="calendarParent" name="$parentParamName"&gt;
 #foreach($item in $services.query.hql($hql).execute())
 #set($itemdoc = $xwiki.getDocument($item))
+#if($!{itemdoc} &amp;&amp; ${itemdoc.hasAccessLevel("edit")})
 #set($selected="")
 #if($itemdoc.getId() == $calendarDoc.getId())
 #set($selected=" selected='selected'")
 #end
-&lt;option value="$itemdoc"$selected&gt;$itemdoc.getDisplayTitle()&lt;/option&gt;
+&lt;option value="$escapetool.html($itemdoc)"$selected&gt;$escapetool.html($itemdoc.getDisplayTitle())&lt;/option&gt;
 #end
-&lt;/select&gt;{{/html}}
 #end
-
+&lt;/select&gt;
+#end
   ; &lt;label for="MoccaCalendarEvent.MoccaCalendarEventClass_0_title"&gt;$escapetool.xml($doc.displayPrettyName('title', false, false))&lt;span class="xRequired"&gt;&lt;/span&gt;&lt;/label&gt;
   : $doc.display('title') #showvalidationmessage("val_title_already_exists") &lt;span class="val_title_notempty xErrorMsg" style="display:none;"&gt;$services.localization.render('val_title_notempty')&lt;/span&gt; &lt;span class="val_title_notvalid xErrorMsg" style="display:none;"&gt;$services.localization.render('val_title_notvalid')&lt;/span&gt;
   ; &lt;label for="MoccaCalendarEvent.MoccaCalendarEventClass_0_startDate"&gt;$escapetool.xml($doc.displayPrettyName('startDate', false, false))&lt;span class="xRequired"&gt;&lt;/span&gt;&lt;/label&gt;
@@ -115,7 +111,6 @@ $doc.display($field)
 
   ; &lt;label for="MoccaCalendarEvent.MoccaCalendarEventClass_0_allDay"&gt;$escapetool.xml($doc.displayPrettyName('allDay', false, false))&lt;/label&gt;
   : $doc.display('allDay')
-
   ; &lt;label for="MoccaCalendarEvent.MoccaCalendarEventClass_0_description"&gt;$escapetool.xml($doc.displayPrettyName('description', false, false))&lt;/label&gt;
   : $doc.display('description')
 )))
