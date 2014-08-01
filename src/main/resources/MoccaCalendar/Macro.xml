@@ -675,13 +675,8 @@ font-size: 1.4em;
       </visibility>
     </class>
     <property>
-      <code>{{velocity filter="html"}}
+      <code>{{velocity output="false"}}
 #set ($discard = $services.localization.use('document', 'MoccaCalendar.MoccaCalendarTranslations'))
-#if("$!request.getParameter('debug')" != "")
-#foreach( $mparam in $xcontext.macro.params.getParameterNames() )
- * $mparam = $xcontext.macro.params.get($mparam) $nl
-#end
-#end
 $xwiki.jsx.use("MoccaCalendar.JQuery", {'defer': false, 'minify': false})
 $xwiki.jsx.use("MoccaCalendar.JQueryUI", {'defer': false, 'minify': false})
 $xwiki.jsx.use("MoccaCalendar.FullCalendar", {'defer': false, 'minify': false})
@@ -697,15 +692,9 @@ $xwiki.jsx.use("MoccaCalendar.DatePickerExtension", {'defer': false})
 #set ($discard = $xwiki.ssfx.use('uicomponents/widgets/datepicker/dateTimePicker.css', true))
 #set ($discard = $xwiki.jsfx.use('uicomponents/widgets/datepicker/dateTimePicker.js'))
 $xwiki.ssx.use("MoccaCalendar.Macro")
-#if($calcounter)
- #set($calcounter = $calcounter + 1)
-#else
- #set($calcounter = 1)
-#end
-##(% id="calendar${calcounter}" %)
-##(((
-##)))
-## 
+#set($calcounter = $request.getAttribute('MoccaCalendar.Macro:counter'))
+#if(!$calcounter) #set($calcounter = 0) #else #set($calcounter = $calcounter + 1) #end
+#set($discard = $request.setAttribute('MoccaCalendar.Macro:counter', $calcounter))
 #set($calendarDoc = $xcontext.macro.params.calendarDoc)
 #if(!$calendarDoc)
 #set($calendarDoc = $doc.fullName)
@@ -798,10 +787,7 @@ $xwiki.ssx.use("MoccaCalendar.Macro")
  #set($updateurl = $xwiki.getDocument("MoccaCalendar.UpdateService").getURL("get"))
 #end
 #set($canCreateEvents = $xwiki.hasAccessLevel("edit", $calendarDoc))
-{{/velocity}}
-{{velocity}}
-#if($xcontext.action=='view')
-{{html clean="false"}}
+{{/velocity}}{{velocity}}#if($xcontext.action=='view'){{html clean="false" wiki="false"}}
 #if($canCreateEvents)
 #set($pageParams = "template=MoccaCalendar.MoccaCalendarEventTemplate&amp;xhidden=1&amp;parentFROM=${escapetool.url($calendarDoc)}&amp;xpage=plain&amp;form_token=$services.csrf.getToken()&amp;ocalcaction=create")
 #set($eventUrlTemplate = $xwiki.getURL('__page__','edit',$pageParams))
@@ -908,7 +894,7 @@ jQuery(document).ready(function() {
   })
   // TODO: any better way to pass this information around ?
   calendar.jsonUrl = "$!escapetool.javascript($json)";
-  calendar.helper = new XWiki.MoccaCalendar.Helper(calendar, "$randomDocUrl", "${updateurl}?xpage=plain&amp;outputSyntax=plain&amp;calendarDoc=${escapetool.url(${calendarDoc})}&amp;filter=$!escapetool.url(${filter})&amp;classname=$!escapetool.url(${classname})}&amp;startfield=$!{startfield}&amp;endfield=$!{endfield}&amp;durationfield=$!{durationfield}&amp;");
+  calendar.helper = new XWiki.MoccaCalendar.Helper(calendar, "$randomDocUrl", "${updateurl}?xpage=plain&amp;outputSyntax=plain&amp;calendarDoc=${escapetool.url(${calendarDoc})}&amp;filter=$!escapetool.url(${filter})&amp;classname=$!escapetool.url($classname)&amp;startfield=$!{startfield}&amp;endfield=$!{endfield}&amp;durationfield=$!{durationfield}&amp;");
   // TODO: the last calendar on the page "wins" 
   XWiki.MoccaCalendar.calendar = calendar;
 });&lt;/script&gt;
