@@ -1,40 +1,42 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<xwikidoc>
+<xwikidoc version="1.1">
   <web>MoccaCalendar</web>
   <name>MoccaCalendarSheet</name>
   <language/>
   <defaultLanguage/>
   <translation>0</translation>
-  <parent>MoccaCalendarClass</parent>
   <creator>xwiki:XWiki.Admin</creator>
-  <author>xwiki:XWiki.Admin</author>
-  <customClass/>
-  <contentAuthor>xwiki:XWiki.Admin</contentAuthor>
   <creationDate>1377502319000</creationDate>
+  <parent>MoccaCalendarClass</parent>
+  <author>xwiki:XWiki.Admin</author>
+  <contentAuthor>xwiki:XWiki.Admin</contentAuthor>
   <date>1373961627000</date>
   <contentUpdateDate>1373961627000</contentUpdateDate>
   <version>1.1</version>
   <title/>
-  <defaultTemplate/>
-  <validationScript/>
   <comment/>
   <minorEdit>false</minorEdit>
   <syntaxId>xwiki/2.1</syntaxId>
   <hidden>true</hidden>
   <content>{{velocity}}
+## pretty desparate measure to avoid edit form mess when embedded into another document, which in turn gets edited
+#set($myEdit = ($xcontext.action == 'edit') &amp;&amp; ($doc.getURL("edit") == $xcontext.getRequest().getRequestURI()) )
+#if(($xcontext.action == 'edit') &amp;&amp; !$myEdit)
+#set($oldView = $xcontext.get('display'))
+#set($discard = $xcontext.put('display','view'))
+#end
 {{html wiki="true"}}
 #set ($discard = $xwiki.jsfx.use('uicomponents/widgets/colorpicker/procolor.js', true))
 #set ($discard = $xwiki.jsx.use("ColorThemes.ColorThemeSheet", {'defer': false}))
 #set ($discard = $xwiki.ssx.use("ColorThemes.ColorThemeSheet"))
-
 #set ($discard = $doc.use('MoccaCalendar.MoccaCalendarClass'))
 #set ($discard = $services.localization.use('document', 'MoccaCalendar.MoccaCalendarTranslations'))
 (% class="xform" %)
 (((
   ; &lt;label for="MoccaCalendar.MoccaCalendarClass_0_title"&gt;$escapetool.xml($doc.displayPrettyName('title', false, false))&lt;/label&gt;
   : $doc.display('title')
-#if($xcontext.action!='view')
+#if($myEdit)
   ; &lt;label for="MoccaCalendar.MoccaCalendarClass_0_color"&gt;$escapetool.xml($doc.displayPrettyName('color', false, false))&lt;/label&gt;
   : (% class="procolor" style="color:$doc.getValue('color')" %)$doc.display('color')
 #end
@@ -44,19 +46,21 @@
   : $doc.display('content1')
 )))
 
-#if($xcontext.action!='view')
+#if($myEdit)
 &lt;script type="text/javascript"&gt;
-document.observe("dom:loaded", function() {
+document.observe &amp;&amp; document.observe("dom:loaded", function() {
 ProColor.prototype.attachButton('MoccaCalendar.MoccaCalendarClass_0_color',{
 mode:'static'
 ,input:'MoccaCalendar.MoccaCalendarClass_0_color'
 ,imgPath:"#set($imgPath = $xwiki.getSkinFile('uicomponents/widgets/colorpicker/img/procolor_win_bg.png'))#set($imgPath = $imgPath.substring(0, $imgPath.lastIndexOf('bg.png')))${imgPath}"
 });
 });
-
 &lt;/script&gt;
+#else
+  #if($!oldView)
+    #set($discard = $xcontext.put('display',$oldView))
+  #end
 #end
-
 {{/html}}
 {{/velocity}}</content>
 </xwikidoc>
