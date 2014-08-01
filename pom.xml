@@ -45,6 +45,7 @@
     <url>https://github.com/xwiki-contrib/application-mocca-calendar</url>
     <tag>HEAD</tag>
   </scm>
+  <url>http://extensions.xwiki.org/xwiki/bin/view/Extension/MoccaCalendar</url>
   <developers>
     <developer>
       <id>edgo</id>

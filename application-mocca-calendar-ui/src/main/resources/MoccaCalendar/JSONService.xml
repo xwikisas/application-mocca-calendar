@@ -17,7 +17,7 @@
   <title/>
   <comment/>
   <minorEdit>false</minorEdit>
-  <syntaxId>xwiki/2.0</syntaxId>
+  <syntaxId>xwiki/2.1</syntaxId>
   <hidden>true</hidden>
   <content>{{velocity output="false"}}
 #if("$!{request.outputSyntax}" == 'plain')
@@ -38,8 +38,6 @@ if (request.newEvent) {
 
   def counter = 0
   def error = null
-  // XXX no implicit jsontool or other means to jsonize, so create one
-  def jsontool = new org.xwiki.velocity.tools.JSONTool()
 
   while (xwiki.exists(services.model.createDocumentReference(wiki, space, eventName)) &amp;&amp; (error == null)) {
      counter++;
@@ -50,33 +48,16 @@ if (request.newEvent) {
   }
   if (error != null) {
       services.localization.use('document', 'MoccaCalendar.MoccaCalendarTranslations')
-      print jsontool.serialize( [ 'error' : services.localization.render(error) ] )
+      print new groovy.json.JsonBuilder( [ 'error' : services.localization.render(error) ] )
   } else {
-    print jsontool.serialize( [ 'name' : eventName ] )
+      print new groovy.json.JsonBuilder( [ 'name' : eventName ] )
   }
 }
 {{/groovy}}
-
 {{velocity filter="html" wiki="false"}}
 #if($xcontext.action == 'get')
 #if("$!{request.newEvent}"!="")
   #break
-#end
-#set($wherePageLocation="")
-#if("$!{request.filter}"!="" &amp;&amp; "$!{request.calendarDoc}"!="")
-  #set($document = $xwiki.getDocument($request.calendarDoc))
-  #if("$!{request.filter}"=="page")
-    #set($wherePageLocation ="($wherePageLocation doc.fullName = '${request.calendarDoc}' or doc.parent='${request.calendarDoc}')")
-  #end
-  #if("$!{request.filter}"=="space")
-    #set($translated = $document.getTranslatedDocument())
-    ##set($name = $translated.getName())
-    #set($space = $translated.getSpace())
-    #set($wherePageLocation ="doc.space = '$space'")
-  #end
-#end
-#if("$wherePageLocation"!="")
-  #set($wherePageLocation=" and $wherePageLocation")
 #end
 
 #set($startQuery = $datetool.getDate())
@@ -87,7 +68,7 @@ if (request.newEvent) {
 #set($qsy = $datetool.getYear($startQuery))
 #set($qsm = $mathtool.add($datetool.getMonth($startQuery),1))
 #set($qsd = $datetool.getDay($startQuery))
-#set($whereDate = "and (year(date.value) &gt; $qsy or ( year(date.value) = $qsy and (month(date.value) &gt; $qsm or (month(date.value) = $qsm and day(date.value) &gt;= $qsd))))")
+#set($whereQuery = "and (year(date.value) &gt; :startyear or ( year(date.value) = :startyear and (month(date.value) &gt; :startmonth or (month(date.value) = :startmonth and day(date.value) &gt;= :startday))))")
 
 #set($endQuery = $datetool.getDate())
 #set($endTime = $mathtool.toNumber($request.end))
@@ -97,15 +78,39 @@ if (request.newEvent) {
 #set($qey = $datetool.getYear($endQuery))
 #set($qem = $mathtool.add($datetool.getMonth($endQuery),1))
 #set($qed = $datetool.getDay($endQuery))
-#set($whereDate = "$whereDate and (year(date.value) &lt; $qey or ( year(date.value) = $qey and (month(date.value) &lt; $qem or (month(date.value) = $qem and day(date.value) &lt;= $qed))))")
+#set($whereQuery = "$whereQuery and (year(date.value) &lt; :endyear or ( year(date.value) = :endyear and (month(date.value) &lt; :endmonth or (month(date.value) = :endmonth and day(date.value) &lt;= :endday))))")
 
-#set($hql =", BaseObject as obj, DateProperty as date where doc.fullName=obj.name and obj.id=date.id.id and date.id.name='startDate' $!{wherePageLocation} and doc.name!='MoccaCalendarEventTemplate' and obj.className='${request.classname}' $whereDate order by date.value asc")
-[
+#set($queryParams = { "startyear" : $qsy, "startmonth" : $qsm, "startday" : $qsd, "endyear" : $qey, "endmonth" : $qem, "endday" : $qed })
+
+#if("$!{request.filter}" != "" &amp;&amp; "$!{request.calendarDoc}" != "")
+  #set($document = $xwiki.getDocument($request.calendarDoc))
+  #if("$!{request.filter}" == "page")
+    #set($whereQuery = "$whereQuery and (doc.parent = :parentDoc)")
+    #set($discard = $queryParams.put('parentDoc', $request.calendarDoc))
+  #end
+  #if("$!{request.filter}" == "space")
+    #set($document = $xwiki.getDocument($request.calendarDoc))
+    #set($translated = $document.getTranslatedDocument())
+    #set($space = $translated.getSpace())
+    #set($whereQuery = "$whereQuery and (doc.space = :space)")
+    #set($discard = $queryParams.put('space', $space))
+  #end
+#end
+
+#set($discard = $queryParams.put('startDateField', $request.startfield))
+#set($discard = $queryParams.put('eventClass', $request.classname))
+#set($hql =", BaseObject as obj, DateProperty as date where doc.fullName=obj.name and obj.id=date.id.id and date.id.name= :startDateField and doc.name!='MoccaCalendarEventTemplate' and obj.className= :eventClass $whereQuery order by date.value asc")
+
+#set($query = $services.query.hql($hql))
+#foreach($param in $queryParams.entrySet())
+  #set($query = $query.bindValue($param.key, $param.value))
+#end
+
 #set($jsondateformat = $xwiki.jodatime.getDateTimeFormatterForPattern("yyyy-MM-dd'T'HH:mm"))
-#set($started = false)
-#foreach($item in $services.query.hql($hql).execute())
+#set($results = [])
+#foreach($item in $query.execute())
   #set($itemdoc = $xwiki.getDocument($item))
-  #set($parentCalDocName=$itemdoc.getParent())
+  #set($parentCalDocName = $itemdoc.getParent())
   #if($parentCalDocName == "$!lastparentCalDocName")
     #set($color="$!lastColor")
   #else
@@ -126,17 +131,11 @@ if (request.newEvent) {
     #else
       #set($enddate = $startdate.plusMinutes($duration))
     #end
-
-    #if($started)
-,
-    #else
-      #set($started = true)
-    #end
     #set($allDay=false)
     #if("$!itemdoc.getValue('allDay')"==1)
       #set($allDay=true)
     #end
-{ "id" : "${escapetool.javascript($itemdoc.fullName)}", "title" : "${escapetool.javascript($itemdoc.getPlainTitle())}", "url" : "${escapetool.javascript($itemdoc.getURL('view',"calendarDoc=$!request.calendarDoc"))}", "start" : "${jsondateformat.print($startdate)}", "end" : "${jsondateformat.print($enddate)}","allDay":$allDay, "color":"$color"
+    #set($event = {"id" : $itemdoc.getDocumentReference().toString(), "title" : $itemdoc.getPlainTitle(), "url" : $itemdoc.getURL('view',"calendarDoc=$!request.calendarDoc"), "start" : $jsondateformat.print($startdate), "end" : $jsondateformat.print($enddate), "allDay" : $allDay, "color" : $color })
     #if("$!{request.outputView}"=="plainList")
       #set($format = $!itemdoc.getObject("${request.classname}").getxWikiClass().get($request.startfield).getProperty('dateFormat').value)
       #if($!format=="")
@@ -150,7 +149,7 @@ if (request.newEvent) {
       #end
       #set($dateprinter = $xwiki.jodatime.getDateTimeFormatterForPattern($format))
       #set($html = '&lt;div class="moccaevent" style="border-color:' +$color + '"&gt;')
-      #set($html = "${html}"+'&lt;h5&gt;&lt;a href="'+${itemdoc.getURL("view")}+'"&gt;'+$itemdoc.getPlainTitle()+'&lt;/a&gt;&lt;/h5&gt;')
+      #set($html = "${html}"+'&lt;h5&gt;&lt;a href="'+${itemdoc.getURL("view")}+'"&gt;' + $escapetool.html($itemdoc.getPlainTitle()) + '&lt;/a&gt;&lt;/h5&gt;')
       #if($allDay)
          #set($discard = $services.localization.use('document', 'MoccaCalendar.MoccaCalendarTranslations'))
         #set($html = "${html}" + '&lt;p class="date"&gt;' + $dateprinter.print($startdate) + ' ' + $services.localization.render('MoccaCalendar.calendar.allday')+'&lt;/p&gt;')
@@ -175,12 +174,12 @@ if (request.newEvent) {
         #set($html = "${html}"  + $desc )
       #end
       #set($html = "${html}&lt;/div&gt;")
-      ,"html":"${escapetool.javascript($html)}"
+      #set($discard = $event.put("html", $html))
     #end
- }
+    #set($discard = $results.add($event))
+  #end
 #end
-#end
-]
+$jsontool.serialize($results)
 #else
 Service Page for the Mocca Calendar Application
 #end ## end of #if($xcontext.action == 'get')
