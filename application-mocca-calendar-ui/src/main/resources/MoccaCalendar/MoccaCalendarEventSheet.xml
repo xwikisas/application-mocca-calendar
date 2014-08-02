@@ -85,7 +85,7 @@ $doc.display($field)
 (((
 #if($xcontext.action=='view' &amp;&amp; $calendar)
   ; &lt;label for="calendar"&gt;$escapetool.xml($services.localization.render('MoccaCalendar.calendar'))&lt;/label&gt;
-  : [[$escapetool.xml($calendarDoc.getDisplayTitle())&gt;&gt;$parentDoc.fullName]]
+  : [[$calendarDoc.getDisplayTitle()&gt;&gt;$calendarDoc.fullName]]
 #elseif($xcontext.action=='edit')
 #set($hql =", BaseObject as obj where doc.fullName=obj.name and doc.name!='MoccaCalendarTemplate' and obj.className='MoccaCalendar.MoccaCalendarClass' order by doc.title, doc.name")
   ; &lt;label for="calendar"&gt;$escapetool.xml($services.localization.render('MoccaCalendar.calendar'))&lt;/label&gt;
