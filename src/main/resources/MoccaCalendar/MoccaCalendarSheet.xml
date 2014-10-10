@@ -42,8 +42,10 @@
 #end
   ; &lt;label for="MoccaCalendar.MoccaCalendarClass_0_description"&gt;$escapetool.xml($doc.displayPrettyName('description', false, false))&lt;/label&gt;
   : $doc.display('description')
+#if(!${myEdit})
   ; &lt;label for="MoccaCalendar.MoccaCalendarClass_0_content1"&gt;$escapetool.xml($doc.displayPrettyName('content1', false, false))&lt;/label&gt;
   : $doc.display('content1')
+#end
 )))
 
 #if($myEdit)
