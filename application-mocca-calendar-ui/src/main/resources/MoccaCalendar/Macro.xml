@@ -762,10 +762,6 @@ $xwiki.ssx.use("MoccaCalendar.Macro")
 #if(!$firstDay)
  #set($firstDay = "$services.localization.render('MoccaCalendar.calendar.firstDayOfWeek')")
 #end
-#set($firstHour = $xcontext.macro.params.firstHour)
-#if(!$firstHour)
- #set($firstHour = "")
-#end
 #set($minTime = $xcontext.macro.params.minTime)
 #if(!$minTime)
  #set($minTime = "")
@@ -851,7 +847,6 @@ jQuery(document).ready(function() {
 #if($month!=""), month: $!escapetool.javascript($month) #end
 #if($date!=""), date: $!escapetool.javascript($date) #end
 , firstDay: $escapetool.javascript($firstDay)
-#if($firstHour!=""), firstHour: $escapetool.javascript($firstHour) #end
 #if($minTime!=""), minTime: $escapetool.javascript($minTime) #end
 #if($maxTime!=""), maxTime: $escapetool.javascript($maxTime) #end
 ,editable: $escapetool.javascript($editable)
@@ -934,7 +929,142 @@ Mocca Calendar Macro
   </object>
   <object>
     <name>MoccaCalendar.Macro</name>
-    <number>6</number>
+    <number>0</number>
+    <className>XWiki.WikiMacroParameterClass</className>
+    <guid>2b173925-b2b6-496b-b18f-8a8092663b88</guid>
+    <class>
+      <name>XWiki.WikiMacroParameterClass</name>
+      <customClass/>
+      <customMapping/>
+      <defaultViewSheet/>
+      <defaultEditSheet/>
+      <defaultWeb/>
+      <nameField/>
+      <validationScript/>
+      <defaultValue>
+        <disabled>0</disabled>
+        <name>defaultValue</name>
+        <number>4</number>
+        <prettyName>Parameter default value</prettyName>
+        <size>30</size>
+        <unmodifiable>0</unmodifiable>
+        <classType>com.xpn.xwiki.objects.classes.StringClass</classType>
+      </defaultValue>
+      <description>
+        <disabled>0</disabled>
+        <name>description</name>
+        <number>2</number>
+        <prettyName>Parameter description</prettyName>
+        <rows>5</rows>
+        <size>40</size>
+        <unmodifiable>0</unmodifiable>
+        <classType>com.xpn.xwiki.objects.classes.TextAreaClass</classType>
+      </description>
+      <mandatory>
+        <disabled>0</disabled>
+        <displayFormType>select</displayFormType>
+        <displayType>yesno</displayType>
+        <name>mandatory</name>
+        <number>3</number>
+        <prettyName>Parameter mandatory</prettyName>
+        <unmodifiable>0</unmodifiable>
+        <classType>com.xpn.xwiki.objects.classes.BooleanClass</classType>
+      </mandatory>
+      <name>
+        <disabled>0</disabled>
+        <name>name</name>
+        <number>1</number>
+        <prettyName>Parameter name</prettyName>
+        <size>30</size>
+        <unmodifiable>0</unmodifiable>
+        <classType>com.xpn.xwiki.objects.classes.StringClass</classType>
+      </name>
+    </class>
+    <property>
+      <defaultValue>page</defaultValue>
+    </property>
+    <property>
+      <description>Possible values are 'wiki','space' or 'page', where:
+ 'page': only events which are children pages of this page will be included,
+ 'space': only events which are in the space of the calendar doc will be included,
+ 'wiki': all events will be included.</description>
+    </property>
+    <property>
+      <mandatory/>
+    </property>
+    <property>
+      <name>filter</name>
+    </property>
+  </object>
+  <object>
+    <name>MoccaCalendar.Macro</name>
+    <number>1</number>
+    <className>XWiki.WikiMacroParameterClass</className>
+    <guid>47abb77b-820a-4406-aaba-618116667c32</guid>
+    <class>
+      <name>XWiki.WikiMacroParameterClass</name>
+      <customClass/>
+      <customMapping/>
+      <defaultViewSheet/>
+      <defaultEditSheet/>
+      <defaultWeb/>
+      <nameField/>
+      <validationScript/>
+      <defaultValue>
+        <disabled>0</disabled>
+        <name>defaultValue</name>
+        <number>4</number>
+        <prettyName>Parameter default value</prettyName>
+        <size>30</size>
+        <unmodifiable>0</unmodifiable>
+        <classType>com.xpn.xwiki.objects.classes.StringClass</classType>
+      </defaultValue>
+      <description>
+        <disabled>0</disabled>
+        <name>description</name>
+        <number>2</number>
+        <prettyName>Parameter description</prettyName>
+        <rows>5</rows>
+        <size>40</size>
+        <unmodifiable>0</unmodifiable>
+        <classType>com.xpn.xwiki.objects.classes.TextAreaClass</classType>
+      </description>
+      <mandatory>
+        <disabled>0</disabled>
+        <displayFormType>select</displayFormType>
+        <displayType>yesno</displayType>
+        <name>mandatory</name>
+        <number>3</number>
+        <prettyName>Parameter mandatory</prettyName>
+        <unmodifiable>0</unmodifiable>
+        <classType>com.xpn.xwiki.objects.classes.BooleanClass</classType>
+      </mandatory>
+      <name>
+        <disabled>0</disabled>
+        <name>name</name>
+        <number>1</number>
+        <prettyName>Parameter name</prettyName>
+        <size>30</size>
+        <unmodifiable>0</unmodifiable>
+        <classType>com.xpn.xwiki.objects.classes.StringClass</classType>
+      </name>
+    </class>
+    <property>
+      <defaultValue/>
+    </property>
+    <property>
+      <description>The calendar document whose events are shown (only if filter is set to 'page'). This value is also used as the default calendar to create new events for. If missing, the current document is used.</description>
+    </property>
+    <property>
+      <mandatory>0</mandatory>
+    </property>
+    <property>
+      <name>calendarDoc</name>
+    </property>
+  </object>
+  <object>
+    <name>MoccaCalendar.Macro</name>
+    <number>2</number>
     <className>XWiki.WikiMacroParameterClass</className>
     <guid>b87943f2-eeba-4d00-94e5-2ca115bb7332</guid>
     <class>
@@ -989,11 +1119,7 @@ Mocca Calendar Macro
       <defaultValue>month</defaultValue>
     </property>
     <property>
-      <description>default calendar view. Possible values are:
-month
-agendaWeek
-agendaDay
-plainList</description>
+      <description>The initial way the calendar is displayed; can be changed by the user. Possible values are: 'month', 'agendaWeek', 'agendaDay' or 'plainList'</description>
     </property>
     <property>
       <mandatory>0</mandatory>
@@ -1004,208 +1130,7 @@ plainList</description>
   </object>
   <object>
     <name>MoccaCalendar.Macro</name>
-    <number>7</number>
-    <className>XWiki.WikiMacroParameterClass</className>
-    <guid>b6bb2e26-07c8-4b87-a628-e9f3d59faf0f</guid>
-    <class>
-      <name>XWiki.WikiMacroParameterClass</name>
-      <customClass/>
-      <customMapping/>
-      <defaultViewSheet/>
-      <defaultEditSheet/>
-      <defaultWeb/>
-      <nameField/>
-      <validationScript/>
-      <defaultValue>
-        <disabled>0</disabled>
-        <name>defaultValue</name>
-        <number>4</number>
-        <prettyName>Parameter default value</prettyName>
-        <size>30</size>
-        <unmodifiable>0</unmodifiable>
-        <classType>com.xpn.xwiki.objects.classes.StringClass</classType>
-      </defaultValue>
-      <description>
-        <disabled>0</disabled>
-        <name>description</name>
-        <number>2</number>
-        <prettyName>Parameter description</prettyName>
-        <rows>5</rows>
-        <size>40</size>
-        <unmodifiable>0</unmodifiable>
-        <classType>com.xpn.xwiki.objects.classes.TextAreaClass</classType>
-      </description>
-      <mandatory>
-        <disabled>0</disabled>
-        <displayFormType>select</displayFormType>
-        <displayType>yesno</displayType>
-        <name>mandatory</name>
-        <number>3</number>
-        <prettyName>Parameter mandatory</prettyName>
-        <unmodifiable>0</unmodifiable>
-        <classType>com.xpn.xwiki.objects.classes.BooleanClass</classType>
-      </mandatory>
-      <name>
-        <disabled>0</disabled>
-        <name>name</name>
-        <number>1</number>
-        <prettyName>Parameter name</prettyName>
-        <size>30</size>
-        <unmodifiable>0</unmodifiable>
-        <classType>com.xpn.xwiki.objects.classes.StringClass</classType>
-      </name>
-    </class>
-    <property>
-      <defaultValue/>
-    </property>
-    <property>
-      <description>Year of the date to show when loading the calendar. Leave empty for today
-</description>
-    </property>
-    <property>
-      <mandatory>0</mandatory>
-    </property>
-    <property>
-      <name>year</name>
-    </property>
-  </object>
-  <object>
-    <name>MoccaCalendar.Macro</name>
-    <number>8</number>
-    <className>XWiki.WikiMacroParameterClass</className>
-    <guid>b42462f5-12d3-4775-a2e5-feccc98532ab</guid>
-    <class>
-      <name>XWiki.WikiMacroParameterClass</name>
-      <customClass/>
-      <customMapping/>
-      <defaultViewSheet/>
-      <defaultEditSheet/>
-      <defaultWeb/>
-      <nameField/>
-      <validationScript/>
-      <defaultValue>
-        <disabled>0</disabled>
-        <name>defaultValue</name>
-        <number>4</number>
-        <prettyName>Parameter default value</prettyName>
-        <size>30</size>
-        <unmodifiable>0</unmodifiable>
-        <classType>com.xpn.xwiki.objects.classes.StringClass</classType>
-      </defaultValue>
-      <description>
-        <disabled>0</disabled>
-        <name>description</name>
-        <number>2</number>
-        <prettyName>Parameter description</prettyName>
-        <rows>5</rows>
-        <size>40</size>
-        <unmodifiable>0</unmodifiable>
-        <classType>com.xpn.xwiki.objects.classes.TextAreaClass</classType>
-      </description>
-      <mandatory>
-        <disabled>0</disabled>
-        <displayFormType>select</displayFormType>
-        <displayType>yesno</displayType>
-        <name>mandatory</name>
-        <number>3</number>
-        <prettyName>Parameter mandatory</prettyName>
-        <unmodifiable>0</unmodifiable>
-        <classType>com.xpn.xwiki.objects.classes.BooleanClass</classType>
-      </mandatory>
-      <name>
-        <disabled>0</disabled>
-        <name>name</name>
-        <number>1</number>
-        <prettyName>Parameter name</prettyName>
-        <size>30</size>
-        <unmodifiable>0</unmodifiable>
-        <classType>com.xpn.xwiki.objects.classes.StringClass</classType>
-      </name>
-    </class>
-    <property>
-      <defaultValue/>
-    </property>
-    <property>
-      <description>Month (from 0 to 11) of the date to show when loading the calendar. Leave empty for today
-</description>
-    </property>
-    <property>
-      <mandatory>0</mandatory>
-    </property>
-    <property>
-      <name>month</name>
-    </property>
-  </object>
-  <object>
-    <name>MoccaCalendar.Macro</name>
-    <number>9</number>
-    <className>XWiki.WikiMacroParameterClass</className>
-    <guid>3f0c549b-6617-4e17-965c-b9b7586dc47d</guid>
-    <class>
-      <name>XWiki.WikiMacroParameterClass</name>
-      <customClass/>
-      <customMapping/>
-      <defaultViewSheet/>
-      <defaultEditSheet/>
-      <defaultWeb/>
-      <nameField/>
-      <validationScript/>
-      <defaultValue>
-        <disabled>0</disabled>
-        <name>defaultValue</name>
-        <number>4</number>
-        <prettyName>Parameter default value</prettyName>
-        <size>30</size>
-        <unmodifiable>0</unmodifiable>
-        <classType>com.xpn.xwiki.objects.classes.StringClass</classType>
-      </defaultValue>
-      <description>
-        <disabled>0</disabled>
-        <name>description</name>
-        <number>2</number>
-        <prettyName>Parameter description</prettyName>
-        <rows>5</rows>
-        <size>40</size>
-        <unmodifiable>0</unmodifiable>
-        <classType>com.xpn.xwiki.objects.classes.TextAreaClass</classType>
-      </description>
-      <mandatory>
-        <disabled>0</disabled>
-        <displayFormType>select</displayFormType>
-        <displayType>yesno</displayType>
-        <name>mandatory</name>
-        <number>3</number>
-        <prettyName>Parameter mandatory</prettyName>
-        <unmodifiable>0</unmodifiable>
-        <classType>com.xpn.xwiki.objects.classes.BooleanClass</classType>
-      </mandatory>
-      <name>
-        <disabled>0</disabled>
-        <name>name</name>
-        <number>1</number>
-        <prettyName>Parameter name</prettyName>
-        <size>30</size>
-        <unmodifiable>0</unmodifiable>
-        <classType>com.xpn.xwiki.objects.classes.StringClass</classType>
-      </name>
-    </class>
-    <property>
-      <defaultValue/>
-    </property>
-    <property>
-      <description>Day (from 1 to 31) of the date to show when loading the calendar. Leave empty for today
-</description>
-    </property>
-    <property>
-      <mandatory>0</mandatory>
-    </property>
-    <property>
-      <name>date</name>
-    </property>
-  </object>
-  <object>
-    <name>MoccaCalendar.Macro</name>
-    <number>10</number>
+    <number>3</number>
     <className>XWiki.WikiMacroParameterClass</className>
     <guid>d07837c6-fa51-4eac-a1b0-a79aab60511e</guid>
     <class>
@@ -1271,74 +1196,7 @@ plainList</description>
   </object>
   <object>
     <name>MoccaCalendar.Macro</name>
-    <number>11</number>
-    <className>XWiki.WikiMacroParameterClass</className>
-    <guid>3c7db435-6bd2-41d4-8836-1a1bd68a9881</guid>
-    <class>
-      <name>XWiki.WikiMacroParameterClass</name>
-      <customClass/>
-      <customMapping/>
-      <defaultViewSheet/>
-      <defaultEditSheet/>
-      <defaultWeb/>
-      <nameField/>
-      <validationScript/>
-      <defaultValue>
-        <disabled>0</disabled>
-        <name>defaultValue</name>
-        <number>4</number>
-        <prettyName>Parameter default value</prettyName>
-        <size>30</size>
-        <unmodifiable>0</unmodifiable>
-        <classType>com.xpn.xwiki.objects.classes.StringClass</classType>
-      </defaultValue>
-      <description>
-        <disabled>0</disabled>
-        <name>description</name>
-        <number>2</number>
-        <prettyName>Parameter description</prettyName>
-        <rows>5</rows>
-        <size>40</size>
-        <unmodifiable>0</unmodifiable>
-        <classType>com.xpn.xwiki.objects.classes.TextAreaClass</classType>
-      </description>
-      <mandatory>
-        <disabled>0</disabled>
-        <displayFormType>select</displayFormType>
-        <displayType>yesno</displayType>
-        <name>mandatory</name>
-        <number>3</number>
-        <prettyName>Parameter mandatory</prettyName>
-        <unmodifiable>0</unmodifiable>
-        <classType>com.xpn.xwiki.objects.classes.BooleanClass</classType>
-      </mandatory>
-      <name>
-        <disabled>0</disabled>
-        <name>name</name>
-        <number>1</number>
-        <prettyName>Parameter name</prettyName>
-        <size>30</size>
-        <unmodifiable>0</unmodifiable>
-        <classType>com.xpn.xwiki.objects.classes.StringClass</classType>
-      </name>
-    </class>
-    <property>
-      <defaultValue/>
-    </property>
-    <property>
-      <description>First hour to show in the calendar. Leave empty for default
-</description>
-    </property>
-    <property>
-      <mandatory>0</mandatory>
-    </property>
-    <property>
-      <name>firstHour</name>
-    </property>
-  </object>
-  <object>
-    <name>MoccaCalendar.Macro</name>
-    <number>12</number>
+    <number>4</number>
     <className>XWiki.WikiMacroParameterClass</className>
     <guid>77d5c912-4d56-452d-a4f6-f4eabc42c52c</guid>
     <class>
@@ -1405,7 +1263,7 @@ plainList</description>
   </object>
   <object>
     <name>MoccaCalendar.Macro</name>
-    <number>13</number>
+    <number>5</number>
     <className>XWiki.WikiMacroParameterClass</className>
     <guid>1bf587c1-14b2-4b51-b1f4-babbf1d13ecf</guid>
     <class>
@@ -1460,7 +1318,7 @@ plainList</description>
       <defaultValue>23</defaultValue>
     </property>
     <property>
-      <description>Last time to show in the calendar. Users won't see hours before this time. Leave empty for default (23.00)
+      <description>Last time to show in the calendar. Users won't see hours after this time. Leave empty for default (23.00)
 </description>
     </property>
     <property>
@@ -1472,9 +1330,9 @@ plainList</description>
   </object>
   <object>
     <name>MoccaCalendar.Macro</name>
-    <number>17</number>
+    <number>6</number>
     <className>XWiki.WikiMacroParameterClass</className>
-    <guid>2b173925-b2b6-496b-b18f-8a8092663b88</guid>
+    <guid>b6bb2e26-07c8-4b87-a628-e9f3d59faf0f</guid>
     <class>
       <name>XWiki.WikiMacroParameterClass</name>
       <customClass/>
@@ -1524,19 +1382,151 @@ plainList</description>
       </name>
     </class>
     <property>
-      <defaultValue>page</defaultValue>
+      <defaultValue/>
     </property>
     <property>
-      <description>Possible values are 'wiki','space' or 'page', where:
- page: only events which are children pages of this page will be included,
- space: only events which are in the space of the calendar doc will be included,
- wiki: all events will be included</description>
+      <description>Year of the date to show when loading the calendar. Leave empty for today
+</description>
     </property>
     <property>
-      <mandatory/>
+      <mandatory>0</mandatory>
     </property>
     <property>
-      <name>filter</name>
+      <name>year</name>
+    </property>
+  </object>
+  <object>
+    <name>MoccaCalendar.Macro</name>
+    <number>7</number>
+    <className>XWiki.WikiMacroParameterClass</className>
+    <guid>b42462f5-12d3-4775-a2e5-feccc98532ab</guid>
+    <class>
+      <name>XWiki.WikiMacroParameterClass</name>
+      <customClass/>
+      <customMapping/>
+      <defaultViewSheet/>
+      <defaultEditSheet/>
+      <defaultWeb/>
+      <nameField/>
+      <validationScript/>
+      <defaultValue>
+        <disabled>0</disabled>
+        <name>defaultValue</name>
+        <number>4</number>
+        <prettyName>Parameter default value</prettyName>
+        <size>30</size>
+        <unmodifiable>0</unmodifiable>
+        <classType>com.xpn.xwiki.objects.classes.StringClass</classType>
+      </defaultValue>
+      <description>
+        <disabled>0</disabled>
+        <name>description</name>
+        <number>2</number>
+        <prettyName>Parameter description</prettyName>
+        <rows>5</rows>
+        <size>40</size>
+        <unmodifiable>0</unmodifiable>
+        <classType>com.xpn.xwiki.objects.classes.TextAreaClass</classType>
+      </description>
+      <mandatory>
+        <disabled>0</disabled>
+        <displayFormType>select</displayFormType>
+        <displayType>yesno</displayType>
+        <name>mandatory</name>
+        <number>3</number>
+        <prettyName>Parameter mandatory</prettyName>
+        <unmodifiable>0</unmodifiable>
+        <classType>com.xpn.xwiki.objects.classes.BooleanClass</classType>
+      </mandatory>
+      <name>
+        <disabled>0</disabled>
+        <name>name</name>
+        <number>1</number>
+        <prettyName>Parameter name</prettyName>
+        <size>30</size>
+        <unmodifiable>0</unmodifiable>
+        <classType>com.xpn.xwiki.objects.classes.StringClass</classType>
+      </name>
+    </class>
+    <property>
+      <defaultValue/>
+    </property>
+    <property>
+      <description>Month (from 0 to 11) of the date to show when loading the calendar. Leave empty for today
+</description>
+    </property>
+    <property>
+      <mandatory>0</mandatory>
+    </property>
+    <property>
+      <name>month</name>
+    </property>
+  </object>
+  <object>
+    <name>MoccaCalendar.Macro</name>
+    <number>8</number>
+    <className>XWiki.WikiMacroParameterClass</className>
+    <guid>3f0c549b-6617-4e17-965c-b9b7586dc47d</guid>
+    <class>
+      <name>XWiki.WikiMacroParameterClass</name>
+      <customClass/>
+      <customMapping/>
+      <defaultViewSheet/>
+      <defaultEditSheet/>
+      <defaultWeb/>
+      <nameField/>
+      <validationScript/>
+      <defaultValue>
+        <disabled>0</disabled>
+        <name>defaultValue</name>
+        <number>4</number>
+        <prettyName>Parameter default value</prettyName>
+        <size>30</size>
+        <unmodifiable>0</unmodifiable>
+        <classType>com.xpn.xwiki.objects.classes.StringClass</classType>
+      </defaultValue>
+      <description>
+        <disabled>0</disabled>
+        <name>description</name>
+        <number>2</number>
+        <prettyName>Parameter description</prettyName>
+        <rows>5</rows>
+        <size>40</size>
+        <unmodifiable>0</unmodifiable>
+        <classType>com.xpn.xwiki.objects.classes.TextAreaClass</classType>
+      </description>
+      <mandatory>
+        <disabled>0</disabled>
+        <displayFormType>select</displayFormType>
+        <displayType>yesno</displayType>
+        <name>mandatory</name>
+        <number>3</number>
+        <prettyName>Parameter mandatory</prettyName>
+        <unmodifiable>0</unmodifiable>
+        <classType>com.xpn.xwiki.objects.classes.BooleanClass</classType>
+      </mandatory>
+      <name>
+        <disabled>0</disabled>
+        <name>name</name>
+        <number>1</number>
+        <prettyName>Parameter name</prettyName>
+        <size>30</size>
+        <unmodifiable>0</unmodifiable>
+        <classType>com.xpn.xwiki.objects.classes.StringClass</classType>
+      </name>
+    </class>
+    <property>
+      <defaultValue/>
+    </property>
+    <property>
+      <description>Day (from 1 to 31) of the date to show when loading the calendar. Leave empty for today
+</description>
+    </property>
+    <property>
+      <mandatory>0</mandatory>
+    </property>
+    <property>
+      <name>date</name>
     </property>
   </object>
 </xwikidoc>
