@@ -796,7 +796,9 @@ $xwiki.ssx.use("MoccaCalendar.Macro")
 var createCalendarEventUrlTemplate = "$escapetool.javascript($eventUrlTemplate)";
 &lt;/script&gt;
 ## create event link - ToDo: get rid of onclick handler
-&lt;a href="#" onclick="new XWiki.MoccaCalendar.MoccaCalendarPopup({pageURL: '$randomDocUrl'}); return false"&gt;$services.localization.render('MoccaCalendar.calendarevent.create')&lt;/a&gt;
+&lt;span class="buttonwrapper"&gt;
+&lt;a href="#" class="button" onclick="new XWiki.MoccaCalendar.MoccaCalendarPopup({pageURL: '$randomDocUrl'}); return false"&gt;$services.localization.render('MoccaCalendar.calendarevent.create')&lt;/a&gt;
+&lt;/span&gt;
 ## end create event link
 #end
 &lt;div id="calendar${calcounter}"&gt;&lt;/div&gt;
