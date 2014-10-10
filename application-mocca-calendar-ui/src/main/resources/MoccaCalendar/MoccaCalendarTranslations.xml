@@ -9,15 +9,12 @@
   <parent>MoccaCalendarClass</parent>
   <creator>xwiki:XWiki.Admin</creator>
   <author>xwiki:XWiki.Admin</author>
-  <customClass/>
   <contentAuthor>xwiki:XWiki.Admin</contentAuthor>
   <creationDate>1383574877000</creationDate>
   <date>1385136439000</date>
   <contentUpdateDate>1392400158000</contentUpdateDate>
   <version>1.1</version>
   <title/>
-  <defaultTemplate/>
-  <validationScript/>
   <comment/>
   <minorEdit>false</minorEdit>
   <syntaxId>xwiki/2.1</syntaxId>
@@ -62,7 +59,7 @@ MoccaCalendar.calendar=Calendar
 MoccaCalendar.calendar.title=Calendar Overview
 MoccaCalendar.calendar.defaultCalendarTitle=Other Events
 MoccaCalendar.calendar.viewall=Overview of all calendars
-MoccaCalendar.calendar.create=Create a new calendar
+MoccaCalendar.calendar.create=Create new calendar
 MoccaCalendar.calendar.today=Today
 MoccaCalendar.calendar.day=Day
 MoccaCalendar.calendar.week=Week
@@ -80,7 +77,7 @@ MoccaCalendar.calendar.allday=All Day
 MoccaCalendar.calendar.firstDayOfWeek=0
 
 MoccaCalendar.calendarevent.viewall=All events
-MoccaCalendar.calendarevent.create=Create an event
+MoccaCalendar.calendarevent.create=Create new event
 MoccaCalendar.calendarevent.backlink=Back to calendar &amp;#171;{0}&amp;#187;
 
 # Class fields

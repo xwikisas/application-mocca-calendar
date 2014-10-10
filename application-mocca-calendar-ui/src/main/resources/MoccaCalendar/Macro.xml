@@ -108,7 +108,7 @@ or
         <separators> ,|</separators>
         <size>1</size>
         <unmodifiable>0</unmodifiable>
-        <values>currentPage=Always on this page|onDemand=On demand|always=Always on this wiki</values>
+        <values>currentPage|onDemand|always</values>
         <classType>com.xpn.xwiki.objects.classes.StaticListClass</classType>
       </use>
     </class>
@@ -523,7 +523,7 @@ jQuery.fullCalendar.views.plainList = function(element, calendar) {
         <separators> ,|</separators>
         <size>1</size>
         <unmodifiable>0</unmodifiable>
-        <values>currentPage=Always on this page|onDemand=On demand|always=Always on this wiki</values>
+        <values>currentPage|onDemand|always</values>
         <classType>com.xpn.xwiki.objects.classes.StaticListClass</classType>
       </use>
     </class>
@@ -790,13 +790,15 @@ $xwiki.ssx.use("MoccaCalendar.Macro")
 {{/velocity}}{{velocity}}#if($xcontext.action=='view'){{html clean="false" wiki="false"}}
 #if($canCreateEvents)
 #set($pageParams = "template=MoccaCalendar.MoccaCalendarEventTemplate&amp;xhidden=1&amp;parentFROM=${escapetool.url($calendarDoc)}&amp;xpage=plain&amp;form_token=$services.csrf.getToken()&amp;ocalcaction=create")
-#set($eventUrlTemplate = $xwiki.getURL('__page__','edit',$pageParams))
-#set($randomDocUrl = $xwiki.getURL("randomPage${util.generateRandomString(5)}",'edit',$pageParams))
+#set($eventUrlTemplate = $xwiki.getURL($services.model.createDocumentReference($doc.getWiki(),'MoccaCalendar','__page__'),'edit',$pageParams))
+#set($randomDocUrl = $xwiki.getURL("randomPage${util.generateRandomString(10)}",'edit',$pageParams))
 &lt;script type="text/javascript"&gt;
 var createCalendarEventUrlTemplate = "$escapetool.javascript($eventUrlTemplate)";
 &lt;/script&gt;
 ## create event link - ToDo: get rid of onclick handler
-&lt;a href="#" onclick="new XWiki.MoccaCalendar.MoccaCalendarPopup({pageURL: '$randomDocUrl'}); return false"&gt;$services.localization.render('MoccaCalendar.calendarevent.create')&lt;/a&gt;
+&lt;span class="buttonwrapper"&gt;
+&lt;a href="#" class="button" onclick="new XWiki.MoccaCalendar.MoccaCalendarPopup({pageURL: '$randomDocUrl'}); return false"&gt;$services.localization.render('MoccaCalendar.calendarevent.create')&lt;/a&gt;
+&lt;/span&gt;
 ## end create event link
 #end
 &lt;div id="calendar${calcounter}"&gt;&lt;/div&gt;

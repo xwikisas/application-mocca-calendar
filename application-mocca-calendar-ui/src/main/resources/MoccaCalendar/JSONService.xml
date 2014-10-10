@@ -29,10 +29,7 @@
 // here we need a longer "while" loop
 if (request.newEvent) {
   def wiki = doc.wiki
-  def space = request.space
-  if (!space) {
-     space = doc.space
-  }
+  def space = doc.space
   def eventNameBase = request.newEvent
   def eventName = eventNameBase
 
@@ -62,7 +59,7 @@ if (request.newEvent) {
 
 #set($startQuery = $datetool.getDate())
 #set($startTime = $mathtool.toNumber($request.start))
-#set($startTime = $mathtool.mul($startTime ,1000))
+#set($startTime = $mathtool.mul($startTime, 1000))
 #set($discard = $startQuery.setTime($startTime))
 
 #set($qsy = $datetool.getYear($startQuery))
