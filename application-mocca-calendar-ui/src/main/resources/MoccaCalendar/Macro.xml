@@ -108,7 +108,7 @@ or
         <separators> ,|</separators>
         <size>1</size>
         <unmodifiable>0</unmodifiable>
-        <values>currentPage|onDemand|always</values>
+        <values>currentPage=Always on this page|onDemand=On demand|always=Always on this wiki</values>
         <classType>com.xpn.xwiki.objects.classes.StaticListClass</classType>
       </use>
     </class>
@@ -523,7 +523,7 @@ jQuery.fullCalendar.views.plainList = function(element, calendar) {
         <separators> ,|</separators>
         <size>1</size>
         <unmodifiable>0</unmodifiable>
-        <values>currentPage|onDemand|always</values>
+        <values>currentPage=Always on this page|onDemand=On demand|always=Always on this wiki</values>
         <classType>com.xpn.xwiki.objects.classes.StaticListClass</classType>
       </use>
     </class>
@@ -1182,7 +1182,7 @@ Mocca Calendar Macro
       </name>
     </class>
     <property>
-      <defaultValue>0</defaultValue>
+      <defaultValue/>
     </property>
     <property>
       <description>First day (from 0 being Sunday to 6 being Monday) of the week to show in the calendar. Leave empty for Monday</description>
