@@ -11,8 +11,8 @@
   <parent>Calendar.WebHome</parent>
   <author>xwiki:XWiki.Admin</author>
   <contentAuthor>xwiki:XWiki.Admin</contentAuthor>
-  <date>1414758627000</date>
-  <contentUpdateDate>1414758627000</contentUpdateDate>
+  <date>1391935409000</date>
+  <contentUpdateDate>1391935409000</contentUpdateDate>
   <version>1.1</version>
   <title/>
   <comment/>
@@ -877,20 +877,34 @@ table.fc-border-separate {
       <cache>long</cache>
     </property>
     <property>
-      <code>.fc-header td {
+      <code>.skin-colibri .fc-header td {
   border: 0px;
 }
 
-.fc {
+.skin-colibri .fc {
   width: 99%;
 }
 
-table.fc-border-separate {
+.skin-colibri  table.fc-border-separate {
   border-right: 1px solid #ccc;
+}
+
+.fc-agenda-allday th.fc-agenda-gutter { background-color: transparent; }
+
+.skin-flamingo table.fc-agenda-allday td,
+.skin-flamingo table.fc-header td,
+.skin-flamingo table.fc-agenda-allday th {
+  border-width:0;
+}
+
+.skin-flamingo .fc-border-separate thead tr.fc-first th,
+.skin-flamingo .fc-border-separate thead tr.fc-first td {
+  border-top: 1px solid #ddd;
+  padding-top: 2px;
 }</code>
     </property>
     <property>
-      <name>Fix for the Colibri Skin</name>
+      <name>Fix for the Colibri/Flamingo Skins</name>
     </property>
     <property>
       <parse>0</parse>
