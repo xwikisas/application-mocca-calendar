@@ -82,6 +82,7 @@ $doc.display($field)
 #set($isValid=$doc.validate())
 &lt;input type="hidden" name="xvalidate" value="1" /&gt;
 &lt;input type="hidden" name="xvalidation" value="$eventValidationDoc" /&gt;
+(% class="xform" %)
 (((
 #if($xcontext.action=='view' &amp;&amp; $calendar)
   ; &lt;label for="calendar"&gt;$escapetool.xml($services.localization.render('MoccaCalendar.calendar'))&lt;/label&gt;
