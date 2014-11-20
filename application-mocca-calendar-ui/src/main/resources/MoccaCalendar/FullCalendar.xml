@@ -877,30 +877,41 @@ table.fc-border-separate {
       <cache>long</cache>
     </property>
     <property>
-      <code>.skin-colibri .fc-header td {
+      <code>.fc-header td {
   border: 0px;
 }
-
-.skin-colibri .fc {
+.fc {
   width: 99%;
 }
-
-.skin-colibri  table.fc-border-separate {
-  border-right: 1px solid #ccc;
+.fc-agenda-allday th.fc-agenda-gutter {
+  background-color: transparent;
 }
-
-.fc-agenda-allday th.fc-agenda-gutter { background-color: transparent; }
-
-.skin-flamingo table.fc-agenda-allday td,
-.skin-flamingo table.fc-header td,
-.skin-flamingo table.fc-agenda-allday th {
-  border-width:0;
-}
-
-.skin-flamingo .fc-border-separate thead tr.fc-first th,
-.skin-flamingo .fc-border-separate thead tr.fc-first td {
+.skin-flamingo .fc-border-separate thead tr.fc-first th {
   border-top: 1px solid #ddd;
-  padding-top: 2px;
+}
+.skin-flamingo .fc-agenda-allday .fc-day-content {
+  border-bottom: 1px solid #ddd;
+}
+
+.fc-grid th {
+  background-color: #F5F5F5;
+}
+.fc-grid th[class="fc-widget-header fc-agenda-axis"] {
+  max-width: 50px;
+}
+.fc-grid table.fc-agenda-allday {
+  margin-top: 14px;
+  margin-bottom: 14px;
+}
+
+/* Scale the table header in gadget mode */
+.gadget-content .fc table.fc-header {
+  font-size: 80%;
+}
+/* Align the table header in gadget mode */
+.gadget-content .fc-header table {
+  margin-left: auto;
+  text-align: left;
 }</code>
     </property>
     <property>
