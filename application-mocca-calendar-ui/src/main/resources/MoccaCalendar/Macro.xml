@@ -548,6 +548,9 @@ font-size: 85%;
 .dashboard .fc-header .fc-header-title h2 {
 font-size: 1.4em;
 }
+.xdialog-modal-container{
+position: absolute;
+}
 </code>
     </property>
     <property>
