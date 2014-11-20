@@ -532,24 +532,24 @@ jQuery.fullCalendar.views.plainList = function(element, calendar) {
     </property>
     <property>
       <code>div.calendar_date_select {
-z-index: 1010;
+  z-index: 1010;
 }
 div.moccaevent {
-border-style:solid;
-border-width:0 0 0 5px;
-padding-left: 5px;
+  border-style:solid;
+  border-width:0 0 0 5px;
+  padding-left: 5px;
 }
 div.moccaevent h5 {
-margin-bottom: 5px;
+  margin-bottom: 5px;
 }
 .dashboard .fc-header {
-font-size: 85%;
+  font-size: 85%;
 }
 .dashboard .fc-header .fc-header-title h2 {
-font-size: 1.4em;
+  font-size: 1.4em;
 }
-.xdialog-modal-container{
-position: absolute;
+.xdialog-modal-container {
+  position: absolute;
 }
 </code>
     </property>
