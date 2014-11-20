@@ -221,6 +221,8 @@ if (typeof(XWiki) == "undefined" || typeof(XWiki.widgets) == "undefined" || type
       this.showDialog();
       this.setClass("moccacal-modal-popup");
 
+      $$(".xdialog-modal-container").each(function(div) { div.setStyle({position: 'absolute'}) }); // MOCCACAL-32
+
       this.savingBox = new XWiki.widgets.Notification("$services.localization.render('core.widgets.confirmationBox.notification.inProgress')", "inprogress", {inactive: true});
       this.savedBox = new XWiki.widgets.Notification("$services.localization.render('core.widgets.confirmationBox.notification.done')", "done", {inactive: true});
       this.failedBox = new XWiki.widgets.Notification("$services.localization.render('core.widgets.confirmationBox.notification.failed')"+"&lt;span id=\"ajaxRequestFailureReason\"&gt;&lt;/span&gt;", "error", {inactive: true});
@@ -532,21 +534,21 @@ jQuery.fullCalendar.views.plainList = function(element, calendar) {
     </property>
     <property>
       <code>div.calendar_date_select {
-z-index: 1010;
+  z-index: 1010;
 }
 div.moccaevent {
-border-style:solid;
-border-width:0 0 0 5px;
-padding-left: 5px;
+  border-style:solid;
+  border-width:0 0 0 5px;
+  padding-left: 5px;
 }
 div.moccaevent h5 {
-margin-bottom: 5px;
+  margin-bottom: 5px;
 }
 .dashboard .fc-header {
-font-size: 85%;
+  font-size: 85%;
 }
 .dashboard .fc-header .fc-header-title h2 {
-font-size: 1.4em;
+  font-size: 1.4em;
 }
 </code>
     </property>
