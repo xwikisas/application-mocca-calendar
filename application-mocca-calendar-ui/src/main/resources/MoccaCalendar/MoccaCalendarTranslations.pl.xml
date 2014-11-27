@@ -1,0 +1,123 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!--
+ * See the NOTICE file distributed with this work for additional
+ * information regarding copyright ownership.
+ *
+ * This is free software; you can redistribute it and/or modify it
+ * under the terms of the GNU Lesser General Public License as
+ * published by the Free Software Foundation; either version 2.1 of
+ * the License, or (at your option) any later version.
+ *
+ * This software is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+ * Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public
+ * License along with this software; if not, write to the Free
+ * Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
+ * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
+-->
+
+<xwikidoc>
+  <web>MoccaCalendar</web>
+  <name>MoccaCalendarTranslations</name>
+  <language>pl</language>
+  <defaultLanguage/>
+  <translation>1</translation>
+  <parent>MoccaCalendarClass</parent>
+  <creator>xwiki:XWiki.Admin</creator>
+  <author>xwiki:XWiki.Admin</author>
+  <customClass/>
+  <contentAuthor>xwiki:XWiki.Admin</contentAuthor>
+  <creationDate>1383574877000</creationDate>
+  <date>1385136439000</date>
+  <contentUpdateDate>1392400158000</contentUpdateDate>
+  <version>1.1</version>
+  <title/>
+  <template/>
+  <defaultTemplate/>
+  <validationScript/>
+  <comment/>
+  <minorEdit>false</minorEdit>
+  <syntaxId>xwiki/2.1</syntaxId>
+  <hidden>true</hidden>
+  <content>## XWiki Translation for language pl generated from http://www.l10n.xwiki.org
+MoccaCalendar.MoccaCalendarClass_color=Kolor wpisów w widoku kalendarza
+MoccaCalendar.MoccaCalendarClass_content1=Zawartość
+MoccaCalendar.MoccaCalendarClass_description=Opis
+MoccaCalendar.MoccaCalendarClass_title=Tytuł
+MoccaCalendar.MoccaCalendarEventClass_allDay=Cały dzień
+MoccaCalendar.MoccaCalendarEventClass_description=Opis
+MoccaCalendar.MoccaCalendarEventClass_endDate=Data końcowa
+MoccaCalendar.MoccaCalendarEventClass_startDate=Data początkowa
+MoccaCalendar.MoccaCalendarEventClass_title=Tytuł
+MoccaCalendar.calendar=Kalendarz
+MoccaCalendar.calendar.allday=Cały dzień
+MoccaCalendar.calendar.create=Stwórz nowy kalendarz
+MoccaCalendar.calendar.day=Dzień
+MoccaCalendar.calendar.dayNames='Niedziela','Poniedziałek','Wtorek','Środa','Czwartek','Piątek','Sobota' 
+MoccaCalendar.calendar.dayNamesShort='Nie','Pon','Wto','Śro','Czw','Pią','Sob','Nie'
+MoccaCalendar.calendar.defaultCalendarTitle=Inne wydarzenia
+MoccaCalendar.calendar.firstDayOfWeek=0
+MoccaCalendar.calendar.month=Miesiąc
+MoccaCalendar.calendar.monthNames='Styczeń','Luty','Marzec','Kwiecień','Maj','Czerwiec','Lipiec','Sierpień','Wrzesień','Październik','Listopad','Grudzień'
+MoccaCalendar.calendar.monthNamesShort='Sty','Lut','Mar','Kwi','Maj','Cze','Lip','Sie','Wrz','Paź','Lis','Gru'
+MoccaCalendar.calendar.plainlist=Agenda
+MoccaCalendar.calendar.plainlist.nopastevents=Nie znaleziono minionych wydarzeń
+MoccaCalendar.calendar.plainlist.noupcomingevents=Nie znaleziono nadchodzących wydarzeń
+MoccaCalendar.calendar.plainlist.titlepast=Minione wydarzenia
+MoccaCalendar.calendar.plainlist.titleupcoming=Nadchodzące wydarzenia
+MoccaCalendar.calendar.title=Przegląd kalendarza
+MoccaCalendar.calendar.today=Dzisiaj
+MoccaCalendar.calendar.viewall=Przegląd wszystkich kalendarzy
+MoccaCalendar.calendar.week=Tydzień
+MoccaCalendar.calendarevent.backlink=Powrót do kalendarza &amp;\#171;{0}&amp;\#187; 
+MoccaCalendar.calendarevent.create=Stwórz wydarzenie
+MoccaCalendar.calendarevent.viewall=Wszystkie wydarzenia
+MoccaCalendar.datepicker.now=Teraz
+MoccaCalendar.datepicker.ok=OK
+moccacalendar.livetable._actions=Akcje
+moccacalendar.livetable._actions.delete=Usuń
+moccacalendar.livetable._actions.edit=Edytuj
+moccacalendar.livetable._attachments=Załączniki
+moccacalendar.livetable._avatar=Awatar
+moccacalendar.livetable._images=Obrazy
+moccacalendar.livetable.content1=Zawartość
+moccacalendar.livetable.description=Opis
+moccacalendar.livetable.doc.author=Ostatni autor
+moccacalendar.livetable.doc.creationDate=Data stworzenia
+moccacalendar.livetable.doc.creator=Twórca
+moccacalendar.livetable.doc.date=Data aktualizacji
+moccacalendar.livetable.doc.fullname=Pełna nazwa strony
+moccacalendar.livetable.doc.name=Nazwa strony
+moccacalendar.livetable.doc.space=Przestrzeń
+moccacalendar.livetable.doc.title=Kalendarz
+moccacalendar.livetable.emptyvalue=- 
+moccacalendar.livetable.title=Tytuł
+moccacalendarevent.livetable._actions=Akcja
+moccacalendarevent.livetable._actions.delete=Usuń
+moccacalendarevent.livetable._actions.edit=Edytuj
+moccacalendarevent.livetable._attachments=Załączniki
+moccacalendarevent.livetable._avatar=Awatar
+moccacalendarevent.livetable._images=Obrazy
+moccacalendarevent.livetable.description=Opis
+moccacalendarevent.livetable.doc.author=Ostatni autor
+moccacalendarevent.livetable.doc.creationDate=Data utworzenia
+moccacalendarevent.livetable.doc.creator=Twórca
+moccacalendarevent.livetable.doc.date=Data aktualizacji
+moccacalendarevent.livetable.doc.fullname=Pełna nazwa strony
+moccacalendarevent.livetable.doc.name=Nazwa strony
+moccacalendarevent.livetable.doc.space=Przestrzeń
+moccacalendarevent.livetable.doc.title=Tytuł strony
+moccacalendarevent.livetable.emptyvalue=-
+moccacalendarevent.livetable.endDate=Data końcowa
+moccacalendarevent.livetable.startDate=Data początkowa
+moccacalendarevent.livetable.title=Tytuł
+val_endDate=Data końcowa musi następować po dacie początkowej.
+val_title_already_exists=Wydarzenie o tej nazwie już istnieje.
+val_title_notempty=Pole tytułu jest wymagane.
+val_title_notvalid=Pole tytułu zawiera nieprawidłowe znaki.
+</content>
+</xwikidoc>
