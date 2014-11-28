@@ -37,7 +37,7 @@
     <!-- Name to display by the Extension Manager -->
     <xwiki.extension.name>Mocca Calendar Application</xwiki.extension.name>
     <!-- alias for pre 2.1.7-versions with an incorrect group id -->
-    <xwiki.extension.features>org.xwiki.contrib.calendars:application-mocca-calendar, org.xwiki.contrib.calendars:application-mocca-calendar</xwiki.extension.features>
+    <xwiki.extension.features>org.xwiki.contrib.calendars:application-mocca-calendar, org.xwiki.contrib:application-mocca-calendar</xwiki.extension.features>
   </properties>
   <dependencies>
     <dependency>
