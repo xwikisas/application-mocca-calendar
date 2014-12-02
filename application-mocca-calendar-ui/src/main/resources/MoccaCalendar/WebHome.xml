@@ -70,7 +70,8 @@
   'defaultOrder': 'asc'
 })
 #set ($columns = ['doc.title', 'doc.creator', '_actions'])
-#livetable('moccacalendar' $columns $columnsProperties $options){{/velocity}}
+#livetable('moccacalendar' $columns $columnsProperties $options)
+#set($docextras=[]){{/velocity}}
 </content>
   <object>
     <name>MoccaCalendar.WebHome</name>
