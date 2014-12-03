@@ -85,6 +85,7 @@ mode:'static'
   #end
 #end
 {{/html}}
+#set($docextras=[])
 {{/velocity}}</content>
   <object>
     <name>MoccaCalendar.MoccaCalendarSheet</name>
