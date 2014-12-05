@@ -755,7 +755,7 @@ $xwiki.ssx.use("MoccaCalendar.Macro")
 #end
 #set($right = $xcontext.macro.params.right)
 #if(!$right)
- #set($right = "month,agendaWeek,agendaDay,plainList")
+ #set($right = "agendaDay,agendaWeek,month,plainList")
 #end
 #set($timeFormat = $xcontext.macro.params.timeFormat)
 #if(!$timeFormat)
@@ -783,15 +783,25 @@ $xwiki.ssx.use("MoccaCalendar.Macro")
 #end
 #set($firstDay = $xcontext.macro.params.firstDay)
 #if(!$firstDay)
- #set($firstDay = "$services.localization.render('MoccaCalendar.calendar.firstDayOfWeek')")
+  #set($firstDay = "$services.localization.render('MoccaCalendar.calendar.firstDayOfWeek')")
 #end
 #set($minTime = $xcontext.macro.params.minTime)
 #if(!$minTime)
- #set($minTime = "")
+  #set($minTime = "")
+#else
+  ## b/w compat:
+  #if($minTime.indexOf(':')&lt;0))
+    #set($minTime = "$minTime:00")
+  #end
 #end
 #set($maxTime = $xcontext.macro.params.maxTime)
 #if(!$maxTime)
- #set($maxTime = "")
+  #set($maxTime = "")
+#else
+  ## b/w compat:
+  #if($maxTime.indexOf(':')&lt;0))
+    #set($maxTime = "$maxTime:00")
+  #end
 #end
 #set($editable = $xcontext.macro.params.editable)
 #if(!$editable)
@@ -840,7 +850,6 @@ require(['fullcalendar'], function (fullCalendar) {
 
   // page is now ready, initialize the calendar...
   var calendar = jQuery('#calendar${calcounter}').fullCalendar({
-
   events: {
     url : "$!escapetool.javascript($json)",
     type: 'GET',
@@ -870,8 +879,8 @@ require(['fullcalendar'], function (fullCalendar) {
 #if($month!=""), month: $!escapetool.javascript($month) #end
 #if($date!=""), date: $!escapetool.javascript($date) #end
 , firstDay: $escapetool.javascript($firstDay)
-#if($minTime!=""), minTime: $escapetool.javascript($minTime) #end
-#if($maxTime!=""), maxTime: $escapetool.javascript($maxTime) #end
+#if($minTime!=""), minTime: "$!escapetool.javascript($minTime)" #end
+#if($maxTime!=""), maxTime: "$!escapetool.javascript($maxTime)" #end
 ,editable: $escapetool.javascript($editable)
 ,selectable: true
 ,selectHelper: true
@@ -1273,10 +1282,10 @@ Mocca Calendar Macro
       </name>
     </class>
     <property>
-      <defaultValue>8</defaultValue>
+      <defaultValue>8:00</defaultValue>
     </property>
     <property>
-      <description>First time to show in the calendar. Users won't see hours before this time. Leave empty for default (8.00)
+      <description>First time to show in the calendar. Users won't see hours before this time. Leave empty for default (8:00)
 </description>
     </property>
     <property>
@@ -1340,10 +1349,10 @@ Mocca Calendar Macro
       </name>
     </class>
     <property>
-      <defaultValue>23</defaultValue>
+      <defaultValue>23:00</defaultValue>
     </property>
     <property>
-      <description>Last time to show in the calendar. Users won't see hours after this time. Leave empty for default (23.00)
+      <description>Last time to show in the calendar. Users won't see hours after this time. Leave empty for default (23:00)
 </description>
     </property>
     <property>
