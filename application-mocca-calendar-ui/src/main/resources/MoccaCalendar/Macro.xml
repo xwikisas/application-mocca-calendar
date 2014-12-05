@@ -698,7 +698,8 @@ div.moccaevent h5 {
     </class>
     <property>
       <code>{{velocity output="false"}}
-#set ($discard = $services.localization.use('document', 'MoccaCalendar.MoccaCalendarTranslations'))
+$services.localization.use('document', 'Calendar.Translations')
+$services.localization.use('document', 'MoccaCalendar.MoccaCalendarTranslations')
 $xwiki.jsx.use("Calendar.JQuery", {'defer': false, 'minify': false})
 $xwiki.jsx.use("Calendar.JQueryUI", {'defer': false, 'minify': false})
 $xwiki.jsx.use("Calendar.Moment", {'defer': false, 'minify': false})
@@ -917,8 +918,10 @@ require(['fullcalendar'], function (fullCalendar) {
   week: 'ddd d',
   day: ''
 }
-,titleFormat: { 
-  week: "MMM d[',' yyyy]{ '&amp;#8212;'[ MMM] d',' yyyy}"
+,titleFormat: {
+  month: "$!services.localization.render('xwiki.calendar.titleFormat.month')",
+  week: "$!services.localization.render('xwiki.calendar.titleFormat.week')",
+  day: "$!services.localization.render('xwiki.calendar.titleFormat.day')"
 }
   })
   // TODO: any better way to pass this information around ?
