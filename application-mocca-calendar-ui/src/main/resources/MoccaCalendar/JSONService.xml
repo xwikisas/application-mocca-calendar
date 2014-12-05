@@ -1,5 +1,4 @@
 <?xml version="1.0" encoding="UTF-8"?>
-
 <!--
  * See the NOTICE file distributed with this work for additional
  * information regarding copyright ownership.
@@ -77,21 +76,13 @@ if (request.newEvent) {
   #break
 #end
 
-#set($startQuery = $datetool.getDate())
-#set($startTime = $mathtool.toNumber($request.start))
-#set($startTime = $mathtool.mul($startTime, 1000))
-#set($discard = $startQuery.setTime($startTime))
-
+#set($startQuery = $datetool.toDate('yyyy-M-d', $request.start))
 #set($qsy = $datetool.getYear($startQuery))
 #set($qsm = $mathtool.add($datetool.getMonth($startQuery),1))
 #set($qsd = $datetool.getDay($startQuery))
 #set($whereQuery = "and (year(date.value) &gt; :startyear or ( year(date.value) = :startyear and (month(date.value) &gt; :startmonth or (month(date.value) = :startmonth and day(date.value) &gt;= :startday))))")
 
-#set($endQuery = $datetool.getDate())
-#set($endTime = $mathtool.toNumber($request.end))
-#set($endTime = $mathtool.mul($endTime, 1000))
-#set($discard = $endQuery.setTime($endTime))
-
+#set($endQuery =  $datetool.toDate('yyyy-M-D', $request.end))
 #set($qey = $datetool.getYear($endQuery))
 #set($qem = $mathtool.add($datetool.getMonth($endQuery),1))
 #set($qed = $datetool.getDay($endQuery))
