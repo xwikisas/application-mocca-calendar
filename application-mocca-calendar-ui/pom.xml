@@ -96,6 +96,12 @@
       <version>${platform.version}</version>
       <scope>runtime</scope>
     </dependency>
+    <dependency>
+      <groupId>org.xwiki.contrib</groupId>
+      <artifactId>macro-fullcalendar</artifactId>
+      <version>2.0-SNAPSHOT</version>
+      <type>xar</type>
+    </dependency>
   </dependencies>
   <build>
     <extensions>
