@@ -82,7 +82,7 @@ if (request.newEvent) {
 #set($qsd = $datetool.getDay($startQuery))
 #set($whereQuery = "and (year(date.value) &gt; :startyear or ( year(date.value) = :startyear and (month(date.value) &gt; :startmonth or (month(date.value) = :startmonth and day(date.value) &gt;= :startday))))")
 
-#set($endQuery =  $datetool.toDate('yyyy-M-D', $request.end))
+#set($endQuery = $datetool.toDate('yyyy-M-d', $request.end))
 #set($qey = $datetool.getYear($endQuery))
 #set($qem = $mathtool.add($datetool.getMonth($endQuery),1))
 #set($qed = $datetool.getDay($endQuery))
