@@ -78,17 +78,19 @@ if (request.newEvent) {
 
 #set($startQuery = $datetool.toDate('yyyy-M-d', $request.start))
 #set($qsy = $datetool.getYear($startQuery))
-#set($qsm = $mathtool.add($datetool.getMonth($startQuery),1))
+#set($qsm = $datetool.getMonth($startQuery))
+#set($qsm = $mathtool.add($qsm, 1))
 #set($qsd = $datetool.getDay($startQuery))
 #set($whereQuery = "and (year(date.value) &gt; :startyear or ( year(date.value) = :startyear and (month(date.value) &gt; :startmonth or (month(date.value) = :startmonth and day(date.value) &gt;= :startday))))")
 
 #set($endQuery = $datetool.toDate('yyyy-M-d', $request.end))
 #set($qey = $datetool.getYear($endQuery))
-#set($qem = $mathtool.add($datetool.getMonth($endQuery),1))
+#set($qem = $datetool.getMonth($endQuery))
+#set($qem = $mathtool.add($qem, 1))
 #set($qed = $datetool.getDay($endQuery))
 #set($whereQuery = "$whereQuery and (year(date.value) &lt; :endyear or ( year(date.value) = :endyear and (month(date.value) &lt; :endmonth or (month(date.value) = :endmonth and day(date.value) &lt;= :endday))))")
 
-#set($queryParams = { "startyear" : $qsy, "startmonth" : $qsm, "startday" : $qsd, "endyear" : $qey, "endmonth" : $qem, "endday" : $qed })
+#set($queryParams = { "startyear" : $qsy, "startmonth" : $qsm,  "startday" : $qsd, "endyear" : $qey, "endmonth" : $qem, "endday" : $qed })
 
 #if("$!{request.filter}" != "" &amp;&amp; "$!{request.calendarDoc}" != "")
   #set($document = $xwiki.getDocument($request.calendarDoc))
@@ -116,6 +118,8 @@ if (request.newEvent) {
 
 #set($jsondateformat = $xwiki.jodatime.getDateTimeFormatterForPattern("yyyy-MM-dd'T'HH:mm"))
 #set($results = [])
+##set($discard = $results.add($hql))
+##set($discard = $results.add($queryParams))
 #foreach($item in $query.execute())
   #set($itemdoc = $xwiki.getDocument($item))
   #set($parentCalDocName = $itemdoc.getParent())
@@ -159,8 +163,8 @@ if (request.newEvent) {
       #set($html = '&lt;div class="moccaevent" style="border-color:' +$color + '"&gt;')
       #set($html = "${html}"+'&lt;h5&gt;&lt;a href="'+${itemdoc.getURL("view")}+'"&gt;' + $escapetool.html($itemdoc.getPlainTitle()) + '&lt;/a&gt;&lt;/h5&gt;')
       #if($allDay)
-         #set($discard = $services.localization.use('document', 'MoccaCalendar.MoccaCalendarTranslations'))
-        #set($html = "${html}" + '&lt;p class="date"&gt;' + $dateprinter.print($startdate) + ' ' + $services.localization.render('MoccaCalendar.calendar.allday')+'&lt;/p&gt;')
+        #set($discard = $services.localization.use('document', 'Calendar.Translations'))
+        #set($html = "${html}" + '&lt;p class="date"&gt;' + $dateprinter.print($startdate) + ' ' + $services.localization.render('xwiki.calendar.allDayText')+'&lt;/p&gt;')
       #else
         #if($enddate.getYear() == $startdate.getYear() &amp;&amp; $enddate.getDayOfYear() == $startdate.getDayOfYear())
           #set($idx = $format.indexOf("H"))

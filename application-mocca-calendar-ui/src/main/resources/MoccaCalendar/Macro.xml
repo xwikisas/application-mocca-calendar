@@ -187,6 +187,7 @@ if (typeof(XWiki) == "undefined" || typeof(XWiki.widgets) == "undefined" || type
     var url = this.updateEventUrl + "page=" + page + "&amp;isResize=" + (isResize ? "1" : "0") + "&amp;delta=" + delta.asMilliseconds();
     jQuery.ajax(url).fail(function ( data ) {
       savingBox.hide();
+
       failedBox.show();
       if (revertFunc) revertFunc();
     }).success(function ( data ) {
@@ -706,8 +707,8 @@ $xwiki.jsx.use("Calendar.JQuery", {'defer': false, 'minify': false})
 $xwiki.jsx.use("Calendar.JQueryUI", {'defer': false, 'minify': false})
 $xwiki.jsx.use("Calendar.Moment", {'defer': false, 'minify': false})
 $xwiki.jsx.use("Calendar.FullCalendar", {'defer': false, 'minify': false})
-$xwiki.jsx.use("MoccaCalendar.Macro", {'defer': false, 'minify': false})
-$xwiki.jsx.use("MoccaCalendar.DatePickerExtension", {'defer': false, 'minify': false})
+$xwiki.jsx.use("MoccaCalendar.Macro", {'defer': false})
+$xwiki.jsx.use("MoccaCalendar.DatePickerExtension", {'defer': false})
 ## A simple date picker widget.
 $xwiki.ssfx.use('uicomponents/widgets/datepicker/calendarDateSelect.css', true)
 $xwiki.jsfx.use('uicomponents/widgets/datepicker/calendarDateSelect.js', true)
@@ -899,21 +900,21 @@ require(['jquery'], function(jQuery) {
   }
 ,aspectRatio:1.8
 ,buttonText: {
-  today: '$services.localization.render('MoccaCalendar.calendar.today')',
-  day: '$services.localization.render('MoccaCalendar.calendar.day')',
-  week:'$services.localization.render('MoccaCalendar.calendar.week')',
-  month:'$services.localization.render('MoccaCalendar.calendar.month')',
+  today: '$services.localization.render('xwiki.calendar.button.today')',
+  day: '$services.localization.render('xwiki.calendar.button.day')',
+  week:'$services.localization.render('xwiki.calendar.button.week')',
+  month:'$services.localization.render('xwiki.calendar.button.month')',
   plainList:'$services.localization.render('MoccaCalendar.calendar.plainlist')'
 }
-,monthNames: [$services.localization.render('MoccaCalendar.calendar.monthNames')] 
-,monthNamesShort: [$services.localization.render('MoccaCalendar.calendar.monthNamesShort')]
-,dayNames: [$services.localization.render('MoccaCalendar.calendar.dayNames')] 
-,dayNamesShort: [$services.localization.render('MoccaCalendar.calendar.dayNamesShort')]
-,allDayText:"$services.localization.render('MoccaCalendar.calendar.allday')"
-,axisFormat : "$!services.localization.render('xwiki.calendar.axisFormat')"
+,monthNames: $services.localization.render('xwiki.calendar.monthNames') 
+,monthNamesShort: $services.localization.render('xwiki.calendar.monthNamesShort')
+,dayNames: $services.localization.render('xwiki.calendar.dayNames')
+,dayNamesShort: $services.localization.render('xwiki.calendar.dayNamesShort')
+,allDayText:"$services.localization.render('xwiki.calendar.allDayText')"
+,axisFormat : "$services.localization.render('xwiki.calendar.axisFormat')"
 ,timeFormat: {
   '': "$!services.localization.render('xwiki.calendar.timeFormat')", 
-  agenda: 'HH:mm{ - HH:mm}'
+  agenda: "$!services.localization.render('MoccaCalendar.calendar.plainlist.timeFormat')"
 }
 ,columnFormat: {
   month: "$!services.localization.render('xwiki.calendar.columnFormat.month')",
