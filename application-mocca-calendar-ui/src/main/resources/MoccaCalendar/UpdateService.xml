@@ -40,80 +40,46 @@
   <hidden>true</hidden>
   <content>{{velocity}}
 #set($page = $request.page)
-#if($request.durationfield)
-	#set($durationfield = $request.durationfield)
-#else
-	#set($durationfield = "duration")
+#set($startfield = "startDate")
+#set($endfield = "endDate")
+#set($alldayfield = "allDay")
+
+#set($allDay = 0)
+#if("$!request.allDay" != '')
+	#set($allDay = 1)
 #end
-#if($request.startfield)
-	#set($startfield = $request.startfield)
-#else
-	#set($startfield = "startDate")
-#end
-#if($request.alldayfield)
-	#set($alldayfield = $request.alldayfield)
-#else
-	#set($alldayfield = "allDay")
-#end
-#set($allDay=0)
-#if($request.allDay)
-	#set($message="$!message set allDay to 1")
-	#set($allDay=1)
-#end
-#set($isResize=false)
+#set($isResize = false)
 #if("$!request.isResize" == "1")
 	#set($isResize=true)
 #end
-#set($message="$!message check $alldayfield=$allDay")
-#if($request.endfield)
-	#set($endfield = $request.endfield)
-#else
-	#set($endfield = "endDate")
-#end
-#if($request.classname)
-	#set($classname = $request.classname)
-#else
-	#set($classname = "")
-#end
+
 #set($delta = $mathtool.toInteger($request.delta))
+#if($allDay == 1)
+	#set($dateFmt = "yyyy-MM-dd")
+#else
+	#set($dateFmt = "yyyy-MM-dd'T'HH:mm:ss")
+#end
+#set($startDate = $datetool.toDate($dateFmt, $request.startDate))
+#set($endDate = '')
+#if("$!request.endDate" != '')
+	#set($endDate = $datetool.toDate($dateFmt, $request.endDate))
+#end
+
 #set($success = false)
-#if($page&amp;&amp;$page!="")
+
+#if("$!page" != "")
 	#set($pagedoc = $xwiki.getDocument($page))
 	#if(!$pagedoc.isNew())
-		#set($ok = $pagedoc.use($classname))
-		#if($isResize)
-			#set($datetime = $pagedoc.getValue($endfield))
-			#if(!$datetime)
-				#set($datetime = $pagedoc.getValue($startfield))
-			#end
-		#else
-			#set($datetime = $pagedoc.getValue($startfield))
-		#end
-		#if($datetime)
-			#set($ok = $pagedoc.set($alldayfield,$allDay))
-			#set($newDate = $datetool.getDate())
-			#set($discard = $newDate.setTime($mathtool.add($datetime.getTime(),$delta)))
-    			#if($isResize)
-		    		#set($ok = $pagedoc.set($endfield, $newDate))
-	    		#else
-				## move start date
-				#set($ok = $pagedoc.set($startfield, $newDate))
-				## and also move end date
-				#set($datetime = $pagedoc.getValue($endfield))
-				#if("$!{datetime}" != "")
-					#set($newDate = $datetool.getDate())
-					#set($discard = $newDate.setTime($mathtool.add($datetime.getTime(),$delta)))
-					#set($ok = $pagedoc.set($endfield, $newDate))
-				#end
-
-			#end
+		#if($startDate)
+			#set($discard = $pagedoc.use("MoccaCalendar.MoccaCalendarEventClass"))
+			#set($discard = $pagedoc.set($alldayfield, $allDay))
+			#set($discard = $pagedoc.set($startfield, $startDate))
+			#set($discard = $pagedoc.set($endfield, $endDate))
 			#set($success = true)
-		#else
-			#set($message="$!message could not read date")
 		#end
 
 		#if($success)
-			#set($ok = $pagedoc.save("Update session time"))
+			#set($ok = $pagedoc.save("Update event time"))
 			OK $startfield: $pagedoc.getValue($startfield) - $endfield: $pagedoc.getValue($endfield) - allDay: $pagedoc.getValue($alldayfield) ; $message $delta
 		#else
 			FAIL $message ($pagedoc.fullName  $pagedoc.getValue($startfield) $pagedoc.getValue($endfield))

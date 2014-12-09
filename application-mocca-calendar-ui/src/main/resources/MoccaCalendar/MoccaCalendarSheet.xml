@@ -1,5 +1,4 @@
 <?xml version="1.0" encoding="UTF-8"?>
-
 <!--
  * See the NOTICE file distributed with this work for additional
  * information regarding copyright ownership.
@@ -168,11 +167,14 @@ mode:'static'
     </property>
     <property>
       <code>document.observe("dom:loaded", function(){
-  $$('input[name="title"]')[1].observe('change', function(){
-  	var currValue = this.value;
-  	console.log(currValue);
-  	$$('input[name="title"]:first')[0].value = currValue;
-  })
+  var title = $$('input[name="title"]');
+  if (title.length&gt;1) {
+    title[1].observe('change', function(){
+      var currValue = this.value;
+      //console.log(currValue);
+      title[0].value = currValue;
+    });
+  }
 });</code>
     </property>
     <property>

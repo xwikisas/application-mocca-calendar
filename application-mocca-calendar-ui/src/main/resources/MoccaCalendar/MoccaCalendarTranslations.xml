@@ -26,8 +26,9 @@
   <language/>
   <defaultLanguage/>
   <translation>0</translation>
+  <parent>MoccaCalendarClass</parent>
   <creator>xwiki:XWiki.Admin</creator>
-  <creationDate>1418109597000</creationDate>
+  <creationDate>1385136439000</creationDate>
   <author>xwiki:XWiki.Admin</author>
   <contentAuthor>xwiki:XWiki.Admin</contentAuthor>
   <date>1385136439000</date>
