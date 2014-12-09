@@ -26,13 +26,12 @@
   <language/>
   <defaultLanguage/>
   <translation>0</translation>
-  <parent>MoccaCalendarClass</parent>
   <creator>xwiki:XWiki.Admin</creator>
+  <creationDate>1418109597000</creationDate>
   <author>xwiki:XWiki.Admin</author>
   <contentAuthor>xwiki:XWiki.Admin</contentAuthor>
-  <creationDate>1383574877000</creationDate>
   <date>1385136439000</date>
-  <contentUpdateDate>1392400158000</contentUpdateDate>
+  <contentUpdateDate>1385136439000</contentUpdateDate>
   <version>1.1</version>
   <title/>
   <comment/>
@@ -80,20 +79,11 @@ MoccaCalendar.calendar.title=Calendar Overview
 MoccaCalendar.calendar.defaultCalendarTitle=Other Events
 MoccaCalendar.calendar.viewall=Overview of all calendars
 MoccaCalendar.calendar.create=Create new calendar
-MoccaCalendar.calendar.today=Today
-MoccaCalendar.calendar.day=Day
-MoccaCalendar.calendar.week=Week
-MoccaCalendar.calendar.month=Month
-MoccaCalendar.calendar.plainlist=Agenda
+MoccaCalendar.calendar.plainlist=agenda
 MoccaCalendar.calendar.plainlist.titlepast=Past Events
 MoccaCalendar.calendar.plainlist.titleupcoming=Upcoming Events
 MoccaCalendar.calendar.plainlist.nopastevents=No past events found.
 MoccaCalendar.calendar.plainlist.noupcomingevents=No upcoming events found.
-MoccaCalendar.calendar.monthNames='January','February','March','April','May','June','July','August','September','October','November','December'
-MoccaCalendar.calendar.monthNamesShort='Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'
-MoccaCalendar.calendar.dayNames='Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'
-MoccaCalendar.calendar.dayNamesShort='Sun','Mon','Tue','Wed','Thu','Fri','Sat'
-MoccaCalendar.calendar.allday=All Day
 MoccaCalendar.calendar.firstDayOfWeek=0
 
 MoccaCalendar.calendarevent.viewall=All events
@@ -126,7 +116,6 @@ moccacalendar.livetable.title=Title
 moccacalendar.livetable.description=Description
 moccacalendar.livetable.content1=Content
 
-
 # Mocca Calendar Events keys
 # Class fields
 MoccaCalendar.MoccaCalendarEventClass_title=Title
@@ -135,7 +124,7 @@ MoccaCalendar.MoccaCalendarEventClass_endDate=End date
 MoccaCalendar.MoccaCalendarEventClass_description=Description
 MoccaCalendar.MoccaCalendarEventClass_allDay=All day
 
-# Event live table generic keys (currently unsued)
+# Event live table generic keys (currently unused)
 moccacalendarevent.livetable.doc.title=Page title
 moccacalendarevent.livetable.doc.name=Page name
 moccacalendarevent.livetable.doc.space=Space
@@ -162,8 +151,7 @@ moccacalendarevent.livetable.description=Description
 MoccaCalendar.datepicker.ok=OK
 MoccaCalendar.datepicker.now=Now
 
-
-# validation messgaes
+# validation messages
 val_title_notvalid=Title field contains invalid characters.
 val_title_notempty=Title field is required.
 val_endDate=End date must be after start date.
