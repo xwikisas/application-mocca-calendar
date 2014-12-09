@@ -1,4 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
+
 <!--
  * See the NOTICE file distributed with this work for additional
  * information regarding copyright ownership.
@@ -171,7 +172,7 @@ if (typeof(XWiki) == "undefined" || typeof(XWiki.widgets) == "undefined" || type
   },
   showCreateEvent: function(extraParams) {
     var params = extraParams || '';
-    new XWiki.MoccaCalendar.MoccaCalendarPopup({pageURL: this.createEventBaseUrl + params, jsonURL: this.jsonServiceUrl, calendar: this.calendar});
+    new XWiki.MoccaCalendar.MoccaCalendarPopup({pageURL: this.createEventBaseUrl + params}, this);
   },
   updateEvent: function(page, isResize, delta, startDate, endDate, revertFunc) {
     page = encodeURIComponent(page);
@@ -187,7 +188,7 @@ if (typeof(XWiki) == "undefined" || typeof(XWiki.widgets) == "undefined" || type
     // let's call the calendar update
     var params = "page=" + page + "&amp;isResize=" + (isResize ? "1" : "0") + "&amp;delta=" + delta.asMilliseconds() + "&amp;startDate=" + startDate.format()
     if (endDate) { params += "&amp;endDate=" + endDate.format(); }
-    params += "&amp;allDay="+ (startDate.hasTime()?"":"1");
+    params += "&amp;allDay=" + (startDate.hasTime()?"":"1");
     var url = this.updateEventUrl + params;
     jQuery.ajax(url).fail(function ( data ) {
       savingBox.hide();
@@ -234,7 +235,7 @@ if (typeof(XWiki) == "undefined" || typeof(XWiki.widgets) == "undefined" || type
     defaultInteractionParameters: {
     },
     /** Constructor. Registers the key listener that pops up the dialog. */
-    initialize: function($super, interactionParameters) {
+    initialize: function($super, interactionParameters, helper) {
       this.interactionParameters = Object.extend(Object.clone(this.defaultInteractionParameters), interactionParameters || {});
       // call constructor from ModalPopup with params content, shortcuts, options
       $super(
@@ -249,6 +250,7 @@ if (typeof(XWiki) == "undefined" || typeof(XWiki.widgets) == "undefined" || type
         title : "$services.localization.render('MoccaCalendar.calendarevent.create')"
       }
       );
+      this.helper = helper;
       this.showDialog();
       this.setClass("moccacal-modal-popup");
 
@@ -287,13 +289,13 @@ if (typeof(XWiki) == "undefined" || typeof(XWiki.widgets) == "undefined" || type
 
       this.createEvent = function(eventName) {
 
-        content.writeAttribute('action', this.interactionParameters.editEventUrlTemplate.replace("__page__", encodeURIComponent(eventName)));
+        content.writeAttribute('action', this.helper.editEventUrlTemplate.replace("__page__", encodeURIComponent(eventName)));
         content.request({
             onSuccess: function() {
               this.savingBox.hide();
               this.savedBox.show();
               this.closeDialog();
-              this.interactionParameters.calendar.fullCalendar('refetchEvents');
+              this.helper.calendar.fullCalendar('refetchEvents');
             }.bind(this),
             onFailure: function(e) {
               try {
@@ -314,7 +316,7 @@ if (typeof(XWiki) == "undefined" || typeof(XWiki.widgets) == "undefined" || type
       } // end createEvent
 
       // ask the JSONService to create an unused event name for us      
-      new Ajax.Request( this.interactionParameters.jsonURL, {
+      new Ajax.Request( this.helper.jsonServiceUrl, {
         method: 'get',
         parameters: { 'outputSyntax': 'plain', 'newEvent' : name },
         onSuccess: function(response) {
