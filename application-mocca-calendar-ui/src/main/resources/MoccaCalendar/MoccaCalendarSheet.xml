@@ -59,7 +59,7 @@
   : $doc.display('title')
 #if($myEdit)
   ; &lt;label for="MoccaCalendar.MoccaCalendarClass_0_color"&gt;$escapetool.xml($doc.displayPrettyName('color', false, false))&lt;/label&gt;
-  : &lt;input class="procolor" name="MoccaCalendar.MoccaCalendarClass_0_color" size="30" type="text" style="background-color:$doc.getValue('color')" value="$doc.getValue('color')"/&gt;
+  : &lt;input class="procolor" name="MoccaCalendar.MoccaCalendarClass_0_color" size="30" type="text" value="$doc.getValue('color')"/&gt;
 #end
   ; &lt;label for="MoccaCalendar.MoccaCalendarClass_0_description"&gt;$escapetool.xml($doc.displayPrettyName('description', false, false))&lt;/label&gt;
   : $doc.display('description')
