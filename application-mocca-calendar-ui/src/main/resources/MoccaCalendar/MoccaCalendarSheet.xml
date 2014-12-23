@@ -59,7 +59,7 @@
   : $doc.display('title')
 #if($myEdit)
   ; &lt;label for="MoccaCalendar.MoccaCalendarClass_0_color"&gt;$escapetool.xml($doc.displayPrettyName('color', false, false))&lt;/label&gt;
-  : &lt;input class="procolor" name="MoccaCalendar.MoccaCalendarClass_0_color" size="30" type="text" value="$doc.getValue('color')"/&gt;
+  : &lt;input class="procolor" name="MoccaCalendar.MoccaCalendarClass_0_color" size="30" type="text" value="$escapetool.html($doc.getValue('color'))"/&gt;
 #end
   ; &lt;label for="MoccaCalendar.MoccaCalendarClass_0_description"&gt;$escapetool.xml($doc.displayPrettyName('description', false, false))&lt;/label&gt;
   : $doc.display('description')
@@ -69,18 +69,8 @@
 #end
 )))
 
-#if($myEdit)
-&lt;script type="text/javascript"&gt;
-document.observe &amp;&amp; document.observe("dom:loaded", function() {
-ProColor.prototype.attachButton('MoccaCalendar.MoccaCalendarClass_0_color',{
-mode:'static'
-,input:'MoccaCalendar.MoccaCalendarClass_0_color'
-,imgPath:"#set($imgPath = $xwiki.getSkinFile('uicomponents/widgets/colorpicker/img/procolor_win_bg.png'))#set($imgPath = $imgPath.substring(0, $imgPath.lastIndexOf('bg.png')))${imgPath}"
-});
-});
-&lt;/script&gt;
-#else
-  #if($!oldView)
+#if(!${myEdit})
+  #if($oldView)
     #set($discard = $xcontext.put('display',$oldView))
   #end
 #end
@@ -168,11 +158,13 @@ mode:'static'
     </property>
     <property>
       <code>document.observe("dom:loaded", function(){
-  $$('input[name="title"]')[1].observe('change', function(){
-  	var currValue = this.value;
-  	console.log(currValue);
-  	$$('input[name="title"]:first')[0].value = currValue;
-  })
+  var title = $$('input[name="title"]');
+  if (title.length&gt;1) {
+    title[1].observe('change', function(){
+      var currValue = this.value;
+      title[0].value = currValue;
+    });
+  }
 });</code>
     </property>
     <property>
