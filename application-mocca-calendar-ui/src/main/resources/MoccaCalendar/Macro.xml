@@ -239,7 +239,6 @@ if (typeof(XWiki) == "undefined" || typeof(XWiki.widgets) == "undefined" || type
     initialize: function($super, interactionParameters, helper) {
       this.interactionParameters = Object.extend(Object.clone(this.defaultInteractionParameters), interactionParameters || {});
       this.editMode = this.interactionParameters.editMode;
-console.log( this.interactionParameters );
       // call constructor from ModalPopup with params content, shortcuts, options
       $super(
           this.createContent(this.interactionParameters),
@@ -265,8 +264,6 @@ console.log( this.interactionParameters );
       this.savingBox.hide();
       this.savedBox.hide();
       this.failedBox.hide();
-
-      this.saveButtonText = "$services.localization.render('save')";
 
     },
     submitForm: function(e) {
@@ -365,13 +362,13 @@ console.log( this.interactionParameters );
                 old.remove();
               }
               content.insert('&lt;div id="formcontent"&gt;' + response + '&lt;/div&gt;');
-              content.insert('&lt;div class="buttons"&gt;&lt;span class="buttonwrapper"&gt;&lt;input class="button save-moccacalendar-event" type="submit" name="action_save" title="Alt+S" value="' + this.saveButtonText+'"&gt;&lt;/span&gt;&lt;/div&gt;');
-              $$('input.datetime').each(function(dateTimeInput) {
-                new XWiki.DateTimePicker(dateTimeInput, dateTimeInput.title);
-              });
-              var popup = this;
-
-              content.down('.save-moccacalendar-event').observe('click', popup.submitForm.bindAsEventListener(popup, content));
+              if (this.editMode) {
+                content.insert('&lt;div class="buttons"&gt;&lt;span class="buttonwrapper"&gt;&lt;input class="button save-moccacalendar-event" type="submit" name="action_save" title="Alt+S" value="$services.localization.render('save')"&gt;&lt;/span&gt;&lt;/div&gt;');
+                $$('input.datetime').each(function(dateTimeInput) {
+                  new XWiki.DateTimePicker(dateTimeInput, dateTimeInput.title);
+                });
+                content.down('.save-moccacalendar-event').observe('click', this.submitForm.bindAsEventListener(this, content));
+              }
               container.insert('content');
             }.bind(this),
             onFailure: function() {
@@ -864,10 +861,10 @@ require(['jquery'], function(jQuery) {
        return opts;
       } 
     },
-    //eventClick: function(calEvent, jsEvent, view) {
-    //  new XWiki.MoccaCalendar.MoccaCalendarPopup({pageURL: calEvent.url+'&amp;xpage=plain&amp;xhidden=1', editMode: false});
-    //  return false;
-    //},
+    eventClick: function(calEvent, jsEvent, view) {
+      new XWiki.MoccaCalendar.MoccaCalendarPopup({pageURL: calEvent.url+'&amp;xpage=plain&amp;xhidden=1', editMode: false});
+      return false;
+    },
     viewRender: function(view, element) {
       XWiki.MoccaCalendar.Helper.setCalendarView(view.name);
     },

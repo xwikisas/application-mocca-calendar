@@ -90,6 +90,7 @@ MoccaCalendar.calendar.firstDayOfWeek=0
 MoccaCalendar.calendarevent.viewall=All events
 MoccaCalendar.calendarevent.create=Create new event
 MoccaCalendar.calendarevent.backlink=Back to calendar &amp;#171;{0}&amp;#187;
+MoccaCalendar.calendarevent.view=Event
 
 # Class fields
 MoccaCalendar.MoccaCalendarClass_title=Title
