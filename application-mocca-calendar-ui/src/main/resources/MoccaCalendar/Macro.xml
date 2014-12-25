@@ -148,6 +148,7 @@ if (typeof(XWiki) == "undefined" || typeof(XWiki.widgets) == "undefined" || type
     XWiki.MoccaCalendar = {};
   }
 
+#template('colorThemeInit.vm')
 #set ($discard = $services.localization.use('document', 'MoccaCalendar.MoccaCalendarTranslations'))
 
   XWiki.MoccaCalendar.Helper = Class.create({
@@ -175,7 +176,6 @@ if (typeof(XWiki) == "undefined" || typeof(XWiki.widgets) == "undefined" || type
     new XWiki.MoccaCalendar.MoccaCalendarPopup({pageURL: this.createEventBaseUrl + params}, this);
   },
   updateEvent: function(page, isResize, delta, startDate, endDate, revertFunc) {
-    page = encodeURIComponent(page);
     var savingBox = new XWiki.widgets.Notification("$services.localization.render('core.widgets.confirmationBox.notification.inProgress')", "inprogress", {inactive: true});
     var savedBox = new XWiki.widgets.Notification("$services.localization.render('core.widgets.confirmationBox.notification.done')", "done", {inactive: true});
     var failedBox = new XWiki.widgets.Notification("$services.localization.render('core.widgets.confirmationBox.notification.failed')", "error", {inactive: true});
@@ -186,7 +186,7 @@ if (typeof(XWiki) == "undefined" || typeof(XWiki.widgets) == "undefined" || type
     failedBox.hide();
 
     // let's call the calendar update
-    var params = "page=" + page + "&amp;isResize=" + (isResize ? "1" : "0") + "&amp;delta=" + delta.asMilliseconds() + "&amp;startDate=" + startDate.format()
+    var params = "page=" +  encodeURIComponent(page) + "&amp;isResize=" + (isResize ? "1" : "0") + "&amp;delta=" + delta.asMilliseconds() + "&amp;startDate=" + startDate.format()
     if (endDate) { params += "&amp;endDate=" + endDate.format(); }
     params += "&amp;allDay=" + (startDate.hasTime()?"":"1");
     var url = this.updateEventUrl + params;
@@ -233,10 +233,13 @@ if (typeof(XWiki) == "undefined" || typeof(XWiki.widgets) == "undefined" || type
   XWiki.MoccaCalendar.MoccaCalendarPopup = Class.create(XWiki.widgets.ModalPopup, {
     /** Default parameters can be added to the custom class. */
     defaultInteractionParameters: {
+        editMode : true
     },
     /** Constructor. Registers the key listener that pops up the dialog. */
     initialize: function($super, interactionParameters, helper) {
       this.interactionParameters = Object.extend(Object.clone(this.defaultInteractionParameters), interactionParameters || {});
+      this.editMode = this.interactionParameters.editMode;
+console.log( this.interactionParameters );
       // call constructor from ModalPopup with params content, shortcuts, options
       $super(
           this.createContent(this.interactionParameters),
@@ -246,8 +249,8 @@ if (typeof(XWiki) == "undefined" || typeof(XWiki.widgets) == "undefined" || type
           },
       {
         verticalPosition: "top",
-        backgroundColor: "#FFF", // TODO: MOCCACAL-3
-        title : "$services.localization.render('MoccaCalendar.calendarevent.create')"
+        backgroundColor: "$theme.pageHeaderBackgroundColor",
+        title : this.editMode ? "$services.localization.render('MoccaCalendar.calendarevent.create')" : "$services.localization.render('MoccaCalendar.calendarevent.view')"
       }
       );
       this.helper = helper;
@@ -848,8 +851,8 @@ require(['jquery'], function(jQuery) {
      durationfield: "$!escapetool.javascript($durationfield)"
   };
 
-  // page is now ready, initialize the calendar...
-  var calendar = jQuery('#calendar${calcounter}').fullCalendar({
+  // page is now ready, initialize the calendar...
+  var calendar = jQuery('#calendar${calcounter}').fullCalendar({
     events: {
       url : "$!escapetool.javascript($json)",
       type: 'GET',
@@ -862,7 +865,7 @@ require(['jquery'], function(jQuery) {
       } 
     },
     //eventClick: function(calEvent, jsEvent, view) {
-    //  new XWiki.MoccaCalendar.MoccaCalendarPopup({pageURL: calEvent.url+'&amp;xpage=plain&amp;xhidden=1'});
+    //  new XWiki.MoccaCalendar.MoccaCalendarPopup({pageURL: calEvent.url+'&amp;xpage=plain&amp;xhidden=1', editMode: false});
     //  return false;
     //},
     viewRender: function(view, element) {
@@ -933,8 +936,7 @@ require(['jquery'], function(jQuery) {
 #else ## of #if($xcontext.action=='view')
 Mocca Calendar Macro
 #end
-{{velocity}}
-      </code>
+{{velocity}}</code>
     </property>
     <property>
       <contentDescription/>
