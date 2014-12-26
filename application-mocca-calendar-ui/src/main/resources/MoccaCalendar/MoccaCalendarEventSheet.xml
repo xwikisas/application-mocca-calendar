@@ -73,11 +73,15 @@ $doc.display($field)
 #end
 #set($calendar = $parentDoc.getObject('MoccaCalendar.MoccaCalendarClass'))
 #if($calendar)
-  #set($calendarDoc = $xwiki.getDocument($parentDoc))
+  #set($calendarDoc = $parentDoc)
 #end
 #if(!$calendar &amp;&amp; "$!request.getParameter('parentFROM')" != "")
   #set($calendarDoc = $xwiki.getDocument($request.getParameter('parentFROM')))
   #set($calendar = $calendarDoc.getObject('MoccaCalendar.MoccaCalendarClass'))
+#end
+#set($backToCalendarDoc = $xwiki.getDocument($request.getParameter('calendarDoc')))
+#if(!$!backToCalendarDoc || $backToCalendarDoc.isNew())
+  #set($backToCalendarDoc = $calendarDoc)
 #end
 #if($xcontext.getAction()=="edit")
   #if($request.xpage=="plain")
@@ -143,12 +147,12 @@ $doc.display($field)
   ; &lt;label for="MoccaCalendarEvent.MoccaCalendarEventClass_0_description"&gt;$escapetool.xml($doc.displayPrettyName('description', false, false))&lt;/label&gt;
   : $doc.display('description')
 )))
-#if(!$request.xpage=="plain")
+#if($!{request.xpage}!="plain")
 ----
 
 #if($xcontext.action=='view')
-#if($calendarDoc)
-[[$services.localization.render('MoccaCalendar.calendarevent.backlink', [ $calendarDoc.getDisplayTitle()])&gt;&gt;$calendarDoc]]
+#if($backToCalendarDoc)
+[[$services.localization.render('MoccaCalendar.calendarevent.backlink', [ $backToCalendarDoc.getDisplayTitle()])&gt;&gt;$backToCalendarDoc]]
 #end
 #end
 #end
@@ -230,7 +234,7 @@ $response.setStatus(400)
         <separators> ,|</separators>
         <size>1</size>
         <unmodifiable>0</unmodifiable>
-        <values>currentPage=Always on this page|onDemand=On demand|always=Always on this wiki</values>
+        <values>currentPage|onDemand|always</values>
         <classType>com.xpn.xwiki.objects.classes.StaticListClass</classType>
       </use>
     </class>

@@ -260,6 +260,7 @@ if (typeof(XWiki) == "undefined" || typeof(XWiki.widgets) == "undefined" || type
       );
       this.loadEventContent();
       this.showDialog();
+      this.setClass("moccacal-modal-popup");
 
       $$(".xdialog-modal-container").each(function(div) { div.setStyle({position: 'absolute'}) }); // MOCCACAL-32
 
@@ -269,13 +270,14 @@ if (typeof(XWiki) == "undefined" || typeof(XWiki.widgets) == "undefined" || type
       this.savedBox.hide();
     },
 
-    loadEditForm: function(e) {
+    loadEditForm: function(event) {
+      event.stop();
       this.interactionParameters.editMode = true;
       this.loadEventContent();
     },
 
-    submitForm: function(e) {
-      e.preventDefault();
+    submitForm: function(event) {
+      event.stop();
       var titleField = this.content.down('[name="title"]');
 
       var title = $(titleField).getValue();
@@ -358,6 +360,11 @@ if (typeof(XWiki) == "undefined" || typeof(XWiki.widgets) == "undefined" || type
 
     },
 
+    showDeleteForm: function(event) {
+       event.stop(); 
+       alert('delete not implemented!');
+    },
+
     loadEventContent: function() {
       var url;
       if (this.interactionParameters.isNew) {
@@ -381,16 +388,43 @@ if (typeof(XWiki) == "undefined" || typeof(XWiki.widgets) == "undefined" || type
           this.content.insert('&lt;div id="formcontent"&gt;' + response + '&lt;/div&gt;');
           var formcontent = $('formcontent');
           var buttons = new Element('div', {'class':'buttons'});
+          var oldSkin = ! $('body').hasClassName('skin-flamingo'); // FIXME: bad b/w compat hack
           formcontent.insert(buttons);
           if (this.interactionParameters.editMode) {
-            buttons.insert(this.createButton("submit","$services.localization.render('save')","","save-moccacalendar-event"));
+            buttons.insert(this.createButton("submit","$services.localization.render('save')","","save-moccacalendar-event","btn"));
             $$('input.datetime').each(function(dateTimeInput) {
               new XWiki.DateTimePicker(dateTimeInput, dateTimeInput.title);
             });
             buttons.down('#save-moccacalendar-event').observe('click', this.submitForm.bind(this));
           } else {
-            buttons.insert(this.createButton("button","$services.localization.render('edit')","","edit-moccacalendar-event"));
-            buttons.down('#edit-moccacalendar-event').observe('click', this.loadEditForm.bind(this));
+            var leftGroup = new Element('div', {'class':'btn-group btn-group-left'});
+            buttons.insert(leftGroup);
+            if (this.interactionParameters.event.canEdit) {
+              if (oldSkin) {
+                leftGroup.insert(this.createButton("button","$services.localization.render('edit')","","edit-moccacalendar-event","btn"));
+              } else {
+                leftGroup.insert('&lt;button class="button btn btn-default" id="edit-moccacalendar-event"&gt;&lt;span class="glyphicon glyphicon-pencil"&gt;&lt;/span&gt; '+"$services.localization.render('edit')"+'&lt;/button&gt;');
+              }
+              leftGroup.down("#edit-moccacalendar-event").observe('click', this.loadEditForm.bind(this));
+            }
+            // FIXME: this should be a plain link, but then it has no styles
+            if (oldSkin) {
+              leftGroup.insert(this.createButton("button","$services.localization.render('view')","","view-moccacalendar-event","btn"));
+            } else {
+              leftGroup.insert(' &lt;button class="button btn btn-default" id="view-moccacalendar-event"&gt;&lt;span class="glyphicon glyphicon-file"&gt;&lt;/span&gt; '+"$services.localization.render('view')"+'&lt;/button&gt;');
+            }
+            leftGroup.down("#view-moccacalendar-event").observe('click', function(e) { e.stop(); window.location.href = this.interactionParameters.event.url; }.bind(this));
+            if (false &amp;&amp; this.interactionParameters.event.canDelete) {
+              var rightGroup = new Element('div', {'class':'btn-group btn-group-right'});
+              buttons.insert(rightGroup);
+              if (oldSkin) {
+                rightGroup.insert(this.createButton("button","$services.localization.render('delete')","","delete-moccacalendar-event","btn"));
+              } else {
+                rightGroup.insert(' &lt;button class="button remove-button btn btn-danger" id="delete-moccacalendar-event"&gt; &lt;span class="glyphicon glyphicon-remove"&gt; &lt;/span&gt; '+"$services.localization.render('delete')"+'&lt;/button&gt;');
+              }
+              rightGroup.down("#delete-moccacalendar-event").observe('click', this.showDeleteForm.bind(this));
+            }
+            formcontent.insert(new Element('div', {'class': 'clearfloats'}));
           }
         }.bind(this),
         onFailure: function() {
@@ -585,7 +619,8 @@ if (typeof(XWiki) == "undefined" || typeof(XWiki.widgets) == "undefined" || type
       <cache>default</cache>
     </property>
     <property>
-      <code>div.calendar_date_select {
+      <code>/* events */
+div.calendar_date_select {
   z-index: 1010;
 }
 div.moccaevent {
@@ -596,6 +631,33 @@ div.moccaevent {
 div.moccaevent h5 {
   margin-bottom: 5px;
 }
+
+/* events in the modal dialog */
+div.xdialog-box-moccacal-modal-popup .btn-group.btn-group-left {
+  float: left;
+}
+div.xdialog-box-moccacal-modal-popup .btn-group.btn-group-right {
+  float: right;
+}
+div.xdialog-box-moccacal-modal-popup .btn-group .btn + .btn {
+  margin-left: 1ex;
+}
+/* a special rule for flamingo to try to fit the edit form in the model dialog */
+.skin-flamingo div.xdialog-box-moccacal-modal-popup .xform dl dt {
+   margin-top: 0.6em;
+}
+
+/* calendar */
+div.calendar-buttons {
+  position: relative;
+}
+div.calendar-buttons span.buttonwrapper {
+  position: absolute;
+  right: 0;
+  top: -3em;
+}
+
+/* special rules if showing calendars as gagets in the dashboard - everything is a bit smaller to fit in */
 .dashboard .fc-header {
   font-size: 85%;
 }
@@ -810,14 +872,16 @@ $xwiki.ssx.use("MoccaCalendar.Macro")
 #set($center = "title")
 #set($right = "agendaDay,agendaWeek,month,plainList")
 
-#set($canCreateEvents = $xwiki.hasAccessLevel("edit", $calendarDoc))
+#set($canCreateEvents = $xwiki.hasAccessLevel("edit", $xcontext.getUser(), $calendarDoc))
 
 {{/velocity}}{{velocity}}#if($xcontext.action=='view'){{html clean="false" wiki="false"}}
 #if($canCreateEvents)
 ## create event link
+&lt;div class="calendar-buttons"&gt;
 &lt;span class="buttonwrapper"&gt;
-&lt;a href="#" class="button" id="calendar${calcounter}-btn"&gt;$services.localization.render('MoccaCalendar.calendarevent.create')&lt;/a&gt;
+&lt;button class="btn btn-success" id="calendar${calcounter}-btn"&gt;&lt;span class="glyphicon glyphicon-plus"&gt;&lt;/span&gt; $services.localization.render('MoccaCalendar.calendarevent.create')&lt;/button&gt;
 &lt;/span&gt;
+&lt;/div&gt;
 ## end create event link
 #end
 &lt;div id="calendar${calcounter}"&gt;&lt;/div&gt;
