@@ -173,7 +173,7 @@ if (typeof(XWiki) == "undefined" || typeof(XWiki.widgets) == "undefined" || type
   },
   showCreateEvent: function(extraParams) {
     var params = extraParams || '';
-    new XWiki.MoccaCalendar.MoccaCalendarPopup({pageURL: this.createEventBaseUrl + params}, this);
+    return new XWiki.MoccaCalendar.MoccaCalendarPopup({pageURL: this.createEventBaseUrl + params}, this);
   },
   updateEvent: function(page, isResize, delta, startDate, endDate, revertFunc) {
     var savingBox = new XWiki.widgets.Notification("$services.localization.render('core.widgets.confirmationBox.notification.inProgress')", "inprogress", {inactive: true});
@@ -190,9 +190,8 @@ if (typeof(XWiki) == "undefined" || typeof(XWiki.widgets) == "undefined" || type
     if (endDate) { params += "&amp;endDate=" + endDate.format(); }
     params += "&amp;allDay=" + (startDate.hasTime()?"":"1");
     var url = this.updateEventUrl + params;
-    jQuery.ajax(url).fail(function ( data ) {
+    jQuery.ajax(url).fail(function (data) {
       savingBox.hide();
-
       failedBox.show();
       if (revertFunc) revertFunc();
     }).success(function ( data ) {
@@ -230,18 +229,21 @@ if (typeof(XWiki) == "undefined" || typeof(XWiki.widgets) == "undefined" || type
     document.cookie = cookieName + value + "; path=/";
   };
 
+  //
+  // the dialog to show / edit events
+  //
   XWiki.MoccaCalendar.MoccaCalendarPopup = Class.create(XWiki.widgets.ModalPopup, {
     /** Default parameters can be added to the custom class. */
     defaultInteractionParameters: {
-        editMode : true
+        editMode : true,
+        isNew : true
     },
     /** Constructor. Registers the key listener that pops up the dialog. */
     initialize: function($super, interactionParameters, helper) {
       this.interactionParameters = Object.extend(Object.clone(this.defaultInteractionParameters), interactionParameters || {});
-      this.editMode = this.interactionParameters.editMode;
       // call constructor from ModalPopup with params content, shortcuts, options
       $super(
-          this.createContent(this.interactionParameters),
+          new Element('form', {'class' : 'xform'}),
           {
             "show": {method: this.showDialog, keys: []},
             "close": {method: this.closeDialog, keys: ['Esc']}
@@ -249,12 +251,12 @@ if (typeof(XWiki) == "undefined" || typeof(XWiki.widgets) == "undefined" || type
       {
         verticalPosition: "top",
         backgroundColor: "$theme.pageHeaderBackgroundColor",
-        title : this.editMode ? "$services.localization.render('MoccaCalendar.calendarevent.create')" : "$services.localization.render('MoccaCalendar.calendarevent.view')"
+        title : this.interactionParameters.editMode ? "$services.localization.render('MoccaCalendar.calendarevent.create')" : "$services.localization.render('MoccaCalendar.calendarevent.view')"
       }
       );
       this.helper = helper;
+      this.loadEventContent();
       this.showDialog();
-      this.setClass("moccacal-modal-popup");
 
       $$(".xdialog-modal-container").each(function(div) { div.setStyle({position: 'absolute'}) }); // MOCCACAL-32
 
@@ -264,13 +266,17 @@ if (typeof(XWiki) == "undefined" || typeof(XWiki.widgets) == "undefined" || type
       this.savingBox.hide();
       this.savedBox.hide();
       this.failedBox.hide();
-
     },
+
+    loadEditForm: function(e) {
+      this.interactionParameters.pageURL = this.interactionParameters.pageURL.replace(/view/,'edit');
+      this.interactionParameters.editMode = true;
+      this.loadEventContent();
+    },
+
     submitForm: function(e) {
-      
-      var content = $(e.target.form);
       e.preventDefault();
-      var titleField = content.down('[name="title"]');
+      var titleField = this.content.down('[name="title"]');
 
       var title = $(titleField).getValue();
       if (title.length == 0) {
@@ -281,42 +287,15 @@ if (typeof(XWiki) == "undefined" || typeof(XWiki.widgets) == "undefined" || type
         $$(".val_title_notempty").each(Element.hide);
       }
 
-      this.savingBox.show();
       this.savedBox.hide();
+      this.savingBox.show();
 
-      // calculate "automatic" document name:
-      var name = title.replace(/[\/?]/g,'').replace(/^ +/,'').replace(/ +$/,'');
+      if (this.interactionParameters.isNew) {
+       // calculate "automatic" document name:
+       var name = title.replace(/[\/?]/g,'').replace(/^ +/,'').replace(/ +$/,'');
 
-      this.createEvent = function(eventName) {
-
-        content.writeAttribute('action', this.helper.editEventUrlTemplate.replace("__page__", encodeURIComponent(eventName)));
-        content.request({
-            onSuccess: function() {
-              this.savingBox.hide();
-              this.savedBox.show();
-              this.closeDialog();
-              this.helper.calendar.fullCalendar('refetchEvents');
-            }.bind(this),
-            onFailure: function(e) {
-              try {
-                var responseText = e.responseText;
-                $("formcontent").innerHTML = responseText;
-
-                this.savingBox.hide();
-                this.failedBox.show();
-                $$('input.datetime').each(function(dateTimeInput) {
-                  new XWiki.DateTimePicker(dateTimeInput, dateTimeInput.title);
-                });
-              } catch (e) {
-                alert('Failed to create event!');
-              }
-            }.bind(this)
-          }) // end callback
-
-      } // end createEvent
-
-      // ask the JSONService to create an unused event name for us      
-      new Ajax.Request( this.helper.jsonServiceUrl, {
+       // ask the JSONService to create an unused event name for us      
+       new Ajax.Request( this.helper.jsonServiceUrl, {
         method: 'get',
         parameters: { 'outputSyntax': 'plain', 'newEvent' : name },
         onSuccess: function(response) {
@@ -329,7 +308,7 @@ if (typeof(XWiki) == "undefined" || typeof(XWiki.widgets) == "undefined" || type
               // $('ajaxRequestFailureReason').update(error);
             } else {
               var eventName = response.responseJSON['name'];
-              this.createEvent(eventName);
+              this.saveEvent(eventName);
             }
           } catch(e) { alert(e); }
         }.bind(this),
@@ -341,42 +320,74 @@ if (typeof(XWiki) == "undefined" || typeof(XWiki.widgets) == "undefined" || type
             $('ajaxRequestFailureReason').update("Internal Server Error");
           } catch(e) { alert(e); }
         }.bind(this)
-      });
+       });
+      } else {
+        this.saveEvent();
+      }
       
       return false;
     },
 
-    /** Get the content of the modal dialog using ajax */
-    createContent: function(data) {
-      var container = new Element('div', {'class': 'modal-popup'});
+    saveEvent: function(newEventName) {
+      if (newEventName) {
+        this.content.writeAttribute('action', this.helper.editEventUrlTemplate.replace("__page__", encodeURIComponent(newEventName)));
+      } else {
+        this.content.writeAttribute('action', this.interactionParameters.pageURL.replace(/edit/,'preview'));
+      }
+      this.content.request({
+        onSuccess: function() {
+          this.savingBox.hide();
+          this.savedBox.show();
+          this.closeDialog();
+          this.helper.calendar.fullCalendar('refetchEvents');
+        }.bind(this),
+        onFailure: function(e) {
+          try {
+            var responseText = e.responseText;
+            $("formcontent").innerHTML = responseText;
 
-      var content = new Element('form', {'class' : 'xform'} );
+            this.savingBox.hide();
+            this.failedBox.show();
+            $$('input.datetime').each(function(dateTimeInput) {
+              new XWiki.DateTimePicker(dateTimeInput, dateTimeInput.title);
+            });
+          } catch (e) {
+            alert('Failed to create event!');
+          }
+        }.bind(this)
+      })
+
+    },
+
+    loadEventContent: function() {
       // get page content for the pageURL
-      new Ajax.Request(data.pageURL,
+      new Ajax.Request(this.interactionParameters.pageURL,
           {
             method: 'get',
             onSuccess: function(transport) {
               var response = transport.responseText || "no response text";
               var old = $('formcontent');
               if (old) {
+                old.purge();
                 old.remove();
               }
-              content.insert('&lt;div id="formcontent"&gt;' + response + '&lt;/div&gt;');
-              if (this.editMode) {
-                content.insert('&lt;div class="buttons"&gt;&lt;span class="buttonwrapper"&gt;&lt;input class="button save-moccacalendar-event" type="submit" name="action_save" title="Alt+S" value="$services.localization.render('save')"&gt;&lt;/span&gt;&lt;/div&gt;');
+              this.content.insert('&lt;div id="formcontent"&gt;' + response + '&lt;/div&gt;');
+              var formcontent = $('formcontent');
+              if (this.interactionParameters.editMode) {
+                formcontent.insert('&lt;div class="buttons"&gt;&lt;span class="buttonwrapper"&gt;&lt;input class="button save-moccacalendar-event" type="submit" name="action_save" title="Alt+S" value="$services.localization.render('save')"&gt;&lt;/span&gt;&lt;/div&gt;');
                 $$('input.datetime').each(function(dateTimeInput) {
                   new XWiki.DateTimePicker(dateTimeInput, dateTimeInput.title);
                 });
-                content.down('.save-moccacalendar-event').observe('click', this.submitForm.bindAsEventListener(this, content));
+                formcontent.down('.save-moccacalendar-event').observe('click', this.submitForm.bindAsEventListener(this, content));
+              } else {
+                formcontent.insert('&lt;div class="buttons"&gt;&lt;span class="buttonwrapper"&gt;&lt;input class="button edit-moccacalendar-event" type="button" name="action_edit" title="Alt+E" value="$services.localization.render('edit')"&gt;&lt;/span&gt;&lt;/div&gt;');
+                formcontent.down('.edit-moccacalendar-event').observe('click', this.loadEditForm.bindAsEventListener(this, content));
               }
-              container.insert('content');
             }.bind(this),
             onFailure: function() {
-              container.insert('Something went wrong...');
+              this.content.insert('Something went wrong...');
             }
           });
-
-      return content;
     }
   });
 
@@ -856,13 +867,13 @@ require(['jquery'], function(jQuery) {
       data : function() {
         // as we also get called before the calendar is fully initialized
         // we cannot get the current view reliably from the calendar itself
-        // instead use our odd helper 
-        var opts = jQuery.extend(defaultEventData, {'outputView': XWiki.MoccaCalendar.Helper.getCalendarView(defaultView)} );
-       return opts;
+        // instead use our trusty helper 
+        return jQuery.extend(defaultEventData, {'outputView': XWiki.MoccaCalendar.Helper.getCalendarView(defaultView)} );
       } 
     },
     eventClick: function(calEvent, jsEvent, view) {
-      new XWiki.MoccaCalendar.MoccaCalendarPopup({pageURL: calEvent.url+'&amp;xpage=plain&amp;xhidden=1', editMode: false});
+      new XWiki.MoccaCalendar.MoccaCalendarPopup({pageURL: calEvent.url+'&amp;xpage=plain&amp;xhidden=1', editMode: false, isNew: false}, calendarHelper);
+      jsEvent.preventDefault();
       return false;
     },
     viewRender: function(view, element) {
@@ -933,7 +944,7 @@ require(['jquery'], function(jQuery) {
 #else ## of #if($xcontext.action=='view')
 Mocca Calendar Macro
 #end
-{{velocity}}</code>
+{{/velocity}}</code>
     </property>
     <property>
       <contentDescription/>

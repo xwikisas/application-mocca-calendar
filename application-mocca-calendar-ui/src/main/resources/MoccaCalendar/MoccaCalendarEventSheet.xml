@@ -97,11 +97,19 @@ $doc.display($field)
 #set ($discard = $doc.use($eventClass))
 #set ($discard = $services.localization.use('document', 'MoccaCalendar.MoccaCalendarTranslations'))
 ## add the groovy script to the validation (the xvalidation parameter in the request also works to set the groovy script validation)
+#if($xcontext.action=='edit')
 #set ($discard =$doc.setValidationScript($eventValidationDoc))
 ## this will launch a validation on a document. All errors are added to the context
 #set($isValid=$doc.validate())
 &lt;input type="hidden" name="xvalidate" value="1" /&gt;
 &lt;input type="hidden" name="xvalidation" value="$eventValidationDoc" /&gt;
+## the following values must be added explicitly in "plain edit view", as used by the modal popup
+## because the "plain view" does not give them to us
+#if($request.xpage=='plain')
+&lt;input type="hidden" name="form_token" value="$!{services.csrf.getToken()}" /&gt;
+&lt;input type="hidden" name="language" value="$!{escapetool.xml($tdoc.realLanguage)}" /&gt;
+#end
+#end
 (% class="xform" %)
 (((
 #if($xcontext.action=='view' &amp;&amp; $calendar)
@@ -135,7 +143,7 @@ $doc.display($field)
   ; &lt;label for="MoccaCalendarEvent.MoccaCalendarEventClass_0_description"&gt;$escapetool.xml($doc.displayPrettyName('description', false, false))&lt;/label&gt;
   : $doc.display('description')
 )))
-
+#if(!$request.xpage=="plain")
 ----
 
 #if($xcontext.action=='view')
@@ -143,7 +151,7 @@ $doc.display($field)
 [[$services.localization.render('MoccaCalendar.calendarevent.backlink', [ $calendarDoc.getDisplayTitle()])&gt;&gt;$calendarDoc]]
 #end
 #end
-
+#end
 {{/html}}
 
 #if(($xcontext.validationStatus.errors&amp;&amp;$xcontext.validationStatus.errors.size()&gt;0))
