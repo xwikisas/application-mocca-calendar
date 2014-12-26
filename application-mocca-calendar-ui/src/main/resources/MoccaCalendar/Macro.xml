@@ -380,7 +380,7 @@ if (typeof(XWiki) == "undefined" || typeof(XWiki.widgets) == "undefined" || type
             });
             buttons.down('#save-moccacalendar-event').observe('click', this.submitForm.bind(this));
           } else {
-            buttons.insert(this.createButton("submit","$services.localization.render('edit')","","edit-moccacalendar-event"));
+            buttons.insert(this.createButton("button","$services.localization.render('edit')","","edit-moccacalendar-event"));
             buttons.down('#edit-moccacalendar-event').observe('click', this.loadEditForm.bind(this));
           }
         }.bind(this),
