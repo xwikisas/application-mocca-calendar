@@ -238,11 +238,11 @@ if (typeof(XWiki) == "undefined" || typeof(XWiki.widgets) == "undefined" || type
   //
   XWiki.MoccaCalendar.MoccaCalendarPopup = Class.create(XWiki.widgets.ModalPopup, {
     defaultInteractionParameters: {
-      editMode : true,
-      isNew : true
+      editMode : true
     },
     initialize: function($super, interactionParameters, helper) {
       this.interactionParameters = Object.extend(Object.clone(this.defaultInteractionParameters), interactionParameters || {});
+      this.interactionParameters.isNew = (undefined == this.interactionParameters.event)
       this.helper = helper;
       // call constructor from ModalPopup with params content, shortcuts, options
       $super(
@@ -270,7 +270,6 @@ if (typeof(XWiki) == "undefined" || typeof(XWiki.widgets) == "undefined" || type
     },
 
     loadEditForm: function(e) {
-      this.interactionParameters.pageURL = this.interactionParameters.pageURL.replace(/view/,'edit');
       this.interactionParameters.editMode = true;
       this.loadEventContent();
     },
@@ -327,11 +326,14 @@ if (typeof(XWiki) == "undefined" || typeof(XWiki.widgets) == "undefined" || type
     },
 
     saveEvent: function(newEventName) {
-      if (newEventName) {
-        this.content.writeAttribute('action', this.helper.editEventUrlTemplate.replace("__page__", encodeURIComponent(newEventName)));
+      var saveUrl;
+      if (this.interactionParameters.isNew) {
+        saveUrl = this.helper.editEventUrlTemplate;
+        saveUrl = saveUrl.replace("__page__", encodeURIComponent(newEventName));
       } else {
-        this.content.writeAttribute('action', this.interactionParameters.pageURL.replace(/edit/,'save'));
+        saveUrl = this.interactionParameters.event.saveUrl;
       }
+      this.content.writeAttribute('action', saveUrl + '&amp;ajax=true');
       this.content.request({
         onSuccess: function() {
           this.savingBox.hide();
@@ -357,9 +359,15 @@ if (typeof(XWiki) == "undefined" || typeof(XWiki.widgets) == "undefined" || type
     },
 
     loadEventContent: function() {
-      // get page content for the pageURL
-      new Ajax.Request(this.interactionParameters.pageURL, {
+      var url;
+      if (this.interactionParameters.isNew) {
+        url = this.interactionParameters.pageURL;
+      } else {
+        url = (this.interactionParameters.editMode)?this.interactionParameters.event.editUrl:this.interactionParameters.event.url;
+      }
+      new Ajax.Request(url, {
         method: 'get',
+        parameters: {'xpage': 'plain', 'xhidden': 1},
         onSuccess: function(transport) {
           if (transport.status == 0) {
             return;
@@ -846,7 +854,7 @@ require(['jquery'], function(jQuery) {
       },
     },
     eventClick: function(calEvent, jsEvent, view) {
-      new XWiki.MoccaCalendar.MoccaCalendarPopup({pageURL: calEvent.url+'&amp;xpage=plain&amp;xhidden=1', editMode: false, isNew: false}, calendarHelper);
+      new XWiki.MoccaCalendar.MoccaCalendarPopup({editMode: false, event: calEvent}, calendarHelper);
       jsEvent.preventDefault();
       return false;
     },
@@ -906,12 +914,12 @@ require(['jquery'], function(jQuery) {
   });
   jQuery('#calendar${calcounter}-btn').click( function(e) { calendarHelper.showCreateEvent(); e.preventDefault(); });
   // helper to be used in callback above
-#set($pageParams = "template=MoccaCalendar.MoccaCalendarEventTemplate&amp;xhidden=1&amp;parentFROM=${escapetool.url($calendarDoc)}&amp;xpage=plain&amp;form_token=$services.csrf.getToken()&amp;ocalcaction=create")
+#set($pageParams = "template=MoccaCalendar.MoccaCalendarEventTemplate&amp;parentFROM=${escapetool.url($calendarDoc)}&amp;form_token=${services.csrf.getToken()}&amp;ocalcaction=create")
 #set($eventUrlTemplate = $xwiki.getURL($services.model.createDocumentReference($doc.getWiki(),'MoccaCalendar','__page__'),'save',$pageParams))
 #set($randomDocUrl = $xwiki.getURL("randomPage${util.generateRandomString(10)}",'edit',$pageParams))
 #set($updateUrlParams="?xpage=plain&amp;outputSyntax=plain&amp;calendarDoc=${escapetool.url(${calendarDoc})}&amp;")
   var calendarHelper = new XWiki.MoccaCalendar.Helper(calendar, "$escapetool.javascript($jsonUrl)", "$escapetool.javascript($randomDocUrl)", "$escapetool.javascript("${updateUrl}${updateUrlParams}")", "$escapetool.javascript($eventUrlTemplate)");
- });
+  });
 });
 &lt;/script&gt;
 {{/html}}
