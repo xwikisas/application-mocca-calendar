@@ -742,64 +742,17 @@ $xwiki.ssx.use("MoccaCalendar.Macro")
 #set($calcounter = $request.getAttribute('MoccaCalendar.Macro:counter'))
 #if(!$calcounter) #set($calcounter = 0) #else #set($calcounter = $calcounter + 1) #end
 #set($discard = $request.setAttribute('MoccaCalendar.Macro:counter', $calcounter))
-#set($calendarDoc = $xcontext.macro.params.calendarDoc)
-#if(!$calendarDoc)
-#set($calendarDoc = $doc.fullName)
-#end
 #set($filter = $xcontext.macro.params.filter)
 #if(!$filter)
 #set($filter = 'page') ## possible values are wiki, space, page
 #end
-
-#set($startfield = $xcontext.macro.params.startfield)
-#if(!$startfield)
-#set($startfield = "startDate")
-#end
-#set($endfield = $xcontext.macro.params.endfield)
-#if(!$endfield)
-#set($endfield = "endDate")
-#end
-#set($durationfield=$!{xcontext.macro.params.durationfield})
-#if(!$durationfield)
-#set($durationfield = "")
-#end
-
-#set($classname=$!{xcontext.macro.params.classname})
-#if(!$classname)
-#set($classname = "MoccaCalendar.MoccaCalendarEventClass")
-#end
-
-#set($left = $xcontext.macro.params.left)
-#if(!$left)
- #set($left = "prev,next today")
-#end
-#set($center = $xcontext.macro.params.center)
-#if(!$center)
- #set($center = "title")
-#end
-#set($right = $xcontext.macro.params.right)
-#if(!$right)
- #set($right = "agendaDay,agendaWeek,month,plainList")
-#end
-#set($dateFormat =$!xwiki.getClass($classname).get("startDate").getProperty('dateFormat').value)
-#if($!dateFormat=="")
-#set($dateFormat ="dd.MM.yyyy HH:mm:ss")
+#set($calendarDoc = $xcontext.macro.params.calendarDoc)
+#if(!$calendarDoc)
+#set($calendarDoc = $doc.fullName)
 #end
 #set($defaultView = $xcontext.macro.params.defaultView)
 #if(!$defaultView)
  #set($defaultView = "")
-#end
-#set($year = $xcontext.macro.params.year)
-#if(!$year)
- #set($year = "")
-#end
-#set($month = $xcontext.macro.params.month)
-#if(!$month)
- #set($month = "")
-#end
-#set($date = $xcontext.macro.params.date)
-#if(!$date)
- #set($date = "")
 #end
 #set($firstDay = $xcontext.macro.params.firstDay)
 #if(!$firstDay)
@@ -823,19 +776,33 @@ $xwiki.ssx.use("MoccaCalendar.Macro")
     #set($maxTime = "$maxTime:00")
   #end
 #end
-#set($editable = $xcontext.macro.params.editable)
-#if(!$editable)
- #set($editable = "true")
+#set($year = $xcontext.macro.params.year)
+#if(!$year)
+ #set($year = "")
 #end
-#set($json = $xcontext.macro.params.get('json'))
-#if(!$json)
- #set($json = $xwiki.getDocument("MoccaCalendar.JSONService").getURL("get"))
+#set($month = $xcontext.macro.params.month)
+#if(!$month)
+ #set($month = "")
 #end
-#set($updateUrl = $xcontext.macro.params.updateurl)
-#if(!$updateUrl)
- #set($updateUrl = $xwiki.getDocument("MoccaCalendar.UpdateService").getURL("get"))
+#set($date = $xcontext.macro.params.date)
+#if(!$date)
+ #set($date = "")
 #end
+##
+## some hardwired values that you can feel free to customize
+##
+#set($jsonUrl = $xwiki.getDocument("MoccaCalendar.JSONService").getURL("get"))
+#set($updateUrl = $xwiki.getDocument("MoccaCalendar.UpdateService").getURL("get"))
+#set($dateFormat =$!xwiki.getClass($classname).get("startDate").getProperty('dateFormat').value)
+#if($!dateFormat=="")
+  #set($dateFormat ="dd.MM.yyyy HH:mm:ss")
+#end
+#set($left = "prev,next today")
+#set($center = "title")
+#set($right = "agendaDay,agendaWeek,month,plainList")
+
 #set($canCreateEvents = $xwiki.hasAccessLevel("edit", $calendarDoc))
+
 {{/velocity}}{{velocity}}#if($xcontext.action=='view'){{html clean="false" wiki="false"}}
 #if($canCreateEvents)
 ## create event link
@@ -852,20 +819,20 @@ require(['jquery'], function(jQuery) {
   var defaultView = XWiki.MoccaCalendar.Helper.getCalendarView("$!escapetool.javascript($defaultView)");
 
   var defaultEventData = {
-     xpage: 'plain',
-     outputSyntax: 'plain',
-     calendarDoc: "$!escapetool.javascript($calendarDoc)",
-     filter: "$!escapetool.javascript($filter)",
-     classname: "$!escapetool.javascript($classname)",
-     startfield: "$!escapetool.javascript($startfield)",
-     endfield: "$!escapetool.javascript($endfield)",
-     durationfield: "$!escapetool.javascript($durationfield)"
+    xpage: 'plain',
+    outputSyntax: 'plain',
+    calendarDoc: "$!escapetool.javascript($calendarDoc)",
+    filter: "$!escapetool.javascript($filter)",
+    classname: "MoccaCalendar.MoccaCalendarEventClass",
+    startfield: "startDate",
+    endfield: "endDate",
+    durationfield: ""
   };
 
   // page is now ready, initialize the calendar...
   var calendar = jQuery('#calendar${calcounter}').fullCalendar({
     events: {
-      url : "$!escapetool.javascript($json)",
+      url : "$!escapetool.javascript($jsonUrl)",
       type: 'GET',
       data : function() {
         // as we also get called before the calendar is fully initialized
@@ -887,59 +854,59 @@ require(['jquery'], function(jQuery) {
       center: "$!escapetool.javascript($center)",
       right: "$!escapetool.javascript($right)"
     },
-    defaultView: defaultView
-#if($year!=""), year: $!escapetool.javascript($year)#end
-#if($month!=""), month: $!escapetool.javascript($month) #end
-#if($date!=""), date: $!escapetool.javascript($date) #end
-, firstDay: $escapetool.javascript($firstDay)
-#if($minTime!=""), minTime: "$!escapetool.javascript($minTime)" #end
-#if($maxTime!=""), maxTime: "$!escapetool.javascript($maxTime)" #end
-,editable: $escapetool.javascript($editable)
-,selectable: true
-,selectHelper: true
-,select: function(start, end, allDay) {
-    calendarHelper.showCreateEventFrom(start, end, "$!escapetool.javascript($dateFormat)");
-    calendar.fullCalendar('unselect');
-  }
-,eventDrop: function(event, delta, revertFunc, jsEvent, ui, view) {
-    calendarHelper.updateEvent(event.id, false, delta, event.start, event.end, revertFunc);
-  }
-,eventResize: function(event, delta, revertFunc, jsEvent, ui, view) {
-    calendarHelper.updateEvent(event.id, true, delta, event.start, event.end, revertFunc);
-  }
-,aspectRatio:1.8
-,buttonText: {
-  today: '$services.localization.render('xwiki.calendar.button.today')',
-  day: '$services.localization.render('xwiki.calendar.button.day')',
-  week:'$services.localization.render('xwiki.calendar.button.week')',
-  month:'$services.localization.render('xwiki.calendar.button.month')',
-  plainList:'$services.localization.render('MoccaCalendar.calendar.plainlist')'
-}
-,monthNames: $services.localization.render('xwiki.calendar.monthNames') 
-,monthNamesShort: $services.localization.render('xwiki.calendar.monthNamesShort')
-,dayNames: $services.localization.render('xwiki.calendar.dayNames')
-,dayNamesShort: $services.localization.render('xwiki.calendar.dayNamesShort')
-,allDayText:"$services.localization.render('xwiki.calendar.allDayText')"
-,axisFormat : "$services.localization.render('xwiki.calendar.axisFormat')"
-,timeFormat: "$!services.localization.render('xwiki.calendar.timeFormat')"
-,columnFormat: {
-  month: "$!services.localization.render('xwiki.calendar.columnFormat.month')",
-  week: "$!services.localization.render('xwiki.calendar.columnFormat.week')",
-  day: "$!services.localization.render('xwiki.calendar.columnFormat.day')"
-}
-,titleFormat: {
-  month: "$!services.localization.render('xwiki.calendar.titleFormat.month')",
-  week: "$!services.localization.render('xwiki.calendar.titleFormat.week')",
-  day: "$!services.localization.render('xwiki.calendar.titleFormat.day')"
-}
+    defaultView: defaultView,
+#if($year!="")    year: $!escapetool.javascript($year),#end
+#if($month!="")   month: $!escapetool.javascript($month), #end
+#if($date!="")    date: $!escapetool.javascript($date), #end
+    firstDay: $escapetool.javascript($firstDay),
+#if($minTime!="")    minTime: "$!escapetool.javascript($minTime)", #end
+#if($maxTime!="")    maxTime: "$!escapetool.javascript($maxTime)", #end
+    editable: true,
+    selectable: true,
+    selectHelper: true,
+    select: function(start, end, allDay) {
+      calendarHelper.showCreateEventFrom(start, end, "$!escapetool.javascript($dateFormat)");
+      calendar.fullCalendar('unselect');
+    },
+    eventDrop: function(event, delta, revertFunc, jsEvent, ui, view) {
+      calendarHelper.updateEvent(event.id, false, delta, event.start, event.end, revertFunc);
+    },
+    eventResize: function(event, delta, revertFunc, jsEvent, ui, view) {
+      calendarHelper.updateEvent(event.id, true, delta, event.start, event.end, revertFunc);
+    },
+    aspectRatio:1.8,
+    buttonText: {
+      today: '$services.localization.render('xwiki.calendar.button.today')',
+      day: '$services.localization.render('xwiki.calendar.button.day')',
+      week:'$services.localization.render('xwiki.calendar.button.week')',
+      month:'$services.localization.render('xwiki.calendar.button.month')',
+      plainList:'$services.localization.render('MoccaCalendar.calendar.plainlist')'
+    },
+    monthNames: $services.localization.render('xwiki.calendar.monthNames'),
+    monthNamesShort: $services.localization.render('xwiki.calendar.monthNamesShort'),
+    dayNames: $services.localization.render('xwiki.calendar.dayNames'),
+    dayNamesShort: $services.localization.render('xwiki.calendar.dayNamesShort'),
+    allDayText: "$services.localization.render('xwiki.calendar.allDayText')",
+    axisFormat: "$services.localization.render('xwiki.calendar.axisFormat')",
+    timeFormat: "$!services.localization.render('xwiki.calendar.timeFormat')",
+    columnFormat: {
+      month: "$!services.localization.render('xwiki.calendar.columnFormat.month')",
+      week: "$!services.localization.render('xwiki.calendar.columnFormat.week')",
+      day: "$!services.localization.render('xwiki.calendar.columnFormat.day')"
+    },
+    titleFormat: {
+      month: "$!services.localization.render('xwiki.calendar.titleFormat.month')",
+      week: "$!services.localization.render('xwiki.calendar.titleFormat.week')",
+      day: "$!services.localization.render('xwiki.calendar.titleFormat.day')"
+    }
   });
-  jQuery('#calendar${calcounter}-btn').click( function(e) { calendarHelper.showCreateEvent(); e.preventDefault(); } );
+  jQuery('#calendar${calcounter}-btn').click( function(e) { calendarHelper.showCreateEvent(); e.preventDefault(); });
   // helper to be used in callback above
 #set($pageParams = "template=MoccaCalendar.MoccaCalendarEventTemplate&amp;xhidden=1&amp;parentFROM=${escapetool.url($calendarDoc)}&amp;xpage=plain&amp;form_token=$services.csrf.getToken()&amp;ocalcaction=create")
 #set($eventUrlTemplate = $xwiki.getURL($services.model.createDocumentReference($doc.getWiki(),'MoccaCalendar','__page__'),'edit',$pageParams))
 #set($randomDocUrl = $xwiki.getURL("randomPage${util.generateRandomString(10)}",'edit',$pageParams))
 #set($updateUrlParams="?xpage=plain&amp;outputSyntax=plain&amp;calendarDoc=${escapetool.url(${calendarDoc})}&amp;")
-  var calendarHelper = new XWiki.MoccaCalendar.Helper(calendar, "$escapetool.javascript($json)", "$randomDocUrl", "${updateUrl}${updateUrlParams}", "$escapetool.javascript($eventUrlTemplate)" );
+  var calendarHelper = new XWiki.MoccaCalendar.Helper(calendar, "$escapetool.javascript($jsonUrl)", "$escapetool.javascript($randomDocUrl)", "$escapetool.javascript("${updateUrl}${updateUrlParams}")", "$escapetool.javascript($eventUrlTemplate)");
  });
 });
 &lt;/script&gt;
