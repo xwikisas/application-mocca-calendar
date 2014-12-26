@@ -80,12 +80,12 @@
 
 		#if($success)
 			#set($ok = $pagedoc.save("Update event time"))
-			OK $startfield: $pagedoc.getValue($startfield) - $endfield: $pagedoc.getValue($endfield) - allDay: $pagedoc.getValue($alldayfield) ; $message $delta
+			OK $startfield: $pagedoc.getValue($startfield) - $endfield: $pagedoc.getValue($endfield) - allDay: $pagedoc.getValue($alldayfield) ; $delta
 		#else
-			FAIL $message ($pagedoc.fullName  $pagedoc.getValue($startfield) $pagedoc.getValue($endfield))
+			FAIL ($pagedoc.fullName  $pagedoc.getValue($startfield) $pagedoc.getValue($endfield))
 		#end
 	#else
-		FAIL No Document
+		FAIL Document gone
 	#end
 #else
 FAIL No Document

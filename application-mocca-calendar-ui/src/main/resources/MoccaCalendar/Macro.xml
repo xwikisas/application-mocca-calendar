@@ -159,6 +159,12 @@ if (typeof(XWiki) == "undefined" || typeof(XWiki.widgets) == "undefined" || type
     this.updateEventUrl = updateEventUrl;
     this.editEventUrlTemplate = editEventUrlTemplate;
   },
+  displayError: function(errorMessage) {
+    if (!errorMessage) {
+      errorMessage = "$services.localization.render('MoccaCalendar.generic.errormessage')";
+    }
+    new XWiki.widgets.Notification("$services.localization.render('core.widgets.confirmationBox.notification.failed')" + errorMessage, "error");
+  },
   showCreateEventFrom: function(start, end, dateFormat) {
     var calendar = this.calendar;
     var allDay = !start.hasTime();
@@ -178,12 +184,10 @@ if (typeof(XWiki) == "undefined" || typeof(XWiki.widgets) == "undefined" || type
   updateEvent: function(page, isResize, delta, startDate, endDate, revertFunc) {
     var savingBox = new XWiki.widgets.Notification("$services.localization.render('core.widgets.confirmationBox.notification.inProgress')", "inprogress", {inactive: true});
     var savedBox = new XWiki.widgets.Notification("$services.localization.render('core.widgets.confirmationBox.notification.done')", "done", {inactive: true});
-    var failedBox = new XWiki.widgets.Notification("$services.localization.render('core.widgets.confirmationBox.notification.failed')", "error", {inactive: true});
     var calendar = this.calendar;
 
     savingBox.show();
     savedBox.hide();
-    failedBox.hide();
 
     // let's call the calendar update
     var params = "page=" +  encodeURIComponent(page) + "&amp;isResize=" + (isResize ? "1" : "0") + "&amp;delta=" + delta.asMilliseconds() + "&amp;startDate=" + startDate.format()
@@ -192,19 +196,19 @@ if (typeof(XWiki) == "undefined" || typeof(XWiki.widgets) == "undefined" || type
     var url = this.updateEventUrl + params;
     jQuery.ajax(url).fail(function (data) {
       savingBox.hide();
-      failedBox.show();
+      this.displayError();
       if (revertFunc) revertFunc();
-    }).success(function ( data ) {
+    }.bind(this)).success(function (data) {
       if (data.indexOf("OK ")==0) {
         savingBox.hide();
         savedBox.show();
         calendar.fullCalendar('refetchEvents');
       } else {
         savingBox.hide();
-        failedBox.show();
+        this.displayError();
         if (revertFunc) revertFunc();
       }
-    });
+    }.bind(this));
   }
   });
 
@@ -261,10 +265,8 @@ if (typeof(XWiki) == "undefined" || typeof(XWiki.widgets) == "undefined" || type
 
       this.savingBox = new XWiki.widgets.Notification("$services.localization.render('core.widgets.confirmationBox.notification.inProgress')", "inprogress", {inactive: true});
       this.savedBox = new XWiki.widgets.Notification("$services.localization.render('core.widgets.confirmationBox.notification.done')", "done", {inactive: true});
-      this.failedBox = new XWiki.widgets.Notification("$services.localization.render('core.widgets.confirmationBox.notification.failed')", "error", {inactive: true});
       this.savingBox.hide();
       this.savedBox.hide();
-      this.failedBox.hide();
     },
 
     loadEditForm: function(e) {
@@ -299,12 +301,10 @@ if (typeof(XWiki) == "undefined" || typeof(XWiki.widgets) == "undefined" || type
         parameters: { 'outputSyntax': 'plain', 'newEvent' : name },
         onSuccess: function(response) {
           try {
-            var error = (response.responseJSON)?response.responseJSON['error']:'Internal Server Error'
+            var error = (response.responseJSON)?response.responseJSON['error']:"$services.localization.render('MoccaCalendar.generic.errormessage')";
             if (error) {
               this.savingBox.hide();
-              this.failedBox.show();
-              // TODO: error message handling did not work
-              // $('ajaxRequestFailureReason').update(error);
+              this.helper.displayError(error);
             } else {
               var eventName = response.responseJSON['name'];
               this.saveEvent(eventName);
@@ -315,8 +315,7 @@ if (typeof(XWiki) == "undefined" || typeof(XWiki.widgets) == "undefined" || type
           // this should not happen ...
           try {
             this.savingBox.hide();
-            this.failedBox.show();
-            $('ajaxRequestFailureReason').update("Internal Server Error");
+            this.helper.displayError();
           } catch(e) { alert(e); }
         }.bind(this)
        });
@@ -344,14 +343,13 @@ if (typeof(XWiki) == "undefined" || typeof(XWiki.widgets) == "undefined" || type
           try {
             var responseText = e.responseText;
             $("formcontent").innerHTML = responseText;
-
             this.savingBox.hide();
-            this.failedBox.show();
+            this.helper.displayError();
             $$('input.datetime').each(function(dateTimeInput) {
               new XWiki.DateTimePicker(dateTimeInput, dateTimeInput.title);
             });
           } catch (e) {
-            alert('Failed to create event!');
+            alert('Failed to save event!');
           }
         }.bind(this)
       })
@@ -363,6 +361,9 @@ if (typeof(XWiki) == "undefined" || typeof(XWiki.widgets) == "undefined" || type
       new Ajax.Request(this.interactionParameters.pageURL, {
         method: 'get',
         onSuccess: function(transport) {
+          if (transport.status == 0) {
+            return;
+          }
           var response = transport.responseText || "no response text";
           var old = $('formcontent');
           if (old) {
@@ -839,7 +840,10 @@ require(['jquery'], function(jQuery) {
         // we cannot get the current view reliably from the calendar itself
         // instead use our trusty helper 
         return jQuery.extend(defaultEventData, {'outputView': XWiki.MoccaCalendar.Helper.getCalendarView(defaultView)} );
-      } 
+      },
+      error: function() {
+        calendarHelper.displayError();        
+      },
     },
     eventClick: function(calEvent, jsEvent, view) {
       new XWiki.MoccaCalendar.MoccaCalendarPopup({pageURL: calEvent.url+'&amp;xpage=plain&amp;xhidden=1', editMode: false, isNew: false}, calendarHelper);

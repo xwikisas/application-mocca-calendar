@@ -91,6 +91,7 @@ MoccaCalendar.calendarevent.viewall=All events
 MoccaCalendar.calendarevent.create=Create new event
 MoccaCalendar.calendarevent.backlink=Back to calendar &amp;#171;{0}&amp;#187;
 MoccaCalendar.calendarevent.view=Event
+MoccaCalendar.generic.errormessage=Internal Server Error
 
 # Class fields
 MoccaCalendar.MoccaCalendarClass_title=Title
@@ -157,5 +158,5 @@ MoccaCalendar.datepicker.now=Now
 val_title_notvalid=Title field contains invalid characters.
 val_title_notempty=Title field is required.
 val_endDate=End date must be after start date.
-val_title_already_exists=An Event with this name already exists.</content>
+val_title_already_exists=An event with this name already exists.</content>
 </xwikidoc>
