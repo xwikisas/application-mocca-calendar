@@ -169,7 +169,7 @@ if (typeof(XWiki) == "undefined" || typeof(XWiki.widgets) == "undefined" || type
     var params = "&amp;" + paramPrefix + "startDate=" + encodeURIComponent(start);
     params += "&amp;" + paramPrefix + "endDate=" + encodeURIComponent(end);
     params += "&amp;" + paramPrefix + "allDay=" + allDay;
-    this.showCreateEvent(params);
+    return this.showCreateEvent(params);
   },
   showCreateEvent: function(extraParams) {
     var params = extraParams || '';
@@ -233,28 +233,27 @@ if (typeof(XWiki) == "undefined" || typeof(XWiki.widgets) == "undefined" || type
   // the dialog to show / edit events
   //
   XWiki.MoccaCalendar.MoccaCalendarPopup = Class.create(XWiki.widgets.ModalPopup, {
-    /** Default parameters can be added to the custom class. */
     defaultInteractionParameters: {
-        editMode : true,
-        isNew : true
+      editMode : true,
+      isNew : true
     },
-    /** Constructor. Registers the key listener that pops up the dialog. */
     initialize: function($super, interactionParameters, helper) {
       this.interactionParameters = Object.extend(Object.clone(this.defaultInteractionParameters), interactionParameters || {});
+      this.helper = helper;
       // call constructor from ModalPopup with params content, shortcuts, options
       $super(
-          new Element('form', {'class' : 'xform'}),
-          {
-            "show": {method: this.showDialog, keys: []},
-            "close": {method: this.closeDialog, keys: ['Esc']}
-          },
-      {
-        verticalPosition: "top",
-        backgroundColor: "$theme.pageHeaderBackgroundColor",
-        title : this.interactionParameters.editMode ? "$services.localization.render('MoccaCalendar.calendarevent.create')" : "$services.localization.render('MoccaCalendar.calendarevent.view')"
-      }
+        // this element will end up as this.content
+        new Element('form', {'class' : 'xform'}),
+        {
+          "show": {method: this.showDialog, keys: []},
+          "close": {method: this.closeDialog, keys: ['Esc']}
+        },
+        {
+          verticalPosition: "top",
+          backgroundColor: "$theme.pageHeaderBackgroundColor",
+          title : this.interactionParameters.editMode ? "$services.localization.render('MoccaCalendar.calendarevent.create')" : "$services.localization.render('MoccaCalendar.calendarevent.view')"
+        }
       );
-      this.helper = helper;
       this.loadEventContent();
       this.showDialog();
 
@@ -332,7 +331,7 @@ if (typeof(XWiki) == "undefined" || typeof(XWiki.widgets) == "undefined" || type
       if (newEventName) {
         this.content.writeAttribute('action', this.helper.editEventUrlTemplate.replace("__page__", encodeURIComponent(newEventName)));
       } else {
-        this.content.writeAttribute('action', this.interactionParameters.pageURL.replace(/edit/,'preview'));
+        this.content.writeAttribute('action', this.interactionParameters.pageURL.replace(/edit/,'save'));
       }
       this.content.request({
         onSuccess: function() {
@@ -361,37 +360,41 @@ if (typeof(XWiki) == "undefined" || typeof(XWiki.widgets) == "undefined" || type
 
     loadEventContent: function() {
       // get page content for the pageURL
-      new Ajax.Request(this.interactionParameters.pageURL,
-          {
-            method: 'get',
-            onSuccess: function(transport) {
-              var response = transport.responseText || "no response text";
-              var old = $('formcontent');
-              if (old) {
-                old.purge();
-                old.remove();
-              }
-              this.content.insert('&lt;div id="formcontent"&gt;' + response + '&lt;/div&gt;');
-              var formcontent = $('formcontent');
-              if (this.interactionParameters.editMode) {
-                formcontent.insert('&lt;div class="buttons"&gt;&lt;span class="buttonwrapper"&gt;&lt;input class="button save-moccacalendar-event" type="submit" name="action_save" title="Alt+S" value="$services.localization.render('save')"&gt;&lt;/span&gt;&lt;/div&gt;');
-                $$('input.datetime').each(function(dateTimeInput) {
-                  new XWiki.DateTimePicker(dateTimeInput, dateTimeInput.title);
-                });
-                formcontent.down('.save-moccacalendar-event').observe('click', this.submitForm.bindAsEventListener(this, content));
-              } else {
-                formcontent.insert('&lt;div class="buttons"&gt;&lt;span class="buttonwrapper"&gt;&lt;input class="button edit-moccacalendar-event" type="button" name="action_edit" title="Alt+E" value="$services.localization.render('edit')"&gt;&lt;/span&gt;&lt;/div&gt;');
-                formcontent.down('.edit-moccacalendar-event').observe('click', this.loadEditForm.bindAsEventListener(this, content));
-              }
-            }.bind(this),
-            onFailure: function() {
-              this.content.insert('Something went wrong...');
-            }
-          });
+      new Ajax.Request(this.interactionParameters.pageURL, {
+        method: 'get',
+        onSuccess: function(transport) {
+          var response = transport.responseText || "no response text";
+          var old = $('formcontent');
+          if (old) {
+            old.purge();
+            old.remove();
+          }
+          this.content.insert('&lt;div id="formcontent"&gt;' + response + '&lt;/div&gt;');
+          var formcontent = $('formcontent');
+          var buttons = new Element('div', {'class':'buttons'});
+          formcontent.insert(buttons);
+          if (this.interactionParameters.editMode) {
+            buttons.insert(this.createButton("submit","$services.localization.render('save')","","save-moccacalendar-event"));
+            $$('input.datetime').each(function(dateTimeInput) {
+              new XWiki.DateTimePicker(dateTimeInput, dateTimeInput.title);
+            });
+            buttons.down('#save-moccacalendar-event').observe('click', this.submitForm.bind(this));
+          } else {
+            buttons.insert(this.createButton("submit","$services.localization.render('edit')","","edit-moccacalendar-event"));
+            buttons.down('#edit-moccacalendar-event').observe('click', this.loadEditForm.bind(this));
+          }
+        }.bind(this),
+        onFailure: function() {
+          this.content.insert('Something went wrong...');
+        }.bind(this)
+      });
     }
   });
 
 
+  //
+  // the "agenda" view
+  //
   // what we do here is mock up a custom fullCalender view by implementing an undocumented interface
   // and we even do this by "duck-typing" as the base "View" class in private to full calendar 
   var PlainList = function(calendar) {
@@ -405,7 +408,7 @@ if (typeof(XWiki) == "undefined" || typeof(XWiki.widgets) == "undefined" || type
     incrementDate: function(date, delta) {
       // we intentionally ignore the date given
       // instead we have only two time windows: "past" (delta == -1) and "future" (anything else)
-      date = this.calendar.getNow().clone().stripTime(); // date.clone().stripTime();
+      date = this.calendar.getNow().clone().stripTime();
       if (delta &lt; 0) {
         date = date.subtract(1, 'd')
       }
@@ -724,7 +727,7 @@ $xwiki.jsx.use("Calendar.JQuery", {'defer': false, 'minify': false})
 $xwiki.jsx.use("Calendar.JQueryUI", {'defer': false, 'minify': false})
 $xwiki.jsx.use("Calendar.Moment", {'defer': false, 'minify': false})
 $xwiki.jsx.use("Calendar.FullCalendar", {'defer': false, 'minify': false})
-$xwiki.jsx.use("MoccaCalendar.Macro", {'defer': false})
+$xwiki.jsx.use("MoccaCalendar.Macro", {'defer': false, 'v' : '2.3'})
 $xwiki.jsx.use("MoccaCalendar.DatePickerExtension", {'defer': false})
 ## A simple date picker widget.
 $xwiki.ssfx.use('uicomponents/widgets/datepicker/calendarDateSelect.css', true)
