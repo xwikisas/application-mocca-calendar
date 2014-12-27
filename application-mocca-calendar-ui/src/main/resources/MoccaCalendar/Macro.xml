@@ -167,11 +167,11 @@ if (typeof(XWiki) == "undefined" || typeof(XWiki.widgets) == "undefined" || type
     new XWiki.widgets.Notification("$services.localization.render('core.widgets.confirmationBox.notification.failed')" + errorMessage, "error");
   },
   showCreateEventFrom: function(start, end, dateFormat) {
-    var calendar = this.calendar;
-    var allDay = !start.hasTime();
     var mySimpleDateFormatter = new Externals.SimpleDateFormat(dateFormat);
-    start = mySimpleDateFormatter.format(start.toDate());
-    end = mySimpleDateFormatter.format(end.toDate());
+    var allDay = !start.hasTime();
+    var singleDay = (allDay &amp;&amp; end.diff(start,'days') &lt;= 1);
+    start = mySimpleDateFormatter.format(start.local().toDate());
+    end = (singleDay)?'':mySimpleDateFormatter.format(end.local().toDate());
     var paramPrefix = "MoccaCalendar.MoccaCalendarEventClass_0_";
     var params = "&amp;" + paramPrefix + "startDate=" + encodeURIComponent(start);
     params += "&amp;" + paramPrefix + "endDate=" + encodeURIComponent(end);
@@ -904,15 +904,16 @@ $xwiki.ssx.use("MoccaCalendar.Macro")
 #if(!$date)
  #set($date = "")
 #end
+#set($dateFormat = $!xwiki.getClass("MoccaCalendar.MoccaCalendarEventClass").get("startDate").getProperty('dateFormat').value)
+#if("$!dateFormat" == "")
+  #set($dateFormat = "dd.MM.yyyy HH:mm:ss")
+#end
+
 ##
 ## some hardwired values that you can feel free to customize
 ##
 #set($jsonUrl = $xwiki.getDocument("MoccaCalendar.JSONService").getURL("get"))
 #set($updateUrl = $xwiki.getDocument("MoccaCalendar.UpdateService").getURL("get"))
-#set($dateFormat =$!xwiki.getClass($classname).get("startDate").getProperty('dateFormat').value)
-#if($!dateFormat=="")
-  #set($dateFormat ="dd.MM.yyyy HH:mm:ss")
-#end
 #set($left = "prev,next today")
 #set($center = "title")
 #set($right = "agendaDay,agendaWeek,month,plainList")
@@ -985,7 +986,7 @@ require(['jquery'], function(jQuery) {
     editable: true,
     selectable: true,
     selectHelper: true,
-    select: function(start, end, allDay) {
+    select: function(start, end, jsEvent, view) {
       calendarHelper.showCreateEventFrom(start, end, "$!escapetool.javascript($dateFormat)");
       calendar.fullCalendar('unselect');
     },
