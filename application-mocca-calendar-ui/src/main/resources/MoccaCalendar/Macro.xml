@@ -678,23 +678,38 @@ div.xdialog-box-moccacal-modal-popup .btn-group .btn + .btn {
 }
 
 /* calendar */
+body .fc {
+  padding-right: 1px; /* odd hack to avoid scrollbars in FF at times */
+}
 div.calendar-buttons {
   position: relative;
 }
 div.calendar-buttons span.buttonwrapper {
   position: absolute;
   right: 0;
-  top: -3em;
+  top: -2.2em;
+  margin: 0;
 }
-
-/* special rules if showing calendars as gagets in the dashboard - everything is a bit smaller to fit in */
-.dashboard .fc-header {
+.skin-flamingo div.calendar-buttons span.buttonwrapper {
+  right: 1px;
+  top: -2.8em;
+}
+/* special rules if showing calendars as gadgets in the dashboard - everything is a bit smaller to fit in */
+.gadget .fc-toolbar, .gadget div.calendar-buttons {
   font-size: 85%;
 }
-.dashboard .fc-header .fc-header-title h2 {
-  font-size: 1.4em;
+.gadget div.calendar-buttons span.buttonwrapper {
+  top: -2em;
 }
-</code>
+.skin-flamingo .gadget div.calendar-buttons span.buttonwrapper {
+  top: -3.2em;
+}
+.gadget .fc h2 {
+  border: 0;
+}
+.skin-flamingo .gadget .fc h2 {
+  font-size: 140%;
+}</code>
     </property>
     <property>
       <name/>
