@@ -149,7 +149,7 @@ if (request.newEvent) {
     #if("$!itemdoc.getValue('allDay')"==1)
       #set($allDay=true)
     #end
-    #set($event = {"id" : $itemdoc.getDocumentReference().toString(), "title" : $itemdoc.getPlainTitle(), "url" : $itemdoc.getURL('view',"$calDocParam"), "editUrl" : $itemdoc.getURL('edit',"$calDocParam"), "saveUrl" : $itemdoc.getURL('save',"$calDocParam"), "canEdit": $xwiki.hasAccessLevel("edit", $xcontext.getUser(), $item), "canDelete": $xwiki.hasAccessLevel("delete", $xcontext.getUser(), $item), "start" : $jsondateformat.print($startdate), "end" : $jsondateformat.print($enddate), "allDay" : $allDay, "color" : $color })
+    #set($event = {"id" : $itemdoc.getDocumentReference().toString(), "title" : $itemdoc.getPlainTitle(), "url" : $itemdoc.getURL('view',"$calDocParam"), "editUrl" : $itemdoc.getURL('edit',"$calDocParam"), "saveUrl" : $itemdoc.getURL('save',"$calDocParam"),  "deleteUrl" : $itemdoc.getURL('delete',"$calDocParam"), "canEdit": $xwiki.hasAccessLevel("edit", $xcontext.getUser(), $item), "canDelete": $xwiki.hasAccessLevel("delete", $xcontext.getUser(), $item), "start" : $jsondateformat.print($startdate), "end" : $jsondateformat.print($enddate), "allDay" : $allDay, "color" : $color })
     #if("$!{request.outputView}"=="plainList")
       #set($format = $!itemdoc.getObject("${request.classname}").getxWikiClass().get($request.startfield).getProperty('dateFormat').value)
       #if($!format=="")
