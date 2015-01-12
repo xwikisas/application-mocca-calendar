@@ -16,16 +16,17 @@ Example:
 
     cd /path/to/xwiki-contrib/application-mocca-calendar
     cd application-mocca-calendar-scripts/
-    ~/release-translations.sh
+    ./release-translations.sh
     cd ..
     git commit -m "updating translations from l10n.xwiki.org"
     git push
 
 If there are any uncommitted changes to the repository, the script will fail.
-To remove all uncommitted changes in **all repositories**, use
+If you want to run it anyway, use the `-f` option.
+To remove all uncommitted changes in **all application-moccacal repositories**, use
 
-    cd ./xwiki-trunks
-    ~/release-translations.sh clean
+    cd /path/to/xwiki-contrib/application-mocca-calendar/application-mocca-calendar-scripts/
+    ./release-translations.sh clean
 
 You migth want to set the environment variables `L10N_USER` and `L10N_PASSWORD`
 or the script will ask you for your username/password on l10n.xwiki.org.
