@@ -102,9 +102,6 @@ $doc.display($field)
 #set ($discard = $services.localization.use('document', 'MoccaCalendar.MoccaCalendarTranslations'))
 ## add the groovy script to the validation (the xvalidation parameter in the request also works to set the groovy script validation)
 #if($xcontext.action=='edit')
-#set ($discard =$doc.setValidationScript($eventValidationDoc))
-## this will launch a validation on a document. All errors are added to the context
-#set($isValid=$doc.validate())
 &lt;input type="hidden" name="xvalidate" value="1" /&gt;
 &lt;input type="hidden" name="xvalidation" value="$eventValidationDoc" /&gt;
 ## the following values must be added explicitly in "plain edit view", as used by the modal popup
@@ -136,7 +133,9 @@ $doc.display($field)
 &lt;/select&gt;
 #end
   ; &lt;label for="MoccaCalendarEvent.MoccaCalendarEventClass_0_title"&gt;$escapetool.xml($doc.displayPrettyName('title', false, false))&lt;span class="xRequired"&gt;&lt;/span&gt;&lt;/label&gt;
-  : $doc.display('title') #showvalidationmessage("val_title_already_exists") &lt;span class="val_title_notempty xErrorMsg" style="display:none;"&gt;$services.localization.render('val_title_notempty')&lt;/span&gt; &lt;span class="val_title_notvalid xErrorMsg" style="display:none;"&gt;$services.localization.render('val_title_notvalid')&lt;/span&gt;
+  : #if($xcontext.action=='edit')&lt;input type="text" name="title" value="$!{escapetool.xml($doc.getTitle())}" class="required" /&gt; #showvalidationmessage("val_title_already_exists") &lt;span class="val_title_notempty xErrorMsg" style="display:none;"&gt;$services.localization.render('val_title_notempty')&lt;/span&gt; &lt;span class="val_title_notvalid xErrorMsg" style="display:none;"&gt;$services.localization.render('val_title_notvalid')&lt;/span&gt;
+#else $doc.getDisplayTitle()
+#end
   ; &lt;label for="MoccaCalendarEvent.MoccaCalendarEventClass_0_startDate"&gt;$escapetool.xml($doc.displayPrettyName('startDate', false, false))&lt;span class="xRequired"&gt;&lt;/span&gt;&lt;/label&gt;
   : #displayDate('startDate')
   ; &lt;label for="MoccaCalendarEvent.MoccaCalendarEventClass_0_endDate"&gt;$escapetool.xml($doc.displayPrettyName('endDate', false, false))&lt;/label&gt;
