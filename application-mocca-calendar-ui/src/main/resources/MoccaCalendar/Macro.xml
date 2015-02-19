@@ -1011,8 +1011,8 @@ require(['jquery'], function(jQuery) {
     firstDay: $escapetool.javascript($firstDay),
 #if($minTime!="")    minTime: "$!escapetool.javascript($minTime)", #end
 #if($maxTime!="")    maxTime: "$!escapetool.javascript($maxTime)", #end
-    editable: true,
-    selectable: true,
+    editable: #if($canCreateEvents) true #else false#end ,
+    selectable: #if($canCreateEvents) true #else false#end ,
     selectHelper: true,
     select: function(start, end, jsEvent, view) {
       calendarHelper.showCreateEventFrom(start, end, "$!escapetool.javascript($dateFormat)");
