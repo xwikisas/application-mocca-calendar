@@ -422,10 +422,12 @@ if (typeof(XWiki) == "undefined" || typeof(XWiki.widgets) == "undefined" || type
           formcontent.insert(buttons);
           if (this.interactionParameters.editMode) {
             buttons.insert(this.createButton("submit","$services.localization.render('save')","","save-moccacalendar-event","btn"));
+            buttons.down('#save-moccacalendar-event').observe('click', this.submitForm.bind(this));
+            buttons.insert('&lt;span class="buttonwrapper"&gt;&lt;a href="#" id="cancel-moccacalendar-event" class="secondary button"&gt;' + "$services.localization.render('cancel')" + '&lt;/a&gt;&lt;/span&gt;');
+            buttons.down('#cancel-moccacalendar-event').observe('click', this.closeDialog.bind(this));
             $$('input.datetime').each(function(dateTimeInput) {
               new XWiki.DateTimePicker(dateTimeInput, dateTimeInput.title);
             });
-            buttons.down('#save-moccacalendar-event').observe('click', this.submitForm.bind(this));
           } else {
             var leftGroup = new Element('div', {'class':'btn-group btn-group-left'});
             buttons.insert(leftGroup);
@@ -440,10 +442,13 @@ if (typeof(XWiki) == "undefined" || typeof(XWiki.widgets) == "undefined" || type
             // FIXME: this should be a plain link, but then it has no styles
             if (oldSkin) {
               leftGroup.insert(this.createButton("button","$services.localization.render('view')","","view-moccacalendar-event","btn"));
+              leftGroup.insert('&lt;span class="buttonwrapper"&gt;&lt;a href="#" id="cancel-moccacalendar-event" class="secondary button"&gt;' + "$services.localization.render('cancel')" + '&lt;/a&gt;&lt;/span&gt;');
             } else {
               leftGroup.insert(' &lt;button class="button btn btn-default" id="view-moccacalendar-event"&gt;&lt;span class="glyphicon glyphicon-file"&gt;&lt;/span&gt; '+"$services.localization.render('view')"+'&lt;/button&gt;');
+              leftGroup.insert('&lt;button class="button btn btn-default" id="cancel-moccacalendar-event"&gt;&lt;span class="glyphicon glyphicon-remove"&gt;&lt;/span&gt; '+"$services.localization.render('cancel')"+'&lt;/button&gt;');
             }
             leftGroup.down("#view-moccacalendar-event").observe('click', function(e) { e.stop(); window.location.href = this.interactionParameters.event.url; }.bind(this));
+            leftGroup.down('#cancel-moccacalendar-event').observe('click', this.closeDialog.bind(this));
             if (this.interactionParameters.event.canDelete) {
               var rightGroup = new Element('div', {'class':'btn-group btn-group-right'});
               buttons.insert(rightGroup);
