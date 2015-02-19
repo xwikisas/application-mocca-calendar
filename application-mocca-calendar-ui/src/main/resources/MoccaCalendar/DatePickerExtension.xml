@@ -1,5 +1,4 @@
 <?xml version="1.0" encoding="UTF-8"?>
-
 <!--
  * See the NOTICE file distributed with this work for additional
  * information regarding copyright ownership.
@@ -26,23 +25,25 @@
   <language/>
   <defaultLanguage/>
   <translation>0</translation>
-  <parent>MoccaCalendar.MoccaCalendarEventSheet</parent>
   <creator>xwiki:XWiki.Admin</creator>
-  <author>xwiki:XWiki.Admin</author>
-  <customClass/>
-  <contentAuthor>xwiki:XWiki.Admin</contentAuthor>
   <creationDate>1377502318000</creationDate>
+  <parent>MoccaCalendar.MoccaCalendarEventSheet</parent>
+  <author>xwiki:XWiki.Admin</author>
+  <contentAuthor>xwiki:XWiki.Admin</contentAuthor>
   <date>1373961627000</date>
   <contentUpdateDate>1373961627000</contentUpdateDate>
   <version>1.1</version>
   <title>DatePickerExtension</title>
-  <defaultTemplate/>
-  <validationScript/>
   <comment/>
   <minorEdit>false</minorEdit>
   <syntaxId>xwiki/2.1</syntaxId>
   <hidden>true</hidden>
+  <content/>
   <object>
+    <name>MoccaCalendar.DatePickerExtension</name>
+    <number>0</number>
+    <className>XWiki.JavaScriptExtension</className>
+    <guid>d1899db6-d660-4566-ba94-c4ca760288fb</guid>
     <class>
       <name>XWiki.JavaScriptExtension</name>
       <customClass/>
@@ -110,35 +111,32 @@
         <separators> ,|</separators>
         <size>1</size>
         <unmodifiable>0</unmodifiable>
-        <values>currentPage=Always on this page|onDemand=On demand|always=Always on this wiki</values>
+        <values>currentPage|onDemand|always</values>
         <classType>com.xpn.xwiki.objects.classes.StaticListClass</classType>
       </use>
     </class>
-    <name>MoccaCalendar.DatePickerExtension</name>
-    <number>0</number>
-    <className>XWiki.JavaScriptExtension</className>
-    <guid>d1899db6-d660-4566-ba94-c4ca760288fb</guid>
     <property>
       <cache>long</cache>
     </property>
     <property>
-      <code>#set($discard = $services.localization.use('document', 'MoccaCalendar.MoccaCalendarTranslations'))
+      <code>#set($discard = $services.localization.use('document', 'Calendar.Translations'))
+#set($discard = $services.localization.use('document', 'MoccaCalendar.MoccaCalendarTranslations'))
 
 document.observe("dom:loaded", function() {
   _translations = {
     "OK": "$services.localization.render('MoccaCalendar.datepicker.ok')",
     "Now": "$services.localization.render('MoccaCalendar.datepicker.now')",
-    "Today": "$services.localization.render('MoccaCalendar.calendar.today')"
+    "Today": "$services.localization.render('xwiki.calendar.today')"
   }
 
   Date.first_day_of_week = $services.localization.render('MoccaCalendar.calendar.firstDayOfWeek');
-  Date.weekdays = [ $services.localization.render('MoccaCalendar.calendar.dayNamesShort') ];
-## because the date picker, unlike the FullCalander, expects our weekday names with the n-th day, not sunday   
+  Date.weekdays = $services.localization.render('xwiki.calendar.dayNamesShort') ;
+  ## because the date picker, unlike the FullCalander, expects our weekday names with the n-th day, not sunday   
   for (var i=0; i&lt;Date.first_day_of_week; i++) {
     Date.weekdays.push(Date.weekdays.shift());
   }
 
-  Date.months = [ $services.localization.render('MoccaCalendar.calendar.monthNames') ] ;
+  Date.months = $services.localization.render('xwiki.calendar.monthNames') ;
 
   Date.prototype.getAMPMHour = function() {
     var hour = this.getHours();
@@ -159,5 +157,4 @@ document.observe("dom:loaded", function() {
       <use>onDemand</use>
     </property>
   </object>
-  <content/>
 </xwikidoc>

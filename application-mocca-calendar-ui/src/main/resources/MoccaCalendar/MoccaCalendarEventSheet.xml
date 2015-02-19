@@ -73,11 +73,15 @@ $doc.display($field)
 #end
 #set($calendar = $parentDoc.getObject('MoccaCalendar.MoccaCalendarClass'))
 #if($calendar)
-  #set($calendarDoc = $xwiki.getDocument($parentDoc))
+  #set($calendarDoc = $parentDoc)
 #end
 #if(!$calendar &amp;&amp; "$!request.getParameter('parentFROM')" != "")
   #set($calendarDoc = $xwiki.getDocument($request.getParameter('parentFROM')))
   #set($calendar = $calendarDoc.getObject('MoccaCalendar.MoccaCalendarClass'))
+#end
+#set($backToCalendarDoc = $xwiki.getDocument($request.getParameter('calendarDoc')))
+#if(!$!backToCalendarDoc || $backToCalendarDoc.isNew())
+  #set($backToCalendarDoc = $calendarDoc)
 #end
 #if($xcontext.getAction()=="edit")
   #if($request.xpage=="plain")
@@ -97,11 +101,19 @@ $doc.display($field)
 #set ($discard = $doc.use($eventClass))
 #set ($discard = $services.localization.use('document', 'MoccaCalendar.MoccaCalendarTranslations'))
 ## add the groovy script to the validation (the xvalidation parameter in the request also works to set the groovy script validation)
+#if($xcontext.action=='edit')
 #set ($discard =$doc.setValidationScript($eventValidationDoc))
 ## this will launch a validation on a document. All errors are added to the context
 #set($isValid=$doc.validate())
 &lt;input type="hidden" name="xvalidate" value="1" /&gt;
 &lt;input type="hidden" name="xvalidation" value="$eventValidationDoc" /&gt;
+## the following values must be added explicitly in "plain edit view", as used by the modal popup
+## because the "plain view" does not give them to us
+#if($request.xpage=='plain')
+&lt;input type="hidden" name="form_token" value="$!{services.csrf.getToken()}" /&gt;
+&lt;input type="hidden" name="language" value="$!{escapetool.xml($tdoc.realLanguage)}" /&gt;
+#end
+#end
 (% class="xform" %)
 (((
 #if($xcontext.action=='view' &amp;&amp; $calendar)
@@ -135,15 +147,15 @@ $doc.display($field)
   ; &lt;label for="MoccaCalendarEvent.MoccaCalendarEventClass_0_description"&gt;$escapetool.xml($doc.displayPrettyName('description', false, false))&lt;/label&gt;
   : $doc.display('description')
 )))
-
+#if($!{request.xpage}!="plain")
 ----
 
 #if($xcontext.action=='view')
-#if($calendarDoc)
-[[$services.localization.render('MoccaCalendar.calendarevent.backlink', [ $calendarDoc.getDisplayTitle()])&gt;&gt;$calendarDoc]]
+#if($backToCalendarDoc)
+[[$services.localization.render('MoccaCalendar.calendarevent.backlink', [ $backToCalendarDoc.getDisplayTitle()])&gt;&gt;$backToCalendarDoc]]
 #end
 #end
-
+#end
 {{/html}}
 
 #if(($xcontext.validationStatus.errors&amp;&amp;$xcontext.validationStatus.errors.size()&gt;0))
@@ -222,7 +234,7 @@ $response.setStatus(400)
         <separators> ,|</separators>
         <size>1</size>
         <unmodifiable>0</unmodifiable>
-        <values>currentPage=Always on this page|onDemand=On demand|always=Always on this wiki</values>
+        <values>currentPage|onDemand|always</values>
         <classType>com.xpn.xwiki.objects.classes.StaticListClass</classType>
       </use>
     </class>
