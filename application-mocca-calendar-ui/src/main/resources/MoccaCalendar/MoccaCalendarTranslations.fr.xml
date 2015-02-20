@@ -31,9 +31,9 @@
   <author>xwiki:XWiki.Admin</author>
   <customClass/>
   <contentAuthor>xwiki:XWiki.Admin</contentAuthor>
-  <creationDate>1383574877000</creationDate>
+  <creationDate>1385136439000</creationDate>
   <date>1385136439000</date>
-  <contentUpdateDate>1392400158000</contentUpdateDate>
+  <contentUpdateDate>1385136439000</contentUpdateDate>
   <version>1.1</version>
   <title/>
   <template/>
@@ -54,30 +54,21 @@ MoccaCalendar.MoccaCalendarEventClass_endDate=Date de fin
 MoccaCalendar.MoccaCalendarEventClass_startDate=Date de début
 MoccaCalendar.MoccaCalendarEventClass_title=Titre
 MoccaCalendar.calendar=Calendrier
-MoccaCalendar.calendar.allday=Toute la journée
 MoccaCalendar.calendar.create=Créer un nouveau calendrier
-MoccaCalendar.calendar.day=Jour
-MoccaCalendar.calendar.dayNames='Dimanche','Lundi','Mardi','Mercredi','Jeudi','Vendredi','Samedi'
-MoccaCalendar.calendar.dayNamesShort='Dim','Lun','Mar','Mer','Jeu','Ven','Sam'
 MoccaCalendar.calendar.defaultCalendarTitle=Autres événements
 MoccaCalendar.calendar.firstDayOfWeek=1
-MoccaCalendar.calendar.month=Mois
-MoccaCalendar.calendar.monthNames='Janvier','Février','Mars','Avril','Mai','Juin','Juillet','Août','Septembre','Octobre','Novembre','Décembre'
-MoccaCalendar.calendar.monthNamesShort='Janv','Févr','Mars','Avr','Mai','Juin','Juill','Août','Sept','Oct','Nov','Déc'
 MoccaCalendar.calendar.plainlist.nopastevents=Aucun événement trouvé
 MoccaCalendar.calendar.plainlist.noupcomingevents=Aucun événement à venir trouvé
 MoccaCalendar.calendar.plainlist.titlepast=Evènements passés
 MoccaCalendar.calendar.plainlist.titleupcoming=Événements à venir
 MoccaCalendar.calendar.title=Vue d’ensemble du calendrier
-MoccaCalendar.calendar.today=Aujourd’hui
 MoccaCalendar.calendar.viewall=Vue d'ensemble de tous les calendriers
-MoccaCalendar.calendar.week=Semaine
 MoccaCalendar.calendarevent.backlink=Retour au calendier &amp;\#171;{0}&amp;\#187;
 MoccaCalendar.calendarevent.create=Créer un événement
 MoccaCalendar.calendarevent.viewall=Tous les événements
 moccacalendar.livetable._actions=Actions
 moccacalendar.livetable._actions.delete=Supprimer
-moccacalendar.livetable._actions.edit=Éditer
+moccacalendar.livetable._actions.edit=Modifier
 moccacalendar.livetable._attachments=Attachements
 moccacalendar.livetable._avatar=Avatar
 moccacalendar.livetable._images=Images

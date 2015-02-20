@@ -31,9 +31,9 @@
   <author>xwiki:XWiki.Admin</author>
   <customClass/>
   <contentAuthor>xwiki:XWiki.Admin</contentAuthor>
-  <creationDate>1383574877000</creationDate>
+  <creationDate>1385136439000</creationDate>
   <date>1385136439000</date>
-  <contentUpdateDate>1392400158000</contentUpdateDate>
+  <contentUpdateDate>1385136439000</contentUpdateDate>
   <version>1.1</version>
   <title/>
   <template/>
@@ -54,25 +54,16 @@ MoccaCalendar.MoccaCalendarEventClass_endDate=Enddatum
 MoccaCalendar.MoccaCalendarEventClass_startDate=Startdatum
 MoccaCalendar.MoccaCalendarEventClass_title=Titel
 MoccaCalendar.calendar=Kalender
-MoccaCalendar.calendar.allday=Ganzer Tag
 MoccaCalendar.calendar.create=Neuen Kalender anlegen
-MoccaCalendar.calendar.day=Tag
-MoccaCalendar.calendar.dayNames='Sonntag','Montag','Dienstag','Mittwoch','Donnerstag','Freitag','Samstag'
-MoccaCalendar.calendar.dayNamesShort='So','Mo','Di','Mi','Do','Fr','Sa'
 MoccaCalendar.calendar.defaultCalendarTitle=Sonstige Termine
 MoccaCalendar.calendar.firstDayOfWeek=1
-MoccaCalendar.calendar.month=Monat
-MoccaCalendar.calendar.monthNames='Januar','Februar','März','April','Mai','Juni','Juli','August','September','Oktober','November','Dezember'
-MoccaCalendar.calendar.monthNamesShort='Januar','Februar','März','April','Mai','Juni','Juli','August','September','Oktober','November','Dezember'
 MoccaCalendar.calendar.plainlist=Liste
 MoccaCalendar.calendar.plainlist.nopastevents=Keine vergangenen Termine gefunden.
 MoccaCalendar.calendar.plainlist.noupcomingevents=Keine anstehenden Termine gefunden.
 MoccaCalendar.calendar.plainlist.titlepast=Vergangene Termine
 MoccaCalendar.calendar.plainlist.titleupcoming=Anstehende Termine
 MoccaCalendar.calendar.title=Kalender Übersicht
-MoccaCalendar.calendar.today=Heute
 MoccaCalendar.calendar.viewall=Übersicht über alle Kalender
-MoccaCalendar.calendar.week=Woche
 MoccaCalendar.calendarevent.backlink=Zurück zum Kalender &amp;\#8222;{0}&amp;\#8220;
 MoccaCalendar.calendarevent.create=Neuen Termin anlegen
 MoccaCalendar.calendarevent.viewall=Alle Termine

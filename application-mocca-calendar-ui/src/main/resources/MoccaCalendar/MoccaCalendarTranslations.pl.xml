@@ -31,9 +31,9 @@
   <author>xwiki:XWiki.Admin</author>
   <customClass/>
   <contentAuthor>xwiki:XWiki.Admin</contentAuthor>
-  <creationDate>1383574877000</creationDate>
+  <creationDate>1385136439000</creationDate>
   <date>1385136439000</date>
-  <contentUpdateDate>1392400158000</contentUpdateDate>
+  <contentUpdateDate>1385136439000</contentUpdateDate>
   <version>1.1</version>
   <title/>
   <template/>
@@ -54,25 +54,16 @@ MoccaCalendar.MoccaCalendarEventClass_endDate=Data końcowa
 MoccaCalendar.MoccaCalendarEventClass_startDate=Data początkowa
 MoccaCalendar.MoccaCalendarEventClass_title=Tytuł
 MoccaCalendar.calendar=Kalendarz
-MoccaCalendar.calendar.allday=Cały dzień
 MoccaCalendar.calendar.create=Stwórz nowy kalendarz
-MoccaCalendar.calendar.day=Dzień
-MoccaCalendar.calendar.dayNames='Niedziela','Poniedziałek','Wtorek','Środa','Czwartek','Piątek','Sobota' 
-MoccaCalendar.calendar.dayNamesShort='Nie','Pon','Wto','Śro','Czw','Pią','Sob','Nie'
 MoccaCalendar.calendar.defaultCalendarTitle=Inne wydarzenia
 MoccaCalendar.calendar.firstDayOfWeek=0
-MoccaCalendar.calendar.month=Miesiąc
-MoccaCalendar.calendar.monthNames='Styczeń','Luty','Marzec','Kwiecień','Maj','Czerwiec','Lipiec','Sierpień','Wrzesień','Październik','Listopad','Grudzień'
-MoccaCalendar.calendar.monthNamesShort='Sty','Lut','Mar','Kwi','Maj','Cze','Lip','Sie','Wrz','Paź','Lis','Gru'
 MoccaCalendar.calendar.plainlist=Agenda
 MoccaCalendar.calendar.plainlist.nopastevents=Nie znaleziono minionych wydarzeń
 MoccaCalendar.calendar.plainlist.noupcomingevents=Nie znaleziono nadchodzących wydarzeń
 MoccaCalendar.calendar.plainlist.titlepast=Minione wydarzenia
 MoccaCalendar.calendar.plainlist.titleupcoming=Nadchodzące wydarzenia
 MoccaCalendar.calendar.title=Przegląd kalendarza
-MoccaCalendar.calendar.today=Dzisiaj
 MoccaCalendar.calendar.viewall=Przegląd wszystkich kalendarzy
-MoccaCalendar.calendar.week=Tydzień
 MoccaCalendar.calendarevent.backlink=Powrót do kalendarza &amp;\#171;{0}&amp;\#187; 
 MoccaCalendar.calendarevent.create=Stwórz wydarzenie
 MoccaCalendar.calendarevent.viewall=Wszystkie wydarzenia
