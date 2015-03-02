@@ -953,7 +953,7 @@ $xwiki.ssx.use("MoccaCalendar.Macro")
 ## create event link
 &lt;div class="calendar-buttons"&gt;
 &lt;span class="buttonwrapper"&gt;
-&lt;button class="btn btn-success" id="calendar${calcounter}-btn"&gt;&lt;span class="glyphicon glyphicon-plus"&gt;&lt;/span&gt; $services.localization.render('MoccaCalendar.calendarevent.create')&lt;/button&gt;
+&lt;button class="btn btn-success" id="calendar${calcounter}-btn"&gt;&lt;span class="glyphicon glyphicon-plus"&gt;&lt;/span&gt; $escapetool.html($services.localization.render('MoccaCalendar.calendarevent.create'))&lt;/button&gt;
 &lt;/span&gt;
 &lt;/div&gt;
 ## end create event link
@@ -1026,28 +1026,28 @@ require(['jquery'], function(jQuery) {
     },
     aspectRatio:1.8,
     buttonText: {
-      today: '$services.localization.render('xwiki.calendar.button.today')',
-      day: '$services.localization.render('xwiki.calendar.button.day')',
-      week:'$services.localization.render('xwiki.calendar.button.week')',
-      month:'$services.localization.render('xwiki.calendar.button.month')',
-      plainList:'$services.localization.render('MoccaCalendar.calendar.plainlist')'
+      today: '$escapetool.javascript($services.localization.render('xwiki.calendar.button.today'))',
+      day: '$escapetool.javascript($services.localization.render('xwiki.calendar.button.day'))',
+      week:'$escapetool.javascript($services.localization.render('xwiki.calendar.button.week'))',
+      month:'$escapetool.javascript($services.localization.render('xwiki.calendar.button.month'))',
+      plainList:'$escapetool.javascript($services.localization.render('MoccaCalendar.calendar.plainlist'))'
     },
     monthNames: $services.localization.render('xwiki.calendar.monthNames'),
     monthNamesShort: $services.localization.render('xwiki.calendar.monthNamesShort'),
     dayNames: $services.localization.render('xwiki.calendar.dayNames'),
     dayNamesShort: $services.localization.render('xwiki.calendar.dayNamesShort'),
-    allDayText: "$services.localization.render('xwiki.calendar.allDayText')",
-    axisFormat: "$services.localization.render('xwiki.calendar.axisFormat')",
-    timeFormat: "$!services.localization.render('xwiki.calendar.timeFormat')",
+    allDayText: "$escapetool.javascript($services.localization.render('xwiki.calendar.allDayText'))",
+    axisFormat: "$escapetool.javascript($services.localization.render('xwiki.calendar.axisFormat'))",
+    timeFormat: "$!escapetool.javascript($services.localization.render('xwiki.calendar.timeFormat'))",
     columnFormat: {
-      month: "$!services.localization.render('xwiki.calendar.columnFormat.month')",
-      week: "$!services.localization.render('xwiki.calendar.columnFormat.week')",
-      day: "$!services.localization.render('xwiki.calendar.columnFormat.day')"
+      month: "$!escapetool.javascript($services.localization.render('xwiki.calendar.columnFormat.month'))",
+      week: "$!escapetool.javascript($services.localization.render('xwiki.calendar.columnFormat.week'))",
+      day: "$!escapetool.javascript($services.localization.render('xwiki.calendar.columnFormat.day'))"
     },
     titleFormat: {
-      month: "$!services.localization.render('xwiki.calendar.titleFormat.month')",
-      week: "$!services.localization.render('xwiki.calendar.titleFormat.week')",
-      day: "$!services.localization.render('xwiki.calendar.titleFormat.day')"
+      month: "$!escapetool.javascript($services.localization.render('xwiki.calendar.titleFormat.month'))",
+      week: "$!escapetool.javascript($services.localization.render('xwiki.calendar.titleFormat.week'))",
+      day: "$!escapetool.javascript($services.localization.render('xwiki.calendar.titleFormat.day'))"
     }
   });
   jQuery('#calendar${calcounter}-btn').click( function(e) { calendarHelper.showCreateEvent(); e.preventDefault(); });
