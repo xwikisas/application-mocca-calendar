@@ -162,9 +162,9 @@ if (typeof(XWiki) == "undefined" || typeof(XWiki.widgets) == "undefined" || type
   },
   displayError: function(errorMessage) {
     if (!errorMessage) {
-      errorMessage = "$services.localization.render('MoccaCalendar.generic.errormessage')";
+      errorMessage = "$escapetool.javascript($services.localization.render('MoccaCalendar.generic.errormessage'))";
     }
-    new XWiki.widgets.Notification("$services.localization.render('core.widgets.confirmationBox.notification.failed')" + errorMessage, "error");
+    new XWiki.widgets.Notification("$escapetool.javascript($services.localization.render('core.widgets.confirmationBox.notification.failed'))" + errorMessage, "error");
   },
   showCreateEventFrom: function(start, end, dateFormat) {
     var mySimpleDateFormatter = new Externals.SimpleDateFormat(dateFormat);
@@ -183,8 +183,8 @@ if (typeof(XWiki) == "undefined" || typeof(XWiki.widgets) == "undefined" || type
     return new XWiki.MoccaCalendar.MoccaCalendarPopup({pageURL: this.createEventBaseUrl + params}, this);
   },
   updateEvent: function(page, isResize, delta, startDate, endDate, revertFunc) {
-    var savingBox = new XWiki.widgets.Notification("$services.localization.render('core.widgets.confirmationBox.notification.inProgress')", "inprogress", {inactive: true});
-    var savedBox = new XWiki.widgets.Notification("$services.localization.render('core.widgets.confirmationBox.notification.done')", "done", {inactive: true});
+    var savingBox = new XWiki.widgets.Notification("$escapetool.javascript($services.localization.render('core.widgets.confirmationBox.notification.inProgress'))", "inprogress", {inactive: true});
+    var savedBox = new XWiki.widgets.Notification("$escapetool.javascript($services.localization.render('core.widgets.confirmationBox.notification.done'))", "done", {inactive: true});
     var calendar = this.calendar;
 
     savingBox.show();
@@ -256,7 +256,7 @@ if (typeof(XWiki) == "undefined" || typeof(XWiki.widgets) == "undefined" || type
         {
           verticalPosition: "top",
           backgroundColor: "$theme.pageHeaderBackgroundColor",
-          title : this.interactionParameters.editMode ? "$services.localization.render('MoccaCalendar.calendarevent.create')" : "$services.localization.render('MoccaCalendar.calendarevent.view')"
+          title : this.interactionParameters.editMode ? "$escapetool.javascript($services.localization.render('MoccaCalendar.calendarevent.create'))" : "$escapetool.javascript($services.localization.render('MoccaCalendar.calendarevent.view'))"
         }
       );
       this.loadEventContent();
@@ -265,8 +265,8 @@ if (typeof(XWiki) == "undefined" || typeof(XWiki.widgets) == "undefined" || type
 
       $$(".xdialog-modal-container").each(function(div) { div.setStyle({position: 'absolute'}) }); // MOCCACAL-32
 
-      this.savingBox = new XWiki.widgets.Notification("$services.localization.render('core.widgets.confirmationBox.notification.inProgress')", "inprogress", {inactive: true});
-      this.savedBox = new XWiki.widgets.Notification("$services.localization.render('core.widgets.confirmationBox.notification.done')", "done", {inactive: true});
+      this.savingBox = new XWiki.widgets.Notification("$escapetool.javascript($services.localization.render('core.widgets.confirmationBox.notification.inProgress'))", "inprogress", {inactive: true});
+      this.savedBox = new XWiki.widgets.Notification("$escapetool.javascript($services.localization.render('core.widgets.confirmationBox.notification.done'))", "done", {inactive: true});
       this.savingBox.hide();
       this.savedBox.hide();
     },
@@ -303,7 +303,7 @@ if (typeof(XWiki) == "undefined" || typeof(XWiki.widgets) == "undefined" || type
         parameters: { 'outputSyntax': 'plain', 'newEvent' : name },
         onSuccess: function(response) {
           try {
-            var error = (response.responseJSON)?response.responseJSON['error']:"$services.localization.render('MoccaCalendar.generic.errormessage')";
+            var error = (response.responseJSON) ? response.responseJSON['error'] : "$escapetool.javascript($services.localization.render('MoccaCalendar.generic.errormessage'))";
             if (error) {
               this.savingBox.hide();
               this.helper.displayError(error);
@@ -370,13 +370,13 @@ if (typeof(XWiki) == "undefined" || typeof(XWiki.widgets) == "undefined" || type
           onYes: function() { that.deleteEvent() }, 
           onNo: function() { new XWiki.MoccaCalendar.MoccaCalendarPopup(that.interactionParameters, that.helper) }
         },
-        { confirmationText: "$services.localization.render('MoccaCalendar.calendarevent.confirmDelete',"@@REPLACE@@")".sub("@@REPLACE@@", eventName),
-             yesButtonText: "$services.localization.render('yes')",
-              noButtonText: "$services.localization.render('no')"
+        { confirmationText: "$escapetool.javascript($services.localization.render('MoccaCalendar.calendarevent.confirmDelete',"@@REPLACE@@"))".sub("@@REPLACE@@", eventName),
+             yesButtonText: "$escapetool.javascript($services.localization.render('yes'))",
+              noButtonText: "$escapetool.javascript($services.localization.render('no'))"
         });
     },
     deleteEvent: function() {
-      var pending = new XWiki.widgets.Notification("$services.localization.render('core.widgets.confirmationBox.notification.inProgress')", "inprogress");
+      var pending = new XWiki.widgets.Notification("$escapetool.javascript($services.localization.render('core.widgets.confirmationBox.notification.inProgress'))", "inprogress");
       new Ajax.Request(this.interactionParameters.event.deleteUrl, {
         method: 'post',
         parameters: {'confirm': 1, 'ajax': true, 'form_token': this.helper.formToken},
@@ -385,7 +385,7 @@ if (typeof(XWiki) == "undefined" || typeof(XWiki.widgets) == "undefined" || type
             return;
           }
           pending.hide();
-          new XWiki.widgets.Notification("$services.localization.render('core.widgets.confirmationBox.notification.done')", "done");
+          new XWiki.widgets.Notification("$escapetool.javascript($services.localization.render('core.widgets.confirmationBox.notification.done'))", "done");
           this.helper.calendar.fullCalendar('refetchEvents');
         }.bind(this),
         onFailure: function(e) {
@@ -421,9 +421,9 @@ if (typeof(XWiki) == "undefined" || typeof(XWiki.widgets) == "undefined" || type
           var oldSkin = ! $('body').hasClassName('skin-flamingo'); // FIXME: bad b/w compat hack
           formcontent.insert(buttons);
           if (this.interactionParameters.editMode) {
-            buttons.insert(this.createButton("submit","$services.localization.render('save')","","save-moccacalendar-event","btn"));
+            buttons.insert(this.createButton("submit","$escapetool.javascript($services.localization.render('save'))","","save-moccacalendar-event","btn"));
             buttons.down('#save-moccacalendar-event').observe('click', this.submitForm.bind(this));
-            buttons.insert('&lt;span class="buttonwrapper"&gt;&lt;a href="#" id="cancel-moccacalendar-event" class="secondary button"&gt;' + "$services.localization.render('cancel')" + '&lt;/a&gt;&lt;/span&gt;');
+            buttons.insert('&lt;span class="buttonwrapper"&gt;&lt;a href="#" id="cancel-moccacalendar-event" class="secondary button"&gt;' + "$escapetool.javascript($services.localization.render('cancel'))" + '&lt;/a&gt;&lt;/span&gt;');
             buttons.down('#cancel-moccacalendar-event').observe('click', this.closeDialog.bind(this));
             $$('input.datetime').each(function(dateTimeInput) {
               new XWiki.DateTimePicker(dateTimeInput, dateTimeInput.title);
@@ -433,19 +433,19 @@ if (typeof(XWiki) == "undefined" || typeof(XWiki.widgets) == "undefined" || type
             buttons.insert(leftGroup);
             if (this.interactionParameters.event.canEdit) {
               if (oldSkin) {
-                leftGroup.insert(this.createButton("button","$services.localization.render('edit')","","edit-moccacalendar-event","btn"));
+                leftGroup.insert(this.createButton("button","$escapetool.javascript($services.localization.render('edit'))","","edit-moccacalendar-event","btn"));
               } else {
-                leftGroup.insert('&lt;button class="button btn btn-default" id="edit-moccacalendar-event"&gt;&lt;span class="glyphicon glyphicon-pencil"&gt;&lt;/span&gt; '+"$services.localization.render('edit')"+'&lt;/button&gt;');
+                leftGroup.insert('&lt;button class="button btn btn-default" id="edit-moccacalendar-event"&gt;&lt;span class="glyphicon glyphicon-pencil"&gt;&lt;/span&gt; '+"$escapetool.javascript($services.localization.render('edit'))"+'&lt;/button&gt;');
               }
               leftGroup.down("#edit-moccacalendar-event").observe('click', this.loadEditForm.bind(this));
             }
             // FIXME: this should be a plain link, but then it has no styles
             if (oldSkin) {
-              leftGroup.insert(this.createButton("button","$services.localization.render('view')","","view-moccacalendar-event","btn"));
-              leftGroup.insert('&lt;span class="buttonwrapper"&gt;&lt;a href="#" id="cancel-moccacalendar-event" class="secondary button"&gt;' + "$services.localization.render('cancel')" + '&lt;/a&gt;&lt;/span&gt;');
+              leftGroup.insert(this.createButton("button","$escapetool.javascript($services.localization.render('view'))","","view-moccacalendar-event","btn"));
+              leftGroup.insert('&lt;span class="buttonwrapper"&gt;&lt;a href="#" id="cancel-moccacalendar-event" class="secondary button"&gt;' + "$escapetool.javascript($services.localization.render('cancel'))" + '&lt;/a&gt;&lt;/span&gt;');
             } else {
-              leftGroup.insert(' &lt;button class="button btn btn-default" id="view-moccacalendar-event"&gt;&lt;span class="glyphicon glyphicon-file"&gt;&lt;/span&gt; '+"$services.localization.render('view')"+'&lt;/button&gt;');
-              leftGroup.insert('&lt;button class="button btn btn-default" id="cancel-moccacalendar-event"&gt;&lt;span class="glyphicon glyphicon-remove"&gt;&lt;/span&gt; '+"$services.localization.render('cancel')"+'&lt;/button&gt;');
+              leftGroup.insert(' &lt;button class="button btn btn-default" id="view-moccacalendar-event"&gt;&lt;span class="glyphicon glyphicon-file"&gt;&lt;/span&gt; '+"$escapetool.javascript($services.localization.render('view'))"+'&lt;/button&gt;');
+              leftGroup.insert('&lt;button class="button btn btn-default" id="cancel-moccacalendar-event"&gt;&lt;span class="glyphicon glyphicon-remove"&gt;&lt;/span&gt; '+"$escapetool.javascript($services.localization.render('cancel'))"+'&lt;/button&gt;');
             }
             leftGroup.down("#view-moccacalendar-event").observe('click', function(e) { e.stop(); window.location.href = this.interactionParameters.event.url; }.bind(this));
             leftGroup.down('#cancel-moccacalendar-event').observe('click', this.closeDialog.bind(this));
@@ -453,9 +453,9 @@ if (typeof(XWiki) == "undefined" || typeof(XWiki.widgets) == "undefined" || type
               var rightGroup = new Element('div', {'class':'btn-group btn-group-right'});
               buttons.insert(rightGroup);
               if (oldSkin) {
-                rightGroup.insert(this.createButton("button","$services.localization.render('delete')","","delete-moccacalendar-event","btn"));
+                rightGroup.insert(this.createButton("button","$escapetool.javascript($services.localization.render('delete'))","","delete-moccacalendar-event","btn"));
               } else {
-                rightGroup.insert(' &lt;button class="button remove-button btn btn-danger" id="delete-moccacalendar-event"&gt; &lt;span class="glyphicon glyphicon-remove"&gt; &lt;/span&gt; '+"$services.localization.render('delete')"+'&lt;/button&gt;');
+                rightGroup.insert(' &lt;button class="button remove-button btn btn-danger" id="delete-moccacalendar-event"&gt; &lt;span class="glyphicon glyphicon-remove"&gt; &lt;/span&gt; '+"$escapetool.javascript($services.localization.render('delete'))"+'&lt;/button&gt;');
               }
               rightGroup.down("#delete-moccacalendar-event").observe('click', this.showDeleteForm.bind(this));
             }
@@ -511,15 +511,15 @@ if (typeof(XWiki) == "undefined" || typeof(XWiki.widgets) == "undefined" || type
       this.end = this.intervalEnd = this.start.clone().add(10, 'y');
      
       if (isPast) {
-        this.title = "$services.localization.render('MoccaCalendar.calendar.plainlist.titlepast')";
-        this.noEventMsg = "$services.localization.render('MoccaCalendar.calendar.plainlist.nopastevents')";
+        this.title = "$escapetool.javascript($services.localization.render('MoccaCalendar.calendar.plainlist.titlepast'))";
+        this.noEventMsg = "$escapetool.javascript($services.localization.render('MoccaCalendar.calendar.plainlist.nopastevents'))";
       } else {
-        this.title = "$services.localization.render('MoccaCalendar.calendar.plainlist.titleupcoming')";
-        this.noEventMsg = "$services.localization.render('MoccaCalendar.calendar.plainlist.noupcomingevents')";
+        this.title = "$escapetool.javascript($services.localization.render('MoccaCalendar.calendar.plainlist.titleupcoming'))";
+        this.noEventMsg = "$escapetool.javascript($services.localization.render('MoccaCalendar.calendar.plainlist.noupcomingevents'))";
       }
       this.el.append('&lt;div class="fc-timeline-box" style="width:100%"/&gt;');
       this.container = jQuery('.fc-timeline-box',this.el);
-      this.container.append('&lt;img src="$xwiki.getSkinFile('icons/xwiki/ajax-loader-large.gif')" alt="$services.localization.render('platform.livetable.loading')" /&gt;');
+      this.container.append('&lt;img src="$xwiki.getSkinFile('icons/xwiki/ajax-loader-large.gif')" alt="$escapetool.xml($services.localization.render('platform.livetable.loading'))" /&gt;');
       this.trigger('viewRender', this, this, this.el);
     },
   

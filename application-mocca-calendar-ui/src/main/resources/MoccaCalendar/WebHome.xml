@@ -52,7 +52,7 @@
 == $services.localization.render('MoccaCalendar.calendar.viewall') ==
 
 #if($hasEdit)
-{{html}}&lt;span class="buttonwrapper"&gt;&lt;a class="button" href="$doc.getURL('create','template=MoccaCalendar.MoccaCalendarTemplate')"&gt;$services.localization.render('MoccaCalendar.calendar.create')&lt;/a&gt;&lt;/span&gt;{{/html}}
+{{html}}&lt;span class="buttonwrapper"&gt;&lt;a class="button" href="$doc.getURL('create','template=MoccaCalendar.MoccaCalendarTemplate')"&gt;$escapetool.xml($services.localization.render('MoccaCalendar.calendar.create'))&lt;/a&gt;&lt;/span&gt;{{/html}}
 #end
 
 #set ($columnsProperties = {

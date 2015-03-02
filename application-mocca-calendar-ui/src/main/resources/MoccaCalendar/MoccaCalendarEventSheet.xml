@@ -43,7 +43,7 @@
 ### this macro shows a validation error message if it exists
 #macro(showvalidationmessage $message $force)
 #if($xcontext.validationStatus.errors.contains($message) || "$!force" == "true") ##
-&lt;span class="xErrorMsg"&gt;$services.localization.render($message)&lt;/span&gt;
+&lt;span class="xErrorMsg"&gt;$escapetool.xml($services.localization.render($message))&lt;/span&gt;
 #else ##
 &amp;nbsp; ##
 #end ##
@@ -133,7 +133,7 @@ $doc.display($field)
 &lt;/select&gt;
 #end
   ; &lt;label for="MoccaCalendarEvent.MoccaCalendarEventClass_0_title"&gt;$escapetool.xml($doc.displayPrettyName('title', false, false))&lt;span class="xRequired"&gt;&lt;/span&gt;&lt;/label&gt;
-  : #if($xcontext.action=='edit')&lt;input type="text" name="title" value="$!{escapetool.xml($doc.getTitle())}" class="required" /&gt; #showvalidationmessage("val_title_already_exists") &lt;span class="val_title_notempty xErrorMsg" style="display:none;"&gt;$services.localization.render('val_title_notempty')&lt;/span&gt; &lt;span class="val_title_notvalid xErrorMsg" style="display:none;"&gt;$services.localization.render('val_title_notvalid')&lt;/span&gt;
+  : #if($xcontext.action=='edit')&lt;input type="text" name="title" value="$!{escapetool.xml($doc.getTitle())}" class="required" /&gt; #showvalidationmessage("val_title_already_exists") &lt;span class="val_title_notempty xErrorMsg" style="display:none;"&gt;$escapetool.xml($services.localization.render('val_title_notempty'))&lt;/span&gt; &lt;span class="val_title_notvalid xErrorMsg" style="display:none;"&gt;$escapetool.xml($services.localization.render('val_title_notvalid'))&lt;/span&gt;
 #else $doc.getDisplayTitle()
 #end
   ; &lt;label for="MoccaCalendarEvent.MoccaCalendarEventClass_0_startDate"&gt;$escapetool.xml($doc.displayPrettyName('startDate', false, false))&lt;span class="xRequired"&gt;&lt;/span&gt;&lt;/label&gt;
