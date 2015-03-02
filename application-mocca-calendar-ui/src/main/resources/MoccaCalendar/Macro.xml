@@ -336,7 +336,7 @@ if (typeof(XWiki) == "undefined" || typeof(XWiki.widgets) == "undefined" || type
       } else {
         saveUrl = this.interactionParameters.event.saveUrl;
       }
-      this.content.writeAttribute('action', saveUrl + '&amp;ajax=true');
+      this.content.writeAttribute('action', saveUrl + '&amp;xpage=plain&amp;ajax=true');
       this.content.request({
         onSuccess: function() {
           this.savingBox.hide();
@@ -346,10 +346,11 @@ if (typeof(XWiki) == "undefined" || typeof(XWiki.widgets) == "undefined" || type
         }.bind(this),
         onFailure: function(e) {
           try {
+console.log(e);
             var responseText = e.responseText;
             $("formcontent").innerHTML = responseText;
             this.savingBox.hide();
-            this.helper.displayError();
+            if (e.status &gt; 400) { this.helper.displayError(); } 
             $$('input.datetime').each(function(dateTimeInput) {
               new XWiki.DateTimePicker(dateTimeInput, dateTimeInput.title);
             });
