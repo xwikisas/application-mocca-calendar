@@ -42,7 +42,7 @@
   <scm>
     <connection>scm:git:git://github.com/xwiki-contrib/application-mocca-calendar.git</connection>
     <developerConnection>scm:git:git@github.com:xwiki-contrib/application-mocca-calendar.git</developerConnection>
-    <url>https://github.com/xwiki-contrib/application-mocca-calendar</url>
+    <url>https://github.com/xwiki-contrib/application-mocca-calendar/tree/master/</url>
     <tag>HEAD</tag>
   </scm>
   <url>http://extensions.xwiki.org/xwiki/bin/view/Extension/MoccaCalendar</url>
