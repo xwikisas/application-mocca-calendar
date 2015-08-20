@@ -346,7 +346,6 @@ if (typeof(XWiki) == "undefined" || typeof(XWiki.widgets) == "undefined" || type
         }.bind(this),
         onFailure: function(e) {
           try {
-console.log(e);
             var responseText = e.responseText;
             $("formcontent").innerHTML = responseText;
             this.savingBox.hide();
@@ -1053,8 +1052,12 @@ require(['jquery'], function(jQuery) {
   });
   jQuery('#calendar${calcounter}-btn').click( function(e) { calendarHelper.showCreateEvent(); e.preventDefault(); });
   // helper to be used in callback above
+#set($spaceForEvents = $doc.getSpace())
+#if($filter == 'wiki')
+  #set($spaceForEvents = 'MoccaCalendar')
+#end
 #set($pageParams = "template=MoccaCalendar.MoccaCalendarEventTemplate&amp;parentFROM=${escapetool.url($calendarDoc)}&amp;form_token=${services.csrf.getToken()}&amp;ocalcaction=create")
-#set($eventUrlTemplate = $xwiki.getURL($services.model.createDocumentReference($doc.getWiki(),'MoccaCalendar','__page__'),'save',$pageParams))
+#set($eventUrlTemplate = $xwiki.getURL($services.model.createDocumentReference($doc.getWiki(), $spaceForEvents, '__page__'),'save',$pageParams))
 #set($randomDocUrl = $xwiki.getURL("randomPage${util.generateRandomString(10)}",'edit',$pageParams))
 #set($updateUrlParams="?xpage=plain&amp;outputSyntax=plain&amp;calendarDoc=${escapetool.url(${calendarDoc})}&amp;")
   var calendarHelper = new XWiki.MoccaCalendar.Helper(calendar, "$escapetool.javascript($jsonUrl)", "$escapetool.javascript($randomDocUrl)", "$escapetool.javascript("${updateUrl}${updateUrlParams}")", "$escapetool.javascript($eventUrlTemplate)", "${escapetool.javascript($services.csrf.getToken())}");
