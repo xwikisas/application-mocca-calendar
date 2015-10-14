@@ -121,7 +121,6 @@
     </property>
     <property>
       <code>#set($discard = $services.localization.use('document', 'Calendar.Translations'))
-#set($discard = $services.localization.use('document', 'MoccaCalendar.MoccaCalendarTranslations'))
 
 document.observe("dom:loaded", function() {
   _translations = {

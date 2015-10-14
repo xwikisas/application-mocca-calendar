@@ -99,7 +99,6 @@ $doc.display($field)
 #set($eventClass = 'MoccaCalendar.MoccaCalendarEventClass')
 #set($eventValidationDoc = 'MoccaCalendar.MoccaCalendarEventValidation')
 #set ($discard = $doc.use($eventClass))
-#set ($discard = $services.localization.use('document', 'MoccaCalendar.MoccaCalendarTranslations'))
 ## add the groovy script to the validation (the xvalidation parameter in the request also works to set the groovy script validation)
 #if($xcontext.action=='edit')
 &lt;input type="hidden" name="xvalidate" value="1" /&gt;

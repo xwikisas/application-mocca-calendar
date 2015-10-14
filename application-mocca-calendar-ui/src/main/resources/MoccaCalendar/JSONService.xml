@@ -64,7 +64,6 @@ if (request.newEvent) {
      }
   }
   if (error != null) {
-      services.localization.use('document', 'MoccaCalendar.MoccaCalendarTranslations')
       print new groovy.json.JsonBuilder( [ 'error' : services.localization.render(error) ] )
   } else {
       print new groovy.json.JsonBuilder( [ 'name' : eventName ] )

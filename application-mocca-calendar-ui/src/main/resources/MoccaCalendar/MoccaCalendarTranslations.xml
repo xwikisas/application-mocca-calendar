@@ -71,7 +71,7 @@
     <className>XWiki.TranslationDocumentClass</className>
     <guid>f5d1be7a-4a54-44f5-b263-4bc248308297</guid>
     <property>
-      <scope>ON_DEMAND</scope>
+      <scope>WIKI</scope>
     </property>
   </object>
   <content>#general

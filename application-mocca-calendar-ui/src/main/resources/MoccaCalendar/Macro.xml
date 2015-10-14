@@ -149,7 +149,6 @@ if (typeof(XWiki) == "undefined" || typeof(XWiki.widgets) == "undefined" || type
   }
 
 #template('colorThemeInit.vm')
-#set ($discard = $services.localization.use('document', 'MoccaCalendar.MoccaCalendarTranslations'))
 
   XWiki.MoccaCalendar.Helper = Class.create({
   initialize: function(calendar, jsonServiceUrl, createEventBaseUrl, updateEventUrl, editEventUrlTemplate, formToken) {
@@ -866,7 +865,6 @@ div.calendar-buttons span.buttonwrapper {
     <property>
       <code>{{velocity output="false"}}
 $services.localization.use('document', 'Calendar.Translations')
-$services.localization.use('document', 'MoccaCalendar.MoccaCalendarTranslations')
 $xwiki.jsx.use("Calendar.JQuery", {'defer': false, 'minify': false})
 $xwiki.jsx.use("Calendar.JQueryUI", {'defer': false, 'minify': false})
 $xwiki.jsx.use("Calendar.Moment", {'defer': false, 'minify': false})

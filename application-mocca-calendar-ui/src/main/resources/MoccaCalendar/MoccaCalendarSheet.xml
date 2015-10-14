@@ -51,7 +51,6 @@
 #set ($discard = $xwiki.jsx.use("ColorThemes.ColorThemeSheet", {'defer': false}))
 #set ($discard = $xwiki.ssx.use("ColorThemes.ColorThemeSheet"))
 #set ($discard = $doc.use('MoccaCalendar.MoccaCalendarClass'))
-#set ($discard = $services.localization.use('document', 'MoccaCalendar.MoccaCalendarTranslations'))
 #set($discard = $xwiki.jsx.use("MoccaCalendar.MoccaCalendarSheet"))
 (% class="xform" %)
 (((
