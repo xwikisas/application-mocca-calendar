@@ -1,0 +1,100 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!--
+ * See the NOTICE file distributed with this work for additional
+ * information regarding copyright ownership.
+ *
+ * This is free software; you can redistribute it and/or modify it
+ * under the terms of the GNU Lesser General Public License as
+ * published by the Free Software Foundation; either version 2.1 of
+ * the License, or (at your option) any later version.
+ *
+ * This software is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+ * Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public
+ * License along with this software; if not, write to the Free
+ * Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
+ * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
+-->
+
+<xwikidoc>
+  <web>MoccaCalendar</web>
+  <name>MoccaCalendarTranslations</name>
+  <language>sk</language>
+  <defaultLanguage/>
+  <translation>1</translation>
+  <parent>MoccaCalendarClass</parent>
+  <creator>xwiki:XWiki.Admin</creator>
+  <author>xwiki:XWiki.Admin</author>
+  <customClass/>
+  <contentAuthor>xwiki:XWiki.Admin</contentAuthor>
+  <creationDate>1385136439000</creationDate>
+  <date>1385136439000</date>
+  <contentUpdateDate>1385136439000</contentUpdateDate>
+  <version>1.1</version>
+  <title/>
+  <template/>
+  <defaultTemplate/>
+  <validationScript/>
+  <comment/>
+  <minorEdit>false</minorEdit>
+  <syntaxId>xwiki/2.1</syntaxId>
+  <hidden>true</hidden>
+  <content>## XWiki Translation for language sk generated from http://www.l10n.xwiki.org
+MoccaCalendar.MoccaCalendarClass_content1=Obsah
+MoccaCalendar.MoccaCalendarClass_description=Popis
+MoccaCalendar.MoccaCalendarClass_title=Nadpis
+MoccaCalendar.MoccaCalendarEventClass_description=Popis
+MoccaCalendar.MoccaCalendarEventClass_endDate=Dátum ukončenia
+MoccaCalendar.MoccaCalendarEventClass_startDate=Dátum začiatku
+MoccaCalendar.MoccaCalendarEventClass_title=Nadpis
+MoccaCalendar.calendar=Kalendár
+MoccaCalendar.calendar.create=Vytvoriť nový kalendár
+MoccaCalendar.calendar.defaultCalendarTitle=Ďalšie udalosti
+MoccaCalendar.calendar.firstDayOfWeek=0
+MoccaCalendar.calendarevent.backlink=Späť na kalendár &amp;\#171;{0}&amp;\#187;
+MoccaCalendar.calendarevent.confirmDelete=Naozaj chcete odstrániť udalosť &amp;\#171;{0}&amp;\#187; ?
+MoccaCalendar.calendarevent.create=Vytvoriť novú udalosť
+MoccaCalendar.calendarevent.view=Udalosť
+MoccaCalendar.calendarevent.viewall=Všetky akcie
+MoccaCalendar.datepicker.now=Teraz
+MoccaCalendar.datepicker.ok=OK
+MoccaCalendar.generic.errormessage=Vnútorná chyba servera
+moccacalendar.livetable._actions=Akcie
+moccacalendar.livetable._actions.delete=Odstrániť
+moccacalendar.livetable._actions.edit=Editovať
+moccacalendar.livetable._attachments=Prílohy
+moccacalendar.livetable._avatar=Avatar
+moccacalendar.livetable._images=Obrázky
+moccacalendar.livetable.content1=Obsah
+moccacalendar.livetable.description=Popis
+moccacalendar.livetable.doc.author=Posledný autor
+moccacalendar.livetable.doc.creationDate=Dátum vytvorenia
+moccacalendar.livetable.doc.creator=Vytvoril
+moccacalendar.livetable.doc.date=Dátum aktualizácie
+moccacalendar.livetable.doc.name=Meno stránky
+moccacalendar.livetable.doc.space=Priestor
+moccacalendar.livetable.doc.title=Kalendár
+moccacalendar.livetable.emptyvalue=-
+moccacalendar.livetable.title=Názov
+moccacalendarevent.livetable._actions=Akcia
+moccacalendarevent.livetable._actions.delete=Odstrániť
+moccacalendarevent.livetable._actions.edit=Editovať
+moccacalendarevent.livetable._attachments=Prílohy
+moccacalendarevent.livetable._avatar=Avatar
+moccacalendarevent.livetable._images=Obrázky
+moccacalendarevent.livetable.description=Popis
+moccacalendarevent.livetable.doc.author=Posledný autor
+moccacalendarevent.livetable.doc.creationDate=Dátum vytvorenia
+moccacalendarevent.livetable.doc.creator=Vytvoril
+moccacalendarevent.livetable.doc.date=Dátum aktualizácie
+moccacalendarevent.livetable.doc.name=Meno stránky
+moccacalendarevent.livetable.doc.space=Priestor
+moccacalendarevent.livetable.doc.title=Názov stránky
+moccacalendarevent.livetable.emptyvalue=-
+moccacalendarevent.livetable.title=Názov
+</content>
+</xwikidoc>
