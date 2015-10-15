@@ -31,7 +31,7 @@
   <parent>WebHome</parent>
   <author>xwiki:XWiki.Admin</author>
   <contentAuthor>xwiki:XWiki.Admin</contentAuthor>
-  <date>1444920849000</date>
+  <date>1444923762000</date>
   <contentUpdateDate>1444920849000</contentUpdateDate>
   <version>1.1</version>
   <title/>
@@ -202,7 +202,7 @@ xcontext.setFinished(true)
       </use>
     </class>
     <property>
-      <cache>forbid</cache>
+      <cache>long</cache>
     </property>
     <property>
       <code>require(['jquery', 'xwiki-events-bridge'], function($) {
