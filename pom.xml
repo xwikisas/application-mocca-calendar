@@ -38,6 +38,7 @@
   </properties>
   <modules>
     <module>application-mocca-calendar-ui</module>
+    <modele>application-mocca-calendar-ical</module>
   </modules>
   <scm>
     <connection>scm:git:git://github.com/xwiki-contrib/application-mocca-calendar.git</connection>
