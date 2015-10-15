@@ -42,6 +42,7 @@
       <groupId>org.xwiki.contrib</groupId>
       <artifactId>application-mocca-calendar-ui</artifactId>
       <version>${project.version}</version>
+      <type>xar</type>
       <scope>runtime</scope>
     </dependency>
   </dependencies>
