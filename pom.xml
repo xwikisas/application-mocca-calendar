@@ -56,6 +56,10 @@
       <id>ClemensRobbenhaar</id>
       <name>Clemens Robbenhaar</name>
     </developer>
+    <developer>
+      <id>tmortagne</id>
+      <name>Thomas Mortagne</name>
+    </developer>
   </developers>
   <distributionManagement>
     <repository>
