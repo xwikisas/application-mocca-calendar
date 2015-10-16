@@ -20,7 +20,7 @@
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
 -->
 
-<xwikidoc version="1.1">
+<xwikidoc version="1.2" reference="MoccaCalendar.Macro" locale="">
   <web>MoccaCalendar</web>
   <name>Macro</name>
   <language/>
@@ -869,7 +869,7 @@ $xwiki.jsx.use("Calendar.JQuery", {'defer': false, 'minify': false})
 $xwiki.jsx.use("Calendar.JQueryUI", {'defer': false, 'minify': false})
 $xwiki.jsx.use("Calendar.Moment", {'defer': false, 'minify': false})
 $xwiki.jsx.use("Calendar.FullCalendar", {'defer': false, 'minify': false})
-$xwiki.jsx.use("MoccaCalendar.Macro", {'defer': false, 'v' : '2.3.1'})
+$xwiki.jsx.use("MoccaCalendar.Macro", {'defer': false, 'v' : '2.4.3'})
 $xwiki.jsx.use("MoccaCalendar.DatePickerExtension", {'defer': false})
 ## A simple date picker widget.
 $xwiki.ssfx.use('uicomponents/widgets/datepicker/calendarDateSelect.css', true)
@@ -1050,9 +1050,13 @@ require(['jquery'], function(jQuery) {
   });
   jQuery('#calendar${calcounter}-btn').click( function(e) { calendarHelper.showCreateEvent(); e.preventDefault(); });
   // helper to be used in callback above
-#set($spaceForEvents = $doc.getSpace())
 #if($filter == 'wiki')
-  #set($spaceForEvents = 'MoccaCalendar')
+  #set($spaceForEvents = ['MoccaCalendar'])
+#else
+  #set($spaceForEvents = [])
+  #foreach($spaceRef in $doc.getDocumentReference().getSpaceReferences())
+    #set($discard = $spaceForEvents.add($spaceRef.getName()))
+  #end
 #end
 #set($pageParams = "template=MoccaCalendar.MoccaCalendarEventTemplate&amp;parentFROM=${escapetool.url($calendarDoc)}&amp;form_token=${services.csrf.getToken()}&amp;ocalcaction=create")
 #set($eventUrlTemplate = $xwiki.getURL($services.model.createDocumentReference($doc.getWiki(), $spaceForEvents, '__page__'),'save',$pageParams))
