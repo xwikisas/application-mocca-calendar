@@ -102,6 +102,9 @@ events.each {
     if (endDate != null &amp;&amp; eventDocument.getValue('allDay') != 1) {
       event = new VEvent(new DateTime(startDate), new DateTime(endDate), eventDocument.plainTitle);
     } else {
+      // Go trough String to workaround any timezone issue
+      // TODO: find a more elegant way
+      def utcDate = new Date(startDate.format('yyyyMMdd'), 'yyyyMMdd')
       event = new VEvent(new Date(startDate), eventDocument.plainTitle);
     }
 
