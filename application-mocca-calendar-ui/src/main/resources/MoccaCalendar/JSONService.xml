@@ -81,16 +81,19 @@ if (request.newEvent) {
 #set($qsm = $datetool.getMonth($startQuery))
 #set($qsm = $mathtool.add($qsm, 1))
 #set($qsd = $datetool.getDay($startQuery))
-#set($whereQuery = "and (year(date.value) &gt; :startyear or ( year(date.value) = :startyear and (month(date.value) &gt; :startmonth or (month(date.value) = :startmonth and day(date.value) &gt;= :startday))))")
+## if enddate is empty, use startdate instead
+#set($endDateCheck = "year(enddate.value) &gt; :startyear or (year(enddate.value) = :startyear and (month(enddate.value) &gt; :startmonth or (month(enddate.value) = :startmonth and day(enddate.value) &gt;= :startday)))")
+#set($startDateCheck = "year(startdate.value) &gt; :startyear or (year(startdate.value) = :startyear and (month(startdate.value) &gt; :startmonth or (month(startdate.value) = :startmonth and day(startdate.value) &gt;= :startday)))")
+#set($whereQuery = "and (enddate.value is not null and ($endDateCheck) or ($startDateCheck)) ")
 
 #set($endQuery = $datetool.toDate('yyyy-M-d', $request.end))
 #set($qey = $datetool.getYear($endQuery))
 #set($qem = $datetool.getMonth($endQuery))
 #set($qem = $mathtool.add($qem, 1))
 #set($qed = $datetool.getDay($endQuery))
-#set($whereQuery = "$whereQuery and (year(date.value) &lt; :endyear or ( year(date.value) = :endyear and (month(date.value) &lt; :endmonth or (month(date.value) = :endmonth and day(date.value) &lt;= :endday))))")
+#set($whereQuery = "$whereQuery and (year(startdate.value) &lt; :endyear or ( year(startdate.value) = :endyear and (month(startdate.value) &lt; :endmonth or (month(startdate.value) = :endmonth and day(startdate.value) &lt;= :endday))))")
 
-#set($queryParams = { "startyear" : $qsy, "startmonth" : $qsm,  "startday" : $qsd, "endyear" : $qey, "endmonth" : $qem, "endday" : $qed })
+#set($queryParams = { "startyear" : $qsy, "startmonth" : $qsm,  "startday" : $qsd, "endyear" : $qey, "endmonth" : $qem, "endday" : $qed, "startDateField" : $request.startfield, "endDateField" : $request.endfield, "eventClass" : $request.classname })
 
 #if("$!{request.filter}" != "" &amp;&amp; "$!{request.calendarDoc}" != "")
   #set($document = $xwiki.getDocument($request.calendarDoc))
@@ -107,9 +110,7 @@ if (request.newEvent) {
   #end
 #end
 
-#set($discard = $queryParams.put('startDateField', $request.startfield))
-#set($discard = $queryParams.put('eventClass', $request.classname))
-#set($hql =", BaseObject as obj, DateProperty as date where doc.fullName=obj.name and obj.id=date.id.id and date.id.name= :startDateField and doc.name!='MoccaCalendarEventTemplate' and obj.className= :eventClass $whereQuery order by date.value asc")
+#set($hql =", BaseObject as obj, DateProperty as startdate, DateProperty as enddate where doc.fullName=obj.name and obj.id=startdate.id.id and startdate.id.name=:startDateField and obj.id=enddate.id.id and enddate.id.name=:endDateField and doc.name!='MoccaCalendarEventTemplate' and obj.className= :eventClass $whereQuery order by startdate.value asc")
 
 #set($query = $services.query.hql($hql))
 #foreach($param in $queryParams.entrySet())
@@ -148,8 +149,11 @@ if (request.newEvent) {
     #set($allDay=false)
     #if("$!itemdoc.getValue('allDay')"==1)
       #set($allDay=true)
+      #set($enddateExclusive = $enddate.plusDays(1))
+    #else
+      #set($enddateExclusive = $enddate)
     #end
-    #set($event = {"id" : $itemdoc.getDocumentReference().toString(), "title" : $itemdoc.getPlainTitle(), "url" : $itemdoc.getURL('view',"$calDocParam"), "editUrl" : $itemdoc.getURL('edit',"$calDocParam"), "saveUrl" : $itemdoc.getURL('save',"$calDocParam"),  "deleteUrl" : $itemdoc.getURL('delete',"$calDocParam"), "canEdit": $xwiki.hasAccessLevel("edit", $xcontext.getUser(), $item), "canDelete": $xwiki.hasAccessLevel("delete", $xcontext.getUser(), $item), "start" : $jsondateformat.print($startdate), "end" : $jsondateformat.print($enddate), "allDay" : $allDay, "color" : $color })
+    #set($event = {"id" : $itemdoc.getDocumentReference().toString(), "title" : $itemdoc.getPlainTitle(), "url" : $itemdoc.getURL('view',"$calDocParam"), "editUrl" : $itemdoc.getURL('edit',"$calDocParam"), "saveUrl" : $itemdoc.getURL('save',"$calDocParam"),  "deleteUrl" : $itemdoc.getURL('delete',"$calDocParam"), "canEdit": $xwiki.hasAccessLevel("edit", $xcontext.getUser(), $item), "canDelete": $xwiki.hasAccessLevel("delete", $xcontext.getUser(), $item), "start" : $jsondateformat.print($startdate), "end" : $jsondateformat.print($enddateExclusive), "allDay" : $allDay, "color" : $color })
     #if("$!{request.outputView}"=="plainList")
       #set($format = $!itemdoc.getObject("${request.classname}").getxWikiClass().get($request.startfield).getProperty('dateFormat').value)
       #if($!format=="")
