@@ -110,7 +110,12 @@ if (request.newEvent) {
   #end
 #end
 
-#set($hql =", BaseObject as obj, DateProperty as startdate, DateProperty as enddate where doc.fullName=obj.name and obj.id=startdate.id.id and startdate.id.name=:startDateField and obj.id=enddate.id.id and enddate.id.name=:endDateField and doc.name!='MoccaCalendarEventTemplate' and obj.className= :eventClass $whereQuery order by startdate.value asc")
+#set($direction="asc")
+#if("$!{request.outputView}"=="plainList" &amp;&amp; $datetool.difference($datetool.getDate(),$endQuery).getSeconds()&lt;0)
+  #set($direction="desc")
+#end
+
+#set($hql =", BaseObject as obj, DateProperty as startdate, DateProperty as enddate where doc.fullName=obj.name and obj.id=startdate.id.id and startdate.id.name=:startDateField and obj.id=enddate.id.id and enddate.id.name=:endDateField and doc.name!='MoccaCalendarEventTemplate' and obj.className= :eventClass $whereQuery order by startdate.value $direction")
 
 #set($query = $services.query.hql($hql))
 #foreach($param in $queryParams.entrySet())
