@@ -39,7 +39,7 @@
   <minorEdit>false</minorEdit>
   <syntaxId>xwiki/2.0</syntaxId>
   <hidden>true</hidden>
-  <content>{{velocity}}
+  <content>{{velocity output="false"}}
 $doc.setValidationScript("MoccaCalendarEvent.MoccaCalendarEventValidation")
 $doc.validate()
 {{/velocity}}</content>
@@ -154,38 +154,6 @@ $doc.validate()
     </class>
     <property>
       <sheet>MoccaCalendarEventSheet</sheet>
-    </property>
-  </object>
-  <object>
-    <name>MoccaCalendar.MoccaCalendarEventClass</name>
-    <number>0</number>
-    <className>XWiki.DocumentSheetBinding</className>
-    <guid>18798301-13d5-42d2-9d04-f2951832ec62</guid>
-    <class>
-      <name>XWiki.DocumentSheetBinding</name>
-      <customClass/>
-      <customMapping/>
-      <defaultViewSheet/>
-      <defaultEditSheet/>
-      <defaultWeb/>
-      <nameField/>
-      <validationScript/>
-      <sheet>
-        <customDisplay/>
-        <disabled>0</disabled>
-        <name>sheet</name>
-        <number>1</number>
-        <picker>0</picker>
-        <prettyName>Sheet</prettyName>
-        <size>30</size>
-        <unmodifiable>0</unmodifiable>
-        <validationMessage/>
-        <validationRegExp/>
-        <classType>com.xpn.xwiki.objects.classes.StringClass</classType>
-      </sheet>
-    </class>
-    <property>
-      <sheet>AppWithinMinutes.ClassEditSheet</sheet>
     </property>
   </object>
   <object>
