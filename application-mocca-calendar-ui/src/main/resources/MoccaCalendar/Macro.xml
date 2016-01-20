@@ -299,7 +299,7 @@ if (typeof(XWiki) == "undefined" || typeof(XWiki.widgets) == "undefined" || type
        // ask the JSONService to create an unused event name for us      
        new Ajax.Request( this.helper.jsonServiceUrl, {
         method: 'get',
-        parameters: { 'outputSyntax': 'plain', 'newEvent' : name },
+        parameters: { 'outputSyntax': 'plain', 'newEvent' : name, 'parent': $F($("calendarParent")) },
         onSuccess: function(response) {
           try {
             var error = (response.responseJSON) ? response.responseJSON['error'] : "$escapetool.javascript($services.localization.render('MoccaCalendar.generic.errormessage'))";
@@ -869,7 +869,7 @@ $xwiki.jsx.use("Calendar.JQuery", {'defer': false, 'minify': false})
 $xwiki.jsx.use("Calendar.JQueryUI", {'defer': false, 'minify': false})
 $xwiki.jsx.use("Calendar.Moment", {'defer': false, 'minify': false})
 $xwiki.jsx.use("Calendar.FullCalendar", {'defer': false, 'minify': false})
-$xwiki.jsx.use("MoccaCalendar.Macro", {'defer': false, 'v' : '2.4.3'})
+$xwiki.jsx.use("MoccaCalendar.Macro", {'defer': false, 'v' : '2.5.1'})
 $xwiki.jsx.use("MoccaCalendar.DatePickerExtension", {'defer': false})
 ## A simple date picker widget.
 $xwiki.ssfx.use('uicomponents/widgets/datepicker/calendarDateSelect.css', true)

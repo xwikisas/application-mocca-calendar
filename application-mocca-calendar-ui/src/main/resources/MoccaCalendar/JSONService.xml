@@ -20,7 +20,7 @@
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
 -->
 
-<xwikidoc version="1.1">
+<xwikidoc version="1.2" reference="MoccaCalendar.JSONService" locale="">
   <web>MoccaCalendar</web>
   <name>JSONService</name>
   <language/>
@@ -44,38 +44,19 @@
   $response.setContentType('application/json')
 #end
 {{/velocity}}
-{{groovy}}
-// special case: find a new unused event name
-// here we need a longer "while" loop
-if (request.newEvent) {
-  def wiki = doc.wiki
-  def space = doc.space
-  def eventNameBase = request.newEvent
-  def eventName = eventNameBase
-
-  def counter = 0
-  def error = null
-
-  while (xwiki.exists(services.model.createDocumentReference(wiki, space, eventName)) &amp;&amp; (error == null)) {
-     counter++;
-     eventName = eventNameBase + (counter as String);
-     if (counter &gt; 999) {
-       error = "val_title_already_exists";
-     }
-  }
-  if (error != null) {
-      print new groovy.json.JsonBuilder( [ 'error' : services.localization.render(error) ] )
-  } else {
-      print new groovy.json.JsonBuilder( [ 'name' : eventName ] )
-  }
-}
-{{/groovy}}
 {{velocity filter="html" wiki="false"}}
 #if($xcontext.action == 'get')
+## special case: find a new unused event name
 #if("$!{request.newEvent}"!="")
-  #break
-#end
-
+  #set($eventName = $request.newEvent)
+  #set($wiki = $doc.wiki)
+  #set($space = $doc.space)
+  #if ($request.parent)
+    #set($space = $xwiki.getDocument($request.parent).getSpace())
+  #end
+  #set($eventName = $xwiki.getUniquePageName($space, $eventName))
+  $jsontool.serialize( { 'name' : $eventName } )
+#else
 #set($startQuery = $datetool.toDate('yyyy-M-d', $request.start))
 #set($qsy = $datetool.getYear($startQuery))
 #set($qsm = $datetool.getMonth($startQuery))
@@ -204,6 +185,7 @@ if (request.newEvent) {
  #end
 #end
 $jsontool.serialize($results)
+#end ## end of #if("$!{request.newEvent}"!="")
 #else
 Service Page for the Mocca Calendar Application
 #end ## end of #if($xcontext.action == 'get')
