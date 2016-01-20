@@ -346,7 +346,7 @@ if (typeof(XWiki) == "undefined" || typeof(XWiki.widgets) == "undefined" || type
         onFailure: function(e) {
           try {
             var responseText = e.responseText;
-            $("formcontent").innerHTML = responseText;
+            $("forminnercontent").innerHTML = responseText;
             this.savingBox.hide();
             if (e.status &gt; 400) { this.helper.displayError(); } 
             $$('input.datetime').each(function(dateTimeInput) {
@@ -414,7 +414,7 @@ if (typeof(XWiki) == "undefined" || typeof(XWiki.widgets) == "undefined" || type
             old.purge();
             old.remove();
           }
-          this.content.insert('&lt;div id="formcontent"&gt;' + response + '&lt;/div&gt;');
+          this.content.insert('&lt;div id="formcontent"&gt;&lt;div id="forminnercontent"&gt;' + response + '&lt;/div&gt;&lt;/div&gt;');
           var formcontent = $('formcontent');
           var buttons = new Element('div', {'class':'buttons'});
           var oldSkin = ! $('body').hasClassName('skin-flamingo'); // FIXME: bad b/w compat hack
