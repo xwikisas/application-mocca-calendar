@@ -190,4 +190,43 @@ $jsontool.serialize($results)
 Service Page for the Mocca Calendar Application
 #end ## end of #if($xcontext.action == 'get')
 {{/velocity}}</content>
+  <object>
+    <name>MoccaCalendar.JSONService</name>
+    <number>0</number>
+    <className>XWiki.RequiredRightClass</className>
+    <guid>d28d6041-2b5a-475d-90ae-6458c02c8a8d</guid>
+    <class>
+      <name>XWiki.RequiredRightClass</name>
+      <customClass/>
+      <customMapping/>
+      <defaultViewSheet/>
+      <defaultEditSheet/>
+      <defaultWeb/>
+      <nameField/>
+      <validationScript/>
+      <level>
+        <cache>0</cache>
+        <disabled>0</disabled>
+        <displayType>select</displayType>
+        <multiSelect>0</multiSelect>
+        <name>level</name>
+        <number>1</number>
+        <picker>0</picker>
+        <prettyName>level</prettyName>
+        <relationalStorage>0</relationalStorage>
+        <separator> </separator>
+        <separators> ,|</separators>
+        <size>1</size>
+        <sort>none</sort>
+        <unmodifiable>0</unmodifiable>
+        <validationMessage/>
+        <validationRegExp/>
+        <values>edit|programming</values>
+        <classType>com.xpn.xwiki.objects.classes.StaticListClass</classType>
+      </level>
+    </class>
+    <property>
+      <level>programming</level>
+    </property>
+  </object>
 </xwikidoc>
