@@ -79,8 +79,10 @@
 #if("$!{request.filter}" != "" &amp;&amp; "$!{request.calendarDoc}" != "")
   #set($document = $xwiki.getDocument($request.calendarDoc))
   #if("$!{request.filter}" == "page")
-    #set($whereQuery = "$whereQuery and (doc.parent = :parentDoc)")
+    ## see MOCCCAL-97 why we need to ways to get at the parent document
+    #set($whereQuery = "$whereQuery and (doc.parent = :parentDoc or doc.parent = :parentAbsDoc)")
     #set($discard = $queryParams.put('parentDoc', $request.calendarDoc))
+    #set($discard = $queryParams.put('parentAbsDoc', "${xcontext.getDatabase()}:${request.calendarDoc}"))
   #end
   #if("$!{request.filter}" == "space")
     #set($document = $xwiki.getDocument($request.calendarDoc))
