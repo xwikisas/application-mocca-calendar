@@ -76,7 +76,7 @@
   </object>
   <content>#general
 MoccaCalendar.calendar=Calendar
-MoccaCalendar.calendar.title=Calendar Overview
+MoccaCalendar.calendar.title=Calendar
 MoccaCalendar.calendar.defaultCalendarTitle=Other Events
 MoccaCalendar.calendar.viewall=Overview of all calendars
 MoccaCalendar.calendar.create=Create new calendar

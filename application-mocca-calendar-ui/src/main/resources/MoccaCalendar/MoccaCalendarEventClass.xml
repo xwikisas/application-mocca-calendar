@@ -20,28 +20,29 @@
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
 -->
 
-<xwikidoc>
+<xwikidoc version="1.2" reference="MoccaCalendar.MoccaCalendarEventClass" locale="">
   <web>MoccaCalendar</web>
   <name>MoccaCalendarEventClass</name>
   <language/>
   <defaultLanguage/>
   <translation>0</translation>
-  <parent>WebHome</parent>
   <creator>xwiki:XWiki.Admin</creator>
-  <author>xwiki:XWiki.Admin</author>
-  <customClass/>
-  <contentAuthor>xwiki:XWiki.Admin</contentAuthor>
   <creationDate>1377502319000</creationDate>
+  <parent>WebHome</parent>
+  <author>xwiki:XWiki.Admin</author>
+  <contentAuthor>xwiki:XWiki.Admin</contentAuthor>
   <date>1373961627000</date>
   <contentUpdateDate>1373961627000</contentUpdateDate>
   <version>1.1</version>
   <title>MoccaCalendarEvent Class</title>
-  <defaultTemplate/>
-  <validationScript/>
   <comment/>
   <minorEdit>false</minorEdit>
   <syntaxId>xwiki/2.0</syntaxId>
   <hidden>true</hidden>
+  <content>{{velocity output="false"}}
+$doc.setValidationScript("MoccaCalendarEvent.MoccaCalendarEventValidation")
+$doc.validate()
+{{/velocity}}</content>
   <class>
     <name>MoccaCalendar.MoccaCalendarEventClass</name>
     <customClass/>
@@ -124,6 +125,10 @@
     </title>
   </class>
   <object>
+    <name>MoccaCalendar.MoccaCalendarEventClass</name>
+    <number>0</number>
+    <className>XWiki.ClassSheetBinding</className>
+    <guid>3fc16976-042e-4855-9228-d2508735e1a6</guid>
     <class>
       <name>XWiki.ClassSheetBinding</name>
       <customClass/>
@@ -147,80 +152,40 @@
         <classType>com.xpn.xwiki.objects.classes.StringClass</classType>
       </sheet>
     </class>
-    <name>MoccaCalendar.MoccaCalendarEventClass</name>
-    <number>0</number>
-    <className>XWiki.ClassSheetBinding</className>
-    <guid>3fc16976-042e-4855-9228-d2508735e1a6</guid>
     <property>
       <sheet>MoccaCalendarEventSheet</sheet>
     </property>
   </object>
   <object>
-    <class>
-      <name>XWiki.DocumentSheetBinding</name>
-      <customClass/>
-      <customMapping/>
-      <defaultViewSheet/>
-      <defaultEditSheet/>
-      <defaultWeb/>
-      <nameField/>
-      <validationScript/>
-      <sheet>
-        <customDisplay/>
-        <disabled>0</disabled>
-        <name>sheet</name>
-        <number>1</number>
-        <picker>0</picker>
-        <prettyName>Sheet</prettyName>
-        <size>30</size>
-        <unmodifiable>0</unmodifiable>
-        <validationMessage/>
-        <validationRegExp/>
-        <classType>com.xpn.xwiki.objects.classes.StringClass</classType>
-      </sheet>
-    </class>
-    <name>MoccaCalendar.MoccaCalendarEventClass</name>
-    <number>0</number>
-    <className>XWiki.DocumentSheetBinding</className>
-    <guid>18798301-13d5-42d2-9d04-f2951832ec62</guid>
-    <property>
-      <sheet>AppWithinMinutes.ClassEditSheet</sheet>
-    </property>
-  </object>
-  <object>
-    <class>
-      <name>XWiki.DocumentSheetBinding</name>
-      <customClass/>
-      <customMapping/>
-      <defaultViewSheet/>
-      <defaultEditSheet/>
-      <defaultWeb/>
-      <nameField/>
-      <validationScript/>
-      <sheet>
-        <customDisplay/>
-        <disabled>0</disabled>
-        <name>sheet</name>
-        <number>1</number>
-        <picker>0</picker>
-        <prettyName>Sheet</prettyName>
-        <size>30</size>
-        <unmodifiable>0</unmodifiable>
-        <validationMessage/>
-        <validationRegExp/>
-        <classType>com.xpn.xwiki.objects.classes.StringClass</classType>
-      </sheet>
-    </class>
     <name>MoccaCalendar.MoccaCalendarEventClass</name>
     <number>1</number>
     <className>XWiki.DocumentSheetBinding</className>
     <guid>9b465f44-9f73-451d-ad10-22bbfef4d9f6</guid>
+    <class>
+      <name>XWiki.DocumentSheetBinding</name>
+      <customClass/>
+      <customMapping/>
+      <defaultViewSheet/>
+      <defaultEditSheet/>
+      <defaultWeb/>
+      <nameField/>
+      <validationScript/>
+      <sheet>
+        <customDisplay/>
+        <disabled>0</disabled>
+        <name>sheet</name>
+        <number>1</number>
+        <picker>0</picker>
+        <prettyName>Sheet</prettyName>
+        <size>30</size>
+        <unmodifiable>0</unmodifiable>
+        <validationMessage/>
+        <validationRegExp/>
+        <classType>com.xpn.xwiki.objects.classes.StringClass</classType>
+      </sheet>
+    </class>
     <property>
       <sheet>XWiki.ClassSheet</sheet>
     </property>
   </object>
-  <content>{{velocity}}
-$doc.setValidationScript("MoccaCalendarEvent.MoccaCalendarEventValidation")
-$doc.validate()
-{{/velocity}}</content>
 </xwikidoc>
