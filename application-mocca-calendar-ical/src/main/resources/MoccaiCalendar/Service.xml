@@ -20,7 +20,7 @@
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
 -->
 
-<xwikidoc version="1.1">
+<xwikidoc version="1.2" reference="MoccaiCalendar.Service" locale="">
   <web>MoccaiCalendar</web>
   <name>Service</name>
   <language/>
@@ -31,8 +31,8 @@
   <parent>WebHome</parent>
   <author>xwiki:XWiki.Admin</author>
   <contentAuthor>xwiki:XWiki.Admin</contentAuthor>
-  <date>1445968332000</date>
-  <contentUpdateDate>1445968332000</contentUpdateDate>
+  <date>1461839340000</date>
+  <contentUpdateDate>1461839107000</contentUpdateDate>
   <version>1.1</version>
   <title/>
   <comment/>
@@ -217,13 +217,26 @@ xcontext.setFinished(true)
   function addiCalButtons() {
     $("#moccacalendar .xwiki-livetable-display-body tr").each(function(index) {
       // Get calendar reference
-      // TODO: really need to find a cleaner way (won't work with Calendar in a nested space for example)
-      var calendarLink = $(this).find("td a")[0].attributes.href.value
-      var calendarReference = decodeURIComponent(calendarLink.match('[^/]+\/[^/]+$')[0].replace(/\//g, '.').replace(/\+/g, ' '))
+      // TODO: would be cleaner to have that in a UI extension called by the livetable for the actions
+      var calendarLink = $(this).find("td a")[0].attributes.href.value;
+
+      var baseURL = "$escapetool.javascript($xwiki.getURL('MoccaCalendar.WebHome'))";
+      if (baseURL.match('\/WebHome$')) {
+        baseURL = baseURL.replace(/MoccaCalendar\/WebHome$/g, '');
+      } else {
+        baseURL = baseURL.replace(/MoccaCalendar\/$/g, '');
+      }
+
+      calendarLink = calendarLink.substring(baseURL.length);
+
+      var calendarReference = decodeURIComponent(calendarLink.replace(/\//g, '.').replace(/\+/g, ' '));
+      if (calendarReference.match('\.$')) {
+        calendarReference += 'WebHome';
+      }
 
       // Insert a iCal link
       var actionsCell = $(this).find(".actions");
-      actionsCell.append("&lt;a class=\"action actionical\" href=\"$xwiki.getURL('MoccaiCalendar.Service', 'get')?calendar=" + calendarReference + "\"&gt;iCal&lt;/a&gt;")
+      actionsCell.append("&lt;a class=\"action actionical\" href=\"$xwiki.getURL('MoccaiCalendar.Service', 'get')?calendar=" + encodeURIComponent(calendarReference) + "\"&gt;iCal&lt;/a&gt;")
     });
   };
 
