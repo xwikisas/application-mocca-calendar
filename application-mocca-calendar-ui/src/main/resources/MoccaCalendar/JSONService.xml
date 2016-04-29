@@ -50,12 +50,15 @@
 #if("$!{request.newEvent}"!="")
   #set($eventName = $request.newEvent)
   #set($wiki = $doc.wiki)
-  #set($space = $doc.space)
+  #set($space = $doc.space) ## fallback only!
   #if ($request.parent)
-    #set($space = $xwiki.getDocument($request.parent).getSpace())
+    #set($space = $xwiki.getDocument($request.parent))
   #end
+  ## re-look up space for new calendar event; necessary in case if parent calendar is terminal page (which it should not be, but ...)
+  #set($parentRef = $space.getDocumentReference().getParent())
+  #set($space = $xwiki.getDocument($parentRef).getSpace())
   #set($eventName = $xwiki.getUniquePageName($space, $eventName))
-  $jsontool.serialize( { 'name' : $eventName } )
+  $jsontool.serialize( { 'name' : $eventName, 'parent' : $services.model.serialize( $parentRef ) } )
 #else
 #set($startQuery = $datetool.toDate('yyyy-M-d', $request.start))
 #set($qsy = $datetool.getYear($startQuery))
