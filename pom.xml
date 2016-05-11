@@ -47,6 +47,10 @@
     <tag>HEAD</tag>
   </scm>
   <url>http://extensions.xwiki.org/xwiki/bin/view/Extension/MoccaCalendar</url>
+  <issueManagement>
+    <system>jira</system>
+    <url>http://jira.xwiki.org/jira/browse/MOCCACAL</url>
+  </issueManagement>
   <developers>
     <developer>
       <id>edgo</id>
