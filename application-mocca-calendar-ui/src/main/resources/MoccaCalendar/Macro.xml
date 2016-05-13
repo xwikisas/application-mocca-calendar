@@ -165,7 +165,7 @@ if (typeof(XWiki) == "undefined" || typeof(XWiki.widgets) == "undefined" || type
     if (tSep != -1) {
       this.timeFormat = dateFormat.substring(tSep, dateFormat.length);
       this.dayFormat = dateFormat.substring(0, tSep-1);
-    } else { // ?? 
+    } else { // ??
       this.timeFormat = '';
       this.dayFormat = dateFormat;
     }
@@ -374,7 +374,6 @@ if (typeof(XWiki) == "undefined" || typeof(XWiki.widgets) == "undefined" || type
           }
         }.bind(this)
       })
-
     },
 
     showDeleteForm: function(event) {
@@ -443,8 +442,7 @@ if (typeof(XWiki) == "undefined" || typeof(XWiki.widgets) == "undefined" || type
             buttons.insert('&lt;span class="buttonwrapper"&gt;&lt;a href="#" id="cancel-moccacalendar-event" class="secondary button"&gt;' + "$escapetool.javascript($services.localization.render('cancel'))" + '&lt;/a&gt;&lt;/span&gt;');
             buttons.down('#cancel-moccacalendar-event').observe('click', this.closeDialog.bind(this));
             $$('input.datetime').each(function(dateTimeInput) {
-              new XWiki.DateTimePicker(dateTimeInput, dateTimeInput.title);
-              dateTimeInput.observe('blur', function(event) {
+              dateTimeInput.observe('change', function(event) {
                  that.handleDatetimeFieldChange(event, $(this));
               });
             });
@@ -457,6 +455,7 @@ if (typeof(XWiki) == "undefined" || typeof(XWiki.widgets) == "undefined" || type
             // use handler to init date picker, too
             that.handleAllDayFieldChange(null, this.allDay);
 
+            $("MoccaCalendarEvent.MoccaCalendarEventClass_0_title").focus();
           } else {
             var leftGroup = new Element('div', {'class':'btn-group btn-group-left'});
             buttons.insert(leftGroup);

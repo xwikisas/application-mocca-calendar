@@ -132,7 +132,7 @@ $doc.display($field)
 &lt;/select&gt;
 #end
   ; &lt;label for="MoccaCalendarEvent.MoccaCalendarEventClass_0_title"&gt;$escapetool.xml($doc.displayPrettyName('title', false, false))&lt;span class="xRequired"&gt;&lt;/span&gt;&lt;/label&gt;
-  : #if($xcontext.action=='edit')&lt;input type="text" name="title" value="$!{escapetool.xml($doc.getTitle())}" class="required" /&gt; #showvalidationmessage("val_title_already_exists") &lt;span class="val_title_notempty xErrorMsg" style="display:none;"&gt;$escapetool.xml($services.localization.render('val_title_notempty'))&lt;/span&gt; &lt;span class="val_title_notvalid xErrorMsg" style="display:none;"&gt;$escapetool.xml($services.localization.render('val_title_notvalid'))&lt;/span&gt;
+  : #if($xcontext.action=='edit')&lt;input id="MoccaCalendarEvent.MoccaCalendarEventClass_0_title" type="text" name="title" value="$!{escapetool.xml($doc.getTitle())}" class="required" /&gt; #showvalidationmessage("val_title_already_exists") &lt;span class="val_title_notempty xErrorMsg" style="display:none;"&gt;$escapetool.xml($services.localization.render('val_title_notempty'))&lt;/span&gt; &lt;span class="val_title_notvalid xErrorMsg" style="display:none;"&gt;$escapetool.xml($services.localization.render('val_title_notvalid'))&lt;/span&gt;
 #else $doc.getDisplayTitle()
 #end
   ; &lt;label for="MoccaCalendarEvent.MoccaCalendarEventClass_0_startDate"&gt;$escapetool.xml($doc.displayPrettyName('startDate', false, false))&lt;span class="xRequired"&gt;&lt;/span&gt;&lt;/label&gt;
@@ -182,7 +182,7 @@ $doc.display($field)
         <prettyName>Caching policy</prettyName>
         <relationalStorage>0</relationalStorage>
         <separator> </separator>
-        <separators> ,|</separators>
+        <separators>|, </separators>
         <size>1</size>
         <unmodifiable>0</unmodifiable>
         <values>long|short|default|forbid</values>
@@ -227,7 +227,7 @@ $doc.display($field)
         <prettyName>Use this extension</prettyName>
         <relationalStorage>0</relationalStorage>
         <separator> </separator>
-        <separators> ,|</separators>
+        <separators>|, </separators>
         <size>1</size>
         <unmodifiable>0</unmodifiable>
         <values>currentPage|onDemand|always</values>
