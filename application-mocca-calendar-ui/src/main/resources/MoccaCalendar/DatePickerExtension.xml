@@ -20,7 +20,7 @@
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
 -->
 
-<xwikidoc version="1.1">
+<xwikidoc version="1.2" reference="MoccaCalendar.DatePickerExtension" locale="">
   <web>MoccaCalendar</web>
   <name>DatePickerExtension</name>
   <language/>
@@ -123,11 +123,6 @@
       <code>#set($discard = $services.localization.use('document', 'Calendar.Translations'))
 
 document.observe("dom:loaded", function() {
-  _translations = {
-    "OK": "$services.localization.render('MoccaCalendar.datepicker.ok')",
-    "Now": "$services.localization.render('MoccaCalendar.datepicker.now')",
-    "Today": "$services.localization.render('xwiki.calendar.today')"
-  }
 
   Date.first_day_of_week = $services.localization.render('MoccaCalendar.calendar.firstDayOfWeek');
   Date.weekdays = $services.localization.render('xwiki.calendar.dayNamesShort') ;

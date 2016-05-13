@@ -151,10 +151,6 @@ moccacalendarevent.livetable.startDate=Start date
 moccacalendarevent.livetable.endDate=End date
 moccacalendarevent.livetable.description=Description
 
-# date picker extras
-MoccaCalendar.datepicker.ok=OK
-MoccaCalendar.datepicker.now=Now
-
 # validation messages
 val_title_notvalid=Title field contains invalid characters.
 val_title_notempty=Title field is required.
