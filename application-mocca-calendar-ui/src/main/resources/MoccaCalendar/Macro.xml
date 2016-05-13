@@ -151,13 +151,24 @@ if (typeof(XWiki) == "undefined" || typeof(XWiki.widgets) == "undefined" || type
 #template('colorThemeInit.vm')
 
   XWiki.MoccaCalendar.Helper = Class.create({
-  initialize: function(calendar, jsonServiceUrl, createEventBaseUrl, updateEventUrl, editEventUrlTemplate, formToken) {
-    this.calendar = calendar,
+  initialize: function(calendar, dateFormat, jsonServiceUrl, createEventBaseUrl, updateEventUrl, editEventUrlTemplate, formToken) {
+    this.calendar = calendar;
+    this.dateFormat = dateFormat;
     this.jsonServiceUrl = jsonServiceUrl;
     this.createEventBaseUrl = createEventBaseUrl;
     this.updateEventUrl = updateEventUrl;
     this.editEventUrlTemplate = editEventUrlTemplate;
     this.formToken = formToken;
+    // hack: extract the "day only" and "time only" format, if possible
+    // assumes time comes after the day
+    var tSep = dateFormat.search(/[hk]/i)
+    if (tSep != -1) {
+      this.timeFormat = dateFormat.substring(tSep, dateFormat.length);
+      this.dayFormat = dateFormat.substring(0, tSep-1);
+    } else { // ??
+      this.timeFormat = '';
+      this.dayFormat = dateFormat;
+    }
   },
   displayError: function(errorMessage) {
     if (!errorMessage) {
@@ -165,10 +176,11 @@ if (typeof(XWiki) == "undefined" || typeof(XWiki.widgets) == "undefined" || type
     }
     new XWiki.widgets.Notification("$escapetool.javascript($services.localization.render('core.widgets.confirmationBox.notification.failed'))" + errorMessage, "error");
   },
-  showCreateEventFrom: function(start, end, dateFormat) {
-    var mySimpleDateFormatter = new Externals.SimpleDateFormat(dateFormat);
+  showCreateEventFrom: function(start, end) {
     var allDay = !start.hasTime();
     var singleDay = (allDay &amp;&amp; end.diff(start,'days') &lt;= 1);
+
+    var mySimpleDateFormatter = new Externals.SimpleDateFormat(this.dateFormat);
     start = mySimpleDateFormatter.format(start.local().toDate());
     end = (singleDay)?'':mySimpleDateFormatter.format(end.local().toDate());
     var paramPrefix = "MoccaCalendar.MoccaCalendarEventClass_0_";
@@ -244,6 +256,7 @@ if (typeof(XWiki) == "undefined" || typeof(XWiki.widgets) == "undefined" || type
       this.interactionParameters = Object.extend(Object.clone(this.defaultInteractionParameters), interactionParameters || {});
       this.interactionParameters.isNew = (undefined == this.interactionParameters.event)
       this.helper = helper;
+      this.saving = false;
       // call constructor from ModalPopup with params content, shortcuts, options
       $super(
         // this element will end up as this.content
@@ -288,6 +301,7 @@ if (typeof(XWiki) == "undefined" || typeof(XWiki.widgets) == "undefined" || type
       else {
         $$(".val_title_notempty").each(Element.hide);
       }
+      this.saving = true; // signal other events we are about to save
 
       this.savedBox.hide();
       this.savingBox.show();
@@ -315,6 +329,7 @@ if (typeof(XWiki) == "undefined" || typeof(XWiki.widgets) == "undefined" || type
         onFailure: function(response) {
           // this should not happen ...
           try {
+            this.saving = false;
             this.savingBox.hide();
             this.helper.displayError();
           } catch(e) { alert(e); }
@@ -338,6 +353,7 @@ if (typeof(XWiki) == "undefined" || typeof(XWiki.widgets) == "undefined" || type
       this.content.writeAttribute('action', saveUrl + '&amp;xpage=plain&amp;ajax=true');
       this.content.request({
         onSuccess: function() {
+          this.saving = false;
           this.savingBox.hide();
           this.savedBox.show();
           this.closeDialog();
@@ -345,6 +361,7 @@ if (typeof(XWiki) == "undefined" || typeof(XWiki.widgets) == "undefined" || type
         }.bind(this),
         onFailure: function(e) {
           try {
+            this.saving = false;
             var responseText = e.responseText;
             $("forminnercontent").innerHTML = responseText;
             this.savingBox.hide();
@@ -357,7 +374,6 @@ if (typeof(XWiki) == "undefined" || typeof(XWiki.widgets) == "undefined" || type
           }
         }.bind(this)
       })
-
     },
 
     showDeleteForm: function(event) {
@@ -420,13 +436,26 @@ if (typeof(XWiki) == "undefined" || typeof(XWiki.widgets) == "undefined" || type
           var oldSkin = ! $('body').hasClassName('skin-flamingo'); // FIXME: bad b/w compat hack
           formcontent.insert(buttons);
           if (this.interactionParameters.editMode) {
+            var that = this;
             buttons.insert(this.createButton("submit","$escapetool.javascript($services.localization.render('save'))","","save-moccacalendar-event","btn"));
             buttons.down('#save-moccacalendar-event').observe('click', this.submitForm.bind(this));
             buttons.insert('&lt;span class="buttonwrapper"&gt;&lt;a href="#" id="cancel-moccacalendar-event" class="secondary button"&gt;' + "$escapetool.javascript($services.localization.render('cancel'))" + '&lt;/a&gt;&lt;/span&gt;');
             buttons.down('#cancel-moccacalendar-event').observe('click', this.closeDialog.bind(this));
             $$('input.datetime').each(function(dateTimeInput) {
-              new XWiki.DateTimePicker(dateTimeInput, dateTimeInput.title);
+              dateTimeInput.observe('change', function(event) {
+                 that.handleDatetimeFieldChange(event, $(this));
+              });
             });
+
+            // this is the "all day" box
+            this.allDay = $('MoccaCalendar.MoccaCalendarEventClass_0_allDay');
+            this.allDay.observe('change', function(event) {
+              that.handleAllDayFieldChange(event, $(this));
+            });
+            // use handler to init date picker, too
+            that.handleAllDayFieldChange(null, this.allDay);
+
+            $("MoccaCalendarEvent.MoccaCalendarEventClass_0_title").focus();
           } else {
             var leftGroup = new Element('div', {'class':'btn-group btn-group-left'});
             buttons.insert(leftGroup);
@@ -465,6 +494,56 @@ if (typeof(XWiki) == "undefined" || typeof(XWiki.widgets) == "undefined" || type
           this.content.insert('Something went wrong...');
         }.bind(this)
       });
+    },
+
+    handleDatetimeFieldChange : function(event, element) {
+      if (this.saving) { return; }
+      var dateStr = element.getValue()
+      if (dateStr.match(/^\s*$/)) {
+        return;
+      }
+
+      // now we would have to find out if the user has typed in something like a date with a time
+      // for this we have to parse the date. as we do not have any generic way to do that we send it to the backend ...
+      this.checkIfDateWithTime(function(result) {
+         var allDay = result.responseJSON.isAllDay;
+         if (allDay === '') { return; } // indeterminate
+         if (allDay != this.allDay.getValue()) {
+           this.allDay.setValue(allDay)
+           this.handleAllDayFieldChange(null, this.allDay)
+         }
+      }.bind(this))
+    },
+    checkIfDateWithTime : function(callback) {
+      new Ajax.Request( this.helper.jsonServiceUrl, {
+        method: 'get',
+        parameters: {action: 'checkDate', outputSyntax: 'plain', 'startDate' : $F('MoccaCalendar.MoccaCalendarEventClass_0_startDate'), 'endDate' : $F('MoccaCalendar.MoccaCalendarEventClass_0_endDate')},
+        onSuccess: callback,
+        onFailure: function(response) {
+          // this should not happen ...
+          try {
+            this.helper.displayError();
+          } catch(e) { alert(e); }
+        }.bind(this)
+      })
+    },
+
+    handleAllDayFieldChange : function(event, element) {
+      if (this.saving) { return; }
+      var that = this;
+      $$('input.datetime').each(function(d) {
+        // clear old observer
+        var dateField = $(d);
+        dateField.stopObserving('focus');
+        dateField.stopObserving('click');
+
+        // update title date format and add a new date picker
+        //FIXME: it would be great if we could remove / restore the time values of the date
+        // but for this we would really need to be able to parse the date on client side
+        var newFormat = element.getValue() ? that.helper.dayFormat : that.helper.dateFormat;
+        dateField.writeAttribute('title', newFormat);
+        new XWiki.DateTimePicker(dateField, newFormat);
+      })
     }
   });
 
@@ -869,7 +948,7 @@ $xwiki.jsx.use("Calendar.JQuery", {'defer': false, 'minify': false})
 $xwiki.jsx.use("Calendar.JQueryUI", {'defer': false, 'minify': false})
 $xwiki.jsx.use("Calendar.Moment", {'defer': false, 'minify': false})
 $xwiki.jsx.use("Calendar.FullCalendar", {'defer': false, 'minify': false})
-$xwiki.jsx.use("MoccaCalendar.Macro", {'defer': false, 'v' : '2.5.1'})
+$xwiki.jsx.use("MoccaCalendar.Macro", {'defer': false, 'v' : '2.5.2'})
 $xwiki.jsx.use("MoccaCalendar.DatePickerExtension", {'defer': false})
 ## A simple date picker widget.
 $xwiki.ssfx.use('uicomponents/widgets/datepicker/calendarDateSelect.css', true)
@@ -1013,7 +1092,7 @@ require(['jquery'], function(jQuery) {
     selectable: #if($canCreateEvents) true #else false#end ,
     selectHelper: true,
     select: function(start, end, jsEvent, view) {
-      calendarHelper.showCreateEventFrom(start, end, "$!escapetool.javascript($dateFormat)");
+      calendarHelper.showCreateEventFrom(start, end);
       calendar.fullCalendar('unselect');
     },
     eventDrop: function(event, delta, revertFunc, jsEvent, ui, view) {
@@ -1062,7 +1141,7 @@ require(['jquery'], function(jQuery) {
 #set($eventUrlTemplate = $xwiki.getURL($services.model.createDocumentReference($doc.getWiki(), $spaceForEvents, '__page__'),'save',$pageParams))
 #set($randomDocUrl = $xwiki.getURL("randomPage${util.generateRandomString(10)}",'edit',$pageParams))
 #set($updateUrlParams="?xpage=plain&amp;outputSyntax=plain&amp;calendarDoc=${escapetool.url(${calendarDoc})}&amp;")
-  var calendarHelper = new XWiki.MoccaCalendar.Helper(calendar, "$escapetool.javascript($jsonUrl)", "$escapetool.javascript($randomDocUrl)", "$escapetool.javascript("${updateUrl}${updateUrlParams}")", "$escapetool.javascript($eventUrlTemplate)", "${escapetool.javascript($services.csrf.getToken())}");
+  var calendarHelper = new XWiki.MoccaCalendar.Helper(calendar, "$!escapetool.javascript($dateFormat)", "$escapetool.javascript($jsonUrl)", "$escapetool.javascript($randomDocUrl)", "$escapetool.javascript("${updateUrl}${updateUrlParams}")", "$escapetool.javascript($eventUrlTemplate)", "${escapetool.javascript($services.csrf.getToken())}");
   });
 });
 &lt;/script&gt;

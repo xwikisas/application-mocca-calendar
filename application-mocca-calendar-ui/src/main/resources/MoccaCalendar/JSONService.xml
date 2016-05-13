@@ -46,8 +46,8 @@
 {{/velocity}}
 {{velocity filter="html" wiki="false"}}
 #if($xcontext.action == 'get')
-## special case: find a new unused event name
 #if("$!{request.newEvent}"!="")
+  ## special case 1: find a new unused event name
   #set($eventName = $request.newEvent)
   #set($wiki = $doc.wiki)
   #set($space = $doc.space)
@@ -56,6 +56,31 @@
   #end
   #set($eventName = $xwiki.getUniquePageName($space, $eventName))
   $jsontool.serialize( { 'name' : $eventName } )
+#elseif("$!{request.action}" == "checkDate")
+## special case 2: check if a date has a time part
+#set($isAllDay = '')
+#macro(checkDate $format $dateStr)
+  ## this check is ultra silly, but at least it works w/o timezone issues
+  #set($date = $datetool.toDate($fmt, $dateStr))
+  #set($dateStrReparsed = $datetool.format("yyyyMMdd", $date))
+  #set($date2 = $datetool.toDate("yyyyMMdd", $dateStrReparsed))
+  #if($date.time == $date2.time &amp;&amp; $isAllDay != false)
+    #set($isAllDay = true)
+  #else
+    #set($isAllDay = false)
+  #end
+#end
+#set($startDateStr = "$!{request.startDate}")
+#if($startDateStr)
+  #set($fmt = $xwiki.getDocument("MoccaCalendar.MoccaCalendarEventClass").getxWikiClass().get("startDate").getProperty('dateFormat').value)
+  #checkDate($fmt $startDateStr)
+#end
+#set($endDateStr = "$!{request.endDate}")
+#if($endDateStr)
+  #set($fmt = $xwiki.getDocument("MoccaCalendar.MoccaCalendarEventClass").getxWikiClass().get("endDate").getProperty('dateFormat').value)
+  #checkDate($fmt $endDateStr)
+#end
+$jsontool.serialize( { 'isAllDay' : $isAllDay } )
 #else
 #set($startQuery = $datetool.toDate('yyyy-M-d', $request.start))
 #set($qsy = $datetool.getYear($startQuery))
