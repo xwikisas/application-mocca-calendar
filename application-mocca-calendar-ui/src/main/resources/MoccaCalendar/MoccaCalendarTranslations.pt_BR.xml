@@ -31,9 +31,9 @@
   <author>xwiki:XWiki.Admin</author>
   <customClass/>
   <contentAuthor>xwiki:XWiki.Admin</contentAuthor>
-  <creationDate>1383574877000</creationDate>
+  <creationDate>1385136439000</creationDate>
   <date>1385136439000</date>
-  <contentUpdateDate>1392400158000</contentUpdateDate>
+  <contentUpdateDate>1385136439000</contentUpdateDate>
   <version>1.1</version>
   <title/>
   <template/>
@@ -67,7 +67,6 @@ MoccaCalendar.calendarevent.confirmDelete=Você realmente deseja excluir o event
 MoccaCalendar.calendarevent.create=Criar novo evento
 MoccaCalendar.calendarevent.view=Evento
 MoccaCalendar.calendarevent.viewall=Todos os eventos
-MoccaCalendar.datepicker.now=Agora
 moccacalendar.livetable._actions=Ações
 moccacalendar.livetable._actions.delete=Excluir
 moccacalendar.livetable._actions.edit=Editar
