@@ -52,4 +52,15 @@
       <scope>runtime</scope>
     </dependency>
   </dependencies>
+  <dependencyManagement>
+    <dependencies>
+      <!-- Workaround the fact that XWiki embbedds an old version of OSGI core before 9.7/8.4.6.
+           See https://jira.xwiki.org/browse/MOCCACAL-116. -->
+      <dependency>
+        <groupId>org.osgi</groupId>
+        <artifactId>org.osgi.core</artifactId>
+        <version>4.0.0</version>
+      </dependency>
+    </dependencies>
+  </dependencyManagement>
 </project>
