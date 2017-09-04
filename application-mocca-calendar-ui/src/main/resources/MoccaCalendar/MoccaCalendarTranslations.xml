@@ -24,7 +24,7 @@
   <web>MoccaCalendar</web>
   <name>MoccaCalendarTranslations</name>
   <language/>
-  <defaultLanguage/>
+  <defaultLanguage>en</defaultLanguage>
   <translation>0</translation>
   <parent>MoccaCalendarClass</parent>
   <creator>xwiki:XWiki.Admin</creator>
