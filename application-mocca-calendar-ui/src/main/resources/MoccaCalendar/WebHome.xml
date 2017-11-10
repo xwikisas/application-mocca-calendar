@@ -40,14 +40,18 @@
   <syntaxId>xwiki/2.0</syntaxId>
   <hidden>false</hidden>
   <content>{{velocity}}
+#set ($calendarClassReference = $services.model.createDocumentReference('', 'MoccaCalendar', 'MoccaCalendarClass'))
+#if (!$services.licensing.licensor.hasLicensureForEntity($calendarClassReference))
+  {{error}}
+    {{translation key="moccacalendar.noValidLicense" /}}
+  {{/error}}
+#else
 #set ($discard = $xwiki.ssfx.use('uicomponents/pagination/pagination.css', true))
 
 == $services.localization.render('MoccaCalendar.calendarevent.viewall') ==
-{{/velocity}}
 
 {{moccacalendar filter="wiki"/}}
 
-{{velocity}}
 == $services.localization.render('MoccaCalendar.calendar.viewall') ==
 
 #if($hasEdit)
@@ -71,7 +75,9 @@
 })
 #set ($columns = ['doc.title', 'doc.creator', '_actions'])
 #livetable('moccacalendar' $columns $columnsProperties $options)
-#set($docextras=[]){{/velocity}}
+#set($docextras=[])
+#end
+{{/velocity}}
 </content>
   <object>
     <name>MoccaCalendar.WebHome</name>

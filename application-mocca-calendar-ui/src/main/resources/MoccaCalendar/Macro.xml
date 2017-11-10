@@ -1025,7 +1025,18 @@ $xwiki.ssx.use("MoccaCalendar.Macro")
 
 #set($canCreateEvents = $xwiki.hasAccessLevel("edit", $xcontext.getUser(), $calendarDoc))
 
-{{/velocity}}{{velocity}}#if($xcontext.action=='view'){{html clean="false" wiki="false"}}
+{{/velocity}}
+{{velocity}}
+## We need to check if there is a valid license because the macro is registered even if the user doesn't have view right
+## on the macro definition page. See XWIKI-14828: Rendering macros defined in wiki pages are available to users that
+## don't have view right on those pages.
+#set ($macroReference = $services.model.createDocumentReference('', 'MoccaCalendar', 'Events'))
+#if (!$services.licensing.licensor.hasLicensureForEntity($macroReference))
+  {{error}}
+    {{translation key="moccacalendar.noValidLicense" /}}
+  {{/error}}
+#else
+#if($xcontext.action=='view'){{html clean="false" wiki="false"}}
 #if($canCreateEvents)
 ## create event link
 &lt;div class="calendar-buttons"&gt;
@@ -1148,6 +1159,7 @@ require(['jquery'], function(jQuery) {
 {{/html}}
 #else ## of #if($xcontext.action=='view')
 Mocca Calendar Macro
+#end
 #end
 {{/velocity}}</code>
     </property>
