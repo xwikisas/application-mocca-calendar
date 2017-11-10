@@ -1,4 +1,4 @@
-* Mocca Calendar Application (Pro)
+# Mocca Calendar Application (Pro)
 
 A calendar application for XWiki
 
