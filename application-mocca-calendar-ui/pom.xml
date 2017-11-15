@@ -39,13 +39,18 @@
     <xwiki.extension.licensing.publicDocuments>
       MoccaCalendar.WebHome
     </xwiki.extension.licensing.publicDocuments>
+    <!-- The list of documents that are not covered by the extension license. The user that installs the extension has
+      full access to these documents (view, edit, delete) without having a license, so use this property wisely. -->
+    <xwiki.extension.licensing.excludedDocuments>
+      MoccaCalendar.Events
+    </xwiki.extension.licensing.excludedDocuments>
   </properties>
   <dependencies>
     <dependency>
       <groupId>com.xwiki.licensing</groupId>
       <artifactId>application-licensing-licensor-api</artifactId>
       <version>${licensing.version}</version>
-  </dependency>
+    </dependency>
     <dependency>
       <groupId>org.xwiki.platform</groupId>
       <artifactId>xwiki-platform-rendering-wikimacro-store</artifactId>

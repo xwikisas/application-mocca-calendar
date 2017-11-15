@@ -1030,8 +1030,8 @@ $xwiki.ssx.use("MoccaCalendar.Macro")
 ## We need to check if there is a valid license because the macro is registered even if the user doesn't have view right
 ## on the macro definition page. See XWIKI-14828: Rendering macros defined in wiki pages are available to users that
 ## don't have view right on those pages.
-#set ($macroReference = $services.model.createDocumentReference('', 'MoccaCalendar', 'Events'))
-#if (!$services.licensing.licensor.hasLicensureForEntity($macroReference))
+#set ($mainReference = $services.model.createDocumentReference('', 'MoccaCalendarClass', 'Events'))
+#if (!$services.licensing.licensor.hasLicensureForEntity($mainReference))
   {{error}}
     {{translation key="moccacalendar.noValidLicense" /}}
   {{/error}}

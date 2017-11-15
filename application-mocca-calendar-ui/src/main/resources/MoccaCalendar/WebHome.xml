@@ -50,11 +50,11 @@
 
 == $services.localization.render('MoccaCalendar.calendarevent.viewall') ==
 
-{{moccacalendar filter="wiki"/}}
+{{moccacalendar calendarDoc="MoccaCalendar.Events" filter="wiki"/}}
 
 == $services.localization.render('MoccaCalendar.calendar.viewall') ==
 
-#if($hasEdit)
+#if($hasCreatePage)
 {{html}}&lt;span class="buttonwrapper"&gt;&lt;a class="button" href="$doc.getURL('create','template=MoccaCalendar.MoccaCalendarTemplate')"&gt;$escapetool.xml($services.localization.render('MoccaCalendar.calendar.create'))&lt;/a&gt;&lt;/span&gt;{{/html}}
 #end
 
