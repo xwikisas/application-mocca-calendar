@@ -430,7 +430,7 @@ if (typeof(XWiki) == "undefined" || typeof(XWiki.widgets) == "undefined" || type
             old.purge();
             old.remove();
           }
-          this.content.insert('&lt;div id="formcontent"&gt;&lt;div id="forminnercontent"&gt;' + response + '&lt;/div&gt;&lt;/div&gt;');
+          this.injectHTML(this.content, response);
           var formcontent = $('formcontent');
           var buttons = new Element('div', {'class':'buttons'});
           var oldSkin = ! $('body').hasClassName('skin-flamingo'); // FIXME: bad b/w compat hack
@@ -495,7 +495,23 @@ if (typeof(XWiki) == "undefined" || typeof(XWiki.widgets) == "undefined" || type
         }.bind(this)
       });
     },
-
+    injectHTML: function(content, response) {
+      // We don't use Element#update() because it doesn't move external scripts and sheets into HEAD and also because we
+      // don't want to support in-line scripts in displayers.
+      var container = new Element('div');
+      container.innerHTML = response;
+      var head = document.body.previous('head');
+      container.select('link').each(function(link) {
+        head.insert(link);
+      });
+      container.select('script').each(function(script) {
+        if (script.src) {
+          head.insert(new Element('script', {type: script.type, src: script.readAttribute('src')}));
+        }
+        script.remove();
+      });
+      content.insert('&lt;div id="formcontent"&gt;&lt;div id="forminnercontent"&gt;' + container.innerHTML + '&lt;/div&gt;&lt;/div&gt;');
+    },
     handleDatetimeFieldChange : function(event, element) {
       if (this.saving) { return; }
       var dateStr = element.getValue()
