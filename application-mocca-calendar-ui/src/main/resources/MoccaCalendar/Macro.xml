@@ -791,6 +791,9 @@ div.xdialog-box-moccacal-modal-popup .btn-group .btn + .btn {
 .skin-flamingo div.xdialog-box-moccacal-modal-popup .xform dl dt {
    margin-top: 0.6em;
 }
+.xdialog-box-moccacal-modal-popup {
+  width: 600px;
+}
 
 /* calendar */
 body .fc {
