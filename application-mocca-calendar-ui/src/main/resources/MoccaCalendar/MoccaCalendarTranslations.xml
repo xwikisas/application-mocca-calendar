@@ -120,7 +120,7 @@ moccacalendar.livetable.title=Title
 moccacalendar.livetable.description=Description
 moccacalendar.livetable.content1=Content
 
-moccacalendar.noValidLicense=There is no valid license for the Mocca Calendar Application (Pro).
+moccacalendar.extension.name=Mocca Calendar Application (Pro)
 
 # Mocca Calendar Events keys
 # Class fields
