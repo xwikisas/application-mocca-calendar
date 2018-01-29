@@ -26,14 +26,14 @@
     <version>2.7-SNAPSHOT</version>
   </parent>
   <artifactId>application-mocca-calendar-ical</artifactId>
-  <name>Mocca Calendar Application - iCal</name>
+  <name>Calendar Application - iCal</name>
   <description>Add iCal export to Mocca Calendar</description>
   <packaging>xar</packaging>
   <properties>
     <!-- Don't run CLIRR here since there's no Java code. -->
     <xwiki.clirr.skip>true</xwiki.clirr.skip>
     <!-- Name to display by the Extension Manager -->
-    <xwiki.extension.name>Mocca Calendar iCal export</xwiki.extension.name>
+    <xwiki.extension.name>Calendar iCal export</xwiki.extension.name>
   </properties>
   <dependencies>
     <dependency>

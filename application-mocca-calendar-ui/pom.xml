@@ -26,14 +26,14 @@
     <version>2.7-SNAPSHOT</version>
   </parent>
   <artifactId>application-mocca-calendar-ui</artifactId>
-  <name>Mocca Calendar Application - UI</name>
+  <name>Calendar Application - UI</name>
   <description>A Calendar Application supporting several Calendars</description>
   <packaging>xar</packaging>
   <properties>
     <!-- Don't run CLIRR here since there's no Java code. -->
     <xwiki.clirr.skip>true</xwiki.clirr.skip>
     <!-- Name to display by the Extension Manager -->
-    <xwiki.extension.name>Mocca Calendar Application (Pro)</xwiki.extension.name>
+    <xwiki.extension.name>Calendar Application (Pro)</xwiki.extension.name>
     <!-- The list of documents that have an implicit unlimited free license. The users can view these documents without
       buying a license or getting a trial license, but they cannot edit or delete them. -->
     <xwiki.extension.licensing.publicDocuments>
