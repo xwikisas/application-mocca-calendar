@@ -157,5 +157,9 @@ moccacalendarevent.livetable.description=Description
 val_title_notvalid=Title field contains invalid characters.
 val_title_notempty=Title field is required.
 val_endDate=End date must be after start date.
-val_title_already_exists=An event with this name already exists.</content>
+val_title_already_exists=An event with this name already exists.
+
+# Template provider
+templateProvider.calendar.name=Calendar
+templateProvider.calendar.description=Add a new calendar</content>
 </xwikidoc>
