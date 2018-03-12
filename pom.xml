@@ -37,6 +37,10 @@
     <module>application-mocca-calendar-ui</module>
     <module>application-mocca-calendar-ical</module>
   </modules>
+  <issueManagement>
+    <system>GitHub</system>
+    <url>https://github.com/xwikisas/application-mocca-calendar/issues</url>
+  </issueManagement>
   <scm>
     <connection>scm:git:git://github.com/xwikisas/application-mocca-calendar.git</connection>
     <developerConnection>scm:git:git@github.com:xwikisas/application-mocca-calendar.git</developerConnection>
