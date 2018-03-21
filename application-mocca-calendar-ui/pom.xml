@@ -34,6 +34,7 @@
     <xwiki.clirr.skip>true</xwiki.clirr.skip>
     <!-- Name to display by the Extension Manager -->
     <xwiki.extension.name>Calendar Application (Pro)</xwiki.extension.name>
+    <xwiki.extension.category>application</xwiki.extension.category>
     <!-- The list of documents that have an implicit unlimited free license. The users can view these documents without
       buying a license or getting a trial license, but they cannot edit or delete them. -->
     <xwiki.extension.licensing.publicDocuments>
