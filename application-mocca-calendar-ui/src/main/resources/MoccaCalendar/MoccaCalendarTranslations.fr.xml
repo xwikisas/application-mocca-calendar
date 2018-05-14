@@ -44,7 +44,7 @@
   <syntaxId>xwiki/2.1</syntaxId>
   <hidden>true</hidden>
   <content>## XWiki Translation for language fr generated from http://www.l10n.xwiki.org
-MoccaCalendar.MoccaCalendarClass_color=Couleur des entrées dans le calendier
+MoccaCalendar.MoccaCalendarClass_color=Couleur des entrées dans le calendrier
 MoccaCalendar.MoccaCalendarClass_content1=Contenue
 MoccaCalendar.MoccaCalendarClass_description=Description
 MoccaCalendar.MoccaCalendarClass_title=Titre
@@ -64,7 +64,7 @@ MoccaCalendar.calendar.plainlist.titlepast=Evènements passés
 MoccaCalendar.calendar.plainlist.titleupcoming=Événements à venir
 MoccaCalendar.calendar.title=Calendrier
 MoccaCalendar.calendar.viewall=Vue d'ensemble de tous les calendriers
-MoccaCalendar.calendarevent.backlink=Retour au calendier &amp;#171;{0}&amp;#187;
+MoccaCalendar.calendarevent.backlink=Retour au calendrier &amp;#171;{0}&amp;#187;
 MoccaCalendar.calendarevent.confirmDelete=Voulez-vous vraiment supprimer l''évènement &amp;#171;{0}&amp;#187; ? 
 MoccaCalendar.calendarevent.create=Créer un événement
 MoccaCalendar.calendarevent.view=Évènement
