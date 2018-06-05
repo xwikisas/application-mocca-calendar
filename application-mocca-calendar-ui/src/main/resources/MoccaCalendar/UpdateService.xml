@@ -20,7 +20,7 @@
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
 -->
 
-<xwikidoc version="1.1">
+<xwikidoc version="1.2" reference="MoccaCalendar.UpdateService" locale="">
   <web>MoccaCalendar</web>
   <name>UpdateService</name>
   <language/>
@@ -64,6 +64,12 @@
 #set($endDate = '')
 #if("$!request.endDate" != '')
 	#set($endDate = $datetool.toDate($dateFmt, $request.endDate))
+	## see MOCCACAL-114: end date is one day off for all day events
+	#if($allDay == 1)
+		#set($skipOneDay = $xwiki.jodatime.getMutableDateTime($endDate.getTime()))
+		#set($discard = $skipOneDay.addDays(-1))
+		#set($discard = $endDate.setTime($skipOneDay.getMillis()))
+	#end
 #end
 
 #set($success = false)
