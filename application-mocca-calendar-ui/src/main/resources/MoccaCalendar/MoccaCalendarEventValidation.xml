@@ -20,24 +20,21 @@
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
 -->
 
-<xwikidoc>
+<xwikidoc version="1.2" reference="MoccaCalendar.MoccaCalendarEventValidation" locale="">
   <web>MoccaCalendar</web>
   <name>MoccaCalendarEventValidation</name>
   <language/>
   <defaultLanguage/>
   <translation>0</translation>
-  <parent>MoccaCalendar.MoccaCalendarEventClass</parent>
   <creator>xwiki:XWiki.Admin</creator>
-  <author>xwiki:XWiki.Admin</author>
-  <customClass/>
-  <contentAuthor>xwiki:XWiki.Admin</contentAuthor>
   <creationDate>1377502319000</creationDate>
+  <parent>MoccaCalendar.MoccaCalendarEventClass</parent>
+  <author>xwiki:XWiki.Admin</author>
+  <contentAuthor>xwiki:XWiki.Admin</contentAuthor>
   <date>1373961627000</date>
   <contentUpdateDate>1373961627000</contentUpdateDate>
   <version>1.1</version>
   <title>MoccaCalendarEventValidation</title>
-  <defaultTemplate/>
-  <validationScript/>
   <comment/>
   <minorEdit>false</minorEdit>
   <syntaxId>xwiki/2.1</syntaxId>
@@ -47,13 +44,17 @@
 import com.xpn.xwiki.XWikiContext;
 import com.xpn.xwiki.objects.BaseObject;
 import com.xpn.xwiki.doc.XWikiDocument;
+import com.xpn.xwiki.web.XWikiRequest;
+
+import java.text.SimpleDateFormat;
+import java.text.ParseException;
 
 public class Val implements XWikiValidationInterface  {
 	private String MoccaCalendarEventClass = "MoccaCalendar.MoccaCalendarEventClass";
   
 
 	public boolean validateDocument(XWikiDocument doc, XWikiContext context) {
-		try{
+		try {
 			
 			def classDocumentReference = doc.resolveClassReference(MoccaCalendarEventClass);
 		
@@ -61,25 +62,83 @@ public class Val implements XWikiValidationInterface  {
 			if (obj == null) {
 				return true;
 			}
-			Date startDate = obj.getDateValue("startDate");
-			Date endDate = obj.getDateValue("endDate");
-			String title = obj.getStringValue("title");
-			//	boolean allDay = obj.getIntValue("allDay") == 1
-		
 			boolean valid = true;
-			if(startDate == null) {
-                                obj.setDateValue("startDate",new Date());
-                                startDate=obj.getDateValue("startDate");
+
+			// see MOCCACAL-106 and MOCCACAL-108
+			// there seems  to be no good way to make the time part optional when parsing dates
+			// so instead we reparse the values from the request manually instead
+			XWikiRequest request = context.getRequest();
+
+			def dateFormat = obj.getXClass(context).get("startDate").getDateFormat();
+			def dateFormatter = new SimpleDateFormat(dateFormat);
+
+			// to make the time part optional we use the following hack:
+			// this assumes the hours/minutes are given in a format like "some H, then maybe punctuation, then the m"
+			def dateFormatWithoutTime = dateFormat.replaceAll("\\p{Space}*H+\\p{Punct}*m+(\\p{Punct}*s+)?\\p{Space}*","");
+			def dateOnlyFormatter = new SimpleDateFormat(dateFormatWithoutTime);
+
+
+			def startDateValueStr = request.getParameter(MoccaCalendarEventClass+"_0_startDate");
+			if (startDateValueStr == null || "" == startDateValueStr.trim()) {
+				XWikiValidationStatus.addErrorToContext(MoccaCalendarEventClass, "startDate", "Start Date", "val_startDateMissing", context);
+				valid = false;
+			} else {
+				def parsedStartDate = null;
+				try {
+					parsedStartDate = dateFormatter.parse(startDateValueStr);
+				} catch (ParseException e1) {
+					try {
+						parsedStartDate = dateOnlyFormatter.parse(startDateValueStr);
+					} catch (ParseException e2) {
+						valid = false;
+						XWikiValidationStatus.addErrorToContext(MoccaCalendarEventClass, "startDate", "Start Date", "val_startDateNotDate", context);
+					}
+				}
+				if (parsedStartDate != null) {
+					obj.setDateValue("startDate", parsedStartDate);
+				}
 			}
+
+
+			def endDateValueStr = request.getParameter(MoccaCalendarEventClass+"_0_endDate");
+			if (endDateValueStr == null || "" == endDateValueStr.trim()) {
+				obj.setDateValue("endDate", null);
+			} else {
+				def parsedEndDate = null;
+				try {
+					parsedEndDate = dateFormatter.parse(endDateValueStr);
+				} catch (ParseException e1) {
+					try {
+						parsedEndDate = dateOnlyFormatter.parse(endDateValueStr);
+					} catch (ParseException e2) {
+						valid = false;
+						XWikiValidationStatus.addErrorToContext(MoccaCalendarEventClass, "endDate", "End Date", "val_endDateNotDate", context);
+					}
+				}
+				if (parsedEndDate != null) {
+					obj.setDateValue("endDate", parsedEndDate);
+				}
+			}
+
+
+
+			if (valid) {
+				Date startDate = obj.getDateValue("startDate");
+				Date endDate = obj.getDateValue("endDate");
+				String title = obj.getStringValue("title");
+				if(startDate == null) {
+					obj.setDateValue("startDate",new Date());
+					startDate=obj.getDateValue("startDate");
+				}
 		
-			if(endDate!=null &amp;&amp; startDate !=null) {
-				if(endDate.getTime()&lt;startDate.getTime()) {
-					valid = false;
-					XWikiValidationStatus.addErrorToContext(MoccaCalendarEventClass, "endDate", "End Date", "val_endDate", context);
+				if(endDate!=null &amp;&amp; startDate !=null) {
+					if(endDate.getTime()&lt;startDate.getTime()) {
+						valid = false;
+						XWikiValidationStatus.addErrorToContext(MoccaCalendarEventClass, "endDate", "End Date", "val_endDate", context);
+					}
 				}
 			}
 			
-			com.xpn.xwiki.web.XWikiRequest request = context.getRequest();
 			String action = request.getParameter("ocalcaction");
 			if("create".equals(action)) {
 				if(!doc.isNew()) {
@@ -88,7 +147,7 @@ public class Val implements XWikiValidationInterface  {
 				}
 			}
 			return valid;
-		}catch(Exception e) {
+		} catch(Exception e) {
 			System.out.println("VALIDATION EXCEPTION");
 			e.printStackTrace();
 			throw e;
