@@ -79,10 +79,7 @@ public class Val implements XWikiValidationInterface  {
 
 
 			def startDateValueStr = request.getParameter(MoccaCalendarEventClass+"_0_startDate");
-			if (startDateValueStr == null || "" == startDateValueStr.trim()) {
-				XWikiValidationStatus.addErrorToContext(MoccaCalendarEventClass, "startDate", "Start Date", "val_startDateMissing", context);
-				valid = false;
-			} else {
+			if (startDateValueStr != null &amp;&amp; "" != startDateValueStr.trim()) {
 				def parsedStartDate = null;
 				try {
 					parsedStartDate = dateFormatter.parse(startDateValueStr);
