@@ -44,8 +44,6 @@
 #macro(showvalidationmessage $message $force)
 #if($xcontext.validationStatus.errors.contains($message) || "$!force" == "true") ##
 &lt;span class="xErrorMsg"&gt;$escapetool.xml($services.localization.render($message))&lt;/span&gt;
-#else ##
-&amp;nbsp; ##
 #end ##
 #end ## end showvalidationmessage
 ##
@@ -136,9 +134,9 @@ $doc.display($field)
 #else $doc.getDisplayTitle()
 #end
   ; &lt;label for="MoccaCalendarEvent.MoccaCalendarEventClass_0_startDate"&gt;$escapetool.xml($doc.displayPrettyName('startDate', false, false))&lt;span class="xRequired"&gt;&lt;/span&gt;&lt;/label&gt;
-  : #displayDate('startDate')
+  : #displayDate('startDate')#showvalidationmessage("val_startDateMissing")#showvalidationmessage("val_startDateNotDate")
   ; &lt;label for="MoccaCalendarEvent.MoccaCalendarEventClass_0_endDate"&gt;$escapetool.xml($doc.displayPrettyName('endDate', false, false))&lt;/label&gt;
-  : #displayDate('endDate')#showvalidationmessage("val_endDate")
+  : #displayDate('endDate')#showvalidationmessage("val_endDate")#showvalidationmessage("val_endDateNotDate")
 
   ; &lt;label for="MoccaCalendarEvent.MoccaCalendarEventClass_0_allDay"&gt;$escapetool.xml($doc.displayPrettyName('allDay', false, false))&lt;/label&gt;
   : $doc.display('allDay')

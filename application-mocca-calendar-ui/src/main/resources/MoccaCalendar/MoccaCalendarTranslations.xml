@@ -20,15 +20,15 @@
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
 -->
 
-<xwikidoc version="1.1">
+<xwikidoc version="1.2" reference="MoccaCalendar.MoccaCalendarTranslations" locale="">
   <web>MoccaCalendar</web>
   <name>MoccaCalendarTranslations</name>
   <language/>
   <defaultLanguage>en</defaultLanguage>
   <translation>0</translation>
-  <parent>MoccaCalendarClass</parent>
   <creator>xwiki:XWiki.Admin</creator>
   <creationDate>1385136439000</creationDate>
+  <parent>MoccaCalendarClass</parent>
   <author>xwiki:XWiki.Admin</author>
   <contentAuthor>xwiki:XWiki.Admin</contentAuthor>
   <date>1385136439000</date>
@@ -39,41 +39,6 @@
   <minorEdit>false</minorEdit>
   <syntaxId>plain/1.0</syntaxId>
   <hidden>true</hidden>
-  <object>
-    <class>
-      <name>XWiki.TranslationDocumentClass</name>
-      <customClass/>
-      <customMapping/>
-      <defaultViewSheet/>
-      <defaultEditSheet/>
-      <defaultWeb/>
-      <nameField/>
-      <validationScript/>
-      <scope>
-        <cache>0</cache>
-        <disabled>0</disabled>
-        <displayType>select</displayType>
-        <multiSelect>0</multiSelect>
-        <name>scope</name>
-        <number>1</number>
-        <prettyName>Scope</prettyName>
-        <relationalStorage>0</relationalStorage>
-        <separator> </separator>
-        <separators> ,|</separators>
-        <size>1</size>
-        <unmodifiable>0</unmodifiable>
-        <values>GLOBAL|WIKI|USER|ON_DEMAND</values>
-        <classType>com.xpn.xwiki.objects.classes.StaticListClass</classType>
-      </scope>
-    </class>
-    <name>MoccaCalendar.MoccaCalendarTranslations</name>
-    <number>0</number>
-    <className>XWiki.TranslationDocumentClass</className>
-    <guid>f5d1be7a-4a54-44f5-b263-4bc248308297</guid>
-    <property>
-      <scope>WIKI</scope>
-    </property>
-  </object>
   <content>#general
 MoccaCalendar.calendar=Calendar
 MoccaCalendar.calendar.title=Calendar
@@ -156,10 +121,48 @@ moccacalendarevent.livetable.description=Description
 # validation messages
 val_title_notvalid=Title field contains invalid characters.
 val_title_notempty=Title field is required.
+val_startDateMissing=A start date is missing for the event.
+val_startDateNotDate=The given start date cannot be read as a date.
+val_endDateNotDate=The given end date cannot be read as a date.
 val_endDate=End date must be after start date.
 val_title_already_exists=An event with this name already exists.
 
 # Template provider
 templateProvider.calendar.name=Calendar
 templateProvider.calendar.description=Add a new calendar</content>
+  <object>
+    <name>MoccaCalendar.MoccaCalendarTranslations</name>
+    <number>0</number>
+    <className>XWiki.TranslationDocumentClass</className>
+    <guid>f5d1be7a-4a54-44f5-b263-4bc248308297</guid>
+    <class>
+      <name>XWiki.TranslationDocumentClass</name>
+      <customClass/>
+      <customMapping/>
+      <defaultViewSheet/>
+      <defaultEditSheet/>
+      <defaultWeb/>
+      <nameField/>
+      <validationScript/>
+      <scope>
+        <cache>0</cache>
+        <disabled>0</disabled>
+        <displayType>select</displayType>
+        <multiSelect>0</multiSelect>
+        <name>scope</name>
+        <number>1</number>
+        <prettyName>Scope</prettyName>
+        <relationalStorage>0</relationalStorage>
+        <separator> </separator>
+        <separators>|, </separators>
+        <size>1</size>
+        <unmodifiable>0</unmodifiable>
+        <values>GLOBAL|WIKI|USER|ON_DEMAND</values>
+        <classType>com.xpn.xwiki.objects.classes.StaticListClass</classType>
+      </scope>
+    </class>
+    <property>
+      <scope>WIKI</scope>
+    </property>
+  </object>
 </xwikidoc>
