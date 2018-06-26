@@ -20,29 +20,31 @@
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
 -->
 
-<xwikidoc>
-  <web>MoccaCalendar</web>
-  <name>Events</name>
+<xwikidoc version="1.2" reference="MoccaCalendar.Events.WebHome" locale="">
+  <web>MoccaCalendar.Events</web>
+  <name>WebHome</name>
   <language/>
   <defaultLanguage/>
   <translation>0</translation>
-  <parent>MoccaCalendar.WebHome</parent>
   <creator>xwiki:XWiki.Admin</creator>
-  <author>xwiki:XWiki.Admin</author>
-  <customClass/>
-  <contentAuthor>xwiki:XWiki.Admin</contentAuthor>
   <creationDate>1377502319000</creationDate>
+  <parent>MoccaCalendar.WebHome</parent>
+  <author>xwiki:XWiki.Admin</author>
+  <contentAuthor>xwiki:XWiki.Admin</contentAuthor>
   <date>1374047666000</date>
   <contentUpdateDate>1373961627000</contentUpdateDate>
   <version>1.1</version>
   <title>$services.localization.render('MoccaCalendar.calendar.defaultCalendarTitle')</title>
-  <defaultTemplate/>
-  <validationScript/>
   <comment/>
   <minorEdit>false</minorEdit>
   <syntaxId>xwiki/2.1</syntaxId>
   <hidden>false</hidden>
+  <content>{{moccacalendar filter="page"/}}</content>
   <object>
+    <name>MoccaCalendar.Events.WebHome</name>
+    <number>0</number>
+    <className>MoccaCalendar.MoccaCalendarClass</className>
+    <guid>20d23ab8-fb80-4902-85ec-5f882d40b968</guid>
     <class>
       <name>MoccaCalendar.MoccaCalendarClass</name>
       <customClass/>
@@ -93,7 +95,7 @@
         <classType>com.xpn.xwiki.objects.classes.TextAreaClass</classType>
       </description>
       <title>
-        <customDisplay/>
+        <customDisplay>{{include reference="AppWithinMinutes.Title"/}}</customDisplay>
         <disabled>0</disabled>
         <name>title</name>
         <number>1</number>
@@ -106,10 +108,6 @@
         <classType>com.xpn.xwiki.objects.classes.StringClass</classType>
       </title>
     </class>
-    <name>MoccaCalendar.Events</name>
-    <number>0</number>
-    <className>MoccaCalendar.MoccaCalendarClass</className>
-    <guid>c8ad62ee-3ea9-4d17-9095-50a74a68b825</guid>
     <property>
       <color>#E8D245</color>
     </property>
@@ -120,5 +118,4 @@
       <title>Events</title>
     </property>
   </object>
-  <content>{{moccacalendar filter="page"/}}</content>
 </xwikidoc>
