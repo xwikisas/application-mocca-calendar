@@ -50,12 +50,20 @@
   ## special case 1: find a new unused event name
   #set($eventName = $request.newEvent)
   #set($wiki = $doc.wiki)
-  #set($space = $doc.space)
+  #set($space = $doc.space) ## fallback only!
   #if ($request.parent)
-    #set($space = $xwiki.getDocument($request.parent).getSpace())
+    #set($space = $xwiki.getDocument($request.parent))
   #end
-  #set($eventName = $xwiki.getUniquePageName($space, $eventName))
-  $jsontool.serialize( { 'name' : $eventName } )
+  ## re-look up space for new calendar event; necessary in case if parent calendar is terminal page (which it should not be, but ...)
+  #set($parentRef = $space.getDocumentReference().getParent())
+  #set($eventSpaceRef = $services.model.createSpaceReference($eventName, $parentRef))
+  #set($eventRef = $services.model.createDocumentReference("WebHome", $eventSpaceRef))
+  #if($xwiki.exists($eventRef))
+    #set($eventSpaceRef = $services.model.createSpaceReference("${eventName}_${xwiki.jodatime.getDateTime().getMillis()}", $parentRef))
+    ###set($eventRef = $services.model.createDocumentReference("WebHome", $eventSpaceRef))    
+    #set($eventName = $eventSpaceRef.getName())
+  #end
+  $jsontool.serialize( { 'name' : $eventName, 'parent' : $services.model.serialize( $parentRef ) } )
 #elseif("$!{request.action}" == "checkDate")
 ## special case 2: check if a date has a time part
 #set($isAllDay = '')
