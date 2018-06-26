@@ -20,7 +20,7 @@
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
 -->
 
-<xwikidoc version="1.1">
+<xwikidoc version="1.2" reference="MoccaCalendar.MoccaCalendarSheet" locale="">
   <web>MoccaCalendar</web>
   <name>MoccaCalendarSheet</name>
   <language/>
@@ -59,6 +59,8 @@
 #if($myEdit)
   ; &lt;label for="MoccaCalendar.MoccaCalendarClass_0_color"&gt;$escapetool.xml($doc.displayPrettyName('color', false, false))&lt;/label&gt;
   : &lt;input class="procolor" name="MoccaCalendar.MoccaCalendarClass_0_color" size="30" type="text" value="$escapetool.html($doc.getValue('color'))"/&gt;
+  ; &lt;label for="MoccaCalendar.MoccaCalendarClass_0_textColor"&gt;$escapetool.xml($doc.displayPrettyName('textColor', false, false))&lt;/label&gt;
+  : &lt;input class="procolor" name="MoccaCalendar.MoccaCalendarClass_0_textColor" size="30" type="text" value="$escapetool.html($doc.getValue('textColor'))"/&gt;
 #end
   ; &lt;label for="MoccaCalendar.MoccaCalendarClass_0_description"&gt;$escapetool.xml($doc.displayPrettyName('description', false, false))&lt;/label&gt;
   : $doc.display('description')
@@ -100,7 +102,7 @@
         <prettyName>Caching policy</prettyName>
         <relationalStorage>0</relationalStorage>
         <separator> </separator>
-        <separators> ,|</separators>
+        <separators>|, </separators>
         <size>1</size>
         <unmodifiable>0</unmodifiable>
         <values>long|short|default|forbid</values>
@@ -145,7 +147,7 @@
         <prettyName>Use this extension</prettyName>
         <relationalStorage>0</relationalStorage>
         <separator> </separator>
-        <separators> ,|</separators>
+        <separators>|, </separators>
         <size>1</size>
         <unmodifiable>0</unmodifiable>
         <values>currentPage|onDemand|always</values>
