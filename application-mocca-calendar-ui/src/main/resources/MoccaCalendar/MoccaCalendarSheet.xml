@@ -61,6 +61,15 @@
   : &lt;input class="procolor" name="MoccaCalendar.MoccaCalendarClass_0_color" size="30" type="text" value="$escapetool.html($doc.getValue('color'))"/&gt;
   ; &lt;label for="MoccaCalendar.MoccaCalendarClass_0_textColor"&gt;$escapetool.xml($doc.displayPrettyName('textColor', false, false))&lt;/label&gt;
   : &lt;input class="procolor" name="MoccaCalendar.MoccaCalendarClass_0_textColor" size="30" type="text" value="$escapetool.html($doc.getValue('textColor'))"/&gt;
+#else
+  ; &lt;label for="MoccaCalendar.MoccaCalendarClass_0_color"&gt;$escapetool.xml($doc.displayPrettyName('color', false, false))&lt;/label&gt;
+  : &lt;div class="moccaevent" style="border-color:${escapetool.html($doc.display('color'))}"&gt;&amp;#160;&lt;/div&gt;
+  ; &lt;label for="MoccaCalendar.MoccaCalendarClass_0_textColor"&gt;$escapetool.xml($doc.displayPrettyName('textColor', false, false))&lt;/label&gt;
+  #if($doc.getValue('textColor'))
+  : &lt;div class="moccaevent" style="border-color:${escapetool.html($doc.display('textColor'))}"&gt;&amp;#160;&lt;/div&gt;
+  #else
+  : $services.localization.render('MoccaCalendar.MoccaCalendarClass.textColor.unset')
+  #end
 #end
   ; &lt;label for="MoccaCalendar.MoccaCalendarClass_0_description"&gt;$escapetool.xml($doc.displayPrettyName('description', false, false))&lt;/label&gt;
   : $doc.display('description')

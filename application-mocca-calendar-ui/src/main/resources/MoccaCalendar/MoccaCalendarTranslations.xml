@@ -61,9 +61,11 @@ MoccaCalendar.generic.errormessage=Internal Server Error
 
 # Class fields
 MoccaCalendar.MoccaCalendarClass_title=Title
-MoccaCalendar.MoccaCalendarClass_color=Color of entries in the calendar view
+MoccaCalendar.MoccaCalendarClass_color=Background color of entries in the calendar view
+MoccaCalendar.MoccaCalendarClass_textColor=Text color of entries in the calendar view
 MoccaCalendar.MoccaCalendarClass_description=Description
 MoccaCalendar.MoccaCalendarClass_content1=Content
+MoccaCalendar.MoccaCalendarClass.textColor.unset=(white)
 
 # Live table generic keys
 moccacalendar.livetable.doc.title=Calendar
