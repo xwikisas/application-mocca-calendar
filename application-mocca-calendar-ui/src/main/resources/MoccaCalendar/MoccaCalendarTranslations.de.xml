@@ -61,9 +61,11 @@ MoccaCalendar.generic.errormessage=Interner Fehler
 
 # Class fields
 MoccaCalendar.MoccaCalendarClass_title=Titel
-MoccaCalendar.MoccaCalendarClass_color=Farbe der Einträge im Kalender
+MoccaCalendar.MoccaCalendarClass_color=Hintergrundfarbe der Einträge im Kalender
+MoccaCalendar.MoccaCalendarClass_textColor=Schriftfarbe der Einträge im Kalender
 MoccaCalendar.MoccaCalendarClass_description=Beschreibung
 MoccaCalendar.MoccaCalendarClass_content1=Inhalt
+MoccaCalendar.MoccaCalendarClass.textColor.unset=(weiss)
 
 # Live table generic keys
 moccacalendar.livetable.doc.title=Kalender
