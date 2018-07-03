@@ -555,93 +555,99 @@ if (typeof(XWiki) == "undefined" || typeof(XWiki.widgets) == "undefined" || type
 
 
   //
-  // the "agenda" view
+  // our "agenda" view - a bit different from what fullCalendar calls an "agenda"
+  // so for fullCalendar we call it "plainList"
   //
-  // what we do here is mock up a custom fullCalender view by implementing an undocumented interface
-  // and we even do this by "duck-typing" as the base "View" class in private to full calendar 
-  var PlainList = function(calendar) {
-    this.name = 'plainList';
-    this.calendar = calendar;
-    // Note: this.el is set by the calling side
-  }
+  var PlainList = fullCalendar.View.extend({
 
-  PlainList.prototype = {
-
-    incrementDate: function(date, delta) {
-      // we intentionally ignore the date given
-      // instead we have only two time windows: "past" (delta == -1) and "future" (anything else)
-      date = this.calendar.getNow().clone().stripTime();
-      if (delta &lt; 0) {
-        date = date.subtract(1, 'd')
-      }
-      return date;
+    initialize: function() {
+       this.isPast = false;
+       this.intervalDuration = moment.duration(10, 'year');
     },
 
-    destroy: function() {
-      this.el.empty();
-      this.container = null;
-    },
-  
-    render: function(date) {
-      // we sometimes get switched into some date of the other views
-      // before being called "incrementDate"
-      // normalize it to "past" or "future" first:
-      this.start = this.calendar.getNow().clone().stripTime();
-      var isPast = date.isBefore(this.start)
-      if (isPast) {
-        this.start = this.start.subtract(10, 'y');
+    // Given a single current unzoned date, produce information about what range to display.
+    // Subclasses can override. Must return all properties.
+    // we only have two ranges:
+    //   if date is in the past: from 10yrs ago to yesterday
+    //   if date is in the future: from now to 10yrs in the future
+    computeRange: function(date) {
+      start = this.calendar.getNow().clone().stripTime();
+      this.isPast = date.isBefore(start)
+      if (this.isPast) {
+        end = start.clone().subtract(1, 'd')
+        start = start.subtract(10, 'y')
+      } else {
+        end = start.clone().add(10, 'y')
       }
-      this.intervalStart = this.start;
-      this.end = this.intervalEnd = this.start.clone().add(10, 'y');
-     
-      if (isPast) {
+      return {
+        intervalUnit: 'year',
+        intervalStart: start,
+        intervalEnd: end,
+        start: start,
+        end: end
+      };
+    },
+
+    // this method is both called with the pre/next buttons
+    // and from other places to ensure the date is in range.
+    // we massively abuse this to have only two outcomes:
+    // a) if the date is in the past, page it yesterday
+    // b) if the date is in the future, make it today
+    massageCurrentDate: function(date, direction) {
+        now = this.calendar.getNow().clone().stripTime();
+
+        if (date.isBefore(now)) {
+           date = now.subtract(1, 'd');
+        } else {
+           date = now;
+        }
+
+        return date;
+    },
+
+
+    renderSkeleton: function() {
+      this.el.append('&lt;div class="fc-timeline-box" style="width:100%"/&gt;');
+      this.container = jQuery('.fc-timeline-box',this.el);
+      this.container.append('&lt;img src="$xwiki.getSkinFile('icons/xwiki/ajax-loader-large.gif')" alt="$escapetool.xml($services.localization.render('platform.livetable.loading'))" /&gt;');
+    },
+
+    computeTitle: function() {
+      if (this.isPast) {
         this.title = "$escapetool.javascript($services.localization.render('MoccaCalendar.calendar.plainlist.titlepast'))";
         this.noEventMsg = "$escapetool.javascript($services.localization.render('MoccaCalendar.calendar.plainlist.nopastevents'))";
       } else {
         this.title = "$escapetool.javascript($services.localization.render('MoccaCalendar.calendar.plainlist.titleupcoming'))";
         this.noEventMsg = "$escapetool.javascript($services.localization.render('MoccaCalendar.calendar.plainlist.noupcomingevents'))";
       }
-      this.el.append('&lt;div class="fc-timeline-box" style="width:100%"/&gt;');
-      this.container = jQuery('.fc-timeline-box',this.el);
-      this.container.append('&lt;img src="$xwiki.getSkinFile('icons/xwiki/ajax-loader-large.gif')" alt="$escapetool.xml($services.localization.render('platform.livetable.loading'))" /&gt;');
-      this.trigger('viewRender', this, this, this.el);
+      return this.title;
     },
   
-    destroyEvents: function() {
+    unrenderEvents: function() {
       if (this.container) { this.container.empty(); }
     },
   
     renderEvents: function(events) {
-      if (events.length==0) {
-  	    this.container.append('&lt;p&gt;&lt;/p&gt;');
-  	    jQuery('p', this.container).addClass('noevents').text(this.noEventMsg);
-  	} else for (var i=0;i&lt;events.length;i++) {
+      jQuery('img', this.container).remove();
+      if (events.length == 0) {
+        this.container.append('&lt;p&gt;&lt;/p&gt;');
+        jQuery('p', this.container).addClass('noevents').text(this.noEventMsg);
+      } else for (var i=0; i&lt;events.length; i++) {
         var ev = events[i];
         this.container.append(ev.html || ev.title)
       }
     },
 
-    // lame: copy from the "View" base class
-    trigger: function (name, thisObj) {
-      return this.calendar.trigger.apply(
-        this.calendar,
-        [name, thisObj || this].concat(Array.prototype.slice.call(arguments, 2), [this])
-      );
-    },
-
-    // resize and drag &amp; drop protocol - no-ops
-    updateSize: function(b){
-      // console.log('updateSize');
-    },
+    // drag &amp; drop protocol - no-ops
     select: function(start, end) {
       // console.log('select');
     },
     unselect: function() {
       // console.log('unselect');
     },
-  
-  }; // end PlainList.prototype
-  
+
+  }) // end PlainList extends View
+
   jQuery.fullCalendar.views.plainList = PlainList;
   
 } // if the XWiki.widgets.ModalPopup  is defined
