@@ -121,8 +121,9 @@ $jsontool.serialize( { 'isAllDay' : $isAllDay } )
     #set($document = $xwiki.getDocument($request.calendarDoc))
     #set($translated = $document.getTranslatedDocument())
     #set($space = $translated.getSpace())
-    #set($whereQuery = "$whereQuery and (doc.space = :space)")
+    #set($whereQuery = "$whereQuery and (doc.space = :space or doc.space like :spaceLike escape '!')")
     #set($discard = $queryParams.put('space', $space))
+    #set($discard = $queryParams.put('spaceLike', $space.replaceAll('([%_!])', '!$1').concat('.%')))
   #end
 #end
 
