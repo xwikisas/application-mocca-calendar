@@ -110,6 +110,14 @@ $doc.display($field)
 #end
 (% class="xform" %)
 (((
+#if($xcontext.validationStatus.hasExceptions())
+   {{error}}
+     $services.localization.render('MoccaCalendar.generic.errormessage')
+     #foreach($exception in $xcontext.validationStatus.getExceptions())
+     * {{{$exception.localizedMessage}}}
+     #end
+   {{/error}}
+#end
 #if($xcontext.action=='view' &amp;&amp; $calendar)
   ; &lt;label for="calendar"&gt;$escapetool.xml($services.localization.render('MoccaCalendar.calendar'))&lt;/label&gt;
   : [[$calendarDoc.getDisplayTitle()&gt;&gt;$calendarDoc.fullName]]
@@ -154,7 +162,7 @@ $doc.display($field)
 #end
 {{/html}}
 ## please do not add linebreaks here, or the "save"-button will jump if there are validation errors
-#if(($xcontext.validationStatus.errors&amp;&amp;$xcontext.validationStatus.errors.size()&gt;0))$response.setStatus(400)#end
+#if($xcontext.validationStatus.errors &amp;&amp; $xcontext.validationStatus.errors.size()&gt;0)$response.setStatus(400)#{end}#if($xcontext.validationStatus.hasExceptions())$response.setStatus(500)#{end}
 {{/velocity}}</content>
   <object>
     <name>MoccaCalendar.MoccaCalendarEventSheet</name>

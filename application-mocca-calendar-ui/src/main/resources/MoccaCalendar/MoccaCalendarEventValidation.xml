@@ -145,9 +145,10 @@ public class Val implements XWikiValidationInterface  {
 			}
 			return valid;
 		} catch(Exception e) {
+			XWikiValidationStatus.getValidationStatus(context).addExceptionToContext(MoccaCalendarEventClass, "dummy", e, context);
 			System.out.println("VALIDATION EXCEPTION");
 			e.printStackTrace();
-			throw e;
+			return false;
 		}
 	}
 
