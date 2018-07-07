@@ -59,12 +59,12 @@
       <version>${platform.version}</version>
     </dependency>
     <!-- Test dependencies -->
-    <dependency>
+    <!-- dependency>
       <groupId>org.xwiki.platform</groupId>
       <artifactId>xwiki-platform-test</artifactId>
       <version>${platform.version}</version>
       <scope>test</scope>
-    </dependency>
+    </dependency -->
     <dependency>
       <groupId>org.xwiki.platform</groupId>
       <artifactId>xwiki-platform-panels-test-pageobjects</artifactId>
