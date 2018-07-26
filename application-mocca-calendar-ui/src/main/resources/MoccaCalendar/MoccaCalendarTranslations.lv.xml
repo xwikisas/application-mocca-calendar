@@ -54,8 +54,8 @@ MoccaCalendar.calendar.firstDayOfWeek=1
 
 MoccaCalendar.calendarevent.viewall=Visi notikumi
 MoccaCalendar.calendarevent.create=Izveidot jaunu notikumu
-MoccaCalendar.calendarevent.backlink=Atpakaļ uz kalendāru &amp;\#171;{0}&amp;\#187;
-MoccaCalendar.calendarevent.confirmDelete=Vai tiešām vēlaties izdzēst kalendāru &amp;\#171;{0}&amp;\#187; ?
+MoccaCalendar.calendarevent.backlink=Atpakaļ uz kalendāru &amp;#171;{0}&amp;#187;
+MoccaCalendar.calendarevent.confirmDelete=Vai tiešām vēlaties izdzēst kalendāru &amp;#171;{0}&amp;#187; ?
 MoccaCalendar.calendarevent.view=Notikums
 MoccaCalendar.generic.errormessage=Iekšēja servera kļūda
 
@@ -94,32 +94,32 @@ MoccaCalendar.MoccaCalendarEventClass_description=Apraksts
 MoccaCalendar.MoccaCalendarEventClass_allDay=Visa diena
 
 # Event live table generic keys (currently unused)
-### Missing: moccacalendarevent.livetable.doc.title=Page title
-### Missing: moccacalendarevent.livetable.doc.name=Page name
-### Missing: moccacalendarevent.livetable.doc.space=Space
-### Missing: moccacalendarevent.livetable.doc.fullname=Page full name
-### Missing: moccacalendarevent.livetable.doc.author=Last Author
-### Missing: moccacalendarevent.livetable.doc.creator=Creator
-### Missing: moccacalendarevent.livetable.doc.date=Update date
-### Missing: moccacalendarevent.livetable.doc.creationDate=Creation date
-### Missing: moccacalendarevent.livetable._avatar=Avatar
-### Missing: moccacalendarevent.livetable._images=Images
+moccacalendarevent.livetable.doc.title=Lapas virsraksts
+moccacalendarevent.livetable.doc.name=Lapas nosaukums
+moccacalendarevent.livetable.doc.space=Vieta
+moccacalendarevent.livetable.doc.fullname=Pilnais lapas nosaukums
+moccacalendarevent.livetable.doc.author=Pēdējais autors
+moccacalendarevent.livetable.doc.creator=Izveidojis
+moccacalendarevent.livetable.doc.date=Atjaunots
+moccacalendarevent.livetable.doc.creationDate=Izveidots
+moccacalendarevent.livetable._avatar=Iemiesojums
+moccacalendarevent.livetable._images=Attēli
 moccacalendarevent.livetable._attachments=Pielikumi
 moccacalendarevent.livetable._actions=Darbība
 moccacalendarevent.livetable._actions.edit=Mainīt
 moccacalendarevent.livetable._actions.delete=Dzēst
-### Missing: moccacalendarevent.livetable.emptyvalue=-
+moccacalendarevent.livetable.emptyvalue=-
 
 # Live table specific keys
-### Missing: moccacalendarevent.livetable.title=Title
-### Missing: moccacalendarevent.livetable.startDate=Start date
-### Missing: moccacalendarevent.livetable.endDate=End date
-### Missing: moccacalendarevent.livetable.description=Description
+moccacalendarevent.livetable.title=Virsraksts
+moccacalendarevent.livetable.startDate=Sākuma datums
+moccacalendarevent.livetable.endDate=Beigu datums
+moccacalendarevent.livetable.description=Apraksts
 
 # validation messages
-### Missing: val_title_notvalid=Title field contains invalid characters.
-### Missing: val_title_notempty=Title field is required.
-### Missing: val_endDate=End date must be after start date.
-### Missing: val_title_already_exists=An event with this name already exists.
+val_title_notvalid=Virsraksts satur nepareizas rakstzīmes.
+val_title_notempty=Lauka virsraksts ir obligāts.
+val_endDate=Beigu datumam ir jābūt pēc sākuma datuma.
+val_title_already_exists=Notikums ar šādu nosaukumu jau pastāv.
 </content>
 </xwikidoc>
