@@ -79,7 +79,7 @@
     <description>
       <customDisplay/>
       <disabled>0</disabled>
-      <editor>Text</editor>
+      <editor>---</editor>
       <name>description</name>
       <number>2</number>
       <picker>0</picker>
