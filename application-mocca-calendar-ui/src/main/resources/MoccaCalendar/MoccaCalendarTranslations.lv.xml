@@ -48,9 +48,9 @@ MoccaCalendar.calendar.create=Izveidot jaunu kalendāru
 MoccaCalendar.calendar.plainlist=plāns
 MoccaCalendar.calendar.plainlist.titlepast=Pagājuši notikumi
 MoccaCalendar.calendar.plainlist.titleupcoming=Gaidāmi notikumi
-MoccaCalendar.calendar.plainlist.nopastevents=Nav atrasti pagājuši notikumi
-MoccaCalendar.calendar.plainlist.noupcomingevents=Nav atrasti gaidāmi notikumi
-MoccaCalendar.calendar.firstDayOfWeek=1
+MoccaCalendar.calendar.plainlist.nopastevents=Nav atrasti pagājuši notikumi.
+MoccaCalendar.calendar.plainlist.noupcomingevents=Nav atrasti gaidāmi notikumi.
+MoccaCalendar.calendar.firstDayOfWeek=0
 
 MoccaCalendar.calendarevent.viewall=Visi notikumi
 MoccaCalendar.calendarevent.create=Izveidot jaunu notikumu
