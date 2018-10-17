@@ -43,7 +43,7 @@
     <!-- The list of documents that are not covered by the extension license. The user that installs the extension has
       full access to these documents (view, edit, delete) without having a license, so use this property wisely. -->
     <xwiki.extension.licensing.excludedDocuments>
-      MoccaCalendar.Events
+      MoccaCalendar.Events.WebHome
     </xwiki.extension.licensing.excludedDocuments>
   </properties>
   <dependencies>
