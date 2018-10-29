@@ -20,7 +20,7 @@
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
 -->
 
-<xwikidoc version="1.2" reference="MoccaCalendar.Macro" locale="">
+<xwikidoc version="1.3" reference="MoccaCalendar.Macro" locale="">
   <web>MoccaCalendar</web>
   <name>Macro</name>
   <language/>
@@ -87,7 +87,9 @@ or
         <classType>com.xpn.xwiki.objects.classes.StaticListClass</classType>
       </cache>
       <code>
+        <contenttype>PureText</contenttype>
         <disabled>0</disabled>
+        <editor>PureText</editor>
         <name>code</name>
         <number>2</number>
         <prettyName>Code</prettyName>
@@ -711,7 +713,9 @@ if (typeof(XWiki) == "undefined" || typeof(XWiki.widgets) == "undefined" || type
         <classType>com.xpn.xwiki.objects.classes.StaticListClass</classType>
       </cache>
       <code>
+        <contenttype>PureText</contenttype>
         <disabled>0</disabled>
+        <editor>PureText</editor>
         <name>code</name>
         <number>2</number>
         <prettyName>Code</prettyName>
@@ -874,6 +878,7 @@ div.calendar-buttons span.buttonwrapper {
       <validationScript/>
       <code>
         <disabled>0</disabled>
+        <editor>Text</editor>
         <name>code</name>
         <number>9</number>
         <prettyName>Macro code</prettyName>
@@ -883,7 +888,9 @@ div.calendar-buttons span.buttonwrapper {
         <classType>com.xpn.xwiki.objects.classes.TextAreaClass</classType>
       </code>
       <contentDescription>
+        <contenttype>PureText</contenttype>
         <disabled>0</disabled>
+        <editor>PureText</editor>
         <name>contentDescription</name>
         <number>8</number>
         <prettyName>Content description (Not applicable for "No content" type)</prettyName>
@@ -918,7 +925,9 @@ div.calendar-buttons span.buttonwrapper {
         <classType>com.xpn.xwiki.objects.classes.StringClass</classType>
       </defaultCategory>
       <description>
+        <contenttype>PureText</contenttype>
         <disabled>0</disabled>
+        <editor>PureText</editor>
         <name>description</name>
         <number>3</number>
         <prettyName>Macro description</prettyName>
@@ -1533,8 +1542,7 @@ Mocca Calendar Macro
       <defaultValue>8:00</defaultValue>
     </property>
     <property>
-      <description>First time to show in the calendar. Users won't see hours before this time. Leave empty for default (8:00)
-</description>
+      <description>First time to show in the calendar. Users won't see hours before this time. Leave empty for default (8:00)</description>
     </property>
     <property>
       <mandatory>0</mandatory>
@@ -1600,8 +1608,7 @@ Mocca Calendar Macro
       <defaultValue>23:00</defaultValue>
     </property>
     <property>
-      <description>Last time to show in the calendar. Users won't see hours after this time. Leave empty for default (23:00)
-</description>
+      <description>Last time to show in the calendar. Users won't see hours after this time. Leave empty for default (23:00)</description>
     </property>
     <property>
       <mandatory>0</mandatory>
@@ -1667,8 +1674,7 @@ Mocca Calendar Macro
       <defaultValue/>
     </property>
     <property>
-      <description>Year of the date to show when loading the calendar. Leave empty for today
-</description>
+      <description>Year of the date to show when loading the calendar. Leave empty for today</description>
     </property>
     <property>
       <mandatory>0</mandatory>
@@ -1734,8 +1740,7 @@ Mocca Calendar Macro
       <defaultValue/>
     </property>
     <property>
-      <description>Month (from 0 to 11) of the date to show when loading the calendar. Leave empty for today
-</description>
+      <description>Month (from 0 to 11) of the date to show when loading the calendar. Leave empty for today</description>
     </property>
     <property>
       <mandatory>0</mandatory>
@@ -1801,8 +1806,7 @@ Mocca Calendar Macro
       <defaultValue/>
     </property>
     <property>
-      <description>Day (from 1 to 31) of the date to show when loading the calendar. Leave empty for today
-</description>
+      <description>Day (from 1 to 31) of the date to show when loading the calendar. Leave empty for today</description>
     </property>
     <property>
       <mandatory>0</mandatory>
