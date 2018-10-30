@@ -477,10 +477,11 @@ if (typeof(XWiki) == "undefined" || typeof(XWiki.widgets) == "undefined" || type
               if (oldSkin) {
                 rightGroup.insert(this.createButton("button","$escapetool.javascript($services.localization.render('delete'))","","delete-moccacalendar-event","btn"));
               } else {
-                var button = ' &lt;button class="button remove-button btn btn-danger" type="button" id="delete-moccacalendar-event"' +
-                  'data-toggle="modal" data-target="#deleteEvents"&gt;'
+                var button = ' &lt;button class="button remove-button btn btn-danger" type="button"' +
+                  'id="delete-moccacalendar-event" data-toggle="modal" data-target="#deleteEvents"&gt;'
                 var span = '&lt;span class="glyphicon glyphicon-remove"&gt; &lt;/span&gt; '
-                rightGroup.insert(button + span + "$escapetool.javascript($services.localization.render('delete'))"+'&lt;/button&gt;');
+                rightGroup.insert(button + span +
+                  "$escapetool.javascript($services.localization.render('delete'))"+'&lt;/button&gt;');
               }
               var that = this;
               jQuery(rightGroup.down('#delete-moccacalendar-event')).click(function() {
