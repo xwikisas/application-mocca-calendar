@@ -55,7 +55,7 @@ MoccaCalendar.calendar.firstDayOfWeek=1
 MoccaCalendar.calendarevent.viewall=Visi notikumi
 MoccaCalendar.calendarevent.create=Izveidot jaunu notikumu
 MoccaCalendar.calendarevent.backlink=Atpakaļ uz kalendāru &amp;\#171;{0}&amp;\#187;
-MoccaCalendar.calendarevent.confirmDelete=Vai tiešām vēlaties izdzēst kalendāru &amp;\#171;{0}&amp;\#187; ?
+MoccaCalendar.calendarevent.confirmDelete=Vai tiešām vēlaties izdzēst kalendāru {0} ?
 MoccaCalendar.calendarevent.view=Notikums
 MoccaCalendar.generic.errormessage=Iekšēja servera kļūda
 

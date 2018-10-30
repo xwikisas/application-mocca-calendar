@@ -55,7 +55,7 @@ MoccaCalendar.calendar.plainlist.noupcomingevents=No hay próximos eventos encon
 ### Missing: MoccaCalendar.calendarevent.viewall=All events
 MoccaCalendar.calendarevent.create=Crear un evento
 ### Missing: MoccaCalendar.calendarevent.backlink=Back to calendar &amp;#171;{0}&amp;#187;
-### Missing: MoccaCalendar.calendarevent.confirmDelete=Do you really want to delete the event &amp;#171;{0}&amp;#187; ?
+### Missing: MoccaCalendar.calendarevent.confirmDelete=Do you really want to delete the event {0} ?
 ### Missing: MoccaCalendar.calendarevent.view=Event
 ### Missing: MoccaCalendar.generic.errormessage=Internal Server Error
 

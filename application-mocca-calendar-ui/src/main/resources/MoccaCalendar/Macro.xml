@@ -384,20 +384,6 @@ if (typeof(XWiki) == "undefined" || typeof(XWiki.widgets) == "undefined" || type
       })
     },
 
-    showDeleteForm: function(event) {
-      event.stop();
-      var that = Object.clone(this);
-      this.closeDialog();
-      var eventName = that.interactionParameters.event.title.escapeHTML();
-      new XWiki.widgets.ConfirmationBox({ 
-          onYes: function() { that.deleteEvent() }, 
-          onNo: function() { new XWiki.MoccaCalendar.MoccaCalendarPopup(that.interactionParameters, that.helper) }
-        },
-        { confirmationText: "$escapetool.javascript($services.localization.render('MoccaCalendar.calendarevent.confirmDelete',"@@REPLACE@@"))".sub("@@REPLACE@@", eventName),
-             yesButtonText: "$escapetool.javascript($services.localization.render('yes'))",
-              noButtonText: "$escapetool.javascript($services.localization.render('no'))"
-        });
-    },
     deleteEvent: function() {
       var pending = new XWiki.widgets.Notification("$escapetool.javascript($services.localization.render('core.widgets.confirmationBox.notification.inProgress'))", "inprogress");
       new Ajax.Request(this.interactionParameters.event.deleteUrl, {
@@ -491,9 +477,12 @@ if (typeof(XWiki) == "undefined" || typeof(XWiki.widgets) == "undefined" || type
               if (oldSkin) {
                 rightGroup.insert(this.createButton("button","$escapetool.javascript($services.localization.render('delete'))","","delete-moccacalendar-event","btn"));
               } else {
-                rightGroup.insert(' &lt;button class="button remove-button btn btn-danger" id="delete-moccacalendar-event"&gt; &lt;span class="glyphicon glyphicon-remove"&gt; &lt;/span&gt; '+"$escapetool.javascript($services.localization.render('delete'))"+'&lt;/button&gt;');
+                rightGroup.insert(' &lt;button class="button remove-button btn btn-danger" type="button" id="delete-moccacalendar-event" data-toggle="modal" data-target="#deleteEvents"&gt; &lt;span class="glyphicon glyphicon-remove"&gt; &lt;/span&gt; '+"$escapetool.javascript($services.localization.render('delete'))"+'&lt;/button&gt;');
               }
-              rightGroup.down("#delete-moccacalendar-event").observe('click', this.showDeleteForm.bind(this));
+              var that = this;
+              jQuery(rightGroup.down('#delete-moccacalendar-event')).click(function() {
+                jQuery(this).data('calendarPopup', that);
+              });
             }
             formcontent.insert(new Element('div', {'class': 'clearfloats'}));
           }
@@ -667,7 +656,33 @@ if (typeof(XWiki) == "undefined" || typeof(XWiki.widgets) == "undefined" || type
   }) // end PlainList extends View
 
   jQuery.fullCalendar.views.plainList = PlainList;
-  
+  /**
+  * Events triggered before deleteEvents modal is shown: save the button that triggers
+  * the modal, close MoccaCalendarPopup, update the name of event on displayed text.
+  */
+  jQuery(document).on('show.bs.modal', '#deleteEvents', function(event) {
+    var relatedTarget = $(event.relatedTarget);
+    jQuery(this).data('relatedTarget', $(relatedTarget));
+    var calendarPopup = jQuery(relatedTarget).data('calendarPopup');
+    calendarPopup.closeDialog();
+    var eventName = '«' + calendarPopup.interactionParameters.event.title.escapeHTML() + '»';
+    jQuery(this).find('.modal-body').text(
+      "$services.localization.render('MoccaCalendar.calendarevent.confirmDelete', '__replace__')"
+      .replace('__replace__', eventName));
+  });
+  /**
+  * Events on modal buttons, for deleting an event or cancelling the action.
+  */
+  jQuery(document).on('click', '#deleteEvents input.btn-danger', function() {
+    var relatedTarget = jQuery('#deleteEvents').data('relatedTarget');
+    var calendarPopup = jQuery(relatedTarget).data('calendarPopup');
+    calendarPopup.deleteEvent();
+  });
+  jQuery(document).on('click', '#deleteEvents input.btn-default', function() {
+    var relatedTarget = jQuery('#deleteEvents').data('relatedTarget');
+    var calendarPopup = jQuery(relatedTarget).data('calendarPopup');
+    new XWiki.MoccaCalendar.MoccaCalendarPopup(calendarPopup.interactionParameters, calendarPopup.helper);
+  });
 } // if the XWiki.widgets.ModalPopup  is defined
   
 });</code>
@@ -1064,6 +1079,28 @@ $xwiki.ssx.use("MoccaCalendar.Macro")
 
 #set($canCreateEvents = $xwiki.hasAccessLevel("edit", $xcontext.getUser(), $calendarDoc))
 
+## Macro for the modal that's used on deleting an event
+#macro(showDeleteEventsModal)
+  &lt;div class="modal fade" id="deleteEvents" tabindex="-1" role="dialog"&gt;
+    &lt;div class="modal-dialog"&gt;
+      &lt;div class="modal-content"&gt;
+        &lt;div class="modal-header"&gt;
+          &lt;button type="button" class="close" data-dismiss="modal"&gt;&amp;times;&lt;/button&gt;
+          &lt;h4 class="modal-title"&gt;$services.localization.render('moccacalendarevent.livetable._actions.delete')&lt;/h4&gt;
+        &lt;/div&gt;
+        &lt;div class="modal-body"&gt;
+          &lt;div&gt;$services.localization.render('MoccaCalendar.calendarevent.confirmDelete')&lt;/div&gt;
+        &lt;/div&gt;
+        &lt;div class="modal-footer"&gt;
+          &lt;input type="button" class="btn btn-danger"
+            value="$escapetool.xml($services.localization.render('yes'))" data-dismiss="modal"&gt;
+          &lt;input type="button" class="btn btn-default"
+            value="$escapetool.xml($services.localization.render('no'))" data-dismiss="modal"&gt;
+        &lt;/div&gt;
+      &lt;/div&gt;
+    &lt;/div&gt;
+  &lt;/div&gt;
+#end
 {{/velocity}}
 {{velocity}}
 ## We need to check if there is a valid license because the macro is registered even if the user doesn't have view right
@@ -1186,6 +1223,7 @@ require(['jquery'], function(jQuery) {
   });
 });
 &lt;/script&gt;
+#showDeleteEventsModal
 {{/html}}
 #else ## of #if($xcontext.action=='view')
 Mocca Calendar Macro

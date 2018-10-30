@@ -55,7 +55,7 @@ MoccaCalendar.calendar.firstDayOfWeek=0
 MoccaCalendar.calendarevent.viewall=All events
 MoccaCalendar.calendarevent.create=Create new event
 MoccaCalendar.calendarevent.backlink=Back to calendar &amp;#171;{0}&amp;#187;
-MoccaCalendar.calendarevent.confirmDelete=Do you really want to delete the event &amp;#171;{0}&amp;#187; ?
+MoccaCalendar.calendarevent.confirmDelete=Do you really want to delete the event {0} ?
 MoccaCalendar.calendarevent.view=Event
 MoccaCalendar.generic.errormessage=Internal Server Error
 
