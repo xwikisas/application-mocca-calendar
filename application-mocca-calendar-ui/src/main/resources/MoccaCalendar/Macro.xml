@@ -477,7 +477,10 @@ if (typeof(XWiki) == "undefined" || typeof(XWiki.widgets) == "undefined" || type
               if (oldSkin) {
                 rightGroup.insert(this.createButton("button","$escapetool.javascript($services.localization.render('delete'))","","delete-moccacalendar-event","btn"));
               } else {
-                rightGroup.insert(' &lt;button class="button remove-button btn btn-danger" type="button" id="delete-moccacalendar-event" data-toggle="modal" data-target="#deleteEvents"&gt; &lt;span class="glyphicon glyphicon-remove"&gt; &lt;/span&gt; '+"$escapetool.javascript($services.localization.render('delete'))"+'&lt;/button&gt;');
+                var button = ' &lt;button class="button remove-button btn btn-danger" type="button" id="delete-moccacalendar-event"' +
+                  'data-toggle="modal" data-target="#deleteEvents"&gt;'
+                var span = '&lt;span class="glyphicon glyphicon-remove"&gt; &lt;/span&gt; '
+                rightGroup.insert(button + span + "$escapetool.javascript($services.localization.render('delete'))"+'&lt;/button&gt;');
               }
               var that = this;
               jQuery(rightGroup.down('#delete-moccacalendar-event')).click(function() {
@@ -1086,7 +1089,9 @@ $xwiki.ssx.use("MoccaCalendar.Macro")
       &lt;div class="modal-content"&gt;
         &lt;div class="modal-header"&gt;
           &lt;button type="button" class="close" data-dismiss="modal"&gt;&amp;times;&lt;/button&gt;
-          &lt;h4 class="modal-title"&gt;$services.localization.render('moccacalendarevent.livetable._actions.delete')&lt;/h4&gt;
+          &lt;h4 class="modal-title"&gt;
+            $services.localization.render('moccacalendarevent.livetable._actions.delete')
+          &lt;/h4&gt;
         &lt;/div&gt;
         &lt;div class="modal-body"&gt;
           &lt;div&gt;$services.localization.render('MoccaCalendar.calendarevent.confirmDelete')&lt;/div&gt;
