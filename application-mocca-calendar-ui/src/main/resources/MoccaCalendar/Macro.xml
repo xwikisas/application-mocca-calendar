@@ -671,12 +671,12 @@ require(['jquery'], function($) {
   */
   $(document).on('show.bs.modal', '#deleteEvents', function(event) {
     var relatedTarget = $(event.relatedTarget);
-    $(this).data('relatedTarget', $(relatedTarget));
-    var calendarPopup = $(relatedTarget).data('calendarPopup');
+    $(this).data('relatedTarget', relatedTarget);
+    var calendarPopup = relatedTarget.data('calendarPopup');
     calendarPopup.closeDialog();
     var eventName = '«' + calendarPopup.interactionParameters.event.title + '»';
     $(this).find('.modal-body').text(
-      "$services.localization.render('MoccaCalendar.calendarevent.confirmDelete', '__replace__')"
+      $jsontool.serialize($services.localization.render('MoccaCalendar.calendarevent.confirmDelete', '__replace__'))
       .replace('__replace__', eventName));
   });
   /**
@@ -684,12 +684,12 @@ require(['jquery'], function($) {
   */
   $(document).on('click', '#deleteEvents input.btn-danger', function() {
     var relatedTarget = $('#deleteEvents').data('relatedTarget');
-    var calendarPopup = $(relatedTarget).data('calendarPopup');
+    var calendarPopup = relatedTarget.data('calendarPopup');
     calendarPopup.deleteEvent();
   });
   $(document).on('click', '#deleteEvents input.btn-default', function() {
     var relatedTarget = $('#deleteEvents').data('relatedTarget');
-    var calendarPopup = $(relatedTarget).data('calendarPopup');
+    var calendarPopup = relatedTarget.data('calendarPopup');
     new XWiki.MoccaCalendar.MoccaCalendarPopup(calendarPopup.interactionParameters, calendarPopup.helper);
   });
 });</code>
