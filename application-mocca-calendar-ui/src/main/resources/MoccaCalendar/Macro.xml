@@ -20,7 +20,7 @@
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
 -->
 
-<xwikidoc version="1.2" reference="MoccaCalendar.Macro" locale="">
+<xwikidoc version="1.3" reference="MoccaCalendar.Macro" locale="">
   <web>MoccaCalendar</web>
   <name>Macro</name>
   <language/>
@@ -87,7 +87,9 @@ or
         <classType>com.xpn.xwiki.objects.classes.StaticListClass</classType>
       </cache>
       <code>
+        <contenttype>PureText</contenttype>
         <disabled>0</disabled>
+        <editor>PureText</editor>
         <name>code</name>
         <number>2</number>
         <prettyName>Code</prettyName>
@@ -382,20 +384,6 @@ if (typeof(XWiki) == "undefined" || typeof(XWiki.widgets) == "undefined" || type
       })
     },
 
-    showDeleteForm: function(event) {
-      event.stop();
-      var that = Object.clone(this);
-      this.closeDialog();
-      var eventName = that.interactionParameters.event.title.escapeHTML();
-      new XWiki.widgets.ConfirmationBox({ 
-          onYes: function() { that.deleteEvent() }, 
-          onNo: function() { new XWiki.MoccaCalendar.MoccaCalendarPopup(that.interactionParameters, that.helper) }
-        },
-        { confirmationText: "$escapetool.javascript($services.localization.render('MoccaCalendar.calendarevent.confirmDelete',"@@REPLACE@@"))".sub("@@REPLACE@@", eventName),
-             yesButtonText: "$escapetool.javascript($services.localization.render('yes'))",
-              noButtonText: "$escapetool.javascript($services.localization.render('no'))"
-        });
-    },
     deleteEvent: function() {
       var pending = new XWiki.widgets.Notification("$escapetool.javascript($services.localization.render('core.widgets.confirmationBox.notification.inProgress'))", "inprogress");
       new Ajax.Request(this.interactionParameters.event.deleteUrl, {
@@ -489,9 +477,13 @@ if (typeof(XWiki) == "undefined" || typeof(XWiki.widgets) == "undefined" || type
               if (oldSkin) {
                 rightGroup.insert(this.createButton("button","$escapetool.javascript($services.localization.render('delete'))","","delete-moccacalendar-event","btn"));
               } else {
-                rightGroup.insert(' &lt;button class="button remove-button btn btn-danger" id="delete-moccacalendar-event"&gt; &lt;span class="glyphicon glyphicon-remove"&gt; &lt;/span&gt; '+"$escapetool.javascript($services.localization.render('delete'))"+'&lt;/button&gt;');
+                var button = ' &lt;button class="button remove-button btn btn-danger" type="button"' +
+                  'id="delete-moccacalendar-event" data-toggle="modal" data-target="#deleteEvents"&gt;'
+                var span = '&lt;span class="glyphicon glyphicon-remove"&gt; &lt;/span&gt; '
+                rightGroup.insert(button + span +
+                  "$escapetool.javascript($services.localization.render('delete'))"+'&lt;/button&gt;');
               }
-              rightGroup.down("#delete-moccacalendar-event").observe('click', this.showDeleteForm.bind(this));
+              jQuery(rightGroup).find('#delete-moccacalendar-event').data('calendarPopup', this);
             }
             formcontent.insert(new Element('div', {'class': 'clearfloats'}));
           }
@@ -665,9 +657,41 @@ if (typeof(XWiki) == "undefined" || typeof(XWiki.widgets) == "undefined" || type
   }) // end PlainList extends View
 
   jQuery.fullCalendar.views.plainList = PlainList;
-  
 } // if the XWiki.widgets.ModalPopup  is defined
-  
+
+});
+
+/**
+ * Deleting an event
+ */
+require(['jquery'], function($) {
+  /**
+  * Events triggered before deleteEvents modal is shown: save the button that triggers
+  * the modal, close MoccaCalendarPopup, update the name of event on displayed text.
+  */
+  $(document).on('show.bs.modal', '#deleteEvents', function(event) {
+    var relatedTarget = $(event.relatedTarget);
+    $(this).data('relatedTarget', relatedTarget);
+    var calendarPopup = relatedTarget.data('calendarPopup');
+    calendarPopup.closeDialog();
+    var eventName = '«' + calendarPopup.interactionParameters.event.title + '»';
+    $(this).find('.modal-body').text(
+      $jsontool.serialize($services.localization.render('MoccaCalendar.calendarevent.confirmDelete', '__replace__'))
+      .replace('__replace__', eventName));
+  });
+  /**
+  * Events on modal buttons, for deleting an event or cancelling the action.
+  */
+  $(document).on('click', '#deleteEvents input.btn-danger', function() {
+    var relatedTarget = $('#deleteEvents').data('relatedTarget');
+    var calendarPopup = relatedTarget.data('calendarPopup');
+    calendarPopup.deleteEvent();
+  });
+  $(document).on('click', '#deleteEvents input.btn-default', function() {
+    var relatedTarget = $('#deleteEvents').data('relatedTarget');
+    var calendarPopup = relatedTarget.data('calendarPopup');
+    new XWiki.MoccaCalendar.MoccaCalendarPopup(calendarPopup.interactionParameters, calendarPopup.helper);
+  });
 });</code>
     </property>
     <property>
@@ -711,7 +735,9 @@ if (typeof(XWiki) == "undefined" || typeof(XWiki.widgets) == "undefined" || type
         <classType>com.xpn.xwiki.objects.classes.StaticListClass</classType>
       </cache>
       <code>
+        <contenttype>PureText</contenttype>
         <disabled>0</disabled>
+        <editor>PureText</editor>
         <name>code</name>
         <number>2</number>
         <prettyName>Code</prettyName>
@@ -874,6 +900,7 @@ div.calendar-buttons span.buttonwrapper {
       <validationScript/>
       <code>
         <disabled>0</disabled>
+        <editor>Text</editor>
         <name>code</name>
         <number>9</number>
         <prettyName>Macro code</prettyName>
@@ -883,7 +910,9 @@ div.calendar-buttons span.buttonwrapper {
         <classType>com.xpn.xwiki.objects.classes.TextAreaClass</classType>
       </code>
       <contentDescription>
+        <contenttype>PureText</contenttype>
         <disabled>0</disabled>
+        <editor>PureText</editor>
         <name>contentDescription</name>
         <number>8</number>
         <prettyName>Content description (Not applicable for "No content" type)</prettyName>
@@ -918,7 +947,9 @@ div.calendar-buttons span.buttonwrapper {
         <classType>com.xpn.xwiki.objects.classes.StringClass</classType>
       </defaultCategory>
       <description>
+        <contenttype>PureText</contenttype>
         <disabled>0</disabled>
+        <editor>PureText</editor>
         <name>description</name>
         <number>3</number>
         <prettyName>Macro description</prettyName>
@@ -1055,6 +1086,30 @@ $xwiki.ssx.use("MoccaCalendar.Macro")
 
 #set($canCreateEvents = $xwiki.hasAccessLevel("edit", $xcontext.getUser(), $calendarDoc))
 
+## Macro for the modal that's used on deleting an event
+#macro(showDeleteEventsModal)
+  &lt;div class="modal fade" id="deleteEvents" tabindex="-1" role="dialog"&gt;
+    &lt;div class="modal-dialog"&gt;
+      &lt;div class="modal-content"&gt;
+        &lt;div class="modal-header"&gt;
+          &lt;button type="button" class="close" data-dismiss="modal"&gt;&amp;times;&lt;/button&gt;
+          &lt;h4 class="modal-title"&gt;
+            $services.localization.render('moccacalendarevent.livetable._actions.delete')
+          &lt;/h4&gt;
+        &lt;/div&gt;
+        &lt;div class="modal-body"&gt;
+          &lt;div&gt;$services.localization.render('MoccaCalendar.calendarevent.confirmDelete')&lt;/div&gt;
+        &lt;/div&gt;
+        &lt;div class="modal-footer"&gt;
+          &lt;input type="button" class="btn btn-danger"
+            value="$escapetool.xml($services.localization.render('yes'))" data-dismiss="modal"&gt;
+          &lt;input type="button" class="btn btn-default"
+            value="$escapetool.xml($services.localization.render('no'))" data-dismiss="modal"&gt;
+        &lt;/div&gt;
+      &lt;/div&gt;
+    &lt;/div&gt;
+  &lt;/div&gt;
+#end
 {{/velocity}}
 {{velocity}}
 ## We need to check if there is a valid license because the macro is registered even if the user doesn't have view right
@@ -1177,6 +1232,7 @@ require(['jquery'], function(jQuery) {
   });
 });
 &lt;/script&gt;
+#showDeleteEventsModal
 {{/html}}
 #else ## of #if($xcontext.action=='view')
 Mocca Calendar Macro
@@ -1533,8 +1589,7 @@ Mocca Calendar Macro
       <defaultValue>8:00</defaultValue>
     </property>
     <property>
-      <description>First time to show in the calendar. Users won't see hours before this time. Leave empty for default (8:00)
-</description>
+      <description>First time to show in the calendar. Users won't see hours before this time. Leave empty for default (8:00)</description>
     </property>
     <property>
       <mandatory>0</mandatory>
@@ -1600,8 +1655,7 @@ Mocca Calendar Macro
       <defaultValue>23:00</defaultValue>
     </property>
     <property>
-      <description>Last time to show in the calendar. Users won't see hours after this time. Leave empty for default (23:00)
-</description>
+      <description>Last time to show in the calendar. Users won't see hours after this time. Leave empty for default (23:00)</description>
     </property>
     <property>
       <mandatory>0</mandatory>
@@ -1667,8 +1721,7 @@ Mocca Calendar Macro
       <defaultValue/>
     </property>
     <property>
-      <description>Year of the date to show when loading the calendar. Leave empty for today
-</description>
+      <description>Year of the date to show when loading the calendar. Leave empty for today</description>
     </property>
     <property>
       <mandatory>0</mandatory>
@@ -1734,8 +1787,7 @@ Mocca Calendar Macro
       <defaultValue/>
     </property>
     <property>
-      <description>Month (from 0 to 11) of the date to show when loading the calendar. Leave empty for today
-</description>
+      <description>Month (from 0 to 11) of the date to show when loading the calendar. Leave empty for today</description>
     </property>
     <property>
       <mandatory>0</mandatory>
@@ -1801,8 +1853,7 @@ Mocca Calendar Macro
       <defaultValue/>
     </property>
     <property>
-      <description>Day (from 1 to 31) of the date to show when loading the calendar. Leave empty for today
-</description>
+      <description>Day (from 1 to 31) of the date to show when loading the calendar. Leave empty for today</description>
     </property>
     <property>
       <mandatory>0</mandatory>
