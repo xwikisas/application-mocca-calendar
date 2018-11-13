@@ -259,7 +259,9 @@
       <name>templateProvider.calendar.name</name>
     </property>
     <property>
-      <spaces/>
+      <spaces>
+        <value>MoccaCalendar</value>
+      </spaces>
     </property>
     <property>
       <template>MoccaCalendar.MoccaCalendarTemplate</template>
