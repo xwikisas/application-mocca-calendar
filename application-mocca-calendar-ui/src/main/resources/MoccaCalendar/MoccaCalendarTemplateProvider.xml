@@ -177,29 +177,17 @@
         <classType>com.xpn.xwiki.objects.classes.DBListClass</classType>
       </spaces>
       <template>
-        <cache>0</cache>
-        <classname/>
         <customDisplay/>
         <disabled>0</disabled>
-        <displayType>input</displayType>
-        <hint/>
-        <idField/>
-        <multiSelect>0</multiSelect>
         <name>template</name>
         <number>2</number>
-        <picker>1</picker>
+        <picker>0</picker>
         <prettyName>template</prettyName>
-        <relationalStorage>0</relationalStorage>
-        <separator> </separator>
-        <separators/>
         <size>30</size>
-        <sort>none</sort>
-        <sql/>
         <unmodifiable>0</unmodifiable>
         <validationMessage/>
         <validationRegExp/>
-        <valueField/>
-        <classType>com.xpn.xwiki.objects.classes.PageClass</classType>
+        <classType>com.xpn.xwiki.objects.classes.StringClass</classType>
       </template>
       <terminal>
         <customDisplay/>
@@ -259,9 +247,7 @@
       <name>templateProvider.calendar.name</name>
     </property>
     <property>
-      <spaces>
-        <value>MoccaCalendar</value>
-      </spaces>
+      <spaces/>
     </property>
     <property>
       <template>MoccaCalendar.MoccaCalendarTemplate</template>
