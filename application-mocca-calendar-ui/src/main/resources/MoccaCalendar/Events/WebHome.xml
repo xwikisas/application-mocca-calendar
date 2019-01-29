@@ -94,6 +94,19 @@
         <validationRegExp/>
         <classType>com.xpn.xwiki.objects.classes.TextAreaClass</classType>
       </description>
+      <textColor>
+        <customDisplay/>
+        <disabled>0</disabled>
+        <name>textColor</name>
+        <number>5</number>
+        <picker>0</picker>
+        <prettyName>textColor</prettyName>
+        <size>30</size>
+        <unmodifiable>0</unmodifiable>
+        <validationMessage/>
+        <validationRegExp/>
+        <classType>com.xpn.xwiki.objects.classes.StringClass</classType>
+      </textColor>
       <title>
         <customDisplay>{{include reference="AppWithinMinutes.Title"/}}</customDisplay>
         <disabled>0</disabled>
@@ -113,6 +126,9 @@
     </property>
     <property>
       <description/>
+    </property>
+    <property>
+      <textColor>#000000</textColor>
     </property>
     <property>
       <title>Events</title>
