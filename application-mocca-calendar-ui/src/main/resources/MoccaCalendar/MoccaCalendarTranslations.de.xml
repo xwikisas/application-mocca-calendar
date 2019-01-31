@@ -125,6 +125,5 @@ val_title_notempty=Bitte geben Sie einen Titel ein
 ### Missing: val_startDateNotDate=The given start date cannot be read as a date.
 ### Missing: val_endDateNotDate=The given end date cannot be read as a date.
 val_endDate=Das Enddatum muss nach dem Startdatum liegen
-val_title_already_exists=Ein Termin mit diesem Namen existiert bereits
-</content>
+val_title_already_exists=Ein Termin mit diesem Namen existiert bereits</content>
 </xwikidoc>

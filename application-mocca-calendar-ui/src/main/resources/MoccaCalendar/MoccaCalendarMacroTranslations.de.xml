@@ -58,6 +58,5 @@ rendering.macro.moccacalendar.parameter.year.description=Das Jahr, für das init
 rendering.macro.moccacalendar.parameter.month.name=Monat
 rendering.macro.moccacalendar.parameter.month.description=Der Monat, für den initial Termine angezeigt werden. Werte von 0\=Januar bis 11\=Dezember. Falls leer, wird der aktuelle Monat genommen.
 rendering.macro.moccacalendar.parameter.date.name=Tag
-rendering.macro.moccacalendar.parameter.date.description=Der Tag, für den initial Termine angezeigt werden. Werte von 1 bis 31. Falls leer, wird der heutige Tag genommen.
-</content>
+rendering.macro.moccacalendar.parameter.date.description=Der Tag, für den initial Termine angezeigt werden. Werte von 1 bis 31. Falls leer, wird der heutige Tag genommen.</content>
 </xwikidoc>

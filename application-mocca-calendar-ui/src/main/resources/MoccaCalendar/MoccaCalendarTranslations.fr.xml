@@ -125,6 +125,5 @@ val_startDateMissing=La date de début est manquante pour cet événement.
 val_startDateNotDate=La date de début saisie n'est pas reconnue comme une date.
 val_endDateNotDate=La date de fin saisie n'est pas reconnue comme une date.
 val_endDate=La date de début doit être après la date de fin.
-val_title_already_exists=Un événement avec ce nom existe déjà.
-</content>
+val_title_already_exists=Un événement avec ce nom existe déjà.</content>
 </xwikidoc>
