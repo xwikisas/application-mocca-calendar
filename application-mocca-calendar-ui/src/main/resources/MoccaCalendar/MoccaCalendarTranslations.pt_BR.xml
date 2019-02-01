@@ -125,6 +125,5 @@ val_title_notempty=Campo de título é necessária.
 ### Missing: val_startDateNotDate=The given start date cannot be read as a date.
 ### Missing: val_endDateNotDate=The given end date cannot be read as a date.
 val_endDate=Data final deve ser após a data de início.
-val_title_already_exists=Um evento com este nome já existe.
-</content>
+val_title_already_exists=Um evento com este nome já existe.</content>
 </xwikidoc>

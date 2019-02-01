@@ -125,6 +125,5 @@ val_startDateMissing=Notikumam nav sākuma datuma.
 val_startDateNotDate=Norādītais sākums nav saprotams kā datums.
 val_endDateNotDate=Norādītās beigas nav saprotamas kā datums.
 val_endDate=Beigu datumam ir jābūt pēc sākuma datuma.
-val_title_already_exists=Notikums ar šādu nosaukumu jau pastāv.
-</content>
+val_title_already_exists=Notikums ar šādu nosaukumu jau pastāv.</content>
 </xwikidoc>

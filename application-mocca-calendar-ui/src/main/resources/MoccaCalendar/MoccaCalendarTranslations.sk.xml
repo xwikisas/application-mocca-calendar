@@ -125,6 +125,5 @@ moccacalendarevent.livetable.description=Popis
 ### Missing: val_startDateNotDate=The given start date cannot be read as a date.
 ### Missing: val_endDateNotDate=The given end date cannot be read as a date.
 ### Missing: val_endDate=End date must be after start date.
-### Missing: val_title_already_exists=An event with this name already exists.
-</content>
+### Missing: val_title_already_exists=An event with this name already exists.</content>
 </xwikidoc>
