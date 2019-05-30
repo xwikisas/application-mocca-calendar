@@ -20,8 +20,8 @@
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
 -->
 
-<xwikidoc version="1.2" reference="MoccaCalendar.MoccaCalendarEventValidation" locale="">
-  <web>MoccaCalendar</web>
+<xwikidoc version="1.2" reference="MoccaCalendar.Code.MoccaCalendarEventValidation" locale="">
+  <web>MoccaCalendar.Code</web>
   <name>MoccaCalendarEventValidation</name>
   <language/>
   <defaultLanguage/>

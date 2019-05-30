@@ -67,6 +67,7 @@ $doc.validate()
       <classType>com.xpn.xwiki.objects.classes.BooleanClass</classType>
     </allDay>
     <description>
+      <contenttype>---</contenttype>
       <customDisplay/>
       <disabled>0</disabled>
       <editor>Text</editor>
@@ -96,6 +97,20 @@ $doc.validate()
       <validationRegExp/>
       <classType>com.xpn.xwiki.objects.classes.DateClass</classType>
     </endDate>
+    <recurrent>
+      <customDisplay/>
+      <defaultValue>0</defaultValue>
+      <disabled>0</disabled>
+      <displayFormType>checkbox</displayFormType>
+      <displayType/>
+      <name>recurrent</name>
+      <number>6</number>
+      <prettyName>recurrent</prettyName>
+      <unmodifiable>0</unmodifiable>
+      <validationMessage/>
+      <validationRegExp/>
+      <classType>com.xpn.xwiki.objects.classes.BooleanClass</classType>
+    </recurrent>
     <startDate>
       <customDisplay/>
       <dateFormat>dd.MM.yyyy HH:mm</dateFormat>

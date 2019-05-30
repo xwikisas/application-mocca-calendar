@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!--
+ * See the NOTICE file distributed with this work for additional
+ * information regarding copyright ownership.
+ *
+ * This is free software; you can redistribute it and/or modify it
+ * under the terms of the GNU Lesser General Public License as
+ * published by the Free Software Foundation; either version 2.1 of
+ * the License, or (at your option) any later version.
+ *
+ * This software is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+ * Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public
+ * License along with this software; if not, write to the Free
+ * Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
+ * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
+-->
+
+<xwikidoc version="1.2" reference="MoccaCalendar.Code.NewEventNameService" locale="">
+  <web>MoccaCalendar.Code</web>
+  <name>NewEventNameService</name>
+  <language/>
+  <defaultLanguage/>
+  <translation>0</translation>
+  <creator>xwiki:XWiki.Admin</creator>
+  <creationDate>1557867120000</creationDate>
+  <parent>MoccaCalendar.Code.WebHome</parent>
+  <author>xwiki:XWiki.Admin</author>
+  <contentAuthor>xwiki:XWiki.Admin</contentAuthor>
+  <date>1557867365000</date>
+  <contentUpdateDate>1557867365000</contentUpdateDate>
+  <version>1.1</version>
+  <title>NewEventNameService</title>
+  <comment/>
+  <minorEdit>false</minorEdit>
+  <syntaxId>xwiki/2.1</syntaxId>
+  <hidden>true</hidden>
+  <content>{{velocity wiki="false"}}
+#if("$!{request.outputSyntax}" == 'plain')
+  $response.setContentType('application/json')
+#end
+#if($xcontext.action == 'get')
+#if("$!{request.newEvent}"!="")
+  ## find a new unused event name
+  #set($eventName = $request.newEvent)
+  #set($wiki = $doc.wiki)
+  #set($space = $doc.space) ## fallback only!
+  #if ($request.parent)
+    #set($space = $xwiki.getDocument($request.parent))
+  #end
+  ## re-look up space for new calendar event; necessary in case if parent calendar is terminal page (which it should not be, but ...)
+  #set($parentRef = $space.getDocumentReference().getParent())
+  #set($eventSpaceRef = $services.model.createSpaceReference($eventName, $parentRef))
+  #set($eventRef = $services.model.createDocumentReference("WebHome", $eventSpaceRef))
+  #if($xwiki.exists($eventRef))
+    #set($eventSpaceRef = $services.model.createSpaceReference("${eventName}_${xwiki.jodatime.getDateTime().getMillis()}", $parentRef))
+    #set($eventName = $eventSpaceRef.getName())
+  #end
+  $jsontool.serialize( { 'name' : $eventName, 'parent' : $services.model.serialize( $parentRef ) } )
+#else
+  $jsontool.serialize( { 'msg' : 'newEvent paramter missing' } )
+#end
+#end
+{{/velocity}}</content>
+</xwikidoc>

@@ -1,6 +1,4 @@
-<?xml version="1.0" encoding="UTF-8"?>
-
-<!--
+/*
  * See the NOTICE file distributed with this work for additional
  * information regarding copyright ownership.
  *
@@ -18,29 +16,27 @@
  * License along with this software; if not, write to the Free
  * Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
--->
+ */
+package org.xwiki.contrib.moccacalendar.internal.generators;
 
-<xwikidoc>
-  <web>MoccaCalendar</web>
-  <name>MoccaCalendarLiveTableResults</name>
-  <language/>
-  <defaultLanguage/>
-  <translation>0</translation>
-  <parent>WebHome</parent>
-  <creator>xwiki:XWiki.Admin</creator>
-  <author>xwiki:XWiki.Admin</author>
-  <customClass/>
-  <contentAuthor>xwiki:XWiki.Admin</contentAuthor>
-  <creationDate>1377502319000</creationDate>
-  <date>1373961627000</date>
-  <contentUpdateDate>1373961627000</contentUpdateDate>
-  <version>1.1</version>
-  <title/>
-  <defaultTemplate/>
-  <validationScript/>
-  <comment/>
-  <minorEdit>false</minorEdit>
-  <syntaxId>xwiki/2.1</syntaxId>
-  <hidden>true</hidden>
-  <content>{{include document="XWiki.LiveTableResults" /}}</content>
-</xwikidoc>
+import java.util.Calendar;
+
+import javax.inject.Named;
+
+import org.xwiki.component.annotation.Component;
+
+/**
+ * A generator for events occuring once per quarter of the year.
+ */
+@Component
+@Named("quarterly")
+public class QuarterlyEventGenerator extends AbstractRecurrentEventGenerator
+{
+    /**
+     * increment the calendar by three months.
+     */
+    protected void incrementCalendarByOnePeriod(Calendar cal)
+    {
+        cal.add(Calendar.MONTH, 3);
+    }
+}

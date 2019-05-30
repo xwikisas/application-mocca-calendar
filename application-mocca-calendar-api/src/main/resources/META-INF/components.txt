@@ -1,0 +1,8 @@
+org.xwiki.contrib.moccacalendar.script.MoccaCalendarScriptService
+org.xwiki.contrib.moccacalendar.migrations.AddReccurrentProperty
+org.xwiki.contrib.moccacalendar.internal.generators.DailyEventGenerator
+org.xwiki.contrib.moccacalendar.internal.generators.WeeklyEventGenerator
+org.xwiki.contrib.moccacalendar.internal.generators.BiWeeklyEventGenerator
+org.xwiki.contrib.moccacalendar.internal.generators.MonthlyEventGenerator
+org.xwiki.contrib.moccacalendar.internal.generators.QuarterlyEventGenerator
+org.xwiki.contrib.moccacalendar.internal.generators.YearlyEventGenerator

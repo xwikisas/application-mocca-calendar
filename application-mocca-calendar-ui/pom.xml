@@ -98,7 +98,7 @@
     </dependency>
     <dependency>
       <groupId>org.xwiki.contrib</groupId>
-      <artifactId>macro-fullcalendar</artifactId>
+      <artifactId>macro-fullcalendar-ui</artifactId>
       <version>2.1.7</version>
       <type>xar</type>
     </dependency>

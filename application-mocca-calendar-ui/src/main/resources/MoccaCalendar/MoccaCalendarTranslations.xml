@@ -34,10 +34,10 @@
   <date>1385136439000</date>
   <contentUpdateDate>1385136439000</contentUpdateDate>
   <version>1.1</version>
-  <title/>
+  <title>Mocca Calendar Translations</title>
   <comment/>
   <minorEdit>false</minorEdit>
-  <syntaxId>xwiki/2.1</syntaxId>
+  <syntaxId>plain/1.0</syntaxId>
   <hidden>true</hidden>
   <content>#general
 MoccaCalendar.calendar=Calendar
@@ -118,14 +118,21 @@ moccacalendarevent.livetable.startDate=Start date
 moccacalendarevent.livetable.endDate=End date
 moccacalendarevent.livetable.description=Description
 
-# validation messages
+# validation messages: on save
 val_title_notvalid=Title field contains invalid characters.
 val_title_notempty=Title field is required.
 val_startDateMissing=A start date is missing for the event.
 val_startDateNotDate=The given start date cannot be read as a date.
 val_endDateNotDate=The given end date cannot be read as a date.
 val_endDate=End date must be after start date.
-val_title_already_exists=An event with this name already exists.</content>
+val_title_already_exists=An event with this name already exists.
+
+# validation messages: Update Service
+moccacalendar.updates.eventUpdated=Updated event time
+moccacalendar.updates.eventrecurrent=Recurrent events cannot be moved
+moccacalendar.updates.savefailed=Saving the event failed
+moccacalendar.updates.valuesinvalid=The new event time is invalid
+moccacalendar.updates.nodocument=The event is no longer available.</content>
   <object>
     <name>MoccaCalendar.MoccaCalendarTranslations</name>
     <number>0</number>

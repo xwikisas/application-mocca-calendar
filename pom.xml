@@ -34,6 +34,7 @@
     <xwiki.issueManagement.jira.id>MOCCACAL</xwiki.issueManagement.jira.id>
   </properties>
   <modules>
+    <module>application-mocca-calendar-api</module>
     <module>application-mocca-calendar-ui</module>
     <module>application-mocca-calendar-ical</module>
   </modules>

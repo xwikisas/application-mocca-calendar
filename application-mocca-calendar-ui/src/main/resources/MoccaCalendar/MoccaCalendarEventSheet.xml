@@ -65,10 +65,7 @@ $doc.display($field)
 #end
 #end
 ##
-#set($discard=$xwiki.jsx.use("MoccaCalendar.DatePickerExtension", {'defer': false}))
-#if($xcontext.getAction()=="edit")
-  #set($discard=$xwiki.jsx.use("MoccaCalendar.MoccaCalendarEventSheet"))
-#end
+#set($discard=$xwiki.jsx.use("MoccaCalendar.Code.DatePickerExtension", {'defer': false}))
 #set($calendar = $parentDoc.getObject('MoccaCalendar.MoccaCalendarClass'))
 #if($calendar)
   #set($calendarDoc = $parentDoc)
@@ -93,21 +90,26 @@ $doc.display($field)
 {{/velocity}}
 
 {{velocity}}
-{{html wiki="true"}}
+#set($isEdit = ($xcontext.action=='edit'))
 #set($eventClass = 'MoccaCalendar.MoccaCalendarEventClass')
-#set($eventValidationDoc = 'MoccaCalendar.MoccaCalendarEventValidation')
-#set ($discard = $doc.use($eventClass))
+#set($eventValidationDoc = 'MoccaCalendar.Code.MoccaCalendarEventValidation')
+#set($eventRecurrentClass = 'MoccaCalendar.Code.MoccaCalendarEventRecurrencyClass')
+#set($discard = $doc.use($eventClass))
 ## add the groovy script to the validation (the xvalidation parameter in the request also works to set the groovy script validation)
-#if($xcontext.action=='edit')
+#if($isEdit)
+{{html wiki="false"}}
 &lt;input type="hidden" name="xvalidate" value="1" /&gt;
 &lt;input type="hidden" name="xvalidation" value="$eventValidationDoc" /&gt;
 ## the following values must be added explicitly in "plain edit view", as used by the modal popup
 ## because the "plain view" does not give them to us
 #if($request.xpage=='plain')
 &lt;input type="hidden" name="form_token" value="$!{services.csrf.getToken()}" /&gt;
-&lt;input type="hidden" name="language" value="$!{escapetool.xml($tdoc.realLanguage)}" /&gt;
+&lt;input type="hidden" name="language" value="$!{escapetool.xml($tdoc.realLocale)}" /&gt;
 #end
+{{/html}}
 #end
+
+{{html wiki="true"}}
 (% class="xform" %)
 (((
 #if($xcontext.validationStatus.hasExceptions())
@@ -121,11 +123,10 @@ $doc.display($field)
 #if($xcontext.action=='view' &amp;&amp; $calendar)
   ; &lt;label for="calendar"&gt;$escapetool.xml($services.localization.render('MoccaCalendar.calendar'))&lt;/label&gt;
   : [[$calendarDoc.getDisplayTitle()&gt;&gt;$calendarDoc.fullName]]
-#elseif($xcontext.action=='edit')
-#set($hql =", BaseObject as obj where doc.fullName=obj.name and doc.name!='MoccaCalendarTemplate' and obj.className='MoccaCalendar.MoccaCalendarClass' order by doc.title, doc.name")
+#elseif($isEdit)
   ; &lt;label for="calendar"&gt;$escapetool.xml($services.localization.render('MoccaCalendar.calendar'))&lt;/label&gt;
   : &lt;select id="calendarParent" name="$parentParamName"&gt;
-#foreach($item in $services.query.hql($hql).execute())
+#foreach($item in $services.moccacalendar.getAllCalendars())
 #set($itemdoc = $xwiki.getDocument($item))
 #if($!{itemdoc} &amp;&amp; ${itemdoc.hasAccessLevel("edit")})
 #set($selected="")
@@ -150,7 +151,32 @@ $doc.display($field)
   : $doc.display('allDay')
   ; &lt;label for="MoccaCalendarEvent.MoccaCalendarEventClass_0_description"&gt;$escapetool.xml($doc.displayPrettyName('description', false, false))&lt;/label&gt;
   : $doc.display('description')
+  ; &lt;label for="MoccaCalendarEvent.MoccaCalendarEventClass_0_recurrent"&gt;$escapetool.xml($doc.displayPrettyName('recurrent', false, false))&lt;/label&gt;
+#if($doc.isNew())
+  : $doc.display('recurrent')
+#else
+  : $doc.display('recurrent','view') #if($isEdit) $doc.display('recurrent','hidden') #end
+#end
 )))
+#set($isRecurrent = ($doc.getValue('recurrent') == 1))
+#if($isEdit &amp;&amp; $doc.isNew())
+&lt;div id="recurrentFields" #if(!$isRecurrent) style="display:none"#end&gt;
+#set($discard = $doc.use($eventRecurrentClass))
+  ; &lt;label for="MoccaCalendarEvent.Code.MoccaCalendarEventRecurrencyClass_0_frequency"&gt;$escapetool.xml($doc.displayPrettyName('frequency', false, false))
+  : $doc.display('frequency')
+&lt;/label&gt;
+&lt;/div&gt;
+#else
+  #if($isRecurrent &amp;&amp; $request.get('instanceStart'))
+&lt;div id="recurrentFields"&gt;
+
+==== Event is recurrent ... ====
+#set($currentInstanceStartStr = $request.get('instanceStart'))
+#set($currentInstanceStart = $datetool.toDate("yyyy-MM-dd'T'HH:mm", $currentInstanceStartStr))
+Event starts at: $datetool.format('dd.MM.yyyy HH:mm', $currentInstanceStart)
+&lt;/div&gt;
+  #end
+#end
 #if($!{request.xpage}!="plain")
 ----
 
@@ -195,7 +221,9 @@ $doc.display($field)
         <classType>com.xpn.xwiki.objects.classes.StaticListClass</classType>
       </cache>
       <code>
+        <contenttype>PureText</contenttype>
         <disabled>0</disabled>
+        <editor>PureText</editor>
         <name>code</name>
         <number>2</number>
         <prettyName>Code</prettyName>
@@ -245,10 +273,36 @@ $doc.display($field)
     </property>
     <property>
       <code>document.observe("xwiki:dom:loaded", function() {
-  $('calendarParent').observe("change", function() {
-       $('xwikidocparentinput').setValue( $F('calendarParent'));
-       Event.fire($('xwikidocparentinput'), 'xwiki:suggest:selected');
-  })
+
+  var attachEvents = function() {
+    var cp = $('calendarParent');
+    if (cp) cp.observe("change", function() {
+      $('xwikidocparentinput').setValue( $F('calendarParent'));
+      Event.fire($('xwikidocparentinput'), 'xwiki:suggest:selected');
+    })
+    var rc = $('MoccaCalendar.MoccaCalendarEventClass_0_recurrent');
+    if (rc) {
+      rc.observe('change', function() {
+        var value = $F('MoccaCalendar.MoccaCalendarEventClass_0_recurrent');
+        console.log('oh, we got recurrent = ', value);
+        var recurrencyArea = $('recurrentFields')
+        var recurrencyField = $('MoccaCalendar.Code.MoccaCalendarEventRecurrencyClass_0_frequency')
+        if (value) {
+          if (recurrencyField) recurrencyField.removeAttribute('disabled')
+          if (recurrencyArea) recurrencyArea.show()
+        } else {
+          if (recurrencyArea) recurrencyArea.hide()
+          if (recurrencyField) recurrencyField.writeAttribute('disabled','disabled')
+        }
+      })
+    } else {
+      var recurrencyField = $('MoccaCalendar.Code.MoccaCalendarEventRecurrencyClass_0_frequency')
+      if(recurrencyField) recurrencyField.writeAttribute('disabled','disabled')
+    }
+  }
+
+  document.observe('xwiki:moccacalendar:editloaded', attachEvents)
+  attachEvents()
 });</code>
     </property>
     <property>
