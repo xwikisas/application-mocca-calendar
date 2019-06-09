@@ -153,7 +153,7 @@ if (typeof(XWiki) == "undefined" || typeof(XWiki.widgets) == "undefined" || type
 #template('colorThemeInit.vm')
 
   XWiki.MoccaCalendar.Helper = Class.create({
-  initialize: function(calendar, dateFormat, jsonServiceUrl, createEventBaseUrl, updateEventUrl, newPageNameUrl, dateCheckUrl, newPageParams, formToken) {
+  initialize: function(calendar, dateFormat, jsonServiceUrl, createEventBaseUrl, updateEventUrl, newPageNameUrl, dateCheckUrl, deleteEventInstanceUrl, newPageParams, formToken) {
     this.calendar = calendar;
     this.dateFormat = dateFormat;
     this.jsonServiceUrl = jsonServiceUrl;
@@ -161,6 +161,7 @@ if (typeof(XWiki) == "undefined" || typeof(XWiki.widgets) == "undefined" || type
     this.updateEventUrl = updateEventUrl;
     this.newPageNameUrl = newPageNameUrl;
     this.dateCheckUrl = dateCheckUrl;
+    this.deleteEventInstanceUrl = deleteEventInstanceUrl;
     this.newPageParams = newPageParams;
     this.formToken = formToken;
     // hack: extract the "day only" and "time only" format, if possible
@@ -251,6 +252,34 @@ if (typeof(XWiki) == "undefined" || typeof(XWiki.widgets) == "undefined" || type
     var cookieName = 'MoccaCalendar_view=';
     document.cookie = cookieName + value + "; path=/";
   };
+
+  //
+  // the custom confirmation dialog on deletion of recurrent events
+  //
+  XWiki.MoccaCalendar.MoccaCalendarRecurrentDeleteBox = Class.create(XWiki.widgets.ConfirmationBox, {
+     // XXX needed?
+     /*initialize: function($super, behavior, interactionParameters) {
+         $super(behavior, interactionParameters)
+         // console.log("init", this);
+     },*/
+     createContent : function ($super, data) {
+       try {
+         var content = $super(data);
+         var deleteAllEventsButton = this.createButton("button", data.deleteAllEventsButtonText, "", "", "btn-danger");
+         console.log("should insert at ",content.down(".buttons&gt;*"))
+         content.down(".buttons&gt;*").insert({before: deleteAllEventsButton });
+         Event.observe(deleteAllEventsButton, "click", this.onDeleteAllEvents.bindAsEventListener(this));
+         return content;
+       } catch (e) {
+         console.log(e);
+         return ""; // XXX should NEVER happen
+       }
+     },
+     onDeleteAllEvents : function() {
+       this.closeDialog();
+       this.behavior.onDeleteAllEvents();
+     }
+  });
 
   //
   // the dialog to show / edit events
@@ -392,6 +421,18 @@ if (typeof(XWiki) == "undefined" || typeof(XWiki.widgets) == "undefined" || type
       var that = Object.clone(this);
       this.closeDialog();
       var eventName = that.interactionParameters.event.title.escapeHTML();
+      if (that.interactionParameters.event.recurrent) {
+         new XWiki.MoccaCalendar.MoccaCalendarRecurrentDeleteBox({
+          onYes: that.deleteSingleEventInstance.bind(that),
+          onNo: function() { new XWiki.MoccaCalendar.MoccaCalendarPopup(that.interactionParameters, that.helper) },
+          onDeleteAllEvents: that.deleteEvent.bind(that)
+        },
+        { confirmationText: "$escapetool.javascript($services.localization.render('MoccaCalendar.calendarevent.confirmDelete',"@@REPLACE@@"))".sub("@@REPLACE@@", eventName),
+             yesButtonText: "$escapetool.javascript($services.localization.render('yes'))",
+              noButtonText: "$escapetool.javascript($services.localization.render('no'))",
+             deleteAllEventsButtonText: "$escapetool.javascript($services.localization.render('MoccaCalendar.calendarevent.confirmDelete.allEventsButton'))"
+        });
+      } else {
       new XWiki.widgets.ConfirmationBox({
           onYes: function() { that.deleteEvent() },
           onNo: function() { new XWiki.MoccaCalendar.MoccaCalendarPopup(that.interactionParameters, that.helper) }
@@ -400,6 +441,7 @@ if (typeof(XWiki) == "undefined" || typeof(XWiki.widgets) == "undefined" || type
              yesButtonText: "$escapetool.javascript($services.localization.render('yes'))",
               noButtonText: "$escapetool.javascript($services.localization.render('no'))"
         });
+      }
     },
     deleteEvent: function() {
       var pending = new XWiki.widgets.Notification("$escapetool.javascript($services.localization.render('core.widgets.confirmationBox.notification.inProgress'))", "inprogress");
@@ -420,7 +462,35 @@ if (typeof(XWiki) == "undefined" || typeof(XWiki.widgets) == "undefined" || type
         }.bind(this)
       });
     },
+    deleteSingleEventInstance: function() {
+      if (!this.interactionParameters.event.recurrent) {
+        // should not happen
+        return this.deleteEvent();
+      }
 
+      var pending = new XWiki.widgets.Notification("$escapetool.javascript($services.localization.render('core.widgets.confirmationBox.notification.inProgress'))", "inprogress");
+      new Ajax.Request(this.helper.deleteEventInstanceUrl, {
+        method: 'post',
+        parameters: {'instanceStart' : this.interactionParameters.event.start.format('YYYY-MM-DD[T]HH:mm'), 'event' : this.interactionParameters.event.id, 'outputSyntax':'plain' },
+        onSuccess: function(response) {
+          if (response.status == 0) {
+            return;
+          }
+          pending.hide();
+          if (response.responseJSON['error']) {
+            this.helper.displayError(response.responseJSON['error']);
+          } else {
+            new XWiki.widgets.Notification("$escapetool.javascript($services.localization.render('core.widgets.confirmationBox.notification.done'))", "done");
+          }
+          this.helper.calendar.fullCalendar('refetchEvents');
+        }.bind(this),
+        onFailure: function(e) {
+          pending.hide();
+          this.helper.displayError();
+          this.helper.calendar.fullCalendar('refetchEvents');
+        }.bind(this)
+      });
+    },
     loadEventContent: function() {
       var url;
       if (this.interactionParameters.isNew) {
@@ -1048,6 +1118,7 @@ $xwiki.ssx.use("MoccaCalendar.Code.Macro")
 #set($newPageNameUrl = $xwiki.getDocument("MoccaCalendar.Code.NewEventNameService").getURL("get"))
 #set($dateCheckUrl = $xwiki.getDocument("MoccaCalendar.Code.DateCheckService").getURL("get"))
 #set($updateUrl = $xwiki.getDocument("MoccaCalendar.Code.UpdateService").getURL("get"))
+#set($deleteEventInstanceUrl = $xwiki.getDocument("MoccaCalendar.Code.DeleteEventInstanceService").getURL("get"))
 #set($left = "prev,next today")
 #set($center = "title")
 #set($right = "agendaDay,agendaWeek,month,plainList")
@@ -1161,7 +1232,7 @@ require(['jquery'], function(jQuery) {
 #set($newPageParams = "template=MoccaCalendar.MoccaCalendarEventTemplate&amp;parentFROM=${escapetool.url($calendarDoc)}&amp;form_token=${services.csrf.getToken()}&amp;ocalcaction=create")
 #set($randomDocUrl = $xwiki.getURL("randomPage${util.generateRandomString(10)}",'edit',$newPageParams))
 #set($updateUrlParams="?xpage=plain&amp;outputSyntax=plain&amp;calendarDoc=${escapetool.url(${calendarDoc})}&amp;")
-  var calendarHelper = new XWiki.MoccaCalendar.Helper(calendar, "$!escapetool.javascript($dateFormat)", "$escapetool.javascript($jsonUrl)", "$escapetool.javascript($randomDocUrl)", "$escapetool.javascript("${updateUrl}${updateUrlParams}")", "$escapetool.javascript($newPageNameUrl)",  "$escapetool.javascript($dateCheckUrl)","$escapetool.javascript($newPageParams)", "${escapetool.javascript($services.csrf.getToken())}");
+  var calendarHelper = new XWiki.MoccaCalendar.Helper(calendar, "$!escapetool.javascript($dateFormat)", "$escapetool.javascript($jsonUrl)", "$escapetool.javascript($randomDocUrl)", "$escapetool.javascript("${updateUrl}${updateUrlParams}")", "$escapetool.javascript($newPageNameUrl)",  "$escapetool.javascript($dateCheckUrl)","$escapetool.javascript($deleteEventInstanceUrl)","$escapetool.javascript($newPageParams)", "${escapetool.javascript($services.csrf.getToken())}");
   });
 });
 &lt;/script&gt;

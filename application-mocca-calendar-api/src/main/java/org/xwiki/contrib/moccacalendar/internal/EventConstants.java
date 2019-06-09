@@ -22,26 +22,45 @@ package org.xwiki.contrib.moccacalendar.internal;
 /**
  * A list of often reused constants.
  *
+ * @version $Id: $
+ * @since 2.7
  */
 public final class EventConstants
 {
 
+    /** the class name for calendars. */
     public static final String MOCCA_CALENDAR_CLASS_NAME = "MoccaCalendar.MoccaCalendarClass";
+
+    /** the class name for events. */
     public static final String MOCCA_CALENDAR_EVENT_CLASS_NAME = "MoccaCalendar.MoccaCalendarEventClass";
+
+    /** the class name for event recurrency information. */
     public static final String MOCCA_CALENDAR_EVENT_RECURRENCY_CLASS_NAME 
         = "MoccaCalendar.Code.MoccaCalendarEventRecurrencyClass";
 
+    /** the class name for exceptions when a recurrent event instance is skipped. */
+    public static final String MOCCA_CALENDAR_EVENT_DELETION_CLASS_NAME
+        = "MoccaCalendar.Code.MoccaCalendarEventDeletionClass";
+
+    /** the name of the startDate property for event objects. */
     public static final String PROPERTY_STARTDATE_NAME = "startDate";
+    /** the name of the endDate property for event objects. */
     public static final String PROPERTY_ENDDATE_NAME = "endDate";
+    /** the name of the allDay property for event objects. */
     public static final String PROPERTY_ALLDAY_NAME = "allDay";
+    /** the name of the recurrency flag for event objects. */
     public static final String PROPERTY_RECURRENT_NAME = "recurrent";
+    /** the name of the first instance date property for event recurrency objects. */
     public static final String PROPERTY_FIRSTINSTANCE_NAME = "firstInstance";
+    /** the name of the last instance date property for event recurrency objects. */
     public static final String PROPERTY_LASTINSTANCE_NAME = "lastInstance";
+    /** the name of the start date date property for event deletions objects. */
+    public static final String PROPERTY_STARTDATE_OF_DELETED_NAME = "eventOrigStartDate";
     // public static final String PROPERTY__NAME = "";
 
     private EventConstants()
     {
-        
+
     }
 
 }

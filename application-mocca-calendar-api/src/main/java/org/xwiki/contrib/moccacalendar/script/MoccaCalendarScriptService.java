@@ -24,9 +24,11 @@ import java.util.Calendar;
 import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.ListIterator;
 import java.util.Map;
+import java.util.Set;
 
 import javax.inject.Inject;
 import javax.inject.Named;
@@ -61,7 +63,7 @@ import com.xpn.xwiki.doc.XWikiDocument;
 import com.xpn.xwiki.objects.BaseObject;
 
 /**
- * Script service to ... .
+ * Script service to obtain information about calendars and event instances.
  *
  * @version $Id: $
  * @since 2.7
@@ -315,7 +317,7 @@ public class MoccaCalendarScriptService implements ScriptService
         }
 
         // FIXME: some code duplication and method is too long
-        // TODO: now we gotta sort them, right?
+        // TODO: now we gotta sort them, right? (at least for the "agenda view")
 
         return events;
     }
@@ -362,7 +364,16 @@ public class MoccaCalendarScriptService implements ScriptService
                 continue;
             }
 
+            Set<Long> deletions = deletedEventsOf(eventDoc);
             for (EventInstance event : generator.generate(eventDoc, dateFrom, dateTo)) {
+                if (deletions.contains(event.getStartDate().getMillis())) {
+                    if (logger.isTraceEnabled()) {
+                        logger.trace("skip deleted event at {} for doc [{}])",
+                            event.getStartDate(), eventDoc);
+                    }
+                    continue;
+                }
+
                 // add extra stuff here that the generator does not have to set
                 event.setRecurrent(true);
                 event.setEventDocRef(eventDocRef);
@@ -533,4 +544,25 @@ public class MoccaCalendarScriptService implements ScriptService
         data.getQueryParams().put(prefix + "day", day);
     }
 
+    private Set<Long> deletedEventsOf(XWikiDocument eventDoc)
+    {
+        Set<Long> deletions = new HashSet<>();
+
+        final List<BaseObject> deleteNotes = eventDoc.
+            getXObjects(stringDocRefResolver.resolve(EventConstants.MOCCA_CALENDAR_EVENT_DELETION_CLASS_NAME));
+        if (deleteNotes != null) {
+            for (BaseObject deleteNotice : deleteNotes) {
+                Date deleted = deleteNotice.getDateValue(EventConstants.PROPERTY_STARTDATE_OF_DELETED_NAME);
+                if (deleted != null) {
+                    deletions.add(deleted.getTime());
+                }
+            }
+        }
+
+        if (!deletions.isEmpty() && logger.isDebugEnabled()) {
+            logger.debug("found {} deletions for event [{}])", deletions.size(), eventDoc);
+        }
+
+        return deletions;
+    }
 }

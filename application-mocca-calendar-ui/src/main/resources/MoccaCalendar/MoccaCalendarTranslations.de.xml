@@ -57,6 +57,7 @@ MoccaCalendar.calendarevent.create=Neuen Termin anlegen
 MoccaCalendar.calendarevent.backlink=Zurück zum Kalender &amp;\#8222;{0}&amp;\#8220;
 MoccaCalendar.calendarevent.confirmDelete=Wollen Sie den Termin &amp;\#171;{0}&amp;\#187; wirklich löschen?
 MoccaCalendar.calendarevent.view=Termin
+MoccaCalendar.calendarevent.confirmDelete.allEventsButton=Alle Termine
 MoccaCalendar.generic.errormessage=Interner Fehler
 
 # Class fields

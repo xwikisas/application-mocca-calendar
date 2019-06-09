@@ -127,8 +127,8 @@
     #set($extraParam = $calDocParam)
   #end
   #set($canEdit = !$event.isRecurrent() &amp;&amp; $xwiki.hasAccessLevel("edit", $xcontext.getUser(), $item))
-  #set($canDelete = !$event.isRecurrent() &amp;&amp; $xwiki.hasAccessLevel("delete", $xcontext.getUser(), $item))
-  #set($eventMap = {"id" : $services.model.serialize($event.getEventDocRef(),'compact'), "title" : $event.getTitle(), "url" : $itemdoc.getURL('view',"$extraParam"), "editUrl" : $itemdoc.getURL('edit',"$extraParam"), "saveUrl" : $itemdoc.getURL('save',"$extraParam"),  "deleteUrl" : $itemdoc.getURL('delete',"$extraParam"), "canEdit": $canEdit, "canDelete": $canDelete, "start" : $jsondateformat.print($startdate), "end" : $jsondateformat.print($enddateExclusive), "allDay" : $allDay, "color" : $color })
+  #set($canDelete = $xwiki.hasAccessLevel("delete", $xcontext.getUser(), $item))
+  #set($eventMap = {"id" : $services.model.serialize($event.getEventDocRef(),'compact'), "title" : $event.getTitle(), "url" : $itemdoc.getURL('view',"$extraParam"), "editUrl" : $itemdoc.getURL('edit',"$extraParam"), "saveUrl" : $itemdoc.getURL('save',"$extraParam"),  "deleteUrl" : $itemdoc.getURL('delete',"$extraParam"), "canEdit": $canEdit, "canDelete": $canDelete, "start" : $jsondateformat.print($startdate), "end" : $jsondateformat.print($enddateExclusive), "allDay" : $allDay, "color" : $color, "recurrent" : $event.isRecurrent() })
   #if("$textColor" != "")
     #set($discard = $eventMap.put("textColor", $textColor))
   #end
