@@ -548,11 +548,11 @@ public class MoccaCalendarScriptService implements ScriptService
     {
         Set<Long> deletions = new HashSet<>();
 
-        final List<BaseObject> deleteNotes = eventDoc.
+        final List<BaseObject> deleteNotices = eventDoc.
             getXObjects(stringDocRefResolver.resolve(EventConstants.MOCCA_CALENDAR_EVENT_DELETION_CLASS_NAME));
-        if (deleteNotes != null) {
-            for (BaseObject deleteNotice : deleteNotes) {
-                Date deleted = deleteNotice.getDateValue(EventConstants.PROPERTY_STARTDATE_OF_DELETED_NAME);
+        if (deleteNotices != null) {
+            for (BaseObject deleteNotice : deleteNotices) {
+                Date deleted = (deleteNotice==null)?null:deleteNotice.getDateValue(EventConstants.PROPERTY_STARTDATE_OF_DELETED_NAME);
                 if (deleted != null) {
                     deletions.add(deleted.getTime());
                 }
