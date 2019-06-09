@@ -22,13 +22,18 @@ package org.xwiki.contrib.moccacalendar.internal.generators;
 import java.util.Calendar;
 
 import javax.inject.Named;
+import javax.inject.Singleton;
 
 import org.xwiki.component.annotation.Component;
 
 /**
  * A generator for monthly events.
+ *
+ * @version $Id: $
+ * @since 2.7
  */
 @Component
+@Singleton
 @Named("monthly")
 public class MonthlyEventGenerator extends AbstractRecurrentEventGenerator
 {

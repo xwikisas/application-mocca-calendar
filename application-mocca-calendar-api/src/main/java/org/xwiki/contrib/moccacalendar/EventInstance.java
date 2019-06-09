@@ -24,12 +24,15 @@ import org.joda.time.DateTime;
 import org.xwiki.model.reference.DocumentReference;
 
 /**
- * Data container decribing an actual event. This might be either a single event or an instance of a recurrent event.
+ * Data container decribing an actual event.
+ * This might be either a single event or an instance of a recurrent event.
+ *
+ * For recurrent events the generators must set the startDate and endDate
+ * for the event; the rest can be figured out by the calendar service.
  *
  * @version $Id: $
 `* @since 2.7
  */
-// FIXME: should this be an interface with only getters instead?
 public class EventInstance
 {
     private DocumentReference eventDocRef;
@@ -50,12 +53,19 @@ public class EventInstance
 
     /**
      * a reference to the document describing the event.
+     *
+     * @return the document reference for the event
      */
     public DocumentReference getEventDocRef()
     {
         return eventDocRef;
     }
 
+    /**
+     * set the reference to the document describing the event.
+     *
+     * @param eventDocRef a document reference
+     */
     public void setEventDocRef(DocumentReference eventDocRef)
     {
         this.eventDocRef = eventDocRef;
@@ -63,7 +73,7 @@ public class EventInstance
 
     /**
      * the date when the event starts.
-     * 
+     *
      * @return the date when the event starts
      */
     public DateTime getStartDate()
@@ -71,6 +81,12 @@ public class EventInstance
         return startDate;
     }
 
+    /**
+     * set the start date of the event.
+     * this value must be set by event generators.
+     *
+     * @param startDate a (jodatime) date. The time part should be 00:00 for all day events
+     */
     public void setStartDate(DateTime startDate)
     {
         this.startDate = startDate;
@@ -78,12 +94,20 @@ public class EventInstance
 
     /**
      * the date when the event ends.
+     *
+     * @return the date when the event ends
      */
     public DateTime getEndDate()
     {
         return endDate;
     }
 
+    /**
+     * set the end date for the event.
+     * this value must be set by event generators.
+     *
+     * @param endDate a (jodatime) date. The time part should be 00:00 for all-day events
+     */
     public void setEndDate(DateTime endDate)
     {
         this.endDate = endDate;
@@ -91,12 +115,20 @@ public class EventInstance
 
     /**
      * a date after the event has ended.
+     *
+     * @return a (jodatime) date
      */
     public DateTime getEndDateExclusive()
     {
         return endDateExclusive;
     }
 
+    /**
+     * set a date after the event has ended.
+     * this should be the start of the next day after the event for all-day events.
+     *
+     * @param endDateExclusive a date after the event
+     */
     public void setEndDateExclusive(DateTime endDateExclusive)
     {
         this.endDateExclusive = endDateExclusive;
@@ -105,12 +137,19 @@ public class EventInstance
     /**
      * a flag if the event last a full day (or several full days). This information can be figured out by the {@link #getStartDate()} and
      * {@link #getEndDate()} and is only here for convenience.
+     *
+     * @return true if the event lasts all day
      */
     public boolean isAllDay()
     {
         return allDay;
     }
 
+    /**
+     * set the flag if the even lasts all day.
+     *
+     * @param allDay .
+     */
     public void setAllDay(boolean allDay)
     {
         this.allDay = allDay;
@@ -118,12 +157,19 @@ public class EventInstance
 
     /**
      * a flag if this event instance is part of a recurrent event or not.
+     *
+     * @return true if the event instance is member of recurrent series of events
      */
     public boolean isRecurrent()
     {
         return recurrent;
     }
 
+    /**
+     * set the recurrency flag.
+     *
+     * @param recurrent .
+     */
     public void setRecurrent(boolean recurrent)
     {
         this.recurrent = recurrent;
@@ -131,55 +177,80 @@ public class EventInstance
 
     /**
      * the title of the event.
+     *
+     * @return the title to be displayed in the overview
      */
     public String getTitle()
     {
         return title;
     }
 
+    /**
+     * set the title of the event.
+     *
+     * @param title should not be null or empty
+     */
     public void setTitle(String title)
     {
         this.title = title;
     }
 
     /**
-     * the longer decription of the event, as plain text.
-     * 
-     * @return
+     * the longer description of the event, as plain text.
+     *
+     * @return the description of the event without HTML markup
      */
     public String getDescription()
     {
         return description;
     }
 
+    /**
+     * set the longer description of the event.
+     *
+     * @param description .
+     */
     public void setDescription(String description)
     {
         this.description = description;
     }
 
     /**
-     * the longer decription of the event, as HTML markup text.
-     * 
-     * @return
+     * the longer description of the event, as HTML markup text.
+     *
+     * @return the description as HTML
      */
     public String getDescriptionHtml()
     {
         return descriptionHtml;
     }
 
+    /**
+     * set the longer description as HTML.
+     *
+     * @param descriptionHtml .
+     */
     public void setDescriptionHtml(String descriptionHtml)
     {
         this.descriptionHtml = descriptionHtml;
     }
 
     /**
-     * color to be used to render this event (as RGB string).
+     * the font color to be used to render this event in die calendar overview
+     * (as RGB string).
+     *
+     * @return a color as RGB string
      */
     public String getTextColor()
     {
         return textColor;
     }
 
+    /**
+     * set the font color to be used when displaying the event.
+     *
+     * @param textColor .
+     */
     public void setTextColor(String textColor)
     {
         this.textColor = textColor;
@@ -187,12 +258,18 @@ public class EventInstance
 
     /**
      * color for the background when displaying this event (as RGB string).
+     *
+     * @return a color as RGB string
      */
     public String getBackgroundColor()
     {
         return backgroundColor;
     }
 
+    /**
+     * set the background color.
+     * @param backgroundColor .
+     */
     public void setBackgroundColor(String backgroundColor)
     {
         this.backgroundColor = backgroundColor;

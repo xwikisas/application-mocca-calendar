@@ -22,14 +22,19 @@ package org.xwiki.contrib.moccacalendar.internal.generators;
 import java.util.Calendar;
 
 import javax.inject.Named;
+import javax.inject.Singleton;
 
 import org.xwiki.component.annotation.Component;
 
 /**
  * A generator for weekly events.
+ *
+ * @version $Id: $
+ * @since 2.7
  */
-@Component
 @Named("weekly")
+@Singleton
+@Component
 public class WeeklyEventGenerator extends AbstractRecurrentEventGenerator
 {
     /**

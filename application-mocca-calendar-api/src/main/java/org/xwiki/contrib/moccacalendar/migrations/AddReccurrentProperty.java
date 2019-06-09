@@ -25,6 +25,7 @@ import java.util.List;
 import javax.inject.Inject;
 import javax.inject.Named;
 import javax.inject.Provider;
+import javax.inject.Singleton;
 
 import org.slf4j.Logger;
 import org.xwiki.bridge.event.ApplicationReadyEvent;
@@ -36,7 +37,6 @@ import org.xwiki.extension.event.ExtensionUpgradedEvent;
 import org.xwiki.observation.EventListener;
 import org.xwiki.observation.event.Event;
 import org.xwiki.query.Query;
-import org.xwiki.query.QueryException;
 import org.xwiki.query.QueryManager;
 import org.xwiki.wiki.descriptor.WikiDescriptorManager;
 
@@ -48,9 +48,13 @@ import com.xpn.xwiki.objects.IntegerProperty;
 
 /**
  * Migration helper which adds a value of zero to the recurrent property of events.
+ *
+ * @version $Id: $
+ * @since 2.7
  */
-@Component
 @Named("org.xwiki.contrib.moccacalendar.migrations.AddReccurrentProperty")
+@Singleton
+@Component
 public class AddReccurrentProperty implements EventListener
 {
 
@@ -95,23 +99,10 @@ public class AddReccurrentProperty implements EventListener
     @Override
     public void onEvent(Event event, Object source, Object data)
     {
-        // TODO stub
         if (event instanceof ApplicationReadyEvent) {
-            String wikiId = wikiManager.getCurrentWikiId();
-            try {
-                logger.info("migrate existing calendar events for wiki [{}]", wikiId);
-                addRecurrentPropertyToEvents(wikiId);
-            } catch (Exception e) {
-                this.logger.error("Error while migrating calendar events in wiki [{}].", wikiId, e);
-            }
+            addRecurrentPropertyToEvents(wikiManager.getCurrentWikiId());
         } else if (event instanceof WikiReadyEvent) {
-            final String wikiId = ((WikiReadyEvent) event).getWikiId();
-            try {
-                logger.info("migrate existing calendar events for wiki is [{}]", wikiId);
-                addRecurrentPropertyToEvents(wikiId);
-            } catch (Exception e) {
-                this.logger.error("Error while migrating calendar events in wiki [{}].", wikiId, e);
-            }
+            addRecurrentPropertyToEvents(((WikiReadyEvent) event).getWikiId());
         } else if (event instanceof ExtensionUpgradedEvent) {
             ExtensionUpgradedEvent xie = (ExtensionUpgradedEvent) event;
 
@@ -120,57 +111,68 @@ public class AddReccurrentProperty implements EventListener
 
             if ("org.xwiki.contrib:application-mocca-calendar-api".equals(extensionId.getId())) {
                 logger.error(
-                    "################### API UPGRADED ! in version [{}] on namespace [{}] - event source [{}] and data [{}]",
+                    "API UPGRADED ! in version [{}] on namespace [{}] - event source [{}] and data [{}]",
                     extensionId.getVersion(), namespace, source, data);
             }
             if ("org.xwiki.contrib:application-mocca-calendar-ui".equals(extensionId.getId())) {
                 logger.error(
-                    "################### UHI UPGRADED ! in version [{}] on namespace [{}] - event source [{}] and data [{}]",
+                    "UI UPGRADED ! in version [{}] on namespace [{}] - event source [{}] and data [{}]",
                     extensionId.getVersion(), namespace, source, data);
-                // XXX parse namespace? Huh?
+                // FIXME parse namespace to find out wiki id?
             }
         }
     }
 
-    @SuppressWarnings("deprecation")
-    private void addRecurrentPropertyToEvents(String wikiId) throws QueryException, XWikiException
+    private void addRecurrentPropertyToEvents(String wikiId)
     {
         final XWikiContext xcontext = this.xcontextProvider.get();
         final String currentWikiId = xcontext.getWikiId();
 
         try {
-            xcontext.setWikiId(wikiId);
+            logger.info("migrate existing calendar events for wiki [{}]", wikiId);
 
-            // we cannot query for events with a missing property;
-            // so instead we have to query all events and check each of them
+            try {
+                xcontext.setWikiId(wikiId);
 
-            Query query = queryManager.createQuery(
-                String.format("from doc.object(%s) as event", EventConstants.MOCCA_CALENDAR_EVENT_CLASS_NAME),
-                Query.XWQL);
-            List<String> results = query.execute();
-            for (String docName : results) {
-                XWikiDocument doc = xcontext.getWiki().getDocument(docName, xcontext);
-
-                List<BaseObject> events = doc.getObjects(EventConstants.MOCCA_CALENDAR_EVENT_CLASS_NAME);
-
-                boolean modified = false;
-                for (BaseObject event : events) {
-                    if (!event.getPropertyList().contains(EventConstants.PROPERTY_RECURRENT_NAME)) {
-                        IntegerProperty recurrent = new IntegerProperty();
-                        recurrent.setValue(0);
-                        event.safeput(EventConstants.PROPERTY_RECURRENT_NAME, recurrent);
-                        modified = true;
-                    }
+                // we cannot query for events with a missing property;
+                // so instead we have to query all events and check each of them
+                Query query = queryManager.createQuery(
+                    String.format("from doc.object(%s) as event", EventConstants.MOCCA_CALENDAR_EVENT_CLASS_NAME),
+                    Query.XWQL);
+                List<String> results = query.execute();
+                for (String docName : results) {
+                    addRecurrentPropertyToDocument(xcontext, docName);
                 }
 
-                if (modified) {
-                    xcontext.getWiki().saveDocument(doc, "add recurrent=false to event", true, xcontext);
-                    logger.debug("migrated event [{}]", doc.getPrefixedFullName());
-                }
+            } finally {
+                xcontext.setWikiId(currentWikiId);
             }
+        } catch (Exception e) {
+            this.logger.error("Error while migrating calendar events in wiki [{}].", wikiId, e);
+        }
 
-        } finally {
-            xcontext.setWikiId(currentWikiId);
+    }
+
+    @SuppressWarnings("deprecation")
+    private void addRecurrentPropertyToDocument(final XWikiContext xcontext, String docName) throws XWikiException
+    {
+        XWikiDocument doc = xcontext.getWiki().getDocument(docName, xcontext);
+
+        List<BaseObject> events = doc.getObjects(EventConstants.MOCCA_CALENDAR_EVENT_CLASS_NAME);
+
+        boolean modified = false;
+        for (BaseObject event : events) {
+            if (!event.getPropertyList().contains(EventConstants.PROPERTY_RECURRENT_NAME)) {
+                IntegerProperty recurrent = new IntegerProperty();
+                recurrent.setValue(0);
+                event.safeput(EventConstants.PROPERTY_RECURRENT_NAME, recurrent);
+                modified = true;
+            }
+        }
+
+        if (modified) {
+            xcontext.getWiki().saveDocument(doc, "add recurrent=false to event", true, xcontext);
+            logger.debug("migrated event [{}]", doc.getPrefixedFullName());
         }
     }
 

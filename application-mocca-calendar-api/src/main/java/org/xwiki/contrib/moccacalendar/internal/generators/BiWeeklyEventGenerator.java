@@ -22,13 +22,18 @@ package org.xwiki.contrib.moccacalendar.internal.generators;
 import java.util.Calendar;
 
 import javax.inject.Named;
+import javax.inject.Singleton;
 
 import org.xwiki.component.annotation.Component;
 
 /**
  * A generator for bi-weekly events.
+ *
+ * @version $Id: $
+ * @since 2.7
  */
 @Component
+@Singleton
 @Named("biweekly")
 public class BiWeeklyEventGenerator extends AbstractRecurrentEventGenerator
 {

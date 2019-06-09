@@ -36,6 +36,9 @@ import com.xpn.xwiki.objects.BaseObject;
 /**
  * Base class to create recurrent events if the frequency is sufficient regular allow this.
  * Concrete subclasses must implement the {@link #incrementCalendarByOnePeriod(Calendar)} method.
+ *
+ * @version $Id: $
+ * @since 2.7
  */
 public abstract class AbstractRecurrentEventGenerator implements RecurrentEventGenerator
 {
@@ -54,7 +57,7 @@ public abstract class AbstractRecurrentEventGenerator implements RecurrentEventG
      * @see {@link RecurrentEventGenerator#generate(XWikiDocument, Date, Date)}
      */
     @Override
-    public List<EventInstance> generate(XWikiDocument event, Date dateFrom, Date dateTo)
+    public List<EventInstance> generate(final XWikiDocument event, final Date dateFrom, final Date dateTo)
     {
         BaseObject eventData = event
             .getXObject(event.resolveClassReference(EventConstants.MOCCA_CALENDAR_EVENT_CLASS_NAME));
@@ -87,21 +90,30 @@ public abstract class AbstractRecurrentEventGenerator implements RecurrentEventG
         Date firstInstance = eventRecData.getDateValue(EventConstants.PROPERTY_FIRSTINSTANCE_NAME);
         Date lastInstance = eventRecData.getDateValue(EventConstants.PROPERTY_LASTINSTANCE_NAME);
     
+        Date actualDateFrom = dateFrom;
         if (firstInstance != null && firstInstance.after(dateFrom)) {
-            dateFrom = firstInstance;
+            actualDateFrom = firstInstance;
         }
+        Date actualDateTo = dateTo;
         // FIXME: this is likely not to be correct
         if (lastInstance != null && lastInstance.before(dateTo)) {
-            dateTo = lastInstance;
+            actualDateTo = lastInstance;
         }
     
-        if (dateTo.before(dateFrom)) {
+        if (dateTo.before(actualDateFrom)) {
             return Collections.emptyList();
         }
     
+        return createEventInstances(startDate, duration, actualDateFrom, actualDateTo);
+    }
+
+    // separate helper method to actually create the events
+    // to keep checkstyle from complaining
+    private List<EventInstance> createEventInstances(Date startDate, final long duration, Date dateFrom, Date dateTo)
+    {
         Calendar cal = Calendar.getInstance();
     
-        // FIXME: it is endDate that should be after dateFrom instead !
+        // FIXME: isn't it endDate that should be after dateFrom instead ?
         cal.setTime(startDate);
     
         // stupid, inefficient, but should work
