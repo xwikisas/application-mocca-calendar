@@ -82,7 +82,7 @@
       <unmodifiable>0</unmodifiable>
       <validationMessage/>
       <validationRegExp/>
-      <values>daily|weekly|biweekly|monthly|quarterly|yearly</values>
+      <values>daily|workdays|weekly|biweekly|monthly|quarterly|yearly</values>
       <classType>com.xpn.xwiki.objects.classes.StaticListClass</classType>
     </frequency>
     <lastInstance>
