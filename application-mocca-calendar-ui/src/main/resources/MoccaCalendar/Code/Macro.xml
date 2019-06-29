@@ -257,11 +257,6 @@ if (typeof(XWiki) == "undefined" || typeof(XWiki.widgets) == "undefined" || type
   // the custom confirmation dialog on deletion of recurrent events
   //
   XWiki.MoccaCalendar.MoccaCalendarRecurrentDeleteBox = Class.create(XWiki.widgets.ConfirmationBox, {
-     // XXX needed?
-     /*initialize: function($super, behavior, interactionParameters) {
-         $super(behavior, interactionParameters)
-         // console.log("init", this);
-     },*/
      createContent : function ($super, data) {
        try {
          var content = $super(data);
@@ -290,23 +285,44 @@ if (typeof(XWiki) == "undefined" || typeof(XWiki.widgets) == "undefined" || type
     },
     initialize: function($super, interactionParameters, helper) {
       this.interactionParameters = Object.extend(Object.clone(this.defaultInteractionParameters), interactionParameters || {});
-      this.interactionParameters.isNew = (undefined == this.interactionParameters.event)
+      this.interactionParameters.isNew = (undefined === this.interactionParameters.event)
       this.helper = helper;
       this.saving = false;
       // call constructor from ModalPopup with params content, shortcuts, options
       $super(
         // this element will end up as 'this.content'
-        new Element('form', {'class' : 'xform'}),
+        new Element('form', {'class' : 'xform', 'id' : 'inline'}),
         {
           "show": {method: this.showDialog, keys: []},
-          "close": {method: this.closeDialog, keys: ['Esc']}
+          //"close": {method: this.closeDialog, keys: ['Esc']}
         },
         {
           verticalPosition: "top",
           backgroundColor: "$theme.pageHeaderBackgroundColor",
-          title : this.interactionParameters.editMode ? "$escapetool.javascript($services.localization.render('MoccaCalendar.calendarevent.create'))" : "$escapetool.javascript($services.localization.render('MoccaCalendar.calendarevent.view'))"
+          title : this.interactionParameters.editMode ? "$escapetool.javascript($services.localization.render('MoccaCalendar.calendarevent.create'))" : "$escapetool.javascript($services.localization.render('MoccaCalendar.calendarevent.view'))",
+          removeOnClose : true,
+          onClose : function() {
+            document.stopObserving('xwiki:moccacalendar:editmode');
+            document.stopObserving('xwiki:moccacalendar:instancesaved');
+          }
         }
       );
+
+      // only in case we are editing a recurrent event:
+      // a flag and a handler for events from the MoccaCalendar.Code.MoccaCalendarEventModificationClass
+      // signaling that we are switching between "one instance" and "all instances" of a recurrent event
+      this.editModeIsSingleInstance = false;
+      document.observe('xwiki:moccacalendar:editmode', function(event, element) {
+        this.editModeIsSingleInstance = event.memo.oneInstance;
+      }.bind(this));
+      // in case of an "one instance" save the action happens in the MoccaCalendarEventModificationClass
+      // and we only listen for the results to close the dialog
+      document.observe('xwiki:moccacalendar:instancesaved', function(event) {
+        this.savedBox.show();
+        this.closeDialog();
+        this.helper.calendar.fullCalendar('refetchEvents');
+      }.bind(this));
+
       this.loadEventContent();
       this.showDialog();
       this.setClass("moccacal-modal-popup");
@@ -324,6 +340,12 @@ if (typeof(XWiki) == "undefined" || typeof(XWiki.widgets) == "undefined" || type
     },
 
     submitForm: function(event) {
+      if (this.editModeIsSingleInstance) {
+        // console.log('we are in single instance mode; skip saving the main form')
+        // we trust the code for editing single instances of recurrent events to handle the save
+        return;
+      }
+
       event.stop();
       var titleField = this.content.down('[name="title"]');
 
@@ -1044,9 +1066,10 @@ $services.localization.use('document', 'Calendar.Translations')
 $xwiki.jsx.use("Calendar.JQueryUI", {'defer': false, 'minify': false})
 $xwiki.jsx.use("Calendar.Moment", {'defer': false, 'minify': false})
 $xwiki.jsx.use("Calendar.FullCalendar", {'defer': false, 'minify': false})
-$xwiki.jsx.use("MoccaCalendar.Code.Macro", {'defer': false, 'v' : '2.6'})
+$xwiki.jsx.use("MoccaCalendar.Code.Macro", {'defer': false})
 $xwiki.jsx.use("MoccaCalendar.Code.DatePickerExtension", {'defer': false})
 $xwiki.jsx.use("MoccaCalendar.MoccaCalendarEventSheet")
+$xwiki.jsx.use("MoccaCalendar.Code.MoccaCalendarEventModificationClass")
 ## A simple date picker widget.
 $xwiki.ssfx.use('uicomponents/widgets/datepicker/calendarDateSelect.css', true)
 $xwiki.jsfx.use('uicomponents/widgets/datepicker/calendarDateSelect.js', true)

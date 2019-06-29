@@ -65,7 +65,17 @@ $doc.display($field)
 #end
 #end
 ##
+#set($isEdit = ($xcontext.action=='edit'))
+#set($eventClass = 'MoccaCalendar.MoccaCalendarEventClass')
+#set($eventValidationDoc = 'MoccaCalendar.Code.MoccaCalendarEventValidation')
+#set($eventRecurrentClass = 'MoccaCalendar.Code.MoccaCalendarEventRecurrencyClass')
+#set($discard = $doc.use($eventClass))
+#set($isRecurrent = ($doc.getValue('recurrent') == 1))
 #set($discard=$xwiki.jsx.use("MoccaCalendar.Code.DatePickerExtension", {'defer': false}))
+## XXX does this work in dialog edit ? probably not
+#if($isEdit)
+  #set($discard=$xwiki.jsx.use("MoccaCalendar.Code.MoccaCalendarEventModificationClass", {'defer': false, 'minify': false}))
+#end
 #set($calendar = $parentDoc.getObject('MoccaCalendar.MoccaCalendarClass'))
 #if($calendar)
   #set($calendarDoc = $parentDoc)
@@ -78,7 +88,21 @@ $doc.display($field)
 #if(!$!backToCalendarDoc || $backToCalendarDoc.isNew())
   #set($backToCalendarDoc = $calendarDoc)
 #end
-#if($xcontext.getAction()=="edit")
+#set($isSingleInstance = false)
+#set($editPrefix = 'MoccaCalendar.MoccaCalendarEventClass_0')
+#set($instanceStartStr = "$!{request.get('instanceStart')}")
+#set($modifiedEventObjectIsNew = true)
+#if($isRecurrent &amp;&amp; "$instanceStartStr" != "")
+  #set($instanceStart = $datetool.toDate("yyyy-MM-dd'T'HH:mm", $instanceStartStr))
+  #set($isSingleInstance = ("$!instanceStart" != ""))
+  #if($isSingleInstance)
+     #set($modifiedEventObjIndex = $services.moccacalendar.getModifiedEventData($doc, $instanceStart))
+     #if($modifiedEventObjIndex != -1)
+       #set($modifiedEventObjectIsNew = false)
+     #end
+  #end
+#end
+#if($isEdit)
   #if($request.xpage=="plain")
     ## we are in modal dialog edit view - no separate parent page widget
     #set($parentParamName="parent")
@@ -90,11 +114,6 @@ $doc.display($field)
 {{/velocity}}
 
 {{velocity}}
-#set($isEdit = ($xcontext.action=='edit'))
-#set($eventClass = 'MoccaCalendar.MoccaCalendarEventClass')
-#set($eventValidationDoc = 'MoccaCalendar.Code.MoccaCalendarEventValidation')
-#set($eventRecurrentClass = 'MoccaCalendar.Code.MoccaCalendarEventRecurrencyClass')
-#set($discard = $doc.use($eventClass))
 ## add the groovy script to the validation (the xvalidation parameter in the request also works to set the groovy script validation)
 #if($isEdit)
 {{html wiki="false"}}
@@ -109,7 +128,7 @@ $doc.display($field)
 {{/html}}
 #end
 
-{{html wiki="true"}}
+{{html wiki="true" clean="false"}}
 (% class="xform" %)
 (((
 #if($xcontext.validationStatus.hasExceptions())
@@ -119,6 +138,14 @@ $doc.display($field)
      * {{{$exception.localizedMessage}}}
      #end
    {{/error}}
+#end
+#if($isEdit &amp;&amp; $isSingleInstance)
+  ; &lt;label for="instanceEdit" id="instanceEditSwitch"&gt;Edit&lt;/label&gt;
+  : &lt;input type="radio" name="instanceEdit" id="instanceEditYes" value="yes" checked="checked" /&gt; this instance only
+    &lt;input type="radio" name="instanceEdit" id="instanceEditNo" value="no" /&gt; all instances
+
+&lt;div id="allEventsFields"&gt;
+
 #end
 #if($xcontext.action=='view' &amp;&amp; $calendar)
   ; &lt;label for="calendar"&gt;$escapetool.xml($services.localization.render('MoccaCalendar.calendar'))&lt;/label&gt;
@@ -138,27 +165,25 @@ $doc.display($field)
 #end
 &lt;/select&gt;
 #end
-  ; &lt;label for="MoccaCalendarEvent.MoccaCalendarEventClass_0_title"&gt;$escapetool.xml($doc.displayPrettyName('title', false, false))&lt;span class="xRequired"&gt;&lt;/span&gt;&lt;/label&gt;
-  : #if($xcontext.action=='edit')&lt;input id="MoccaCalendarEvent.MoccaCalendarEventClass_0_title" type="text" name="title" value="$!{escapetool.xml($doc.getTitle())}" class="required" /&gt; #showvalidationmessage("val_title_already_exists") &lt;span class="val_title_notempty xErrorMsg" style="display:none;"&gt;$escapetool.xml($services.localization.render('val_title_notempty'))&lt;/span&gt; &lt;span class="val_title_notvalid xErrorMsg" style="display:none;"&gt;$escapetool.xml($services.localization.render('val_title_notvalid'))&lt;/span&gt;
-#else $doc.getDisplayTitle()
+  ; &lt;label for="${editPrefix}_title"&gt;$escapetool.xml($doc.displayPrettyName('title', false, false))&lt;span class="xRequired"&gt;&lt;/span&gt;&lt;/label&gt;
+  : $doc.display('title') #if($xcontext.action=='edit') #showvalidationmessage("val_title_already_exists") &lt;span class="val_title_notempty xErrorMsg" style="display:none;"&gt;$escapetool.xml($services.localization.render('val_title_notempty'))&lt;/span&gt; &lt;span class="val_title_notvalid xErrorMsg" style="display:none;"&gt;$escapetool.xml($services.localization.render('val_title_notvalid'))&lt;/span&gt;
 #end
-  ; &lt;label for="MoccaCalendarEvent.MoccaCalendarEventClass_0_startDate"&gt;$escapetool.xml($doc.displayPrettyName('startDate', false, false))&lt;span class="xRequired"&gt;&lt;/span&gt;&lt;/label&gt;
+
+  ; &lt;label for="${editPrefix}_startDate"&gt;$escapetool.xml($doc.displayPrettyName('startDate', false, false))&lt;span class="xRequired"&gt;&lt;/span&gt;&lt;/label&gt;
   : #displayDate('startDate')#showvalidationmessage("val_startDateMissing")#showvalidationmessage("val_startDateNotDate")
-  ; &lt;label for="MoccaCalendarEvent.MoccaCalendarEventClass_0_endDate"&gt;$escapetool.xml($doc.displayPrettyName('endDate', false, false))&lt;/label&gt;
+  ; &lt;label for="${editPrefix}_endDate"&gt;$escapetool.xml($doc.displayPrettyName('endDate', false, false))&lt;/label&gt;
   : #displayDate('endDate')#showvalidationmessage("val_endDate")#showvalidationmessage("val_endDateNotDate")
 
-  ; &lt;label for="MoccaCalendarEvent.MoccaCalendarEventClass_0_allDay"&gt;$escapetool.xml($doc.displayPrettyName('allDay', false, false))&lt;/label&gt;
+  ; &lt;label for="${editPrefix}_allDay"&gt;$escapetool.xml($doc.displayPrettyName('allDay', false, false))&lt;/label&gt;
   : $doc.display('allDay')
-  ; &lt;label for="MoccaCalendarEvent.MoccaCalendarEventClass_0_description"&gt;$escapetool.xml($doc.displayPrettyName('description', false, false))&lt;/label&gt;
+  ; &lt;label for="${editPrefix}_description"&gt;$escapetool.xml($doc.displayPrettyName('description', false, false))&lt;/label&gt;
   : $doc.display('description')
-  ; &lt;label for="MoccaCalendarEvent.MoccaCalendarEventClass_0_recurrent"&gt;$escapetool.xml($doc.displayPrettyName('recurrent', false, false))&lt;/label&gt;
+  ; &lt;label for="${editPrefix}_recurrent"&gt;$escapetool.xml($doc.displayPrettyName('recurrent', false, false))&lt;/label&gt;
 #if($doc.isNew())
   : $doc.display('recurrent')
 #else
   : $doc.display('recurrent','view') #if($isEdit) $doc.display('recurrent','hidden') #end
 #end
-)))
-#set($isRecurrent = ($doc.getValue('recurrent') == 1))
 #if($isEdit &amp;&amp; $doc.isNew())
 &lt;div id="recurrentFields" #if(!$isRecurrent) style="display:none"#end&gt;
 #set($discard = $doc.use($eventRecurrentClass))
@@ -167,7 +192,39 @@ $doc.display($field)
 &lt;/label&gt;
 &lt;/div&gt;
 #else
-  #if($isRecurrent &amp;&amp; $request.get('instanceStart'))
+#if($isEdit &amp;&amp; $isSingleInstance)
+&lt;/div&gt;
+#if($modifiedEventObjectIsNew)
+  ## we create a dummy new object here, which is not saved, however
+  #set($dummyObjIndex = $doc.createNewObject('MoccaCalendar.Code.MoccaCalendarEventModificationClass'))
+  #set($discard = $doc.use('MoccaCalendar.Code.MoccaCalendarEventModificationClass', $dummyObjIndex))
+  #set($editOnePrefix = "MoccaCalendar.Code.MoccaCalendarEventModificationClass")
+#else
+  #set($discard = $doc.use('MoccaCalendar.Code.MoccaCalendarEventModificationClass', $modifiedEventObjIndex))
+  #set($editOnePrefix = "MoccaCalendar.Code.MoccaCalendarEventModificationClass_${modifiedEventObjIndex}")
+#end
+&lt;div id="oneEventFields"&gt;
+
+  ; &lt;label for="${editOnePrefix}_startDate"&gt;$escapetool.xml($doc.displayPrettyName('startDate', false, false))&lt;/label&gt;
+  : #displayDate('startDate')#showvalidationmessage("val_startDateMissing")#showvalidationmessage("val_startDateNotDate")
+  ; &lt;label for="${editOnePrefix}_endDate"&gt;$escapetool.xml($doc.displayPrettyName('endDate', false, false))&lt;/label&gt;
+  : #displayDate('endDate')#showvalidationmessage("val_endDate")#showvalidationmessage("val_endDateNotDate")
+  ; &lt;label for="${editOnePrefix}_allDay"&gt;$escapetool.xml($doc.displayPrettyName('allDay', false, false))&lt;/label&gt;
+  : $doc.display('allDay')
+  ; &lt;label for="${editOnePrefix}_description"&gt;$escapetool.xml($doc.displayPrettyName('description', false, false))&lt;/label&gt;
+  : $doc.display('description')
+
+  &lt;input type="hidden" name="classname" value="MoccaCalendar.Code.MoccaCalendarEventModificationClass" /&gt;
+  &lt;input type="hidden" id="modificationIsNew" name="modificationIsNew" value="$modifiedEventObjectIsNew" /&gt;
+  &lt;input type="hidden" id="eventOrigStartDate" name="${editOnePrefix}_eventOrigStartDate" value="$escapetool.html($instanceStartStr)" /&gt;
+  &lt;input type="hidden" name="eventDoc"  value="$escapetool.html($services.model.serialize($doc.getDocumentReference(),'default'))" /&gt;
+  &lt;input type="hidden" name="xxxredirect" value="$escapetool.html($doc.getURL('edit',$escapetool.url({'instanceStart':$instanceStartStr})))" /&gt;
+&lt;/div&gt;
+#end
+#end
+)))
+
+#if($isRecurrent &amp;&amp; $request.get('instanceStart'))
 &lt;div id="recurrentFields"&gt;
 
 ==== Event is recurrent ... ====
@@ -175,7 +232,6 @@ $doc.display($field)
 #set($currentInstanceStart = $datetool.toDate("yyyy-MM-dd'T'HH:mm", $currentInstanceStartStr))
 Event starts at: $datetool.format('dd.MM.yyyy HH:mm', $currentInstanceStart)
 &lt;/div&gt;
-  #end
 #end
 #if($!{request.xpage}!="plain")
 ----

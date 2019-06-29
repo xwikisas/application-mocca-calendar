@@ -29,6 +29,7 @@ import org.joda.time.DateTime;
 import org.xwiki.contrib.moccacalendar.EventInstance;
 import org.xwiki.contrib.moccacalendar.RecurrentEventGenerator;
 import org.xwiki.contrib.moccacalendar.internal.EventConstants;
+import org.xwiki.contrib.moccacalendar.internal.Utils;
 
 import com.xpn.xwiki.doc.XWikiDocument;
 import com.xpn.xwiki.objects.BaseObject;
@@ -78,12 +79,7 @@ public abstract class AbstractRecurrentEventGenerator implements RecurrentEventG
             startDate = cal.getTime();
         }
         if (endDate == null) {
-            // FIXME: hardwired default event duration of 30 minutes, another time. BAD!
-            if (allDay) {
-                endDate = new Date(startDate.getTime() /* + 24 * 60 * 60 * 1000L - 30 * 60 * 1000L*/);
-            } else {
-                endDate = new Date(startDate.getTime() + 30 * 60 * 1000L);
-            }
+            endDate = Utils.guessEndDate(startDate, allDay);
         }
         final long duration = endDate.getTime() - startDate.getTime();
     

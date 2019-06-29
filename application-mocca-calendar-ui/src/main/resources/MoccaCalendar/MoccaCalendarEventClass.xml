@@ -40,7 +40,7 @@
   <syntaxId>xwiki/2.0</syntaxId>
   <hidden>true</hidden>
   <content>{{velocity output="false"}}
-$doc.setValidationScript("MoccaCalendarEvent.MoccaCalendarEventValidation")
+$doc.setValidationScript("MoccaCalendarEvent.Code.MoccaCalendarEventValidation")
 $doc.validate()
 {{/velocity}}</content>
   <class>
