@@ -317,7 +317,7 @@
         });
         if ($('modificationIsNew').getAttribute('value')=='true') {
           var removeIndex = function(elem) {
-            elem.setAttribute('name', elem.getAttribute('name').replace(/_[0-9]+_/, '_'))
+            elem.setAttribute('name', elem.getAttribute('name').replace(/_-[0-9]+_/, '_'))
           }
           $$('form #oneEventFields input').each(removeIndex)
           $$('form #oneEventFields textarea').each(removeIndex)

@@ -122,11 +122,15 @@
   #set($startdate = $event.startDate)
   #set($enddateExclusive = $event.endDateExclusive)
   #if($event.isRecurrent())
-    #set($extraParam = "${calDocParam}&amp;instanceStart=${escapetool.url($jsondateformat.print($startdate))}")
+    #set($origStartDate = $event.originalStartDate)
+    #if($origStartDate == $NULL)
+      #set($origStartDate = $startdate)
+    #end
+    #set($extraParam = "${calDocParam}&amp;instanceStart=${escapetool.url($jsondateformat.print($origStartDate))}")
   #else
     #set($extraParam = $calDocParam)
   #end
-  #set($canEdit = !$event.isRecurrent() &amp;&amp; $xwiki.hasAccessLevel("edit", $xcontext.getUser(), $item))
+  #set($canEdit = $xwiki.hasAccessLevel("edit", $xcontext.getUser(), $item))
   #set($canDelete = $xwiki.hasAccessLevel("delete", $xcontext.getUser(), $item))
   #set($eventMap = {"id" : $services.model.serialize($event.getEventDocRef(),'compact'), "title" : $event.getTitle(), "url" : $itemdoc.getURL('view',"$extraParam"), "editUrl" : $itemdoc.getURL('edit',"$extraParam"), "saveUrl" : $itemdoc.getURL('save',"$extraParam"),  "deleteUrl" : $itemdoc.getURL('delete',"$extraParam"), "canEdit": $canEdit, "canDelete": $canDelete, "start" : $jsondateformat.print($startdate), "end" : $jsondateformat.print($enddateExclusive), "allDay" : $allDay, "color" : $color, "recurrent" : $event.isRecurrent() })
   #if("$textColor" != "")

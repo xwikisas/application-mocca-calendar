@@ -107,7 +107,7 @@ public class MoccaCalendarScriptService implements ScriptService
         }
 
         /**
-         * the paramters for the query.
+         * the parameters for the query.
          * @return a map of parameters
          */
         Map<String, Object> getQueryParams()
@@ -460,7 +460,7 @@ public class MoccaCalendarScriptService implements ScriptService
         if (calendarData == null) {
             // some arbitrary defaults
             event.setBackgroundColor("#888");
-            // text can be missing
+            // text color can be missing
             event.setTextColor("");
         } else {
             event.setTextColor(calendarData.getStringValue("textColor"));
@@ -473,9 +473,9 @@ public class MoccaCalendarScriptService implements ScriptService
      * find modification data for an event instance, if the event instance has been modified.
      * @param eventDoc the document of the recurrent event
      * @param eventStartDate the original start date of the event instance
-     * @return the index of a MoccaCalendarEventModificationClass for the event instance, or -1 if no modification has been found for the event instance
+     * @return the index of a MoccaCalendarEventModificationClass object for the event instance, or -1 if no modification has been found for the event instance
      */
-    public int getModifiedEventData(Document eventDoc, Date eventStartDate)
+    public int getModifiedEventObjectIndex(Document eventDoc, Date eventStartDate)
     {
         final List<BaseObject> modificationNotices = eventDoc.getDocument().
             getXObjects(stringDocRefResolver.resolve(EventConstants.MOCCA_CALENDAR_EVENT_MODIFICATION_CLASS_NAME));
@@ -489,6 +489,91 @@ public class MoccaCalendarScriptService implements ScriptService
             }
         }
         return -1;
+    }
+
+    /**
+     * create a dummy modification object to be used as placeholder in edit view.
+     * @param eventDoc the document containing the (recurrent) event to be modified.
+     * @param eventStartDate the original start date of the unmodified event instance
+     * @return a non-persistent event modification object containing default values
+     */
+    public com.xpn.xwiki.api.Object createModificationDummy(Document eventDoc, Date eventStartDate)
+    {
+        final XWikiDocument xwikiEventDoc = eventDoc.getDocument();
+        final BaseObject eventData = xwikiEventDoc.
+            getXObject(stringDocRefResolver.resolve(EventConstants.MOCCA_CALENDAR_EVENT_CLASS_NAME));
+
+        BaseObject modificationData = new BaseObject();
+        modificationData.setXClassReference(stringDocRefResolver.resolve(EventConstants.MOCCA_CALENDAR_EVENT_MODIFICATION_CLASS_NAME));
+        modificationData.setOwnerDocument(xwikiEventDoc);
+        modificationData.setNumber(-1);
+
+        if (eventData != null) {
+            Date defaultStartDate = (eventStartDate!=null)? eventStartDate : eventData.getDateValue(EventConstants.PROPERTY_STARTDATE_NAME);
+            modificationData.setDateValue(EventConstants.PROPERTY_STARTDATE_NAME, defaultStartDate);
+
+            final Date baseStartDate = eventData.getDateValue(EventConstants.PROPERTY_STARTDATE_NAME);
+            final Date baseEndDate = Utils.fetchOrGuessEndDate(eventData);
+            final long baseDuration = baseEndDate.getTime() - baseStartDate.getTime();
+
+            Date defaultEndDate = new Date(defaultStartDate.getTime() + baseDuration);
+            modificationData.setDateValue(EventConstants.PROPERTY_ENDDATE_NAME, defaultEndDate);
+
+            modificationData.setLargeStringValue(EventConstants.PROPERTY_DESCRIPTION_NAME,
+                eventData.getLargeStringValue(EventConstants.PROPERTY_DESCRIPTION_NAME));
+        }
+
+        return new com.xpn.xwiki.api.Object(modificationData, xcontextProvider.get());
+    }
+
+    /**
+     * create an event instance for the given date and document.
+     * if the event instance has been modified, update the event instance with the modifications.
+     * this methods does not take deletion marks into account, but always returns an event instance.
+     * @param eventDoc the document of the recurrent event
+     * @param eventStartDate the original start date of the event instance (might be null for the unaltered event)
+     * @return the EventInstance with the (possibly modified) values of the event
+     */
+    public EventInstance getEventInstance(final Document eventDoc, final Date eventStartDate)
+    {
+        final XWikiDocument xwikiEventDoc = eventDoc.getDocument();
+        final BaseObject eventData = xwikiEventDoc.
+            getXObject(stringDocRefResolver.resolve(EventConstants.MOCCA_CALENDAR_EVENT_CLASS_NAME));
+        EventInstance event = null;
+        if (eventData == null) {
+            return event;
+        }
+
+        int objIndex;
+        Date originalEventStartDate;
+        if (eventStartDate == null)
+        {
+            originalEventStartDate = eventData.getDateValue(EventConstants.PROPERTY_STARTDATE_NAME);
+            objIndex = -1;
+        } else {
+            originalEventStartDate = eventStartDate;
+            objIndex = getModifiedEventObjectIndex(eventDoc, eventStartDate);
+        }
+
+        BaseObject modificationData = null;
+        if (objIndex != -1) {
+            modificationData = xwikiEventDoc.
+                getXObject(stringDocRefResolver.resolve(EventConstants.MOCCA_CALENDAR_EVENT_MODIFICATION_CLASS_NAME), objIndex);
+        } else {
+            logger.debug("create fresh event data for modification edit of [{}] at date [{}]", xwikiEventDoc, originalEventStartDate);
+            // we create a dummy which always returns null for all properties
+            modificationData = new BaseObject();
+        }
+        event = createModifiedEventData(xwikiEventDoc, eventData, modificationData, originalEventStartDate, null, null);
+
+        try {
+            completeEventData(event, xwikiEventDoc, eventData);
+        } catch (XWikiException xe) {
+            logger.info("could not create modified event data for document [{}] and date [{}]",
+                eventDoc, eventStartDate, xe);
+        }
+
+        return event;
     }
 
     //
@@ -615,81 +700,108 @@ public class MoccaCalendarScriptService implements ScriptService
     private Map<Long, EventInstance> modifiedEventsOf(XWikiDocument eventDoc, Date dateFrom, Date dateTo)
     {
         final Map<Long, EventInstance> results = new HashMap<>();
-        final XWikiContext context = xcontextProvider.get();
         final List<BaseObject> modificationNotices = eventDoc
                 .getXObjects(stringDocRefResolver.resolve(EventConstants.MOCCA_CALENDAR_EVENT_MODIFICATION_CLASS_NAME));
         final BaseObject eventData = eventDoc
                 .getXObject(stringDocRefResolver.resolve(EventConstants.MOCCA_CALENDAR_EVENT_CLASS_NAME));
-        final Date baseStartDate = eventData.getDateValue(EventConstants.PROPERTY_STARTDATE_NAME);
-        final Date baseEndDate = Utils.fetchOrGuessEndDate(eventData);
-        final long baseDuration = baseEndDate.getTime() - baseStartDate.getTime();
 
         if (modificationNotices != null) {
             for (int i = 0, n = modificationNotices.size(); i < n; i++) {
+
                 BaseObject modificationNotice = modificationNotices.get(i);
                 if (modificationNotice == null) {
                     continue;
                 }
+
                 Date originalStartDate = modificationNotice.getDateValue(EventConstants.PROPERTY_ORIG_STARTDATE_OF_MODIFIED_NAME);
                 if (originalStartDate == null) {
                     continue;
                 }
 
-                // now get both the original start / end date
-                // and the modified start / end date, and add a rudimentary event instance to result,
-                // unless:
-                //  a) both the original and new end date are before the "dateFrom"
-                // or
-                //  b) both the original start date or the modified start date are after the "dateTo"
-
-                Date originalEndDate = new Date(originalStartDate.getTime() + baseDuration);
-                Date actualStartDate = modificationNotice.getDateValue(EventConstants.PROPERTY_STARTDATE_NAME);
-                if (actualStartDate == null) {
-                    actualStartDate = originalStartDate;
-                }
-                // the following does not work if we have a modification without start date:
-                // Date actualEndDate = Utils.fetchOrGuessEndDate(modificationNotice);
-                // so instead:
-                Date actualEndDate = modificationNotice.getDateValue(EventConstants.PROPERTY_ENDDATE_NAME);
-                if (actualEndDate == null) {
-                    // we need to calculate the actual end date from the actual start date, but only if this has been defined
-                    // otherwise if we have no modified start date and no modified end date given, the end date is the same as the original end date
-                    // so yes, we do mean '==' here, not equals!
-                    // XXX: what if the "allDay" flag is changed on the event? currently this is not supported
-                    if (actualStartDate == originalStartDate) {
-                        actualEndDate = originalEndDate;
-                    } else {
-                        final boolean allDay = eventData.getIntValue(EventConstants.PROPERTY_ALLDAY_NAME) == 1;
-                        actualEndDate = Utils.guessEndDate(actualStartDate, allDay);
-                    }
-                }
-
-                // now we can figure out if the modified event is in the right time frame
-                if (actualEndDate.before(dateFrom) && originalEndDate.before(dateFrom)) {
+                EventInstance modifiedInstance = createModifiedEventData(eventDoc, eventData, modificationNotice, originalStartDate, dateFrom, dateTo);
+                if (modifiedInstance == null) {
                     continue;
-                }
-                if (actualStartDate.after(dateTo) && originalStartDate.after(dateTo)) {
-                    continue;
-                }
-
-                EventInstance modifiedInstance = new EventInstance();
-                modifiedInstance.setStartDate(new DateTime(actualStartDate.getTime()));
-                modifiedInstance.setEndDate(new DateTime(actualEndDate.getTime()));
-
-                String modifiedTitle = modificationNotice.getStringValue(EventConstants.PROPERTY_TITLE_NAME);
-                if (modifiedTitle != null && !"".equals(modifiedTitle.trim())) {
-                    modifiedInstance.setTitle( eventDoc.getRenderedContent(modifiedTitle, eventDoc.getSyntax().toIdString(),
-                            Syntax.PLAIN_1_0.toIdString(), context));
-                }
-                String modifiedDescription = modificationNotice.getStringValue(EventConstants.PROPERTY_DESCRIPTION_NAME);
-                if (modifiedDescription != null && !"".equals(modifiedDescription.trim())) {
-                    Utils.fillDescription(modificationNotice, context, modifiedInstance);
                 }
 
                 results.put(originalStartDate.getTime(), modifiedInstance);
             }
         }
         return results;
+    }
+
+    /**
+     * Helper to create an event instance from modification data.
+     * The very long parameter list is necessary as the code is called from several places.
+     * If the modified event is not in the given date range, this helper returns a null.
+     * The original start date is not optional, as we cannot guess it from the data if the modificationNotice is a dummy
+     * The date ranges are optional, if they are null, no check for the date range is done.
+     * @param eventDoc the document containing the event
+     * @param eventData the main even data
+     * @param modificationNotice the object containing the modification
+     * @param originalStartDate the original start date of the event, must not be null
+     * @param dateFrom the start of the date range, can be null
+     * @param dateTo the end of the date range can be null
+     * @return the event instance with (only) the modified data filled in
+     */
+    private EventInstance createModifiedEventData(XWikiDocument eventDoc, BaseObject eventData, BaseObject modificationNotice, Date originalStartDate, Date dateFrom, Date dateTo)
+    {
+        final Date baseStartDate = eventData.getDateValue(EventConstants.PROPERTY_STARTDATE_NAME);
+        final Date baseEndDate = Utils.fetchOrGuessEndDate(eventData);
+        final long baseDuration = baseEndDate.getTime() - baseStartDate.getTime();
+
+        // now get both the original start / end date
+        // and the modified start / end date, and add a rudimentary event instance to result,
+        // unless:
+        //  a) both the original and new end date are before the "dateFrom"
+        // or
+        //  b) both the original start date or the modified start date are after the "dateTo"
+
+        Date originalEndDate = new Date(originalStartDate.getTime() + baseDuration);
+        Date actualStartDate = modificationNotice.getDateValue(EventConstants.PROPERTY_STARTDATE_NAME);
+        if (actualStartDate == null) {
+            actualStartDate = originalStartDate;
+        }
+        // the following does not work if we have a modification without start date:
+        // Date actualEndDate = Utils.fetchOrGuessEndDate(modificationNotice);
+        // so instead:
+        Date actualEndDate = modificationNotice.getDateValue(EventConstants.PROPERTY_ENDDATE_NAME);
+        if (actualEndDate == null) {
+            // we need to calculate the actual end date from the actual start date, but only if this has been defined
+            // otherwise if we have no modified start date and no modified end date given, the end date is the same as the original end date
+            // XXX: what if the "allDay" flag is changed on the event? currently this is not supported
+            if (actualStartDate.equals(originalStartDate)) {
+                actualEndDate = originalEndDate;
+            } else {
+                final boolean allDay = eventData.getIntValue(EventConstants.PROPERTY_ALLDAY_NAME) == 1;
+                actualEndDate = Utils.guessEndDate(actualStartDate, allDay);
+            }
+        }
+
+        // now we can figure out if the modified event is in the right time frame
+        if (dateFrom != null && actualEndDate.before(dateFrom) && originalEndDate.before(dateFrom)) {
+            return null;
+        }
+        if (dateTo != null && actualStartDate.after(dateTo) && originalStartDate.after(dateTo)) {
+            return null;
+        }
+
+        EventInstance modifiedInstance = new EventInstance();
+        modifiedInstance.setStartDate(new DateTime(actualStartDate.getTime()));
+        modifiedInstance.setOriginalStartDate(new DateTime(originalStartDate.getTime()));
+        modifiedInstance.setEndDate(new DateTime(actualEndDate.getTime()));
+
+        XWikiContext context = xcontextProvider.get();
+        String modifiedTitle = modificationNotice.getStringValue(EventConstants.PROPERTY_TITLE_NAME);
+        if (modifiedTitle != null && !"".equals(modifiedTitle.trim())) {
+            modifiedInstance.setTitle( eventDoc.getRenderedContent(modifiedTitle, eventDoc.getSyntax().toIdString(),
+                    Syntax.PLAIN_1_0.toIdString(), context));
+        }
+        String modifiedDescription = modificationNotice.getStringValue(EventConstants.PROPERTY_DESCRIPTION_NAME);
+        if (modifiedDescription != null && !"".equals(modifiedDescription.trim())) {
+            Utils.fillDescription(modificationNotice, context, modifiedInstance);
+        }
+
+        return modifiedInstance;
     }
 
 }

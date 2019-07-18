@@ -38,6 +38,7 @@ public class EventInstance
     private DocumentReference eventDocRef;
 
     private DateTime startDate;
+    private DateTime originalStartDate;
     private DateTime endDate;
     private DateTime endDateExclusive;
 
@@ -52,7 +53,7 @@ public class EventInstance
     private String backgroundColor;
 
     /**
-     * a reference to the document describing the event.
+     * A reference to the document describing the event.
      *
      * @return the document reference for the event
      */
@@ -62,7 +63,7 @@ public class EventInstance
     }
 
     /**
-     * set the reference to the document describing the event.
+     * Set the reference to the document describing the event.
      *
      * @param eventDocRef a document reference
      */
@@ -72,7 +73,7 @@ public class EventInstance
     }
 
     /**
-     * the date when the event starts.
+     * The date when the event starts.
      *
      * @return the date when the event starts
      */
@@ -82,8 +83,8 @@ public class EventInstance
     }
 
     /**
-     * set the start date of the event.
-     * this value must be set by event generators.
+     * Set the start date of the event.
+     * This value must be set by event generators.
      *
      * @param startDate a (jodatime) date. The time part should be 00:00 for all day events
      */
@@ -92,8 +93,30 @@ public class EventInstance
         this.startDate = startDate;
     }
 
+
     /**
-     * the date when the event ends.
+     * The date when the event would have started if not modified.
+     * This can be null if the event is not modified.
+     *
+     * @return the date when the event would have started if not modified.
+     */
+    public DateTime getOriginalStartDate()
+    {
+        return originalStartDate;
+    }
+
+    /**
+     * Set the date when the event would have started if not modified.
+     *
+     * @param origStartDate a (jodatime) date. The time part should be 00:00 for all day events
+     */
+    public void setOriginalStartDate(DateTime originalStartDate)
+    {
+        this.originalStartDate = originalStartDate;
+    }
+
+    /**
+     * The date when the event ends.
      *
      * @return the date when the event ends
      */
@@ -103,8 +126,8 @@ public class EventInstance
     }
 
     /**
-     * set the end date for the event.
-     * this value must be set by event generators.
+     * Set the end date for the event.
+     * This value must be set by event generators.
      *
      * @param endDate a (jodatime) date. The time part should be 00:00 for all-day events
      */
@@ -114,7 +137,7 @@ public class EventInstance
     }
 
     /**
-     * a date after the event has ended.
+     * A date after the event has ended.
      *
      * @return a (jodatime) date
      */
@@ -124,8 +147,8 @@ public class EventInstance
     }
 
     /**
-     * set a date after the event has ended.
-     * this should be the start of the next day after the event for all-day events.
+     * Set a date after the event has ended.
+     * This should be the start of the next day after the event for all-day events.
      *
      * @param endDateExclusive a date after the event
      */
@@ -135,7 +158,7 @@ public class EventInstance
     }
 
     /**
-     * a flag if the event last a full day (or several full days). This information can be figured out by the {@link #getStartDate()} and
+     * A flag if the event last a full day (or several full days). This information can be figured out by the {@link #getStartDate()} and
      * {@link #getEndDate()} and is only here for convenience.
      *
      * @return true if the event lasts all day
@@ -146,7 +169,7 @@ public class EventInstance
     }
 
     /**
-     * set the flag if the even lasts all day.
+     * Set the flag if the even lasts all day.
      *
      * @param allDay .
      */
@@ -156,7 +179,7 @@ public class EventInstance
     }
 
     /**
-     * a flag if this event instance is part of a recurrent event or not.
+     * A flag if this event instance is part of a recurrent event or not.
      *
      * @return true if the event instance is member of recurrent series of events
      */
@@ -166,7 +189,7 @@ public class EventInstance
     }
 
     /**
-     * set the recurrency flag.
+     * Set the recurrency flag.
      *
      * @param recurrent .
      */
@@ -176,7 +199,7 @@ public class EventInstance
     }
 
     /**
-     * the title of the event.
+     * The title of the event.
      *
      * @return the title to be displayed in the overview
      */
@@ -186,7 +209,7 @@ public class EventInstance
     }
 
     /**
-     * set the title of the event.
+     * Set the title of the event.
      *
      * @param title should not be null or empty
      */
@@ -196,7 +219,7 @@ public class EventInstance
     }
 
     /**
-     * the longer description of the event, as plain text.
+     * The longer description of the event, as plain text.
      *
      * @return the description of the event without HTML markup
      */
@@ -206,9 +229,9 @@ public class EventInstance
     }
 
     /**
-     * set the longer description of the event.
+     * Set the longer description of the event.
      *
-     * @param description .
+     * @param description the description of the event without HTML markup.
      */
     public void setDescription(String description)
     {
@@ -216,7 +239,7 @@ public class EventInstance
     }
 
     /**
-     * the longer description of the event, as HTML markup text.
+     * The longer description of the event, as HTML markup text.
      *
      * @return the description as HTML
      */
@@ -226,9 +249,9 @@ public class EventInstance
     }
 
     /**
-     * set the longer description as HTML.
+     * Set the longer description as HTML.
      *
-     * @param descriptionHtml .
+     * @param descriptionHtml the description as HTML.
      */
     public void setDescriptionHtml(String descriptionHtml)
     {
@@ -236,7 +259,7 @@ public class EventInstance
     }
 
     /**
-     * the font color to be used to render this event in die calendar overview
+     * The font color to be used to render this event in die calendar overview
      * (as RGB string).
      *
      * @return a color as RGB string
@@ -247,9 +270,9 @@ public class EventInstance
     }
 
     /**
-     * set the font color to be used when displaying the event.
+     * Set the font color to be used when displaying the event.
      *
-     * @param textColor .
+     * @param textColor a color as RGB string.
      */
     public void setTextColor(String textColor)
     {
@@ -257,7 +280,7 @@ public class EventInstance
     }
 
     /**
-     * color for the background when displaying this event (as RGB string).
+     * Color for the background when displaying this event (as RGB string).
      *
      * @return a color as RGB string
      */
@@ -267,8 +290,8 @@ public class EventInstance
     }
 
     /**
-     * set the background color.
-     * @param backgroundColor .
+     * Set the background color.
+     * @param backgroundColor a color as RGB string.
      */
     public void setBackgroundColor(String backgroundColor)
     {
