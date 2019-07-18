@@ -47,7 +47,7 @@ public interface RecurrentEventGenerator
      * @param dateFrom
      *            the date after which generated event instances should end
      * @param dateTo
-     *            the date before which genetated event instances should start
+     *            the date before which generated event instances should start
      * @return a list of event instances; might be empty but should not be null
      */
     List<EventInstance> generate(XWikiDocument event, Date dateFrom, Date dateTo);

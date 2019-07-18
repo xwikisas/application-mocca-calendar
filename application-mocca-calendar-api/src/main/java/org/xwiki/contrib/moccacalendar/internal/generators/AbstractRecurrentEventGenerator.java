@@ -109,7 +109,6 @@ public abstract class AbstractRecurrentEventGenerator implements RecurrentEventG
     {
         Calendar cal = Calendar.getInstance();
     
-        // FIXME: isn't it endDate that should be after dateFrom instead ?
         cal.setTime(startDate);
     
         // stupid, inefficient, but should work
@@ -118,6 +117,7 @@ public abstract class AbstractRecurrentEventGenerator implements RecurrentEventG
         }
     
         List<EventInstance> eventInstances = new ArrayList<>();
+        // FIXME: isn't it endDate instead of the start date that should be after dateFrom instead ?
         while (cal.getTime().compareTo(dateTo) <= 0) {
             EventInstance instance = new EventInstance();
             instance.setStartDate(new DateTime(cal.getTimeInMillis()));
