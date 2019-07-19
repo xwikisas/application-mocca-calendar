@@ -560,7 +560,6 @@ public class MoccaCalendarScriptService implements ScriptService
             modificationData = xwikiEventDoc.
                 getXObject(stringDocRefResolver.resolve(EventConstants.MOCCA_CALENDAR_EVENT_MODIFICATION_CLASS_NAME), objIndex);
         } else {
-            logger.debug("create fresh event data for modification edit of [{}] at date [{}]", xwikiEventDoc, originalEventStartDate);
             // we create a dummy which always returns null for all properties
             modificationData = new BaseObject();
         }
