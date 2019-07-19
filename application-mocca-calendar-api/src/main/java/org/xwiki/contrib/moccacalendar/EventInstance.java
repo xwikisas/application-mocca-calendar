@@ -108,7 +108,7 @@ public class EventInstance
     /**
      * Set the date when the event would have started if not modified.
      *
-     * @param origStartDate a (jodatime) date. The time part should be 00:00 for all day events
+     * @param originalStartDate a (jodatime) date. The time part should be 00:00 for all day events
      */
     public void setOriginalStartDate(DateTime originalStartDate)
     {
