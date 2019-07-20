@@ -151,9 +151,9 @@ $doc.display($field)
 ## add a switch between general and specifc values in case of overrides
 ##
 #if($isSingleInstance)
-  ; &lt;label for="instanceEdit" id="instanceEditSwitch"&gt;Edit&lt;/label&gt;
-  : &lt;input type="radio" name="instanceEdit" id="instanceEditYes" value="yes" checked="checked" /&gt; this instance only
-    &lt;input type="radio" name="instanceEdit" id="instanceEditNo" value="no" /&gt; all instances
+  ; &lt;label for="instanceEdit" id="instanceEditSwitch"&gt;$services.localization.render('moccacalendarevent.editswitch.label')&lt;/label&gt;
+  : &lt;input type="radio" name="instanceEdit" id="instanceEditYes" value="yes" checked="checked" /&gt;&lt;label for="instanceEditYes"&gt;$services.localization.render('moccacalendarevent.editswitch.oneInstance')&lt;/label&gt;
+    &lt;input type="radio" name="instanceEdit" id="instanceEditNo" value="no" /&gt;&lt;label for="instanceEditNo"&gt;$services.localization.render('moccacalendarevent.editswitch.allInstances')&lt;/label&gt;
 
 &lt;div id="allEventsFields"&gt;
 

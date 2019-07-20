@@ -46,15 +46,13 @@
   #set($pageRef = $request.get('event'))
   #set($startDateStr = $request.get('instanceStart'))
   #set($eventDate = $datetool.toDate("yyyy-MM-dd'T'HH:mm", $startDateStr))
-  ##set($eventDate = $datetool.toDate($numbertool.toNumber($tstampStr)))
   #if($eventDate)
     #set($eventPage = $xwiki.getDocument($pageRef))
-    ###set($newPos = $eventPage.createNewObject('MoccaCalendar.Code.MoccaCalendarEventDeletionClass'))
     #set($deleteNote = $eventPage.newObject('MoccaCalendar.Code.MoccaCalendarEventDeletionClass'))
     #set($discard = $deleteNote.set('eventOrigStartDate', $eventDate))
-    #set($discard = $eventPage.save("deleted event instance at $deleteNote.get('eventOrigStartDate')", true))
+    #set($discard = $eventPage.save($services.localization.render('moccacalendar.delete.saveMessage', $deleteNote.get('eventOrigStartDate')), true))
   #else
-    #set($discard = $result.put('error',"could not parse instance start date"))
+    #set($discard = $result.put('error',$services.localization.render('moccacalendar.delete.startDateInvalid')))
   #end
   $jsontool.serialize($result)
 #else

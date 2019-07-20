@@ -95,6 +95,26 @@ MoccaCalendar.MoccaCalendarEventClass_startDate=Startdatum
 MoccaCalendar.MoccaCalendarEventClass_endDate=Enddatum
 MoccaCalendar.MoccaCalendarEventClass_description=Beschreibung
 MoccaCalendar.MoccaCalendarEventClass_allDay=Ganztägig
+MoccaCalendar.MoccaCalendarEventClass_recurrent=Wiederkehrend
+
+# modification class fields
+MoccaCalendar.Code.MoccaCalendarEventRecurrencyClass_frequency=Wiederholung
+MoccaCalendar.Code.MoccaCalendarEventRecurrencyClass_frequency_daily=täglich
+MoccaCalendar.Code.MoccaCalendarEventRecurrencyClass_frequency_workdays=werktags
+MoccaCalendar.Code.MoccaCalendarEventRecurrencyClass_frequency_weekly=wöchentlich
+MoccaCalendar.Code.MoccaCalendarEventRecurrencyClass_frequency_biweekly=zweiwöchentlich
+MoccaCalendar.Code.MoccaCalendarEventRecurrencyClass_frequency_monthly=monatlich
+MoccaCalendar.Code.MoccaCalendarEventRecurrencyClass_frequency_quarterly=quartalsweise
+MoccaCalendar.Code.MoccaCalendarEventRecurrencyClass_frequency_yearly=jährlich
+MoccaCalendar.Code.MoccaCalendarEventModificationClass_title=geänderter Titel
+MoccaCalendar.Code.MoccaCalendarEventModificationClass_startDate=geändertes Startdatum
+MoccaCalendar.Code.MoccaCalendarEventModificationClass_endDate=geändertes Enddatum
+MoccaCalendar.Code.MoccaCalendarEventModificationClass_description=geänderte Beschreibung
+
+# the modification switch
+moccacalendarevent.editswitch.label=Bearbeiten von:
+moccacalendarevent.editswitch.oneInstance=diesem Eintrag
+moccacalendarevent.editswitch.allInstances=allen Einträgen
 
 # Event live table generic keys (currently unused)
 moccacalendarevent.livetable.doc.title=Seiten Titel
@@ -131,5 +151,15 @@ moccacalendar.updates.eventUpdated=Termin wurde aktualisiert
 moccacalendar.updates.eventrecurrent=Wiederkehrende Termin können nicht verschoben werden.
 moccacalendar.updates.savefailed=Der Termin konnte nicht gespeichert werden
 moccacalendar.updates.valuesinvalid=Das neue Datum des Termins ist ungültig
-moccacalendar.updates.nodocument=Der Termin ist nicht mehr verfügbar</content>
+moccacalendar.updates.nodocument=Der Termin ist nicht mehr verfügbar
+
+
+# validation messages: Delete Service
+moccacalendar.delete.startDateInvalid=Das Startdatum des Termins wurde nicht erkannt.
+moccacalendar.delete.saveMessage=Eintrag am {0} gelöscht.
+
+# validation messages: Modification Service
+moccacalendar.modify.createMessage=Änderung für einen Termineintrag angelegt
+moccacalendar.modify.saveMessage=Änderung für einen Termineintrag geändert
+</content>
 </xwikidoc>

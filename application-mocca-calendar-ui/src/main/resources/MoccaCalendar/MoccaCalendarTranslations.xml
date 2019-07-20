@@ -95,6 +95,26 @@ MoccaCalendar.MoccaCalendarEventClass_startDate=Start date
 MoccaCalendar.MoccaCalendarEventClass_endDate=End date
 MoccaCalendar.MoccaCalendarEventClass_description=Description
 MoccaCalendar.MoccaCalendarEventClass_allDay=All day
+MoccaCalendar.MoccaCalendarEventClass_recurrent=Recurrent
+
+# modification class fields
+MoccaCalendar.Code.MoccaCalendarEventRecurrencyClass_frequency=Frequency
+MoccaCalendar.Code.MoccaCalendarEventRecurrencyClass_frequency_daily=daily
+MoccaCalendar.Code.MoccaCalendarEventRecurrencyClass_frequency_workdays=workdays
+MoccaCalendar.Code.MoccaCalendarEventRecurrencyClass_frequency_weekly=weekly
+MoccaCalendar.Code.MoccaCalendarEventRecurrencyClass_frequency_biweekly=biweekly
+MoccaCalendar.Code.MoccaCalendarEventRecurrencyClass_frequency_monthly=monthly
+MoccaCalendar.Code.MoccaCalendarEventRecurrencyClass_frequency_quarterly=quarterly
+MoccaCalendar.Code.MoccaCalendarEventRecurrencyClass_frequency_yearly=yearly
+MoccaCalendar.Code.MoccaCalendarEventModificationClass_title=Modified title
+MoccaCalendar.Code.MoccaCalendarEventModificationClass_startDate=Modified start date
+MoccaCalendar.Code.MoccaCalendarEventModificationClass_endDate=Modified end date
+MoccaCalendar.Code.MoccaCalendarEventModificationClass_description=Modified description
+
+# the modification switch
+moccacalendarevent.editswitch.label=Edit:
+moccacalendarevent.editswitch.oneInstance=this instance only
+moccacalendarevent.editswitch.allInstances=all instances
 
 # Event live table generic keys (currently unused)
 moccacalendarevent.livetable.doc.title=Page title
@@ -133,7 +153,16 @@ moccacalendar.updates.eventUpdated=Updated event time
 moccacalendar.updates.eventrecurrent=Recurrent events cannot be moved
 moccacalendar.updates.savefailed=Saving the event failed
 moccacalendar.updates.valuesinvalid=The new event time is invalid
-moccacalendar.updates.nodocument=The event is no longer available.</content>
+moccacalendar.updates.nodocument=The event is no longer available.
+
+# validation messages: Delete Service
+moccacalendar.delete.startDateInvalid=The event start date could not be read.
+moccacalendar.delete.saveMessage=Event instance at {0} deleted.
+
+# validation messages: Modification Service
+moccacalendar.modify.createMessage=Added modification for one event instance
+moccacalendar.modify.saveMessage=Updated modification for one event instance
+</content>
   <object>
     <name>MoccaCalendar.MoccaCalendarTranslations</name>
     <number>0</number>

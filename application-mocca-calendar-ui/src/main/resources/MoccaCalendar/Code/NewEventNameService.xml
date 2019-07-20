@@ -62,7 +62,7 @@
   #end
   $jsontool.serialize( { 'name' : $eventName, 'parent' : $services.model.serialize( $parentRef ) } )
 #else
-  $jsontool.serialize( { 'msg' : 'newEvent paramter missing' } )
+  $jsontool.serialize( { 'msg' : '"newEvent" parameter missing' } )
 #end
 #end
 {{/velocity}}</content>
