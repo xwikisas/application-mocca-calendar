@@ -25,7 +25,10 @@ import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 
+import javax.inject.Inject;
+
 import org.joda.time.DateTime;
+import org.slf4j.Logger;
 import org.xwiki.contrib.moccacalendar.EventInstance;
 import org.xwiki.contrib.moccacalendar.RecurrentEventGenerator;
 import org.xwiki.contrib.moccacalendar.internal.EventConstants;
@@ -43,6 +46,15 @@ import com.xpn.xwiki.objects.BaseObject;
  */
 public abstract class AbstractRecurrentEventGenerator implements RecurrentEventGenerator
 {
+
+    /**
+     * a limit for the maximum of generated instance.
+     * this is mainly used to avoid crashes due to a runaway generator.
+     */
+    protected static final int MAX_INSTANCES = 1000;
+
+    @Inject
+    private Logger logger;
 
     /**
      * increment the calendar by the period of the event.
@@ -100,12 +112,13 @@ public abstract class AbstractRecurrentEventGenerator implements RecurrentEventG
             return Collections.emptyList();
         }
     
-        return createEventInstances(startDate, duration, actualDateFrom, actualDateTo);
+        return createEventInstances(event, startDate, duration, actualDateFrom, actualDateTo);
     }
 
     // separate helper method to actually create the events
     // to keep checkstyle from complaining
-    private List<EventInstance> createEventInstances(Date startDate, final long duration, Date dateFrom, Date dateTo)
+    private List<EventInstance> createEventInstances(final XWikiDocument event, final Date startDate,
+        final long duration, final Date dateFrom, final Date dateTo)
     {
         Calendar cal = Calendar.getInstance();
     
@@ -125,6 +138,11 @@ public abstract class AbstractRecurrentEventGenerator implements RecurrentEventG
     
             eventInstances.add(instance);
     
+            if (eventInstances.size() >= MAX_INSTANCES) {
+                logger.info("maximal number of events generated for [{}]; stopping", event);
+                break;
+            }
+
             incrementCalendarByOnePeriod(cal);
         }
     

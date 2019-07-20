@@ -22,6 +22,7 @@ package org.xwiki.contrib.moccacalendar.script;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -75,7 +76,8 @@ import com.xpn.xwiki.objects.BaseObject;
 @Component
 public class MoccaCalendarScriptService implements ScriptService
 {
-    private static final String BASE_QUERY_PREFIX = ", BaseObject as obj, IntegerProperty as recurrent, DateProperty as startdate, DateProperty as enddate"
+    private static final String BASE_QUERY_PREFIX = ", BaseObject as obj, IntegerProperty as recurrent,"
+        + " DateProperty as startdate, DateProperty as enddate"
         + " where obj.id=startdate.id.id and startdate.id.name='startDate'"
         + " and obj.id=enddate.id.id and enddate.id.name='endDate'"
         + " and obj.id=recurrent.id.id and recurrent.id.name='recurrent'"
@@ -180,7 +182,7 @@ public class MoccaCalendarScriptService implements ScriptService
      * @param sortAscending
      *            if true, sort events ascending by start date, else descending
      * @return a list of event instances matching the criteria; might be empty but never null
-     * @throws QueryException
+     * @throws QueryException if an error occurs while fetching the events
      */
     public List<EventInstance> queryEvents(Date dateFrom, Date dateTo, String filter, String parentReference,
         boolean sortAscending) throws QueryException
@@ -254,7 +256,7 @@ public class MoccaCalendarScriptService implements ScriptService
                 event.setEventDocRef(eventDocRef);
 
                 Date startDate = eventData.getDateValue(EventConstants.PROPERTY_STARTDATE_NAME);
-				DateTime startDateTime = new DateTime(startDate.getTime());
+                DateTime startDateTime = new DateTime(startDate.getTime());
                 event.setStartDate(startDateTime);
 
                 Date endDate = Utils.fetchOrGuessEndDate(eventData);
@@ -313,8 +315,7 @@ public class MoccaCalendarScriptService implements ScriptService
             logger.error("error while fetching recurrent events", e);
         }
 
-        // FIXME: some code duplication and method is too long
-        // TODO: now we gotta sort them, right? (at least for the "agenda view")
+        sortEvents(events, sortAscending);
 
         return events;
     }
@@ -357,7 +358,8 @@ public class MoccaCalendarScriptService implements ScriptService
             String eventType = eventRecData.getStringValue("frequency");
             RecurrentEventGenerator generator = this.eventGenerators.get(eventType);
             if (generator == null) {
-                logger.error("no recurrent event generator found for frequency [{}] used by [{}]", eventType, eventDocRef);
+                logger.error("no recurrent event generator found for frequency [{}] used by [{}]",
+                    eventType, eventDocRef);
                 continue;
             }
 
@@ -387,10 +389,10 @@ public class MoccaCalendarScriptService implements ScriptService
 
             // TODO: what happens with modified events where the original event is not
             // in our time range, but the modified one is?
-            if (! modifiedEvents.isEmpty()) {
+            if (!modifiedEvents.isEmpty()) {
                 logger.error("we dropped some modifications: [{}]", modifiedEvents.size());
                 if (logger.isDebugEnabled()) {
-                    for (Map.Entry<Long, EventInstance> modification : modifiedEvents.entrySet() ) {
+                    for (Map.Entry<Long, EventInstance> modification : modifiedEvents.entrySet()) {
                         logger.debug("event originally started at [{}]", new DateTime(modification.getKey()));
                         EventInstance modifiedEvent = modification.getValue();
                         logger.debug("  event start at [{}]", modifiedEvent.getStartDate());
@@ -433,12 +435,11 @@ public class MoccaCalendarScriptService implements ScriptService
         }
 
         event.setEventDocRef(eventDocRef);
-        /*
-         * the corresponding calendar page should be the default page of the parent space. this is the space of the page if the
-         * event page is terminal, and the parent of the events page space, if the page is non-terminal
+
+        /* the corresponding calendar page should be the default page of the parent space.
+         * this is the space of the page if the event page is terminal, and the parent
+         * of the events page space, if the page is non-terminal
          */
-        // TODO: this is complicated and creates wrong results for event in sub-sub pages
-        // (and also those who use the old parent/child relationship)
         BaseObject calendarData = null;
         SpaceReference parentSpaceRef = null;
         if (defaultPageName.equals(eventDocRef.getName())) {
@@ -473,7 +474,8 @@ public class MoccaCalendarScriptService implements ScriptService
      * find modification data for an event instance, if the event instance has been modified.
      * @param eventDoc the document of the recurrent event
      * @param eventStartDate the original start date of the event instance
-     * @return the index of a MoccaCalendarEventModificationClass object for the event instance, or -1 if no modification has been found for the event instance
+     * @return the index of a MoccaCalendarEventModificationClass object for the event instance,
+     *    or -1 if no modification has been found for the event instance
      */
     public int getModifiedEventObjectIndex(Document eventDoc, Date eventStartDate)
     {
@@ -482,7 +484,8 @@ public class MoccaCalendarScriptService implements ScriptService
         if (modificationNotices != null) {
             for (int i = 0, n = modificationNotices.size(); i < n; i++) {
                 BaseObject modificationNotice = modificationNotices.get(i);
-                Date modificationDate = (modificationNotice==null)?null:modificationNotice.getDateValue(EventConstants.PROPERTY_ORIG_STARTDATE_OF_MODIFIED_NAME);
+                Date modificationDate = (modificationNotice == null)
+                    ? null : modificationNotice.getDateValue(EventConstants.PROPERTY_ORIG_STARTDATE_OF_MODIFIED_NAME);
                 if (eventStartDate.equals(modificationDate)) {
                     return i;
                 }
@@ -500,16 +503,18 @@ public class MoccaCalendarScriptService implements ScriptService
     public com.xpn.xwiki.api.Object createModificationDummy(Document eventDoc, Date eventStartDate)
     {
         final XWikiDocument xwikiEventDoc = eventDoc.getDocument();
-        final BaseObject eventData = xwikiEventDoc.
-            getXObject(stringDocRefResolver.resolve(EventConstants.MOCCA_CALENDAR_EVENT_CLASS_NAME));
+        final BaseObject eventData = xwikiEventDoc.getXObject(
+            stringDocRefResolver.resolve(EventConstants.MOCCA_CALENDAR_EVENT_CLASS_NAME));
 
         BaseObject modificationData = new BaseObject();
-        modificationData.setXClassReference(stringDocRefResolver.resolve(EventConstants.MOCCA_CALENDAR_EVENT_MODIFICATION_CLASS_NAME));
+        modificationData.setXClassReference(
+            stringDocRefResolver.resolve(EventConstants.MOCCA_CALENDAR_EVENT_MODIFICATION_CLASS_NAME));
         modificationData.setOwnerDocument(xwikiEventDoc);
         modificationData.setNumber(-1);
 
         if (eventData != null) {
-            Date defaultStartDate = (eventStartDate!=null)? eventStartDate : eventData.getDateValue(EventConstants.PROPERTY_STARTDATE_NAME);
+            Date defaultStartDate = (eventStartDate != null)
+                ? eventStartDate : eventData.getDateValue(EventConstants.PROPERTY_STARTDATE_NAME);
             modificationData.setDateValue(EventConstants.PROPERTY_STARTDATE_NAME, defaultStartDate);
 
             final Date baseStartDate = eventData.getDateValue(EventConstants.PROPERTY_STARTDATE_NAME);
@@ -561,7 +566,8 @@ public class MoccaCalendarScriptService implements ScriptService
         BaseObject modificationData = null;
         if (objIndex != -1) {
             modificationData = xwikiEventDoc.
-                getXObject(stringDocRefResolver.resolve(EventConstants.MOCCA_CALENDAR_EVENT_MODIFICATION_CLASS_NAME), objIndex);
+                getXObject(stringDocRefResolver.resolve(
+                    EventConstants.MOCCA_CALENDAR_EVENT_MODIFICATION_CLASS_NAME), objIndex);
         } else {
             // we create a dummy which always returns null for all properties
             modificationData = new BaseObject();
@@ -670,6 +676,29 @@ public class MoccaCalendarScriptService implements ScriptService
         data.getQueryParams().put(prefix + "day", day);
     }
 
+    private void sortEvents(final List<EventInstance> events, final boolean ascending)
+    {
+        Collections.sort(events, new Comparator<EventInstance>()
+        {
+            @Override
+            public int compare(EventInstance event1, EventInstance event2)
+            {
+                int result;
+                final DateTime startDate1 = event1.getStartDate();
+                final DateTime startDate2 = event2.getStartDate();
+                if (startDate1 == null) {
+                    result = (startDate2 == null) ? 0 : -1;
+                } else if (startDate2 == null) {
+                    result = 1;
+                } else {
+                    result = startDate1.compareTo(startDate2);
+                }
+                return (ascending) ? result : -result;
+            }
+
+        });
+    }
+
     private Set<Long> deletedEventsOf(XWikiDocument eventDoc)
     {
         Set<Long> deletions = new HashSet<>();
@@ -678,7 +707,8 @@ public class MoccaCalendarScriptService implements ScriptService
             getXObjects(stringDocRefResolver.resolve(EventConstants.MOCCA_CALENDAR_EVENT_DELETION_CLASS_NAME));
         if (deleteNotices != null) {
             for (BaseObject deleteNotice : deleteNotices) {
-                Date deleted = (deleteNotice==null)?null:deleteNotice.getDateValue(EventConstants.PROPERTY_STARTDATE_OF_DELETED_NAME);
+                Date deleted = (deleteNotice == null)
+                    ? null : deleteNotice.getDateValue(EventConstants.PROPERTY_STARTDATE_OF_DELETED_NAME);
                 if (deleted != null) {
                     deletions.add(deleted.getTime());
                 }
@@ -715,12 +745,14 @@ public class MoccaCalendarScriptService implements ScriptService
                     continue;
                 }
 
-                Date originalStartDate = modificationNotice.getDateValue(EventConstants.PROPERTY_ORIG_STARTDATE_OF_MODIFIED_NAME);
+                Date originalStartDate = modificationNotice.getDateValue(
+                    EventConstants.PROPERTY_ORIG_STARTDATE_OF_MODIFIED_NAME);
                 if (originalStartDate == null) {
                     continue;
                 }
 
-                EventInstance modifiedInstance = createModifiedEventData(eventDoc, eventData, modificationNotice, originalStartDate, dateFrom, dateTo);
+                EventInstance modifiedInstance = createModifiedEventData(eventDoc, eventData, modificationNotice,
+                    originalStartDate, dateFrom, dateTo);
                 if (modifiedInstance == null) {
                     continue;
                 }
@@ -745,7 +777,9 @@ public class MoccaCalendarScriptService implements ScriptService
      * @param dateTo the end of the date range can be null
      * @return the event instance with (only) the modified data filled in
      */
-    private EventInstance createModifiedEventData(XWikiDocument eventDoc, BaseObject eventData, BaseObject modificationNotice, Date originalStartDate, Date dateFrom, Date dateTo)
+    private EventInstance createModifiedEventData(XWikiDocument eventDoc,
+        BaseObject eventData, BaseObject modificationNotice,
+        Date originalStartDate, Date dateFrom, Date dateTo)
     {
         final Date baseStartDate = eventData.getDateValue(EventConstants.PROPERTY_STARTDATE_NAME);
         final Date baseEndDate = Utils.fetchOrGuessEndDate(eventData);
@@ -769,7 +803,8 @@ public class MoccaCalendarScriptService implements ScriptService
         Date actualEndDate = modificationNotice.getDateValue(EventConstants.PROPERTY_ENDDATE_NAME);
         if (actualEndDate == null) {
             // we need to calculate the actual end date from the actual start date, but only if this has been defined
-            // otherwise if we have no modified start date and no modified end date given, the end date is the same as the original end date
+            // otherwise if we have no modified start date and no modified end date given,
+            // then the end date is the same as the original end date
             // XXX: what if the "allDay" flag is changed on the event? currently this is not supported
             if (actualStartDate.equals(originalStartDate)) {
                 actualEndDate = originalEndDate;
@@ -795,7 +830,7 @@ public class MoccaCalendarScriptService implements ScriptService
         XWikiContext context = xcontextProvider.get();
         String modifiedTitle = modificationNotice.getStringValue(EventConstants.PROPERTY_TITLE_NAME);
         if (modifiedTitle != null && !"".equals(modifiedTitle.trim())) {
-            modifiedInstance.setTitle( eventDoc.getRenderedContent(modifiedTitle, eventDoc.getSyntax().toIdString(),
+            modifiedInstance.setTitle(eventDoc.getRenderedContent(modifiedTitle, eventDoc.getSyntax().toIdString(),
                     Syntax.PLAIN_1_0.toIdString(), context));
         }
         String modifiedDescription = modificationNotice.getStringValue(EventConstants.PROPERTY_DESCRIPTION_NAME);
