@@ -190,12 +190,12 @@ $doc.display($field)
   : $doc.display('recurrent','view') #if($isEdit) $doc.display('recurrent','hidden') #end
 #else
   : $doc.display('recurrent')
-&lt;div id="recurrentFields" #if(!$isRecurrent) style="display:none"#end&gt;
 #set($discard = $doc.use($eventRecurrentClass))
-  ; &lt;label for="${eventRecurrentClass}_0_frequency"&gt;$escapetool.xml($doc.displayPrettyName('frequency', false, false))
+(% id="recurrentFields" style="display:none" %)
+(((
+  ; &lt;label for="${eventRecurrentClass}_0_frequency"&gt;$escapetool.xml($doc.displayPrettyName('frequency', false, false))&lt;/label&gt;
   : $doc.display('frequency')
-&lt;/label&gt;
-&lt;/div&gt;
+)))
 #end
 #if($isSingleInstance)
 &lt;/div&gt;
@@ -211,7 +211,9 @@ $doc.display($field)
 #end
 &lt;div id="oneEventFields"&gt;
 
-  ; &lt;label for="${editOnePrefix}_startDate"&gt;$escapetool.xml($doc.displayPrettyName('startDate', false, false))&lt;/label&gt;
+  ; &lt;label for="${editOnePrefix}_title"&gt;$escapetool.xml($doc.displayPrettyName('title', false, false))&lt;span class="xRequired"&gt;&lt;/span&gt;&lt;/label&gt;
+  : $doc.display('title')
+  ; &lt;label for="${editOnePrefix}_startDate"&gt;$escapetool.xml($doc.displayPrettyName('startDate', false, false))&lt;span class="xRequired"&gt;&lt;/span&gt;&lt;/label&gt;
   : #displayDate('startDate')#showvalidationmessage("MoccaCalendar.Code.MoccaCalendarEventModificationClass.validation.startDateMissing")#showvalidationmessage("MoccaCalendar.Code.MoccaCalendarEventModificationClass.validation.startDateNotDate")
   ; &lt;label for="${editOnePrefix}_endDate"&gt;$escapetool.xml($doc.displayPrettyName('endDate', false, false))&lt;/label&gt;
   : #displayDate('endDate')#showvalidationmessage("MoccaCalendar.Code.MoccaCalendarEventModificationClass.validation.endDateBeforeStartDate")#showvalidationmessage("MoccaCalendar.Code.MoccaCalendarEventModificationClass.validation.endDateNotDate")
@@ -355,12 +357,11 @@ This page does not contain an event.
       Event.fire($('xwikidocparentinput'), 'xwiki:suggest:selected');
     })
     var rc = $('MoccaCalendar.MoccaCalendarEventClass_0_recurrent');
+    var recurrencyArea = $('recurrentFields')
+    var recurrencyField = $('MoccaCalendar.Code.MoccaCalendarEventRecurrencyClass_0_frequency')
     if (rc) {
       rc.observe('change', function() {
         var value = $F('MoccaCalendar.MoccaCalendarEventClass_0_recurrent');
-        console.log('oh, we got recurrent = ', value);
-        var recurrencyArea = $('recurrentFields')
-        var recurrencyField = $('MoccaCalendar.Code.MoccaCalendarEventRecurrencyClass_0_frequency')
         if (value) {
           if (recurrencyField) recurrencyField.removeAttribute('disabled')
           if (recurrencyArea) recurrencyArea.show()
@@ -369,8 +370,8 @@ This page does not contain an event.
           if (recurrencyField) recurrencyField.writeAttribute('disabled','disabled')
         }
       })
+      if (recurrencyField) recurrencyField.writeAttribute('disabled','disabled')
     } else {
-      var recurrencyField = $('MoccaCalendar.Code.MoccaCalendarEventRecurrencyClass_0_frequency')
       if(recurrencyField) recurrencyField.writeAttribute('disabled','disabled')
     }
   }

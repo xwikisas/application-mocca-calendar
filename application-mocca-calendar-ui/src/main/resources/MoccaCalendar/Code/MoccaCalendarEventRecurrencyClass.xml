@@ -73,7 +73,7 @@
       <name>frequency</name>
       <number>3</number>
       <picker>0</picker>
-      <prettyName/>
+      <prettyName>Frequency</prettyName>
       <relationalStorage>0</relationalStorage>
       <separator> </separator>
       <separators>|, </separators>

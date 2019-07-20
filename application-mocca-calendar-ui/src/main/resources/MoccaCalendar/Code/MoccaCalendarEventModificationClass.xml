@@ -49,20 +49,6 @@
     <defaultWeb/>
     <nameField/>
     <validationScript/>
-    <allDay>
-      <customDisplay/>
-      <defaultValue/>
-      <disabled>0</disabled>
-      <displayFormType>checkbox</displayFormType>
-      <displayType/>
-      <name>allDay</name>
-      <number>4</number>
-      <prettyName>allDay</prettyName>
-      <unmodifiable>0</unmodifiable>
-      <validationMessage/>
-      <validationRegExp/>
-      <classType>com.xpn.xwiki.objects.classes.BooleanClass</classType>
-    </allDay>
     <description>
       <contenttype>---</contenttype>
       <customDisplay/>

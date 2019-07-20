@@ -890,6 +890,14 @@ div.xdialog-box-moccacal-modal-popup .btn-group .btn + .btn {
   width: 600px;
 }
 
+/* twiddeling with the recurrency input field position */
+div.xdialog-box-moccacal-modal-popup dl {
+   margin-bottom: 0;
+}
+div.xdialog-box-moccacal-modal-popup #recurrentFields dl {
+   margin-bottom: 20px;
+}
+
 /* calendar */
 body .fc {
   padding-right: 1px; /* odd hack to avoid scrollbars in FF at times */

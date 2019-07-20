@@ -521,6 +521,9 @@ public class MoccaCalendarScriptService implements ScriptService
 
             modificationData.setLargeStringValue(EventConstants.PROPERTY_DESCRIPTION_NAME,
                 eventData.getLargeStringValue(EventConstants.PROPERTY_DESCRIPTION_NAME));
+
+            modificationData.setStringValue(EventConstants.PROPERTY_TITLE_NAME,
+                xwikiEventDoc.getTitle());
         }
 
         return new com.xpn.xwiki.api.Object(modificationData, xcontextProvider.get());
