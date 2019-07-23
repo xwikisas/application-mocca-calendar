@@ -216,9 +216,6 @@ public class MoccaCalendarScriptService implements ScriptService
         // finally the ordering
         addOrderBy(sortAscending, simpleEvents);
 
-        // needed for the location filter, but must happen at the end
-        simpleEvents.getHql().append(" escape ! ");
-
         List<String> results = Collections.emptyList();
 
         try {
@@ -284,11 +281,9 @@ public class MoccaCalendarScriptService implements ScriptService
         // filter by location
         //
         addLocationFilter(recurrentEventQuery, filter, parentReference);
+
         // and search only recurrent events
         recurrentEventQuery.getHql().append(" and recurrent.value = 1 ");
-
-        // need to be added last - but does not work unless we have an order by ?
-        // recurrentEventQuery.hql.append(" escape ! ");
 
         try {
             List<String> allRecurrentEvents = Collections.emptyList();
@@ -619,7 +614,7 @@ public class MoccaCalendarScriptService implements ScriptService
             case FILTER_SPACE:
                 parentRef = stringDocRefResolver.resolve(parentReference);
                 // XXX maybe use the "bindValue(...).literal(...) instead?
-                data.getHql().append(" and ( doc.space like :space )");
+                data.getHql().append(" and ( doc.space like :space escape '!')");
                 String spaceRefStr = compactWikiSerializer.serialize(parentRef.getLastSpaceReference());
                 String spaceLikeStr = spaceRefStr.replaceAll("([%_!])", "!$1").concat(".%");
                 data.getQueryParams().put("space", spaceLikeStr);
