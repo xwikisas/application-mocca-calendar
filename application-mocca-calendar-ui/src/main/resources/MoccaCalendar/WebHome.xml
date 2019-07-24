@@ -61,7 +61,7 @@
 })
 #set ($options = {
   'className': 'MoccaCalendar.MoccaCalendarClass',
-  'resultPage': 'MoccaCalendar.MoccaCalendarLiveTableResults',
+  'resultPage': 'MoccaCalendar.Code.MoccaCalendarLiveTableResults',
   'translationPrefix': 'moccacalendar.livetable.',
   'tagCloud': false,
   'rowCount': 15,
