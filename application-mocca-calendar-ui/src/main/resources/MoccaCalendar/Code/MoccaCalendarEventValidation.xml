@@ -50,15 +50,36 @@ import java.text.SimpleDateFormat;
 import java.text.ParseException;
 
 public class Val implements XWikiValidationInterface  {
-	private String MoccaCalendarEventClass = "MoccaCalendar.MoccaCalendarEventClass";
+	private static final String MoccaCalendarEventClass = "MoccaCalendar.MoccaCalendarEventClass";
+	private static final String MoccaCalendarRecurrencyClass = "MoccaCalendar.Code.MoccaCalendarEventRecurrencyClass";
   
+	private boolean parseDateTime(String dateStr, SimpleDateFormat dateTimeFormatter, SimpleDateFormat dateOnlyFormatter, String propName, String errorKey, XWikiContext context, BaseObject obj) {
+			boolean valid = true;
+			if (dateStr != null &amp;&amp; "" != dateStr.trim()) {
+				Date parsedDate = null;
+				try {
+					parsedDate = dateTimeFormatter.parse(dateStr);
+				} catch (ParseException e1) {
+					try {
+						parsedDate = dateOnlyFormatter.parse(dateStr);
+					} catch (ParseException e2) {
+						valid = false;
+						XWikiValidationStatus.addErrorToContext(MoccaCalendarEventClass, propName, obj.get(propName).getPrettyName(), errorKey, context);
+					}
+				}
+				if (parsedDate != null) {
+					obj.setDateValue(propName, parsedDate);
+				}
+			}
+			return valid;
+	}
 
 	public boolean validateDocument(XWikiDocument doc, XWikiContext context) {
 		try {
 			
 			def classDocumentReference = doc.resolveClassReference(MoccaCalendarEventClass);
 		
-			BaseObject obj = doc.getXObject(classDocumentReference, 0);
+			final BaseObject obj = doc.getXObject(classDocumentReference, 0);
 			if (obj == null) {
 				return true;
 			}
@@ -70,54 +91,22 @@ public class Val implements XWikiValidationInterface  {
 			XWikiRequest request = context.getRequest();
 
 			def dateFormat = obj.getXClass(context).get("startDate").getDateFormat();
-			def dateFormatter = new SimpleDateFormat(dateFormat);
+			SimpleDateFormat dateFormatter = new SimpleDateFormat(dateFormat);
 
 			// to make the time part optional we use the following hack:
 			// this assumes the hours/minutes are given in a format like "some H, then maybe punctuation, then the m"
 			def dateFormatWithoutTime = dateFormat.replaceAll("\\p{Space}*H+\\p{Punct}*m+(\\p{Punct}*s+)?\\p{Space}*","");
-			def dateOnlyFormatter = new SimpleDateFormat(dateFormatWithoutTime);
+			SimpleDateFormat dateOnlyFormatter = new SimpleDateFormat(dateFormatWithoutTime);
 
 
 			def startDateValueStr = request.getParameter(MoccaCalendarEventClass+"_0_startDate");
-			if (startDateValueStr != null &amp;&amp; "" != startDateValueStr.trim()) {
-				def parsedStartDate = null;
-				try {
-					parsedStartDate = dateFormatter.parse(startDateValueStr);
-				} catch (ParseException e1) {
-					try {
-						parsedStartDate = dateOnlyFormatter.parse(startDateValueStr);
-					} catch (ParseException e2) {
-						valid = false;
-						XWikiValidationStatus.addErrorToContext(MoccaCalendarEventClass, "startDate", "Start Date", "val_startDateNotDate", context);
-					}
-				}
-				if (parsedStartDate != null) {
-					obj.setDateValue("startDate", parsedStartDate);
-				}
-			}
-
+			valid = parseDateTime(startDateValueStr, dateFormatter, dateOnlyFormatter, "startDate", "val_startDateNotDate", context, obj) &amp;&amp; valid;
 
 			def endDateValueStr = request.getParameter(MoccaCalendarEventClass+"_0_endDate");
-			if (endDateValueStr == null || "" == endDateValueStr.trim()) {
+			if (!parseDateTime(endDateValueStr, dateFormatter, dateOnlyFormatter, "endDate", "val_endDateNotDate", context, obj)) {
+				valid = false;
 				obj.setDateValue("endDate", null);
-			} else {
-				def parsedEndDate = null;
-				try {
-					parsedEndDate = dateFormatter.parse(endDateValueStr);
-				} catch (ParseException e1) {
-					try {
-						parsedEndDate = dateOnlyFormatter.parse(endDateValueStr);
-					} catch (ParseException e2) {
-						valid = false;
-						XWikiValidationStatus.addErrorToContext(MoccaCalendarEventClass, "endDate", "End Date", "val_endDateNotDate", context);
-					}
-				}
-				if (parsedEndDate != null) {
-					obj.setDateValue("endDate", parsedEndDate);
-				}
 			}
-
-
 
 			if (valid) {
 				Date startDate = obj.getDateValue("startDate");
@@ -143,6 +132,17 @@ public class Val implements XWikiValidationInterface  {
 					XWikiValidationStatus.addErrorToContext(MoccaCalendarEventClass, "title", "Title", "val_title_already_exists", context);
 				}
 			}
+
+			def recurrencyClassDocumentReference = doc.resolveClassReference(MoccaCalendarRecurrencyClass);
+
+			BaseObject recObj = doc.getXObject(recurrencyClassDocumentReference, 0);
+			if (recObj != null) {
+
+				valid = parseDateTime(request.getParameter(MoccaCalendarRecurrencyClass+"_0_firstInstance"), dateFormatter, dateOnlyFormatter, "firstInstance", "moccacalendar.updates.firstInstance.notDate", context, recObj) &amp;&amp; valid;
+				valid = parseDateTime(request.getParameter(MoccaCalendarRecurrencyClass+"_0_lastInstance"), dateFormatter, dateOnlyFormatter, "lastInstance", "moccacalendar.updates.lastInstance.notDate", context, recObj) &amp;&amp; valid;
+			}
+
+
 			return valid;
 		} catch(Exception e) {
 			XWikiValidationStatus.getValidationStatus(context).addExceptionToContext(MoccaCalendarEventClass, "dummy", e, context);

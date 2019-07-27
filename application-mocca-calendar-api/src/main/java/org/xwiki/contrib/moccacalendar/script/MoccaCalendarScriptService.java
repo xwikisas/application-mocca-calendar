@@ -385,7 +385,7 @@ public class MoccaCalendarScriptService implements ScriptService
             // TODO: what happens with modified events where the original event is not
             // in our time range, but the modified one is?
             if (!modifiedEvents.isEmpty()) {
-                logger.error("we dropped some modifications: [{}]", modifiedEvents.size());
+                logger.info("we dropped some modifications: [{}]", modifiedEvents.size());
                 if (logger.isDebugEnabled()) {
                     for (Map.Entry<Long, EventInstance> modification : modifiedEvents.entrySet()) {
                         logger.debug("event originally started at [{}]", new DateTime(modification.getKey()));

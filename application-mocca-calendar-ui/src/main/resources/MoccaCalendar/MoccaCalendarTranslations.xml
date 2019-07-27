@@ -106,6 +106,8 @@ MoccaCalendar.Code.MoccaCalendarEventRecurrencyClass_frequency_biweekly=biweekly
 MoccaCalendar.Code.MoccaCalendarEventRecurrencyClass_frequency_monthly=monthly
 MoccaCalendar.Code.MoccaCalendarEventRecurrencyClass_frequency_quarterly=quarterly
 MoccaCalendar.Code.MoccaCalendarEventRecurrencyClass_frequency_yearly=yearly
+MoccaCalendar.Code.MoccaCalendarEventRecurrencyClass_firstInstance=First occurrence of the event
+MoccaCalendar.Code.MoccaCalendarEventRecurrencyClass_lastInstance=Last occurrence of the event
 MoccaCalendar.Code.MoccaCalendarEventModificationClass_title=Modified title
 MoccaCalendar.Code.MoccaCalendarEventModificationClass_startDate=Modified start date
 MoccaCalendar.Code.MoccaCalendarEventModificationClass_endDate=Modified end date
@@ -147,12 +149,13 @@ val_startDateNotDate=The given start date cannot be read as a date.
 val_endDateNotDate=The given end date cannot be read as a date.
 val_endDate=End date must be after start date.
 val_title_already_exists=An event with this name already exists.
+moccacalendar.updates.firstInstance.notDate=The given first instance date cannot be read as a date.
+moccacalendar.updates.lastInstance.notDate=The given last instance date cannot be read as a date.
 
 # validation messages: Update Service
-moccacalendar.updates.eventUpdated=Updated event time
-moccacalendar.updates.eventrecurrent=Recurrent events cannot be moved
-moccacalendar.updates.savefailed=Saving the event failed
-moccacalendar.updates.valuesinvalid=The new event time is invalid
+moccacalendar.updates.eventUpdated=Updated event time.
+moccacalendar.updates.eventrecurrent=Recurrent events cannot be moved.
+moccacalendar.updates.valuesinvalid=The new event time is invalid.
 moccacalendar.updates.nodocument=The event is no longer available.
 
 # validation messages: Delete Service
@@ -160,9 +163,8 @@ moccacalendar.delete.startDateInvalid=The event start date could not be read.
 moccacalendar.delete.saveMessage=Event instance at {0} deleted.
 
 # validation messages: Modification Service
-moccacalendar.modify.createMessage=Added modification for one event instance
-moccacalendar.modify.saveMessage=Updated modification for one event instance
-</content>
+moccacalendar.modify.createMessage=Added modification for one event instance.
+moccacalendar.modify.saveMessage=Updated modification for one event instance.</content>
   <object>
     <name>MoccaCalendar.MoccaCalendarTranslations</name>
     <number>0</number>

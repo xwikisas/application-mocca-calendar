@@ -261,7 +261,6 @@ if (typeof(XWiki) == "undefined" || typeof(XWiki.widgets) == "undefined" || type
        try {
          var content = $super(data);
          var deleteAllEventsButton = this.createButton("button", data.deleteAllEventsButtonText, "", "", "btn-danger");
-         console.log("should insert at ",content.down(".buttons&gt;*"))
          content.down(".buttons&gt;*").insert({before: deleteAllEventsButton });
          Event.observe(deleteAllEventsButton, "click", this.onDeleteAllEvents.bindAsEventListener(this));
          return content;
@@ -308,6 +307,25 @@ if (typeof(XWiki) == "undefined" || typeof(XWiki.widgets) == "undefined" || type
         }
       );
 
+      var that = this;
+      document.observe('xwiki:moccacalendar:editloaded', function() {
+            $$('input.datetime').each(function(dateTimeInput) {
+              if (dateTimeInput.getAttribute('name') &amp;&amp; dateTimeInput.getAttribute('name').startsWith('MoccaCalendar.MoccaCalendarEventClass')) {
+                dateTimeInput.observe('change', function(event) {
+                  that.handleDatetimeFieldChange(event, $(this));
+                });
+              }
+            });
+
+            // this is the "all day" box
+            that.allDay = $('MoccaCalendar.MoccaCalendarEventClass_0_allDay');
+            that.allDay.observe('change', function(event) {
+              that.handleAllDayFieldChange(event, $(this));
+            });
+            // use handler to init date picker, too
+            that.handleAllDayFieldChange(null, that.allDay);
+      });
+
       // only in case we are editing a recurrent event:
       // a flag and a handler for events from the MoccaCalendar.Code.MoccaCalendarEventModificationClass
       // signaling that we are switching between "one instance" and "all instances" of a recurrent event
@@ -350,6 +368,7 @@ if (typeof(XWiki) == "undefined" || typeof(XWiki.widgets) == "undefined" || type
       var titleField = this.content.down('[name="title"]');
 
       var title = $(titleField).getValue();
+      title = title.replace(/^ +/,'').replace(/ +$/,'')
       if (title.length == 0) {
         $$(".val_title_notempty").each(Element.show);
         return false;
@@ -357,6 +376,7 @@ if (typeof(XWiki) == "undefined" || typeof(XWiki.widgets) == "undefined" || type
       else {
         $$(".val_title_notempty").each(Element.hide);
       }
+
       this.saving = true; // signal other events we are about to save
 
       this.savedBox.hide();
@@ -364,7 +384,7 @@ if (typeof(XWiki) == "undefined" || typeof(XWiki.widgets) == "undefined" || type
 
       if (this.interactionParameters.isNew) {
        // calculate "automatic" document name:
-       var name = title.replace(/[\/?]/g,'').replace(/^ +/,'').replace(/ +$/,'');
+       var name = title.replace(/[\/?]/g,'');
 
        // ask the JSONService to create an unused event name for us
        new Ajax.Request( this.helper.newPageNameUrl, {
@@ -378,7 +398,7 @@ if (typeof(XWiki) == "undefined" || typeof(XWiki.widgets) == "undefined" || type
               this.helper.displayError(error);
             } else {
               var eventName = response.responseJSON['name'];
-              var parentLocation = response.responseJSON['parent']; 
+              var parentLocation = response.responseJSON['parent'];
               this.saveEvent(parentLocation, eventName);
             }
           } catch(e) { alert(e); }
@@ -395,7 +415,7 @@ if (typeof(XWiki) == "undefined" || typeof(XWiki.widgets) == "undefined" || type
       } else {
         this.saveEvent();
       }
-      
+
       return false;
     },
 
@@ -428,9 +448,7 @@ if (typeof(XWiki) == "undefined" || typeof(XWiki.widgets) == "undefined" || type
             $("forminnercontent").innerHTML = responseText;
             this.savingBox.hide();
             if (e.status &gt; 400) { this.helper.displayError(); }
-            $$('input.datetime').each(function(dateTimeInput) {
-              new XWiki.DateTimePicker(dateTimeInput, dateTimeInput.title);
-            });
+            document.fire('xwiki:moccacalendar:editloaded');
           } catch (e) {
             alert('Failed to save event!');
           }
@@ -513,6 +531,7 @@ if (typeof(XWiki) == "undefined" || typeof(XWiki.widgets) == "undefined" || type
         }.bind(this)
       });
     },
+
     loadEventContent: function() {
       var url;
       if (this.interactionParameters.isNew) {
@@ -544,19 +563,6 @@ if (typeof(XWiki) == "undefined" || typeof(XWiki.widgets) == "undefined" || type
             buttons.down('#save-moccacalendar-event').observe('click', this.submitForm.bind(this));
             buttons.insert('&lt;span class="buttonwrapper"&gt;&lt;a href="#" id="cancel-moccacalendar-event" class="secondary button"&gt;' + "$escapetool.javascript($services.localization.render('cancel'))" + '&lt;/a&gt;&lt;/span&gt;');
             buttons.down('#cancel-moccacalendar-event').observe('click', this.closeDialog.bind(this));
-            $$('input.datetime').each(function(dateTimeInput) {
-              dateTimeInput.observe('change', function(event) {
-                 that.handleDatetimeFieldChange(event, $(this));
-              });
-            });
-
-            // this is the "all day" box
-            this.allDay = $('MoccaCalendar.MoccaCalendarEventClass_0_allDay');
-            this.allDay.observe('change', function(event) {
-              that.handleAllDayFieldChange(event, $(this));
-            });
-            // use handler to init date picker, too
-            that.handleAllDayFieldChange(null, this.allDay);
             document.fire('xwiki:moccacalendar:editloaded');
             $("MoccaCalendarEvent.MoccaCalendarEventClass_0_title").focus();
           } else {

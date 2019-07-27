@@ -44,9 +44,11 @@
   $response.setContentType('application/json')
 #end
 #if($xcontext.action == 'get')
-#if("$!{request.newEvent}"!="")
+  #set($eventName = "$!{request.newEvent}")
+  #if($eventName == "")
+    #set($eventName = "event")
+  #end
   ## find a new unused event name
-  #set($eventName = $request.newEvent)
   #set($wiki = $doc.wiki)
   #set($space = $doc.space) ## fallback only!
   #if ($request.parent)
@@ -61,9 +63,6 @@
     #set($eventName = $eventSpaceRef.getName())
   #end
   $jsontool.serialize( { 'name' : $eventName, 'parent' : $services.model.serialize( $parentRef ) } )
-#else
-  $jsontool.serialize( { 'msg' : '"newEvent" parameter missing' } )
-#end
 #end
 {{/velocity}}</content>
 </xwikidoc>

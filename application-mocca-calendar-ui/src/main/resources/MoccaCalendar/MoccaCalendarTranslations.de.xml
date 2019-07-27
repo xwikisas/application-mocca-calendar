@@ -106,6 +106,8 @@ MoccaCalendar.Code.MoccaCalendarEventRecurrencyClass_frequency_biweekly=zweiwöc
 MoccaCalendar.Code.MoccaCalendarEventRecurrencyClass_frequency_monthly=monatlich
 MoccaCalendar.Code.MoccaCalendarEventRecurrencyClass_frequency_quarterly=quartalsweise
 MoccaCalendar.Code.MoccaCalendarEventRecurrencyClass_frequency_yearly=jährlich
+MoccaCalendar.Code.MoccaCalendarEventRecurrencyClass_firstInstance=Datum der ersten Wiederholung
+MoccaCalendar.Code.MoccaCalendarEventRecurrencyClass_lastInstance=Datum der letzten Wiederholung
 MoccaCalendar.Code.MoccaCalendarEventModificationClass_title=geänderter Titel
 MoccaCalendar.Code.MoccaCalendarEventModificationClass_startDate=geändertes Startdatum
 MoccaCalendar.Code.MoccaCalendarEventModificationClass_endDate=geändertes Enddatum
@@ -147,8 +149,8 @@ val_title_already_exists=Ein Termin mit diesem Namen existiert bereits
 
 
 # validation messages: Update Service
-moccacalendar.updates.eventUpdated=Termin wurde aktualisiert
-moccacalendar.updates.eventrecurrent=Wiederkehrende Termin können nicht verschoben werden.
+moccacalendar.updates.eventUpdated=Der Termin wurde aktualisiert
+moccacalendar.updates.eventrecurrent=Wiederkehrende Termine können nicht verschoben werden.
 moccacalendar.updates.savefailed=Der Termin konnte nicht gespeichert werden
 moccacalendar.updates.valuesinvalid=Das neue Datum des Termins ist ungültig
 moccacalendar.updates.nodocument=Der Termin ist nicht mehr verfügbar
@@ -160,6 +162,5 @@ moccacalendar.delete.saveMessage=Eintrag am {0} gelöscht.
 
 # validation messages: Modification Service
 moccacalendar.modify.createMessage=Änderung für einen Termineintrag angelegt
-moccacalendar.modify.saveMessage=Änderung für einen Termineintrag geändert
-</content>
+moccacalendar.modify.saveMessage=Änderung für einen Termineintrag geändert</content>
 </xwikidoc>

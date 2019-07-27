@@ -76,7 +76,6 @@ $doc.display($field)
 #set($eventClass = 'MoccaCalendar.MoccaCalendarEventClass')
 #set($eventValidationDoc = 'MoccaCalendar.Code.MoccaCalendarEventValidation')
 #set($eventRecurrentClass = 'MoccaCalendar.Code.MoccaCalendarEventRecurrencyClass')
-#set($isRecurrent = ($doc.getValue('recurrent') == 1))
 #set($discard=$xwiki.jsx.use("MoccaCalendar.Code.DatePickerExtension", {'defer': false}))
 #if($isEdit)
   #set($discard=$xwiki.jsx.use("MoccaCalendar.Code.MoccaCalendarEventModificationClass", {'defer': false, 'minify': false}))
@@ -94,7 +93,8 @@ $doc.display($field)
   #set($backToCalendarDoc = $calendarDoc)
 #end
 #set($discard = $doc.use($eventClass))
-#set($instanceStartStr = "$!{request.get('instanceStart')}") ## used by view code, too
+#set($isRecurrent = ($doc.getValue('recurrent') == 1))
+#set($instanceStartStr = "$!{request.get('instanceStart')}")
 #if($isRecurrent &amp;&amp; "$instanceStartStr" != "")
   #set($instanceStart = $datetool.toDate("yyyy-MM-dd'T'HH:mm", $instanceStartStr))
 #end
@@ -151,9 +151,10 @@ $doc.display($field)
 ## add a switch between general and specifc values in case of overrides
 ##
 #if($isSingleInstance)
+#set($allEdit = "$!{request.getParameter('instanceEdit')}" == "no")
   ; &lt;label for="instanceEdit" id="instanceEditSwitch"&gt;$services.localization.render('moccacalendarevent.editswitch.label')&lt;/label&gt;
-  : &lt;input type="radio" name="instanceEdit" id="instanceEditYes" value="yes" checked="checked" /&gt;&lt;label for="instanceEditYes"&gt;$services.localization.render('moccacalendarevent.editswitch.oneInstance')&lt;/label&gt;
-    &lt;input type="radio" name="instanceEdit" id="instanceEditNo" value="no" /&gt;&lt;label for="instanceEditNo"&gt;$services.localization.render('moccacalendarevent.editswitch.allInstances')&lt;/label&gt;
+  : &lt;input type="radio" name="instanceEdit" id="instanceEditYes" value="yes" #if(!$allEdit) checked="checked" #end /&gt;&lt;label for="instanceEditYes"&gt;$services.localization.render('moccacalendarevent.editswitch.oneInstance')&lt;/label&gt;
+    &lt;input type="radio" name="instanceEdit" id="instanceEditNo" value="no" #if($allEdit) checked="checked" #end /&gt;&lt;label for="instanceEditNo"&gt;$services.localization.render('moccacalendarevent.editswitch.allInstances')&lt;/label&gt;
 
 &lt;div id="allEventsFields"&gt;
 
@@ -190,11 +191,18 @@ $doc.display($field)
   : $doc.display('recurrent','view') #if($isEdit) $doc.display('recurrent','hidden') #end
 #else
   : $doc.display('recurrent')
-#set($discard = $doc.use($eventRecurrentClass))
-(% id="recurrentFields" style="display:none" %)
+#end
+#if($doc.isNew() || $isRecurrent)
+#set($discard = $doc.use($eventRecurrentClass)) ##
+(% id="recurrentFields" #if(!$isRecurrent)style="display:none" #{end}%)
 (((
   ; &lt;label for="${eventRecurrentClass}_0_frequency"&gt;$escapetool.xml($doc.displayPrettyName('frequency', false, false))&lt;/label&gt;
   : $doc.display('frequency')
+  ; &lt;label for="${eventRecurrentClass}_0_firstInstance"&gt;$escapetool.xml($doc.displayPrettyName('firstInstance', false, false))&lt;/label&gt;
+  : $doc.display('firstInstance')#showvalidationmessage("moccacalendar.updates.firstInstance.notDate")
+
+  ; &lt;label for="${eventRecurrentClass}_0_lastInstance"&gt;$escapetool.xml($doc.displayPrettyName('lastInstance', false, false))&lt;/label&gt;
+  : $doc.display('lastInstance')#showvalidationmessage("moccacalendar.updates.lastInstance.notDate")
 )))
 #end
 #if($isSingleInstance)
@@ -363,14 +371,11 @@ This page does not contain an event.
       rc.observe('change', function() {
         var value = $F('MoccaCalendar.MoccaCalendarEventClass_0_recurrent');
         if (value) {
-          if (recurrencyField) recurrencyField.removeAttribute('disabled')
           if (recurrencyArea) recurrencyArea.show()
         } else {
           if (recurrencyArea) recurrencyArea.hide()
-          if (recurrencyField) recurrencyField.writeAttribute('disabled','disabled')
         }
       })
-      if (recurrencyField) recurrencyField.writeAttribute('disabled','disabled')
     } else {
       if(recurrencyField) recurrencyField.writeAttribute('disabled','disabled')
     }
