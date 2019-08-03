@@ -48,6 +48,11 @@
     </dependency>
     <dependency>
       <groupId>org.xwiki.platform</groupId>
+      <artifactId>xwiki-platform-rendering-wikimacro-api</artifactId>
+      <version>${platform.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>org.xwiki.platform</groupId>
       <artifactId>xwiki-platform-oldcore</artifactId>
       <version>${platform.version}</version>
     </dependency>
@@ -73,7 +78,7 @@
           <excludes>
             <!-- mostly pointless errors about multiple string literals from queries -->
             org/xwiki/contrib/moccacalendar/script/MoccaCalendarScriptService.java,
-            <!-- Class Fan-Out Complexity is 21 (max allowed is 20): should be ok for a migrator -->
+            <!-- Class Fan-Out Complexity is XX (max allowed is 20): should be ok for a migrator -->
             org/xwiki/contrib/moccacalendar/migrations/AddReccurrentProperty.java
           </excludes>
         </configuration>

@@ -30,21 +30,29 @@ import javax.inject.Singleton;
 import org.slf4j.Logger;
 import org.xwiki.bridge.event.AbstractWikiEvent;
 import org.xwiki.bridge.event.ApplicationReadyEvent;
+import org.xwiki.bridge.event.DocumentDeletedEvent;
 import org.xwiki.bridge.event.WikiReadyEvent;
 import org.xwiki.component.annotation.Component;
 import org.xwiki.contrib.moccacalendar.internal.EventConstants;
 import org.xwiki.extension.ExtensionId;
 import org.xwiki.extension.event.ExtensionUpgradedEvent;
+import org.xwiki.model.reference.DocumentReference;
+import org.xwiki.model.reference.SpaceReference;
 import org.xwiki.observation.EventListener;
 import org.xwiki.observation.ObservationManager;
 import org.xwiki.observation.event.BeginFoldEvent;
 import org.xwiki.observation.event.EndFoldEvent;
 import org.xwiki.observation.event.Event;
+import org.xwiki.observation.event.filter.EventFilter;
+import org.xwiki.observation.event.filter.RegexEventFilter;
 import org.xwiki.query.Query;
 import org.xwiki.query.QueryException;
 import org.xwiki.query.QueryFilter;
 import org.xwiki.query.QueryManager;
 import org.xwiki.query.internal.UniqueDocumentFilter;
+import org.xwiki.rendering.macro.wikibridge.WikiMacro;
+import org.xwiki.rendering.macro.wikibridge.WikiMacroFactory;
+import org.xwiki.rendering.macro.wikibridge.WikiMacroManager;
 import org.xwiki.wiki.descriptor.WikiDescriptorManager;
 import org.xwiki.wiki.manager.WikiManagerException;
 
@@ -66,22 +74,32 @@ import com.xpn.xwiki.objects.IntegerProperty;
 public class AddReccurrentProperty implements EventListener
 {
 
+    private static final EventFilter OLD_MACRO_LOCATION =
+        new RegexEventFilter("[^:]*:MoccaCalendar.Macro");
+
     /**
      * The events observed by this event listener.
      */
-    private static final List<Event> EVENTS = Arrays.asList(new ExtensionUpgradedEvent());
+    private static final List<Event> EVENTS = Arrays.asList(new ExtensionUpgradedEvent(),
+        new DocumentDeletedEvent(OLD_MACRO_LOCATION));
 
     /**
      * The events observed by this event listener in "recovery" mode.
      */
     private static final List<Event> EVENTS_STARTUP = Arrays.asList(new ApplicationReadyEvent(),
-        new WikiReadyEvent(), new ExtensionUpgradedEvent());
+        new WikiReadyEvent(), new ExtensionUpgradedEvent(), new DocumentDeletedEvent(OLD_MACRO_LOCATION));
 
     @Inject
     private WikiDescriptorManager wikiManager;
 
     @Inject
     private ObservationManager observationManager;
+
+    @Inject
+    private WikiMacroFactory macroFactory;
+
+    @Inject
+    private WikiMacroManager macroManager;
 
     @Inject
     private QueryManager queryManager;
@@ -132,11 +150,44 @@ public class AddReccurrentProperty implements EventListener
             addRecurrentPropertyToEvents(wikiManager.getCurrentWikiId());
         } else if (event instanceof WikiReadyEvent) {
             addRecurrentPropertyToEvents(((WikiReadyEvent) event).getWikiId());
+        } else if (event instanceof DocumentDeletedEvent) {
+            registerCalendarMacroAtNewLocation((XWikiDocument) source);
         } else if (event instanceof ExtensionUpgradedEvent) {
             addRecurrentPropertyToEvents((ExtensionUpgradedEvent) event);
+        } else {
+            logger.warn("ignored event [{}] which we listened for", event);
         }
     }
 
+
+    private void registerCalendarMacroAtNewLocation(XWikiDocument oldMacroDoc)
+    {
+        try {
+            final XWikiContext context = xcontextProvider.get();
+
+            // first the listener unregistering the macro in the old place might not have been called
+            // so we do this first
+            DocumentReference oldMacroDocRef = oldMacroDoc.getDocumentReference();
+            if (macroManager.hasWikiMacro(oldMacroDocRef)) {
+                logger.debug("unregister moccacalendar macro in its old place");
+                macroManager.unregisterWikiMacro(oldMacroDocRef);
+            }
+
+            DocumentReference newMacroDocRef = new DocumentReference("Macro",
+                new SpaceReference(context.getWikiId(), "MoccaCalendar", "Code"));
+            XWikiDocument newMacroDoc = context.getWiki().getDocument(newMacroDocRef, context);
+            if (newMacroDoc.isNew()) {
+                logger.warn("could not find moccacalendar macro in its new place");
+            } else {
+                WikiMacro macro = macroFactory.createWikiMacro(newMacroDocRef);
+                logger.debug("found [{}] in [{}]", macro.getDescriptor().getId(), newMacroDocRef);
+                macroManager.registerWikiMacro(newMacroDocRef, macro);
+                logger.info("registered moccacalendar macro in its new place");
+            }
+        } catch (Exception xe) {
+            logger.warn("could not register new moccacalendar macro automatically", xe);
+        }
+    }
 
     /**
      * helper to find out if events are unmigrated.
@@ -182,10 +233,10 @@ public class AddReccurrentProperty implements EventListener
         return addRecurrentPropertyToEvents(query, null, false);
     }
 
-    private void addRecurrentPropertyToEvents(ExtensionUpgradedEvent xue)
+    private void addRecurrentPropertyToEvents(ExtensionUpgradedEvent xie)
     {
-        ExtensionId extensionId = xue.getExtensionId();
-        final String namespace = xue.getNamespace();
+        ExtensionId extensionId = xie.getExtensionId();
+        final String namespace = xie.getNamespace();
         if ("org.xwiki.contrib:application-mocca-calendar-ui".equals(extensionId.getId())) {
             if (namespace == null || "".equals(namespace)) {
                 // upgrade on all wikis
@@ -234,9 +285,8 @@ public class AddReccurrentProperty implements EventListener
     {
         final XWikiContext xcontext = this.xcontextProvider.get();
         final String wikiId = (wikiIdOrNull == null) ? xcontext.getWikiId() : wikiIdOrNull;
-
-        List<String> results = eventQuery.execute();
-        int step = Math.max(results.size() / 100 * 10, 10);
+        final List<String> results = eventQuery.execute();
+        final int step = Math.max(results.size() / 100 * 10, 10);
         int counter = 0;
 
         try {
@@ -256,7 +306,6 @@ public class AddReccurrentProperty implements EventListener
         }
         return counter;
     }
-
 
     private Query allEventsQuery() throws QueryException
     {
