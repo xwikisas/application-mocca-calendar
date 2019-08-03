@@ -28,6 +28,7 @@ import javax.inject.Provider;
 import javax.inject.Singleton;
 
 import org.slf4j.Logger;
+import org.xwiki.bridge.event.AbstractWikiEvent;
 import org.xwiki.bridge.event.ApplicationReadyEvent;
 import org.xwiki.bridge.event.WikiReadyEvent;
 import org.xwiki.component.annotation.Component;
@@ -35,6 +36,9 @@ import org.xwiki.contrib.moccacalendar.internal.EventConstants;
 import org.xwiki.extension.ExtensionId;
 import org.xwiki.extension.event.ExtensionUpgradedEvent;
 import org.xwiki.observation.EventListener;
+import org.xwiki.observation.ObservationManager;
+import org.xwiki.observation.event.BeginFoldEvent;
+import org.xwiki.observation.event.EndFoldEvent;
 import org.xwiki.observation.event.Event;
 import org.xwiki.query.Query;
 import org.xwiki.query.QueryException;
@@ -77,6 +81,9 @@ public class AddReccurrentProperty implements EventListener
     private WikiDescriptorManager wikiManager;
 
     @Inject
+    private ObservationManager observationManager;
+
+    @Inject
     private QueryManager queryManager;
 
     @Inject
@@ -92,6 +99,16 @@ public class AddReccurrentProperty implements EventListener
 
     @Inject
     private Logger logger;
+
+    private static class BeginMigrationEvent extends AbstractWikiEvent implements BeginFoldEvent
+    {
+        private static final long serialVersionUID = 23L;
+    }
+
+    private static class FinishMigrationEvent extends AbstractWikiEvent implements EndFoldEvent
+    {
+        private static final long serialVersionUID = 42L;
+    }
 
     @Override
     public List<Event> getEvents()
@@ -116,28 +133,7 @@ public class AddReccurrentProperty implements EventListener
         } else if (event instanceof WikiReadyEvent) {
             addRecurrentPropertyToEvents(((WikiReadyEvent) event).getWikiId());
         } else if (event instanceof ExtensionUpgradedEvent) {
-            ExtensionUpgradedEvent xie = (ExtensionUpgradedEvent) event;
-
-            ExtensionId extensionId = xie.getExtensionId();
-            final String namespace = xie.getNamespace();
-            if ("org.xwiki.contrib:application-mocca-calendar-ui".equals(extensionId.getId())) {
-                if (namespace == null || "".equals(namespace)) {
-                    // upgrade on all wikis
-                    try {
-                        for (String wikiId : wikiManager.getAllIds()) {
-                            addRecurrentPropertyToEvents(wikiId);
-                        }
-                    } catch (WikiManagerException e) {
-                        logger.error("failed to migrate events", e);
-                    }
-                } else if (namespace.startsWith("wiki:")) {
-                    // single wiki
-                    String wikiId = namespace.substring(5);
-                    addRecurrentPropertyToEvents(wikiId);
-                } else {
-                    logger.error("unknown installation namespace [{}]); skip migration step", namespace);
-                }
-            }
+            addRecurrentPropertyToEvents((ExtensionUpgradedEvent) event);
         }
     }
 
@@ -180,18 +176,34 @@ public class AddReccurrentProperty implements EventListener
      */
     public int addRecurrentPropertyToEvents(int offset, int limit) throws QueryException, XWikiException
     {
-        final XWikiContext xcontext = this.xcontextProvider.get();
         Query query = allEventsQuery();
         query.setOffset(offset).setLimit(limit);
 
-        List<String> results = query.execute();
-        for (String docName : results) {
-            if (logger.isTraceEnabled()) {
-                logger.trace("try to migrate event document [{}]", docName);
+        return addRecurrentPropertyToEvents(query, null, false);
+    }
+
+    private void addRecurrentPropertyToEvents(ExtensionUpgradedEvent xue)
+    {
+        ExtensionId extensionId = xue.getExtensionId();
+        final String namespace = xue.getNamespace();
+        if ("org.xwiki.contrib:application-mocca-calendar-ui".equals(extensionId.getId())) {
+            if (namespace == null || "".equals(namespace)) {
+                // upgrade on all wikis
+                try {
+                    for (String wikiId : wikiManager.getAllIds()) {
+                        addRecurrentPropertyToEvents(wikiId);
+                    }
+                } catch (WikiManagerException e) {
+                    logger.error("failed to migrate events", e);
+                }
+            } else if (namespace.startsWith("wiki:")) {
+                // single wiki
+                String wikiId = namespace.substring(5);
+                addRecurrentPropertyToEvents(wikiId);
+            } else {
+                logger.error("unknown installation namespace [{}]); skip migration step", namespace);
             }
-            addRecurrentPropertyToDocument(xcontext, docName);
         }
-        return results.size();
     }
 
     private void addRecurrentPropertyToEvents(String wikiId)
@@ -208,26 +220,43 @@ public class AddReccurrentProperty implements EventListener
                 // we cannot query for events with a missing property;
                 // so instead we have to query all events and check each of them
                 Query query = allEventsQuery();
-                List<String> results = query.execute();
-                int step = Math.max(results.size() / 100 * 10, 10);
-                int counter = 0;
-                for (String docName : results) {
-                    addRecurrentPropertyToDocument(xcontext, docName);
-                    counter++;
-                    if (counter % step == 0) {
-                        logger.info("migrated {} events on wiki [{}]", counter, wikiId);
-                    }
-                }
-                logger.info("migrated all events on wiki [{}]", wikiId);
-
+                addRecurrentPropertyToEvents(query, wikiId, true);
             } finally {
                 xcontext.setWikiId(currentWikiId);
             }
         } catch (Exception e) {
             this.logger.error("Error while migrating calendar events in wiki [{}].", wikiId, e);
         }
-
     }
+
+    private int addRecurrentPropertyToEvents(final Query eventQuery, final String wikiIdOrNull,
+        final boolean logProgress) throws QueryException, XWikiException
+    {
+        final XWikiContext xcontext = this.xcontextProvider.get();
+        final String wikiId = (wikiIdOrNull == null) ? xcontext.getWikiId() : wikiIdOrNull;
+
+        List<String> results = eventQuery.execute();
+        int step = Math.max(results.size() / 100 * 10, 10);
+        int counter = 0;
+
+        try {
+            observationManager.notify(new BeginMigrationEvent(), null);
+            for (String docName : results) {
+                addRecurrentPropertyToDocument(xcontext, docName);
+                counter++;
+                if (logProgress && counter % step == 0) {
+                    logger.info("migrated {} events on wiki [{}]", counter, wikiId);
+                }
+            }
+            if (logProgress) {
+                logger.info("migrated all events on wiki [{}]", wikiId);
+            }
+        } finally {
+            observationManager.notify(new FinishMigrationEvent(), null);
+        }
+        return counter;
+    }
+
 
     private Query allEventsQuery() throws QueryException
     {

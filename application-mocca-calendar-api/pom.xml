@@ -72,7 +72,9 @@
         <configuration>
           <excludes>
             <!-- mostly pointless errors about multiple string literals from queries -->
-            org/xwiki/contrib/moccacalendar/script/MoccaCalendarScriptService.java
+            org/xwiki/contrib/moccacalendar/script/MoccaCalendarScriptService.java,
+            <!-- Class Fan-Out Complexity is 21 (max allowed is 20): should be ok for a migrator -->
+            org/xwiki/contrib/moccacalendar/migrations/AddReccurrentProperty.java
           </excludes>
         </configuration>
       </plugin>
