@@ -563,6 +563,9 @@ if (typeof(XWiki) == "undefined" || typeof(XWiki.widgets) == "undefined" || type
             buttons.down('#save-moccacalendar-event').observe('click', this.submitForm.bind(this));
             buttons.insert('&lt;span class="buttonwrapper"&gt;&lt;a href="#" id="cancel-moccacalendar-event" class="secondary button"&gt;' + "$escapetool.javascript($services.localization.render('cancel'))" + '&lt;/a&gt;&lt;/span&gt;');
             buttons.down('#cancel-moccacalendar-event').observe('click', this.closeDialog.bind(this));
+            // MOCCACAL-128: the event template has a space in the title to avoid showing the page name, but we want to remove this on load
+            var titleField = formcontent.down('input[name="title"]')
+            if (titleField &amp;&amp; !titleField.getAttribute('value').trim()) { titleField.setAttribute('value','') }
             document.fire('xwiki:moccacalendar:editloaded');
             $("MoccaCalendarEvent.MoccaCalendarEventClass_0_title").focus();
           } else {
