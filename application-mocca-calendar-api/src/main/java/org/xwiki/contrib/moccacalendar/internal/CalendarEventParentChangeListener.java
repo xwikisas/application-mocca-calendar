@@ -29,7 +29,6 @@ import javax.inject.Singleton;
 import org.slf4j.Logger;
 import org.xwiki.bridge.event.DocumentUpdatedEvent;
 import org.xwiki.component.annotation.Component;
-import org.xwiki.contrib.moccacalendar.migrations.AddReccurrentProperty;
 import org.xwiki.model.EntityType;
 import org.xwiki.model.reference.DocumentReference;
 import org.xwiki.model.reference.EntityReference;
@@ -51,8 +50,7 @@ import com.xpn.xwiki.objects.BaseObject;
  */
 @Named("org.xwiki.contrib.moccacalendar.internal.CalendarEventParentChangeListener")
 @Singleton
-@Component(roles = { AddReccurrentProperty.class, EventListener.class })
-
+@Component
 public class CalendarEventParentChangeListener implements EventListener
 {
     @Inject
@@ -71,37 +69,59 @@ public class CalendarEventParentChangeListener implements EventListener
     public List<Event> getEvents()
     {
         // listen after the document has been saved
-        // otherwise if we need to rename the document, it is later saved at the old location
-        // which results in a copy
+        // if we listen a DocumentUpdatingEvent and rename the document,
+        // it is later saved at the old location, too, which results in a copy
         return Arrays.asList(new DocumentUpdatedEvent());
     }
 
     @Override
     public void onEvent(Event event, Object source, Object data)
     {
-        // DocumentUpdatingEvent updatingEvent = (DocumentUpdatingEvent) event;
         XWikiDocument doc = (XWikiDocument) source;
         XWikiContext context = (XWikiContext) data;
 
+        //
+        // first check: if we are not a calendar event, exit
+        //
         BaseObject eventData = doc
-            .getXObject(doc.resolveClassReference(EventConstants.MOCCA_CALENDAR_EVENT_RECURRENCY_CLASS_NAME));
-
+            .getXObject(doc.resolveClassReference(EventConstants.MOCCA_CALENDAR_EVENT_CLASS_NAME));
         if (eventData == null) {
             return;
         }
 
-        XWikiDocument originalDocument = doc.getOriginalDocument();
-
-        // better instead:
-        if (parentMatchesLocationParent(doc)) {
-            logger.debug("document parent for event [{}] is ok - no move needed", doc.getDocumentReference());
+        //
+        // second check: if our parent reference does not point to a calendar, better do not move us there
+        //
+        DocumentReference parentReference = doc.getParentReference();
+        try {
+            XWikiDocument parentDoc = context.getWiki().getDocument(parentReference, context);
+            if (parentDoc.isNew() || parentDoc
+                .getXObjectSize(doc.resolveClassReference(EventConstants.MOCCA_CALENDAR_CLASS_NAME)) == 0) {
+                logger.debug("target parent [{}] for [{}] is not a calendar; do not move",
+                    parentReference, doc);
+                return;
+            }
+        } catch (XWikiException e) {
+            logger.warn("could not determine if parent [{}] of document [{}] is a calandar",
+                doc.getDocumentReference(), parentReference, e);
             return;
         }
 
+        //
+        // if the parent matches the location parent, we are fine, too
+        //
+        if (parentMatchesLocationParent(doc)) {
+            logger.debug("calendar parent for event [{}] is ok - no move needed", doc.getDocumentReference());
+            return;
+        }
+
+        //
+        // otherwise calculate new location and rename the document to it
+        //
         DocumentReference targetReference = newDocumentLocation(doc, context);
         try {
             doc.rename(targetReference, context);
-            logger.debug("renamed document [{}] to [{}]", originalDocument.getDocumentReference(),
+            logger.debug("renamed document [{}] to [{}]", doc.getOriginalDocument().getDocumentReference(),
                 doc.getDocumentReference());
         } catch (XWikiException e) {
             logger.warn("could not move document [{}] to its new parent [{}]", doc.getDocumentReference(),
