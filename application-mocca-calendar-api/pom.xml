@@ -29,6 +29,7 @@
   </parent>
   <artifactId>application-mocca-calendar-api</artifactId>
   <name>Mocca Calendar Application - API</name>
+  <description>API for the Mocca Calendar Application</description>
   <properties>
     <!-- Test coverage -->
     <xwiki.jacoco.instructionRatio>0.0</xwiki.jacoco.instructionRatio>
