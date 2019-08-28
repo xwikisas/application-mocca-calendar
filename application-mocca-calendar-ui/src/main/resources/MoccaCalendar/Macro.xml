@@ -1005,7 +1005,6 @@ div.calendar-buttons span.buttonwrapper {
     </class>
     <property>
       <code>{{velocity output="false"}}
-$services.localization.use('document', 'Calendar.Translations')
 $xwiki.jsx.use("Calendar.JQueryUI", {'defer': false, 'minify': false})
 $xwiki.jsx.use("Calendar.Moment", {'defer': false, 'minify': false})
 $xwiki.jsx.use("Calendar.FullCalendar", {'defer': false, 'minify': false})
