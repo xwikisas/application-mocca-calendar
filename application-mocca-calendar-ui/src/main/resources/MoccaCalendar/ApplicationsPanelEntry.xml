@@ -27,8 +27,8 @@
   <defaultLanguage/>
   <translation>0</translation>
   <creator>xwiki:XWiki.Admin</creator>
-  <creationDate>1567429779000</creationDate>
-  <parent>MoccaCalendar.WebHome</parent>
+  <creationDate>1567507212000</creationDate>
+  <parent>Main.WebHome</parent>
   <author>xwiki:XWiki.Admin</author>
   <contentAuthor>xwiki:XWiki.Admin</contentAuthor>
   <date>1567429852000</date>
@@ -39,8 +39,7 @@
   <minorEdit>false</minorEdit>
   <syntaxId>xwiki/2.1</syntaxId>
   <hidden>true</hidden>
-  <content>
-</content>
+  <content/>
   <object>
     <name>MoccaCalendar.ApplicationsPanelEntry</name>
     <number>0</number>
@@ -55,46 +54,6 @@
       <defaultWeb/>
       <nameField/>
       <validationScript/>
-      <async_cached>
-        <defaultValue>0</defaultValue>
-        <disabled>0</disabled>
-        <displayFormType>select</displayFormType>
-        <displayType/>
-        <name>async_cached</name>
-        <number>3</number>
-        <prettyName>Cached</prettyName>
-        <unmodifiable>0</unmodifiable>
-        <classType>com.xpn.xwiki.objects.classes.BooleanClass</classType>
-      </async_cached>
-      <async_context>
-        <cache>0</cache>
-        <disabled>0</disabled>
-        <displayType>select</displayType>
-        <freeText>forbidden</freeText>
-        <largeStorage>0</largeStorage>
-        <multiSelect>1</multiSelect>
-        <name>async_context</name>
-        <number>4</number>
-        <prettyName>Context elements</prettyName>
-        <relationalStorage>0</relationalStorage>
-        <separator> </separator>
-        <separators>|, </separators>
-        <size>5</size>
-        <unmodifiable>0</unmodifiable>
-        <values>doc.reference=Document|icon.theme=Icon theme|locale=Language|request.base=Request base URL|request.parameters=Request parameters|request.url=Request URL|request.wiki=Request wiki|user=User|wiki=Wiki</values>
-        <classType>com.xpn.xwiki.objects.classes.StaticListClass</classType>
-      </async_context>
-      <async_enabled>
-        <defaultValue>0</defaultValue>
-        <disabled>0</disabled>
-        <displayFormType>select</displayFormType>
-        <displayType/>
-        <name>async_enabled</name>
-        <number>2</number>
-        <prettyName>Asynchronous rendering</prettyName>
-        <unmodifiable>0</unmodifiable>
-        <classType>com.xpn.xwiki.objects.classes.BooleanClass</classType>
-      </async_enabled>
       <content>
         <disabled>0</disabled>
         <editor>Text</editor>
@@ -140,8 +99,6 @@
         <cache>0</cache>
         <disabled>0</disabled>
         <displayType>select</displayType>
-        <freeText>forbidden</freeText>
-        <largeStorage>0</largeStorage>
         <multiSelect>0</multiSelect>
         <name>scope</name>
         <number>8</number>
@@ -156,22 +113,13 @@
       </scope>
     </class>
     <property>
-      <async_cached>0</async_cached>
-    </property>
-    <property>
-      <async_context/>
-    </property>
-    <property>
-      <async_enabled>0</async_enabled>
-    </property>
-    <property>
       <content/>
     </property>
     <property>
       <extensionPointId>org.xwiki.platform.panels.Applications</extensionPointId>
     </property>
     <property>
-      <name>platform.panels.MoccaCalendarApplicatio</name>
+      <name>platform.panels.MoccaCalendarApplication</name>
     </property>
     <property>
       <parameters>label=$services.localization.render('MoccaCalendar.calendar')
