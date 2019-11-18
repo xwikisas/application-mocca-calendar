@@ -116,7 +116,7 @@
 ##
 #foreach($event in $events)
   #set($itemdoc = $xwiki.getDocument($event.getEventDocRef()))
-  #set($item = $itemDoc.getFullName())
+  #set($item = $itemdoc.getFullName())
   #set($color = $event.getBackgroundColor())
   #set($textColor = $event.getTextColor())
   #set($allDay = $event.allDay)
