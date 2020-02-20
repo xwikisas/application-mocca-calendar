@@ -57,7 +57,7 @@ MoccaCalendar.calendarevent.create=Stwórz wydarzenie
 MoccaCalendar.calendarevent.backlink=Powrót do kalendarza &amp;#171;{0}&amp;#187;
 MoccaCalendar.calendarevent.confirmDelete=Czy na pewno chcesz usunąć wydarzenie «{0}»?
 MoccaCalendar.calendarevent.view=Zdarzenie
-### Missing: MoccaCalendar.calendarevent.confirmDelete.allEventsButton=All Instances
+MoccaCalendar.calendarevent.confirmDelete.allEventsButton=Wszystkie instancje
 MoccaCalendar.generic.errormessage=Wewnętrzny błąd serwera
 
 # Class fields
@@ -95,28 +95,28 @@ MoccaCalendar.MoccaCalendarEventClass_startDate=Data początkowa
 MoccaCalendar.MoccaCalendarEventClass_endDate=Data końcowa
 MoccaCalendar.MoccaCalendarEventClass_description=Opis
 MoccaCalendar.MoccaCalendarEventClass_allDay=Cały dzień
-### Missing: MoccaCalendar.MoccaCalendarEventClass_recurrent=Recurrent
+MoccaCalendar.MoccaCalendarEventClass_recurrent=Rekurencyjny
 
 # modification class fields
-### Missing: MoccaCalendar.Code.MoccaCalendarEventRecurrencyClass_frequency=Frequency
-### Missing: MoccaCalendar.Code.MoccaCalendarEventRecurrencyClass_frequency_daily=daily
-### Missing: MoccaCalendar.Code.MoccaCalendarEventRecurrencyClass_frequency_workdays=workdays
-### Missing: MoccaCalendar.Code.MoccaCalendarEventRecurrencyClass_frequency_weekly=weekly
-### Missing: MoccaCalendar.Code.MoccaCalendarEventRecurrencyClass_frequency_biweekly=biweekly
-### Missing: MoccaCalendar.Code.MoccaCalendarEventRecurrencyClass_frequency_monthly=monthly
-### Missing: MoccaCalendar.Code.MoccaCalendarEventRecurrencyClass_frequency_quarterly=quarterly
-### Missing: MoccaCalendar.Code.MoccaCalendarEventRecurrencyClass_frequency_yearly=yearly
-### Missing: MoccaCalendar.Code.MoccaCalendarEventRecurrencyClass_firstInstance=First occurrence of the event
-### Missing: MoccaCalendar.Code.MoccaCalendarEventRecurrencyClass_lastInstance=Last occurrence of the event
-### Missing: MoccaCalendar.Code.MoccaCalendarEventModificationClass_title=Modified title
-### Missing: MoccaCalendar.Code.MoccaCalendarEventModificationClass_startDate=Modified start date
-### Missing: MoccaCalendar.Code.MoccaCalendarEventModificationClass_endDate=Modified end date
-### Missing: MoccaCalendar.Code.MoccaCalendarEventModificationClass_description=Modified description
+MoccaCalendar.Code.MoccaCalendarEventRecurrencyClass_frequency=Częstotliwość
+MoccaCalendar.Code.MoccaCalendarEventRecurrencyClass_frequency_daily=dzienny
+MoccaCalendar.Code.MoccaCalendarEventRecurrencyClass_frequency_workdays=dni robocze
+MoccaCalendar.Code.MoccaCalendarEventRecurrencyClass_frequency_weekly=tygodniowo
+MoccaCalendar.Code.MoccaCalendarEventRecurrencyClass_frequency_biweekly=dwutygodniowy
+MoccaCalendar.Code.MoccaCalendarEventRecurrencyClass_frequency_monthly=miesięczny
+MoccaCalendar.Code.MoccaCalendarEventRecurrencyClass_frequency_quarterly=kwartalny
+MoccaCalendar.Code.MoccaCalendarEventRecurrencyClass_frequency_yearly=roczny
+MoccaCalendar.Code.MoccaCalendarEventRecurrencyClass_firstInstance=Pierwsze wystąpienie zdarzenia
+MoccaCalendar.Code.MoccaCalendarEventRecurrencyClass_lastInstance=Ostatnie wystąpienie zdarzenia
+MoccaCalendar.Code.MoccaCalendarEventModificationClass_title=Zmodyfikowany tytuł
+MoccaCalendar.Code.MoccaCalendarEventModificationClass_startDate=Zmodyfikowana data rozpoczęcia
+MoccaCalendar.Code.MoccaCalendarEventModificationClass_endDate=Zmodyfikowana data zakończenia
+MoccaCalendar.Code.MoccaCalendarEventModificationClass_description=Zmodyfikowany opis
 
 # the modification switch
-### Missing: moccacalendarevent.editswitch.label=Edit:
-### Missing: moccacalendarevent.editswitch.oneInstance=this instance only
-### Missing: moccacalendarevent.editswitch.allInstances=all instances
+moccacalendarevent.editswitch.label=Edycja:
+moccacalendarevent.editswitch.oneInstance=Tylko ta instancja
+moccacalendarevent.editswitch.allInstances=Wszystkie instancje
 
 # Event live table generic keys (currently unused)
 moccacalendarevent.livetable.doc.title=Tytuł strony
@@ -149,20 +149,20 @@ val_startDateNotDate=Podanej daty rozpoczęcia nie można odczytać jako Data.
 val_endDateNotDate=Podanej daty zakończenia nie można odczytać jako daty.
 val_endDate=Data końcowa musi następować po dacie początkowej.
 val_title_already_exists=Wydarzenie o tej nazwie już istnieje.
-### Missing: moccacalendar.updates.firstInstance.notDate=The given first instance date cannot be read as a date.
-### Missing: moccacalendar.updates.lastInstance.notDate=The given last instance date cannot be read as a date.
+moccacalendar.updates.firstInstance.notDate=Podanej daty pierwszej instancji nie można odczytać jako daty.
+moccacalendar.updates.lastInstance.notDate=Podanej daty ostatniego wystąpienia nie można odczytać jako daty.
 
 # validation messages: Update Service
-### Missing: moccacalendar.updates.eventUpdated=Updated event time.
-### Missing: moccacalendar.updates.eventrecurrent=Recurrent events cannot be moved.
-### Missing: moccacalendar.updates.valuesinvalid=The new event time is invalid.
-### Missing: moccacalendar.updates.nodocument=The event is no longer available.
+moccacalendar.updates.eventUpdated=Zaktualizowano czas zdarzenia.
+moccacalendar.updates.eventrecurrent=Zdarzenia cykliczne nie mogą być przenoszone.
+moccacalendar.updates.valuesinvalid=Nowy czas zdarzenia jest nieprawidłowy.
+moccacalendar.updates.nodocument=Wydarzenie nie jest już dostępne.
 
 # validation messages: Delete Service
-### Missing: moccacalendar.delete.startDateInvalid=The event start date could not be read.
-### Missing: moccacalendar.delete.saveMessage=Event instance at {0} deleted.
+moccacalendar.delete.startDateInvalid=Nie można odczytać daty rozpoczęcia wydarzenia.
+moccacalendar.delete.saveMessage=Usunięto wystąpienie zdarzenia w {0}.
 
 # validation messages: Modification Service
-### Missing: moccacalendar.modify.createMessage=Added modification for one event instance.
-### Missing: moccacalendar.modify.saveMessage=Updated modification for one event instance.</content>
+moccacalendar.modify.createMessage=Dodano modyfikację dla jednej instancji zdarzenia.
+moccacalendar.modify.saveMessage=Zaktualizowano modyfikację dla jednej instancji zdarzenia.</content>
 </xwikidoc>
