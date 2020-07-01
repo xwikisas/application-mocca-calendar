@@ -138,7 +138,7 @@ or
       <cache>long</cache>
     </property>
     <property>
-      <code>require(['jquery', 'fullcalendar'], function(jQuery, fullCalendar) {
+      <code>define('moccaCalendar', ['jquery', 'fullcalendar'], function(jQuery, fullCalendar) {
 
 // Make sure the XWiki 'namespace' and the ModalPopup class exist.
 if (typeof(XWiki) == "undefined" || typeof(XWiki.widgets) == "undefined" || typeof(XWiki.widgets.ModalPopup) == "undefined") {
@@ -1131,9 +1131,8 @@ $xwiki.ssx.use("MoccaCalendar.Macro")
 #end
 &lt;div id="calendar${calcounter}"&gt;&lt;/div&gt;
 &lt;script type="text/javascript"&gt;
-require(['jquery'], function(jQuery) {
- jQuery(window).load(function() {
-
+require(['jquery', 'moccaCalendar'], function(jQuery) {
+ jQuery(document).ready(function() {
   var defaultView = XWiki.MoccaCalendar.Helper.getCalendarView("$!escapetool.javascript($defaultView)");
 
   var defaultEventData = {
