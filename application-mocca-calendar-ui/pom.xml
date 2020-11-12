@@ -107,14 +107,5 @@
       <version>2.2.3</version>
       <type>xar</type>
     </dependency>
-    <!-- This application is needed to preselect the Calendar template at creation step according to
-      https://github.com/xwikisas/application-mocca-calendar/issues/18 only for xwiki versions until 9.5 -->
-    <dependency>
-      <groupId>com.xwiki.defaultPageTemplate</groupId>
-      <artifactId>application-defaultPageTemplate</artifactId>
-      <version>1.4</version>
-      <scope>runtime</scope>
-      <type>xar</type>
-    </dependency>
   </dependencies>
 </project>

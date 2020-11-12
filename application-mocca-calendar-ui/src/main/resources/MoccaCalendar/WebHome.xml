@@ -1,5 +1,4 @@
 <?xml version="1.0" encoding="UTF-8"?>
-
 <!--
  * See the NOTICE file distributed with this work for additional
  * information regarding copyright ownership.
@@ -79,32 +78,4 @@
 #end
 {{/velocity}}
 </content>
-  <object>
-    <name>MoccaCalendar.WebHome</name>
-    <number>0</number>
-    <className>XWiki.DefaultPageTemplateClass</className>
-    <guid>1767de4c-c8d6-40f8-b9aa-c53a372a1034</guid>
-    <class>
-      <name>XWiki.DefaultPageTemplateClass</name>
-      <customClass/>
-      <customMapping/>
-      <defaultViewSheet/>
-      <defaultEditSheet/>
-      <defaultWeb/>
-      <nameField/>
-      <validationScript/>
-      <defaultPageTemplate>
-        <disabled>0</disabled>
-        <name>defaultPageTemplate</name>
-        <number>1</number>
-        <prettyName>defaultPageTemplate</prettyName>
-        <size>30</size>
-        <unmodifiable>0</unmodifiable>
-        <classType>com.xpn.xwiki.objects.classes.StringClass</classType>
-      </defaultPageTemplate>
-    </class>
-    <property>
-      <defaultPageTemplate>MoccaCalendar.MoccaCalendarTemplateProvider</defaultPageTemplate>
-    </property>
-  </object>
 </xwikidoc>
