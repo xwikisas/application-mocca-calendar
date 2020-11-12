@@ -27,7 +27,7 @@
   </parent>
   <artifactId>application-mocca-calendar-ui</artifactId>
   <name>Calendar Application - UI</name>
-  <description>A Calendar Application supporting several Calendars</description>
+  <description>Create one or multiple calendars to keep your team updated on schedules and events. The app can be purchased individually or part of the XWiki Pro package. Try it free.</description>
   <packaging>xar</packaging>
   <properties>
     <!-- Don't run CLIRR here since there's no Java code. -->
