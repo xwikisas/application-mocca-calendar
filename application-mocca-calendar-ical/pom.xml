@@ -48,6 +48,17 @@
       <artifactId>ical4j</artifactId>
       <version>3.0.20</version>
       <scope>runtime</scope>
+      <!-- Exclude transitive dependencies that are not compatible with XWiki 9.11 -->
+      <exclusions>
+        <exclusion>
+          <groupId>org.apache.commons</groupId>
+          <artifactId>commons-lang3</artifactId>
+        </exclusion>
+        <exclusion>
+          <groupId>com.sun.mail</groupId>
+          <artifactId>javax.mail</artifactId>
+        </exclusion>
+      </exclusions>
     </dependency>
   </dependencies>
 </project>
