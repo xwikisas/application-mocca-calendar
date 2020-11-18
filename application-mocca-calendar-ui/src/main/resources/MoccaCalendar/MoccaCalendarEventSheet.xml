@@ -105,7 +105,7 @@ $doc.display($field)
 ## because the "plain view" does not give them to us
 #if($request.xpage=='plain')
 &lt;input type="hidden" name="form_token" value="$!{services.csrf.getToken()}" /&gt;
-&lt;input type="hidden" name="language" value="$!{escapetool.xml($tdoc.realLocale}" /&gt;
+&lt;input type="hidden" name="language" value="$!{escapetool.xml($tdoc.realLocale)}" /&gt;
 #end
 #end
 (% class="xform" %)
