@@ -46,24 +46,25 @@ MoccaCalendar.calendar.defaultCalendarTitle=Autres événements
 MoccaCalendar.calendar.viewall=Vue d'ensemble de tous les calendriers
 MoccaCalendar.calendar.create=Créer un nouveau calendrier
 MoccaCalendar.calendar.plainlist=agenda
-MoccaCalendar.calendar.plainlist.titlepast=Evènements passés
+MoccaCalendar.calendar.plainlist.titlepast=Événements passés
 MoccaCalendar.calendar.plainlist.titleupcoming=Événements à venir
-MoccaCalendar.calendar.plainlist.nopastevents=Aucun événement trouvé.
-MoccaCalendar.calendar.plainlist.noupcomingevents=Aucun événement à venir trouvé.
+MoccaCalendar.calendar.plainlist.nopastevents=Aucun événement.
+MoccaCalendar.calendar.plainlist.noupcomingevents=Aucun événement à venir.
 MoccaCalendar.calendar.firstDayOfWeek=1
 
 MoccaCalendar.calendarevent.viewall=Tous les événements
 MoccaCalendar.calendarevent.create=Créer un événement
-MoccaCalendar.calendarevent.backlink=Retour au calendier &amp;#171;{0}&amp;#187;
-MoccaCalendar.calendarevent.confirmDelete=Voulez-vous vraiment supprimer l''évènement {0} ?
-MoccaCalendar.calendarevent.view=Évènement
+MoccaCalendar.calendarevent.backlink=Retour au calendrier &amp;#171;{0}&amp;#187;
+MoccaCalendar.calendarevent.confirmDelete=Voulez-vous vraiment supprimer l''événement {0} ?
+MoccaCalendar.calendarevent.view=Événement
 MoccaCalendar.generic.errormessage=Erreur interne au serveur
 
 # Class fields
 MoccaCalendar.MoccaCalendarClass_title=Titre
-MoccaCalendar.MoccaCalendarClass_color=Couleur des entrées dans le calendier
+MoccaCalendar.MoccaCalendarClass_color=Couleur des entrées dans le calendrier
+MoccaCalendar.MoccaCalendarClass_textColor=Couleur du texte des entrées dans le calendrier
 MoccaCalendar.MoccaCalendarClass_description=Description
-MoccaCalendar.MoccaCalendarClass_content1=Contenue
+MoccaCalendar.MoccaCalendarClass_content1=Contenu
 
 # Live table generic keys
 moccacalendar.livetable.doc.title=Calendrier
@@ -76,14 +77,14 @@ moccacalendar.livetable.doc.date=Date de modification
 moccacalendar.livetable.doc.creationDate=Date de création
 moccacalendar.livetable._avatar=Avatar
 moccacalendar.livetable._images=Images
-moccacalendar.livetable._attachments=Attachements
+moccacalendar.livetable._attachments=Pièces jointes
 moccacalendar.livetable._actions=Actions
 moccacalendar.livetable._actions.edit=Modifier
 moccacalendar.livetable._actions.delete=Supprimer
 moccacalendar.livetable.emptyvalue=-
 moccacalendar.livetable.title=Titre
 moccacalendar.livetable.description=Description
-moccacalendar.livetable.content1=Contenue
+moccacalendar.livetable.content1=Contenu
 
 # Mocca Calendar Events keys
 # Class fields
@@ -104,7 +105,7 @@ moccacalendarevent.livetable.doc.date=Date de modification
 moccacalendarevent.livetable.doc.creationDate=Date de création
 moccacalendarevent.livetable._avatar=Avatar
 moccacalendarevent.livetable._images=Images
-moccacalendarevent.livetable._attachments=Attachements
+moccacalendarevent.livetable._attachments=Pièces jointes
 moccacalendarevent.livetable._actions=Action
 moccacalendarevent.livetable._actions.edit=Éditer
 moccacalendarevent.livetable._actions.delete=Supprimer
