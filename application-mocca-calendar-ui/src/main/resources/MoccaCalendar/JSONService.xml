@@ -49,6 +49,10 @@
 #if("$!{request.newEvent}"!="")
   ## special case 1: find a new unused event name
   #set($eventName = $request.newEvent)
+  ## Since XWiki 12.0RC1 it is possible to use a naming strategy at wiki level and the calendar application should respect it. 
+  #if($services.modelvalidation)
+    #set($eventName = $services.modelvalidation.transformName($eventName))
+  #end
   #set($wiki = $doc.wiki)
   #set($space = $doc.space) ## fallback only!
   #if ($request.parent)
