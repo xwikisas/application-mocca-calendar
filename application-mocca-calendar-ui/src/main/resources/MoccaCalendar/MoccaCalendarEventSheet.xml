@@ -117,7 +117,7 @@ $doc.display($field)
 #set($hql =", BaseObject as obj where doc.fullName=obj.name and doc.name!='MoccaCalendarTemplate' and obj.className='MoccaCalendar.MoccaCalendarClass' order by doc.title, doc.name")
   ; &lt;label for="calendar"&gt;$escapetool.xml($services.localization.render('MoccaCalendar.calendar'))&lt;/label&gt;
   : &lt;select id="calendarParent" name="$parentParamName"&gt;
-#foreach($item in $services.query.hql($hql).execute())
+#foreach($item in $services.query.hql($hql).addFilter('hidden').execute())
 #set($itemdoc = $xwiki.getDocument($item))
 #if($!{itemdoc} &amp;&amp; ${itemdoc.hasAccessLevel("edit")})
 #set($selected="")
