@@ -155,7 +155,7 @@ rendering.macro.moccacalendar.parameter.month.description=Month (from 0 to 11) o
 rendering.macro.moccacalendar.parameter.date.name=Day
 rendering.macro.moccacalendar.parameter.date.description=Day (from 1 to 31) of the date to show when loading the calendar. Leave empty for today
 
-xwiki.calendar.button.plainList=Plain list</content>
+xwiki.calendar.button.plainList=Agenda</content>
   <object>
     <name>MoccaCalendar.MoccaCalendarTranslations</name>
     <number>0</number>

@@ -123,5 +123,5 @@ val_title_notempty=Le titre est obligatoire.
 val_endDate=La date de début doit être après la date de fin.
 val_title_already_exists=Un événement avec ce nom existe déjà.
 
-xwiki.calendar.button.plainList=Liste simple</content>
+xwiki.calendar.button.plainList=Agenda</content>
 </xwikidoc>
