@@ -138,7 +138,7 @@ or
       <cache>long</cache>
     </property>
     <property>
-      <code>define('moccaCalendar', ['jquery', 'fullcalendar'], function(jQuery, fullCalendar) {
+      <code>define('moccaCalendar', ['jquery', 'fullcalendar', 'moment'], function(jQuery, fullCalendar, moment) {
 
 // Make sure the XWiki 'namespace' and the ModalPopup class exist.
 if (typeof(XWiki) == "undefined" || typeof(XWiki.widgets) == "undefined" || typeof(XWiki.widgets.ModalPopup) == "undefined") {
@@ -1220,6 +1220,9 @@ require(['jquery', 'moccaCalendar'], function(jQuery) {
       },
       today: {
         buttonText: "$!services.localization.render('xwiki.calendar.button.today')"
+      },
+      plainList: {
+        buttonText: "$!services.localization.render('xwiki.calendar.button.plainList')"
       }
     }
   });
