@@ -54,8 +54,6 @@
 #set($discard = $xwiki.jsx.use("MoccaCalendar.MoccaCalendarSheet"))
 (% class="xform" %)
 (((
-  ; &lt;label for="MoccaCalendar.MoccaCalendarClass_0_title"&gt;$escapetool.xml($doc.displayPrettyName('title', false, false))&lt;/label&gt;
-  : $doc.display('title')
 #if($myEdit)
   ; &lt;label for="MoccaCalendar.MoccaCalendarClass_0_color"&gt;$escapetool.xml($doc.displayPrettyName('color', false, false))&lt;/label&gt;
   : &lt;input class="procolor" name="MoccaCalendar.MoccaCalendarClass_0_color" size="30" type="text" value="$escapetool.html($doc.getValue('color'))"/&gt;
@@ -74,7 +72,6 @@
   ; &lt;label for="MoccaCalendar.MoccaCalendarClass_0_description"&gt;$escapetool.xml($doc.displayPrettyName('description', false, false))&lt;/label&gt;
   : $doc.display('description')
 #if(!${myEdit})
-  ; &lt;label for="MoccaCalendar.MoccaCalendarClass_0_content1"&gt;$escapetool.xml($doc.displayPrettyName('content1', false, false))&lt;/label&gt;
   : $doc.display('content1')
 #end
 )))
