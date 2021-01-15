@@ -179,13 +179,6 @@ if (typeof(XWiki) == "undefined" || typeof(XWiki.widgets) == "undefined" || type
     new XWiki.widgets.Notification("$escapetool.javascript($services.localization.render('core.widgets.confirmationBox.notification.failed'))" + errorMessage, "error");
   },
   showCreateEventFrom: function(start, end) {
-    /*
-     * According to the Fullcalendar.io documentation, the end day should be exclusive. However, this is not behaving
-     * as expected when selecting multiple days from calendar to create a new event. Thus, we have to trick the end
-     * date to really exclude it. At this point, substracting one second from the end date will do the job.
-     */
-    end._d = new Date(end._d - 1000);
-
     var allDay = !start.hasTime();
     var singleDay = (allDay &amp;&amp; end.diff(start,'days') &lt;= 1);
 
