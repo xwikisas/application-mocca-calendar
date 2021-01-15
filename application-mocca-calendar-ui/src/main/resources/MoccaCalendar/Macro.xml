@@ -180,17 +180,11 @@ if (typeof(XWiki) == "undefined" || typeof(XWiki.widgets) == "undefined" || type
   },
   showCreateEventFrom: function(start, end) {
     var allDay = !start.hasTime();
+    var singleDay = (allDay &amp;&amp; end.diff(start,'days') &lt;= 1);
+
     var mySimpleDateFormatter = new Externals.SimpleDateFormat(this.dateFormat);
     start = mySimpleDateFormatter.format(start.local().toDate());
-    /*
-     * According to the Fullcalendar.io documentation, the end day should be exclusive. However, this is not behaving
-     * as expected when selecting multiple days from calendar to create a new event. Thus, we have to trick the end
-     * date to really exclude it. At this point, substracting one second from the end date will do the job.
-     */
-    if (allDay) {
-      end._d = new Date(end._d - 1000);
-    }
-    end = mySimpleDateFormatter.format(end.local().toDate());
+    end = (singleDay)?'':mySimpleDateFormatter.format(end.local().toDate());
     var paramPrefix = "MoccaCalendar.MoccaCalendarEventClass_0_";
     var params = "&amp;" + paramPrefix + "startDate=" + encodeURIComponent(start);
     params += "&amp;" + paramPrefix + "endDate=" + encodeURIComponent(end);
