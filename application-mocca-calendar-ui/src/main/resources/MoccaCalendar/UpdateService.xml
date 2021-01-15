@@ -66,13 +66,6 @@
 	#set($endDate = $datetool.toDate($dateFmt, $request.endDate))
 #end
 
-## One day is added each time you drag and drop an All Day event to another date: issue #9
-#if($allDay == 1)
-  #set ($skipOneDay = $xwiki.jodatime.getMutableDateTime($endDate.getTime()))
-  #set ($discard = $skipOneDay.addDays(-1))
-  #set ($discard = $endDate.setTime($skipOneDay.getMillis()))
-#end
-
 #set($success = false)
 
 #if("$!page" != "")

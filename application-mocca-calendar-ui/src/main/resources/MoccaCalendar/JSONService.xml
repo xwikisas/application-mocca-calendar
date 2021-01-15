@@ -178,11 +178,8 @@ $jsontool.serialize( { 'isAllDay' : $isAllDay } )
     #set($allDay=false)
     #if("$!itemdoc.getValue('allDay')"==1)
       #set($allDay=true)
-      #set($enddateExclusive = $enddate.plusDays(1))
-    #else
-      #set($enddateExclusive = $enddate)
     #end
-    #set($event = {"id" : $itemdoc.getDocumentReference().toString(), "title" : $itemdoc.getPlainTitle(), "url" : $itemdoc.getURL('view',"$calDocParam"), "editUrl" : $itemdoc.getURL('edit',"$calDocParam"), "saveUrl" : $itemdoc.getURL('save',"$calDocParam"),  "deleteUrl" : $itemdoc.getURL('delete',"$calDocParam"), "canEdit": $xwiki.hasAccessLevel("edit", $xcontext.getUser(), $item), "canDelete": $xwiki.hasAccessLevel("delete", $xcontext.getUser(), $item), "start" : $jsondateformat.print($startdate), "end" : $jsondateformat.print($enddateExclusive), "allDay" : $allDay, "color" : $color })
+    #set($event = {"id" : $itemdoc.getDocumentReference().toString(), "title" : $itemdoc.getPlainTitle(), "url" : $itemdoc.getURL('view',"$calDocParam"), "editUrl" : $itemdoc.getURL('edit',"$calDocParam"), "saveUrl" : $itemdoc.getURL('save',"$calDocParam"),  "deleteUrl" : $itemdoc.getURL('delete',"$calDocParam"), "canEdit": $xwiki.hasAccessLevel("edit", $xcontext.getUser(), $item), "canDelete": $xwiki.hasAccessLevel("delete", $xcontext.getUser(), $item), "start" : $jsondateformat.print($startdate), "end" : $jsondateformat.print($enddate), "allDay" : $allDay, "color" : $color })
     #if("$textColor" != "")
       #set($discard = $event.put("textColor", $textColor))
     #end
