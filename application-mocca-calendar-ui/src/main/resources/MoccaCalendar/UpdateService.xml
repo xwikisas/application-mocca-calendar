@@ -54,7 +54,7 @@
 	#set($isResize=true)
 #end
 
-#set($delta = $mathtool.toInteger($request.delta))
+#set($delta = $numbertool.toNumber($request.delta).intValue())
 #if($allDay == 1)
 	#set($dateFmt = "yyyy-MM-dd")
 #else
