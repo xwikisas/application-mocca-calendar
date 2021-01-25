@@ -23,7 +23,7 @@
   <parent>
     <groupId>org.xwiki.contrib</groupId>
     <artifactId>parent-platform</artifactId>
-    <version>8.4-10</version>
+    <version>8.4-11</version>
   </parent>
   <artifactId>application-mocca-calendar</artifactId>
   <version>2.7.5-SNAPSHOT</version>
@@ -45,10 +45,6 @@
     <tag>HEAD</tag>
   </scm>
   <url>http://extensions.xwiki.org/xwiki/bin/view/Extension/MoccaCalendar</url>
-  <issueManagement>
-    <system>jira</system>
-    <url>http://jira.xwiki.org/jira/browse/MOCCACAL</url>
-  </issueManagement>
   <developers>
     <developer>
       <id>edgo</id>
@@ -63,6 +59,19 @@
       <name>Thomas Mortagne</name>
     </developer>
   </developers>
+  <build>
+    <pluginManagement>
+      <plugins>
+        <plugin>
+          <groupId>org.apache.maven.plugins</groupId>
+          <artifactId>maven-release-plugin</artifactId>
+          <configuration>
+            <arguments>-Pintegration-tests,legacy -DskipTests=true</arguments>
+          </configuration>
+        </plugin>
+      </plugins>
+    </pluginManagement>
+  </build>
   <profiles>
     <profile>
       <id>integration-tests</id>
