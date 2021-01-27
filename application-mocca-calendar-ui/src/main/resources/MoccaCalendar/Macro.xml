@@ -631,7 +631,7 @@ if (typeof(XWiki) == "undefined" || typeof(XWiki.widgets) == "undefined" || type
       return this.title;
     },
   
-    unrenderEvents: function() {
+    destroyEvents: function() {
       if (this.container) { this.container.empty(); }
     },
   
