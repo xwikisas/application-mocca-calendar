@@ -1067,10 +1067,9 @@ $xwiki.ssx.use("MoccaCalendar.Macro")
 #if(!$date)
  #set($date = "")
 #end
-## If the date format is not set in MoccaCalendarEventClass, we are gone use the date format from the current wiki.
 #set($dateFormat = $!xwiki.getClass("MoccaCalendar.MoccaCalendarEventClass").get("startDate").getProperty('dateFormat').value)
 #if("$!dateFormat" == "")
-  #set($dateFormat = $xwiki.getXWikiPreference('dateformat', 'dd.MM.yyyy HH:mm:ss'))
+  #set($dateFormat = "dd.MM.yyyy HH:mm:ss")
 #end
 
 ##
@@ -1202,7 +1201,7 @@ require(['jquery', 'moccaCalendar'], function(jQuery) {
     dayNamesShort: $services.localization.render('xwiki.calendar.dayNamesShort'),
     allDayText: "$escapetool.javascript($services.localization.render('xwiki.calendar.allDayText'))",
     axisFormat: "$escapetool.javascript($services.localization.render('xwiki.calendar.axisFormat'))",
-    timeFormat: "$dateFormat.substring($dateFormat.indexOf('H'))",
+    timeFormat: "$!escapetool.javascript($services.localization.render('xwiki.calendar.timeFormat'))",
     views: {
       month : {
         columnFormat: "$!services.localization.render('xwiki.calendar.columnFormat.month')",
