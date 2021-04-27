@@ -182,9 +182,16 @@ if (typeof(XWiki) == "undefined" || typeof(XWiki.widgets) == "undefined" || type
     var allDay = !start.hasTime();
     var singleDay = (allDay &amp;&amp; end.diff(start,'days') &lt;= 1);
 
-    var mySimpleDateFormatter = new Externals.SimpleDateFormat(this.dateFormat);
-    start = mySimpleDateFormatter.format(start.local().toDate());
-    end = (singleDay)?'':mySimpleDateFormatter.format(end.local().toDate());
+    if (typeof moment().toMomentFormatString === 'function') {
+      var momentFormat = moment().toMomentFormatString(this.dateFormat);
+      start = moment(start.local().toDate()).format(momentFormat);
+      end = singleDay ? '' : moment(end.local().toDate()).format(momentFormat);
+    } else if (window.Externals &amp;&amp; window.Externals.SimpleDateFormat) {
+      // Before XWiki 11.7RC1 (XWIKI-16605: Integrate a better date and time picker that has Bootstrap look and feel)
+      var mySimpleDateFormatter = new Externals.SimpleDateFormat(this.dateFormat);
+      start = mySimpleDateFormatter.format(start.local().toDate());
+      end = singleDay ? '' : mySimpleDateFormatter.format(end.local().toDate());
+    }
     var paramPrefix = "MoccaCalendar.MoccaCalendarEventClass_0_";
     var params = "&amp;" + paramPrefix + "startDate=" + encodeURIComponent(start);
     params += "&amp;" + paramPrefix + "endDate=" + encodeURIComponent(end);
@@ -373,10 +380,8 @@ if (typeof(XWiki) == "undefined" || typeof(XWiki.widgets) == "undefined" || type
             var responseText = e.responseText;
             $("forminnercontent").innerHTML = responseText;
             this.savingBox.hide();
-            if (e.status &gt; 400) { this.helper.displayError(); } 
-            $$('input.datetime').each(function(dateTimeInput) {
-              new XWiki.DateTimePicker(dateTimeInput, dateTimeInput.title);
-            });
+            if (e.status &gt; 400) { this.helper.displayError(); }
+            document.fire('xwiki:dom:updated', {elements: [$('forminnercontent')]});
           } catch (e) {
             alert('Failed to save event!');
           }
@@ -435,10 +440,8 @@ if (typeof(XWiki) == "undefined" || typeof(XWiki.widgets) == "undefined" || type
             buttons.down('#save-moccacalendar-event').observe('click', this.submitForm.bind(this));
             buttons.insert('&lt;span class="buttonwrapper"&gt;&lt;a href="#" id="cancel-moccacalendar-event" class="secondary button"&gt;' + "$escapetool.javascript($services.localization.render('cancel'))" + '&lt;/a&gt;&lt;/span&gt;');
             buttons.down('#cancel-moccacalendar-event').observe('click', this.closeDialog.bind(this));
-            $$('input.datetime').each(function(dateTimeInput) {
-              dateTimeInput.observe('change', function(event) {
-                 that.handleDatetimeFieldChange(event, $(this));
-              });
+            jQuery(this.content).off('change.datetime', 'input.datetime').on('change.datetime', 'input.datetime', function(event) {
+              that.handleDatetimeFieldChange(event, $(this));
             });
 
             // this is the "all day" box
@@ -545,19 +548,19 @@ if (typeof(XWiki) == "undefined" || typeof(XWiki.widgets) == "undefined" || type
     handleAllDayFieldChange : function(event, element) {
       if (this.saving) { return; }
       var that = this;
-      $$('input.datetime').each(function(d) {
-        // clear old observer
-        var dateField = $(d);
-        dateField.stopObserving('focus');
-        dateField.stopObserving('click');
-
-        // update title date format and add a new date picker
-        //FIXME: it would be great if we could remove / restore the time values of the date
-        // but for this we would really need to be able to parse the date on client side
-        var newFormat = element.getValue() ? that.helper.dayFormat : that.helper.dateFormat;
-        dateField.writeAttribute('title', newFormat);
-        new XWiki.DateTimePicker(dateField, newFormat);
-      })
+      var updatedElements = [];
+      // Recreate the date time pickers with the new date format.
+      var newDateFormat = element.getValue() ? that.helper.dayFormat : that.helper.dateFormat;
+      this.content.select('input.datetime').each(function(dateTimeInput) {
+        // FIXME: Preserve the selected date time value when changing the format.
+        var clone = dateTimeInput.cloneNode();
+        clone.classList.remove('initialized');
+        clone.setAttribute('title', newDateFormat);
+        clone.setAttribute('data-format', newDateFormat);
+        dateTimeInput.parentNode.replaceChild(clone, dateTimeInput);
+        updatedElements.push(clone.parentNode);
+      });
+      document.fire('xwiki:dom:updated', {elements: updatedElements});
     }
   });
 
@@ -833,6 +836,11 @@ div.xdialog-box-moccacal-modal-popup .btn-group .btn + .btn {
   width: 600px;
 }
 
+/* Make sure the date time picker is shown on top of the event modal. */
+.bootstrap-datetimepicker-widget {
+  z-index: 1006;
+}
+
 /* calendar */
 body .fc {
   padding-right: 1px; /* odd hack to avoid scrollbars in FF at times */
@@ -1008,14 +1016,17 @@ div.calendar-buttons span.buttonwrapper {
 $xwiki.jsx.use("Calendar.FullCalendar", {'defer': false, 'minify': false})
 $xwiki.jsx.use("MoccaCalendar.Macro", {'defer': false, 'v' : '2.6'})
 $xwiki.jsx.use("MoccaCalendar.DatePickerExtension", {'defer': false})
-## A simple date picker widget.
-$xwiki.ssfx.use('uicomponents/widgets/datepicker/calendarDateSelect.css', true)
-$xwiki.jsfx.use('uicomponents/widgets/datepicker/calendarDateSelect.js', true)
-## Used to parse and serialize the selected date using the date format specified in the XClass.
-$xwiki.jsfx.use('uicomponents/widgets/datepicker/simpleDateFormat.js', true)
-## A wrapper over the CalendarDateSelect widget that uses the SimpleDateFormat to parse/serialize the dates.
-$xwiki.ssfx.use('uicomponents/widgets/datepicker/dateTimePicker.css', true)
-$xwiki.jsfx.use('uicomponents/widgets/datepicker/dateTimePicker.js')
+#if ("#dateTimePicker_import()" == '#dateTimePicker_import()')
+  ## Before XWiki 11.7RC1 (XWIKI-16604: Create a date and time picker Velocity macro to remove code duplication)
+  ## A simple date picker widget.
+  $xwiki.ssfx.use('uicomponents/widgets/datepicker/calendarDateSelect.css', true)
+  $xwiki.jsfx.use('uicomponents/widgets/datepicker/calendarDateSelect.js', true)
+  ## Used to parse and serialize the selected date using the date format specified in the XClass.
+  $xwiki.jsfx.use('uicomponents/widgets/datepicker/simpleDateFormat.js', true)
+  ## A wrapper over the CalendarDateSelect widget that uses the SimpleDateFormat to parse/serialize the dates.
+  $xwiki.ssfx.use('uicomponents/widgets/datepicker/dateTimePicker.css', true)
+  $xwiki.jsfx.use('uicomponents/widgets/datepicker/dateTimePicker.js')
+#end
 $xwiki.ssx.use("Calendar.FullCalendar")
 $xwiki.ssx.use("MoccaCalendar.Macro")
 #set($calcounter = $request.getAttribute('MoccaCalendar.Macro:counter'))
