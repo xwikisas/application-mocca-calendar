@@ -1078,11 +1078,23 @@ $xwiki.ssx.use("MoccaCalendar.Macro")
 #if(!$date)
  #set($date = "")
 #end
+## If the date format is not set in MoccaCalendarEventClass, we are going to use the date format from the current wiki.
 #set($dateFormat = $!xwiki.getClass("MoccaCalendar.MoccaCalendarEventClass").get("startDate").getProperty('dateFormat').value)
 #if("$!dateFormat" == "")
-  #set($dateFormat = "dd.MM.yyyy HH:mm:ss")
+  ## If the date format set from the current xwiki is not set, a default value will be provided.
+  #set($dateFormat = $xwiki.getXWikiPreference('dateformat', 'dd.MM.yyyy HH:mm'))
 #end
 
+## Set the time format from the date format, if the date format doesn't include information about the time, a default value will be set.
+#macro(setTimeFormat $dateFormat $timeFormat)
+  #set($timeFormatStart = $stringtool.indexOfAny($dateFormat, 'HhKk'))
+  #if($timeFormatStart &lt; 0)
+    #setVariable('$timeFormat', 'HH:mm')
+  #else
+    #setVariable('$timeFormat', $dateFormat.substring($timeFormatStart))
+  #end
+#end
+#setTimeFormat($dateFormat, $timeFormat)
 ##
 ## some hardwired values that you can feel free to customize
 ##
@@ -1212,7 +1224,7 @@ require(['jquery', 'moccaCalendar'], function(jQuery) {
     dayNamesShort: $services.localization.render('xwiki.calendar.dayNamesShort'),
     allDayText: "$escapetool.javascript($services.localization.render('xwiki.calendar.allDayText'))",
     axisFormat: "$escapetool.javascript($services.localization.render('xwiki.calendar.axisFormat'))",
-    timeFormat: "$!escapetool.javascript($services.localization.render('xwiki.calendar.timeFormat'))",
+    timeFormat: "$escapetool.javascript($timeFormat)",
     views: {
       month : {
         columnFormat: "$!services.localization.render('xwiki.calendar.columnFormat.month')",
