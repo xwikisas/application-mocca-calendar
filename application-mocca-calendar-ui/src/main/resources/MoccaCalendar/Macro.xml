@@ -1234,12 +1234,14 @@ require(['jquery', 'moccaCalendar'], function(jQuery) {
       week : {
         columnFormat: "$!services.localization.render('xwiki.calendar.columnFormat.week')",
         titleFormat: "$!services.localization.render('xwiki.calendar.titleFormat.week')",
-        buttonText: "$!services.localization.render('xwiki.calendar.button.week')"
+        buttonText: "$!services.localization.render('xwiki.calendar.button.week')",
+        slotLabelFormat: "$escapetool.javascript($timeFormat)"
       },
       day : {
         columnFormat: "$!services.localization.render('xwiki.calendar.columnFormat.day')",
         titleFormat: "$!services.localization.render('xwiki.calendar.titleFormat.day')",
-        buttonText: "$!services.localization.render('xwiki.calendar.button.day')"
+        buttonText: "$!services.localization.render('xwiki.calendar.button.day')",
+        slotLabelFormat: "$escapetool.javascript($timeFormat)"
       },
       today: {
         buttonText: "$!services.localization.render('xwiki.calendar.button.today')"
