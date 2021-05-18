@@ -1082,7 +1082,7 @@ $xwiki.ssx.use("MoccaCalendar.Macro")
 #set($dateFormat = $!xwiki.getClass("MoccaCalendar.MoccaCalendarEventClass").get("startDate").getProperty('dateFormat').value)
 #if("$!dateFormat" == "")
   ## If the date format set from the current xwiki is not set, a default value will be provided.
-  #set($dateFormat = $xwiki.getXWikiPreference('dateformat', 'dd.MM.yyyy HH:mm'))
+  #set($dateFormat = $xwiki.getXWikiPreference('dateformat', 'yyyy/MM/dd HH:mm'))
 #end
 
 ## Set the time format from the date format, if the date format doesn't include information about the time, a default value will be set.
