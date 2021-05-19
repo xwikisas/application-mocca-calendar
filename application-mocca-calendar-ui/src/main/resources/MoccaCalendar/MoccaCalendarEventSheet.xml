@@ -51,7 +51,7 @@
 #if($xcontext.getAction()=="view" &amp;&amp; $doc.getValue('allDay')==1)
   #set($format = $!doc.getObject('MoccaCalendar.MoccaCalendarEventClass').getxWikiClass().get($field).getProperty('dateFormat').value)
   #if($!format=="")
-    #set($format = $xwiki.getSpacePreference('dateformat', 'dd.MM.yyyy'))
+    #set($format = $xwiki.getSpacePreference('dateformat', 'yyyy/MM/dd HH:mm'))
   #end
   ## try to cut the time because this event has the all day flag 
   #set($idx=$format.indexOf("H"))
