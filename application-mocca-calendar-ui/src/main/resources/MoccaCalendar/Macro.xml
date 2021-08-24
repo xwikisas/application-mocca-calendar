@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="UTF-8"?>
+<?xml version="1.1" encoding="UTF-8"?>
 
 <!--
  * See the NOTICE file distributed with this work for additional
@@ -27,12 +27,9 @@
   <defaultLanguage/>
   <translation>0</translation>
   <creator>xwiki:XWiki.Admin</creator>
-  <creationDate>1379057815000</creationDate>
   <parent>MoccaCalendar.WebHome</parent>
   <author>xwiki:XWiki.Admin</author>
   <contentAuthor>xwiki:XWiki.Admin</contentAuthor>
-  <date>1605197414000</date>
-  <contentUpdateDate>1605197414000</contentUpdateDate>
   <version>1.1</version>
   <title>Calendar Macro</title>
   <comment/>
@@ -72,8 +69,11 @@ or
       <validationScript/>
       <cache>
         <cache>0</cache>
+        <defaultValue>long</defaultValue>
         <disabled>0</disabled>
         <displayType>select</displayType>
+        <freeText>forbidden</freeText>
+        <largeStorage>0</largeStorage>
         <multiSelect>0</multiSelect>
         <name>cache</name>
         <number>5</number>
@@ -121,6 +121,8 @@ or
         <cache>0</cache>
         <disabled>0</disabled>
         <displayType>select</displayType>
+        <freeText>forbidden</freeText>
+        <largeStorage>0</largeStorage>
         <multiSelect>0</multiSelect>
         <name>use</name>
         <number>3</number>
@@ -182,16 +184,9 @@ if (typeof(XWiki) == "undefined" || typeof(XWiki.widgets) == "undefined" || type
     var allDay = !start.hasTime();
     var singleDay = (allDay &amp;&amp; end.diff(start,'days') &lt;= 1);
 
-    if (typeof moment().toMomentFormatString === 'function') {
-      var momentFormat = moment().toMomentFormatString(this.dateFormat);
-      start = moment(start.local().toDate()).format(momentFormat);
-      end = singleDay ? '' : moment(end.local().toDate()).format(momentFormat);
-    } else if (window.Externals &amp;&amp; window.Externals.SimpleDateFormat) {
-      // Before XWiki 11.7RC1 (XWIKI-16605: Integrate a better date and time picker that has Bootstrap look and feel)
-      var mySimpleDateFormatter = new Externals.SimpleDateFormat(this.dateFormat);
-      start = mySimpleDateFormatter.format(start.local().toDate());
-      end = singleDay ? '' : mySimpleDateFormatter.format(end.local().toDate());
-    }
+    var momentFormat = moment().toMomentFormatString(this.dateFormat);
+    start = moment(start.local().toDate()).format(momentFormat);
+    end = singleDay ? '' : moment(end.local().toDate()).format(momentFormat);
     var paramPrefix = "MoccaCalendar.MoccaCalendarEventClass_0_";
     var params = "&amp;" + paramPrefix + "startDate=" + encodeURIComponent(start);
     params += "&amp;" + paramPrefix + "endDate=" + encodeURIComponent(end);
@@ -723,8 +718,11 @@ require(['jquery'], function($) {
       <validationScript/>
       <cache>
         <cache>0</cache>
+        <defaultValue>long</defaultValue>
         <disabled>0</disabled>
         <displayType>select</displayType>
+        <freeText>forbidden</freeText>
+        <largeStorage>0</largeStorage>
         <multiSelect>0</multiSelect>
         <name>cache</name>
         <number>5</number>
@@ -753,6 +751,8 @@ require(['jquery'], function($) {
         <cache>0</cache>
         <disabled>0</disabled>
         <displayType>select</displayType>
+        <freeText>forbidden</freeText>
+        <largeStorage>0</largeStorage>
         <multiSelect>0</multiSelect>
         <name>contentType</name>
         <number>6</number>
@@ -788,6 +788,8 @@ require(['jquery'], function($) {
         <cache>0</cache>
         <disabled>0</disabled>
         <displayType>select</displayType>
+        <freeText>forbidden</freeText>
+        <largeStorage>0</largeStorage>
         <multiSelect>0</multiSelect>
         <name>use</name>
         <number>3</number>
@@ -906,11 +908,51 @@ div.calendar-buttons span.buttonwrapper {
       <defaultWeb/>
       <nameField/>
       <validationScript/>
+      <async_cached>
+        <defaultValue>0</defaultValue>
+        <disabled>0</disabled>
+        <displayFormType>select</displayFormType>
+        <displayType/>
+        <name>async_cached</name>
+        <number>12</number>
+        <prettyName>Cached</prettyName>
+        <unmodifiable>0</unmodifiable>
+        <classType>com.xpn.xwiki.objects.classes.BooleanClass</classType>
+      </async_cached>
+      <async_context>
+        <cache>0</cache>
+        <disabled>0</disabled>
+        <displayType>select</displayType>
+        <freeText>forbidden</freeText>
+        <largeStorage>0</largeStorage>
+        <multiSelect>1</multiSelect>
+        <name>async_context</name>
+        <number>13</number>
+        <prettyName>Context elements</prettyName>
+        <relationalStorage>0</relationalStorage>
+        <separator> </separator>
+        <separators>|, </separators>
+        <size>5</size>
+        <unmodifiable>0</unmodifiable>
+        <values>doc.reference=Document|icon.theme=Icon theme|locale=Language|rendering.defaultsyntax=Default syntax|rendering.restricted=Restricted|rendering.targetsyntax=Target syntax|request.base=Request base URL|request.parameters=Request parameters|request.url=Request URL|request.wiki=Request wiki|user=User|wiki=Wiki</values>
+        <classType>com.xpn.xwiki.objects.classes.StaticListClass</classType>
+      </async_context>
+      <async_enabled>
+        <defaultValue>0</defaultValue>
+        <disabled>0</disabled>
+        <displayFormType>select</displayFormType>
+        <displayType/>
+        <name>async_enabled</name>
+        <number>11</number>
+        <prettyName>Asynchronous rendering</prettyName>
+        <unmodifiable>0</unmodifiable>
+        <classType>com.xpn.xwiki.objects.classes.BooleanClass</classType>
+      </async_enabled>
       <code>
         <disabled>0</disabled>
         <editor>Text</editor>
         <name>code</name>
-        <number>9</number>
+        <number>10</number>
         <prettyName>Macro code</prettyName>
         <rows>20</rows>
         <size>40</size>
@@ -922,21 +964,43 @@ div.calendar-buttons span.buttonwrapper {
         <disabled>0</disabled>
         <editor>PureText</editor>
         <name>contentDescription</name>
-        <number>8</number>
+        <number>9</number>
         <prettyName>Content description (Not applicable for "No content" type)</prettyName>
         <rows>5</rows>
         <size>40</size>
         <unmodifiable>0</unmodifiable>
         <classType>com.xpn.xwiki.objects.classes.TextAreaClass</classType>
       </contentDescription>
+      <contentJavaType>
+        <cache>0</cache>
+        <defaultValue>Unknown</defaultValue>
+        <disabled>0</disabled>
+        <displayType>input</displayType>
+        <freeText>allowed</freeText>
+        <largeStorage>1</largeStorage>
+        <multiSelect>0</multiSelect>
+        <name>contentJavaType</name>
+        <number>8</number>
+        <picker>1</picker>
+        <prettyName>Macro content type</prettyName>
+        <relationalStorage>0</relationalStorage>
+        <separator>|</separator>
+        <separators>|</separators>
+        <size>1</size>
+        <unmodifiable>0</unmodifiable>
+        <values>Unknown|Wiki</values>
+        <classType>com.xpn.xwiki.objects.classes.StaticListClass</classType>
+      </contentJavaType>
       <contentType>
         <cache>0</cache>
         <disabled>0</disabled>
         <displayType>select</displayType>
+        <freeText>forbidden</freeText>
+        <largeStorage>0</largeStorage>
         <multiSelect>0</multiSelect>
         <name>contentType</name>
         <number>7</number>
-        <prettyName>Macro content type</prettyName>
+        <prettyName>Macro content availability</prettyName>
         <relationalStorage>0</relationalStorage>
         <separator>|</separator>
         <separators>|</separators>
@@ -998,6 +1062,8 @@ div.calendar-buttons span.buttonwrapper {
         <cache>0</cache>
         <disabled>0</disabled>
         <displayType>select</displayType>
+        <freeText>forbidden</freeText>
+        <largeStorage>0</largeStorage>
         <multiSelect>0</multiSelect>
         <name>visibility</name>
         <number>6</number>
@@ -1012,23 +1078,22 @@ div.calendar-buttons span.buttonwrapper {
       </visibility>
     </class>
     <property>
+      <async_cached>0</async_cached>
+    </property>
+    <property>
+      <async_context/>
+    </property>
+    <property>
+      <async_enabled>0</async_enabled>
+    </property>
+    <property>
       <code>{{velocity output="false"}}
 $xwiki.jsx.use("Calendar.FullCalendar", {'defer': false, 'minify': false})
 $xwiki.jsx.use("MoccaCalendar.Macro", {'defer': false, 'v' : '2.6'})
 $xwiki.jsx.use("MoccaCalendar.DatePickerExtension", {'defer': false})
-#if ("#dateTimePicker_import()" == '#dateTimePicker_import()')
-  ## Before XWiki 11.7RC1 (XWIKI-16604: Create a date and time picker Velocity macro to remove code duplication)
-  ## A simple date picker widget.
-  $xwiki.ssfx.use('uicomponents/widgets/datepicker/calendarDateSelect.css', true)
-  $xwiki.jsfx.use('uicomponents/widgets/datepicker/calendarDateSelect.js', true)
-  ## Used to parse and serialize the selected date using the date format specified in the XClass.
-  $xwiki.jsfx.use('uicomponents/widgets/datepicker/simpleDateFormat.js', true)
-  ## A wrapper over the CalendarDateSelect widget that uses the SimpleDateFormat to parse/serialize the dates.
-  $xwiki.ssfx.use('uicomponents/widgets/datepicker/dateTimePicker.css', true)
-  $xwiki.jsfx.use('uicomponents/widgets/datepicker/dateTimePicker.js')
-#end
 $xwiki.ssx.use("Calendar.FullCalendar")
 $xwiki.ssx.use("MoccaCalendar.Macro")
+#dateTimePicker_import()
 #set($calcounter = $request.getAttribute('MoccaCalendar.Macro:counter'))
 #if(!$calcounter) #set($calcounter = 0) #else #set($calcounter = $calcounter + 1) #end
 #set($discard = $request.setAttribute('MoccaCalendar.Macro:counter', $calcounter))
@@ -1272,6 +1337,9 @@ Mocca Calendar Macro
       <contentDescription/>
     </property>
     <property>
+      <contentJavaType/>
+    </property>
+    <property>
       <contentType>No content</contentType>
     </property>
     <property>
@@ -1345,6 +1413,15 @@ Mocca Calendar Macro
         <unmodifiable>0</unmodifiable>
         <classType>com.xpn.xwiki.objects.classes.StringClass</classType>
       </name>
+      <type>
+        <disabled>0</disabled>
+        <name>type</name>
+        <number>5</number>
+        <prettyName>Parameter type</prettyName>
+        <size>60</size>
+        <unmodifiable>0</unmodifiable>
+        <classType>com.xpn.xwiki.objects.classes.StringClass</classType>
+      </type>
     </class>
     <property>
       <defaultValue>page</defaultValue>
@@ -1360,6 +1437,9 @@ Mocca Calendar Macro
     </property>
     <property>
       <name>filter</name>
+    </property>
+    <property>
+      <type/>
     </property>
   </object>
   <object>
@@ -1414,6 +1494,15 @@ Mocca Calendar Macro
         <unmodifiable>0</unmodifiable>
         <classType>com.xpn.xwiki.objects.classes.StringClass</classType>
       </name>
+      <type>
+        <disabled>0</disabled>
+        <name>type</name>
+        <number>5</number>
+        <prettyName>Parameter type</prettyName>
+        <size>60</size>
+        <unmodifiable>0</unmodifiable>
+        <classType>com.xpn.xwiki.objects.classes.StringClass</classType>
+      </type>
     </class>
     <property>
       <defaultValue/>
@@ -1426,6 +1515,9 @@ Mocca Calendar Macro
     </property>
     <property>
       <name>calendarDoc</name>
+    </property>
+    <property>
+      <type/>
     </property>
   </object>
   <object>
@@ -1480,6 +1572,15 @@ Mocca Calendar Macro
         <unmodifiable>0</unmodifiable>
         <classType>com.xpn.xwiki.objects.classes.StringClass</classType>
       </name>
+      <type>
+        <disabled>0</disabled>
+        <name>type</name>
+        <number>5</number>
+        <prettyName>Parameter type</prettyName>
+        <size>60</size>
+        <unmodifiable>0</unmodifiable>
+        <classType>com.xpn.xwiki.objects.classes.StringClass</classType>
+      </type>
     </class>
     <property>
       <defaultValue>month</defaultValue>
@@ -1492,6 +1593,9 @@ Mocca Calendar Macro
     </property>
     <property>
       <name>defaultView</name>
+    </property>
+    <property>
+      <type/>
     </property>
   </object>
   <object>
@@ -1546,6 +1650,15 @@ Mocca Calendar Macro
         <unmodifiable>0</unmodifiable>
         <classType>com.xpn.xwiki.objects.classes.StringClass</classType>
       </name>
+      <type>
+        <disabled>0</disabled>
+        <name>type</name>
+        <number>5</number>
+        <prettyName>Parameter type</prettyName>
+        <size>60</size>
+        <unmodifiable>0</unmodifiable>
+        <classType>com.xpn.xwiki.objects.classes.StringClass</classType>
+      </type>
     </class>
     <property>
       <defaultValue/>
@@ -1558,6 +1671,9 @@ Mocca Calendar Macro
     </property>
     <property>
       <name>firstDay</name>
+    </property>
+    <property>
+      <type/>
     </property>
   </object>
   <object>
@@ -1612,6 +1728,15 @@ Mocca Calendar Macro
         <unmodifiable>0</unmodifiable>
         <classType>com.xpn.xwiki.objects.classes.StringClass</classType>
       </name>
+      <type>
+        <disabled>0</disabled>
+        <name>type</name>
+        <number>5</number>
+        <prettyName>Parameter type</prettyName>
+        <size>60</size>
+        <unmodifiable>0</unmodifiable>
+        <classType>com.xpn.xwiki.objects.classes.StringClass</classType>
+      </type>
     </class>
     <property>
       <defaultValue>8:00</defaultValue>
@@ -1624,6 +1749,9 @@ Mocca Calendar Macro
     </property>
     <property>
       <name>minTime</name>
+    </property>
+    <property>
+      <type/>
     </property>
   </object>
   <object>
@@ -1678,6 +1806,15 @@ Mocca Calendar Macro
         <unmodifiable>0</unmodifiable>
         <classType>com.xpn.xwiki.objects.classes.StringClass</classType>
       </name>
+      <type>
+        <disabled>0</disabled>
+        <name>type</name>
+        <number>5</number>
+        <prettyName>Parameter type</prettyName>
+        <size>60</size>
+        <unmodifiable>0</unmodifiable>
+        <classType>com.xpn.xwiki.objects.classes.StringClass</classType>
+      </type>
     </class>
     <property>
       <defaultValue>23:00</defaultValue>
@@ -1690,6 +1827,9 @@ Mocca Calendar Macro
     </property>
     <property>
       <name>maxTime</name>
+    </property>
+    <property>
+      <type/>
     </property>
   </object>
   <object>
@@ -1744,6 +1884,15 @@ Mocca Calendar Macro
         <unmodifiable>0</unmodifiable>
         <classType>com.xpn.xwiki.objects.classes.StringClass</classType>
       </name>
+      <type>
+        <disabled>0</disabled>
+        <name>type</name>
+        <number>5</number>
+        <prettyName>Parameter type</prettyName>
+        <size>60</size>
+        <unmodifiable>0</unmodifiable>
+        <classType>com.xpn.xwiki.objects.classes.StringClass</classType>
+      </type>
     </class>
     <property>
       <defaultValue/>
@@ -1756,6 +1905,9 @@ Mocca Calendar Macro
     </property>
     <property>
       <name>year</name>
+    </property>
+    <property>
+      <type/>
     </property>
   </object>
   <object>
@@ -1810,6 +1962,15 @@ Mocca Calendar Macro
         <unmodifiable>0</unmodifiable>
         <classType>com.xpn.xwiki.objects.classes.StringClass</classType>
       </name>
+      <type>
+        <disabled>0</disabled>
+        <name>type</name>
+        <number>5</number>
+        <prettyName>Parameter type</prettyName>
+        <size>60</size>
+        <unmodifiable>0</unmodifiable>
+        <classType>com.xpn.xwiki.objects.classes.StringClass</classType>
+      </type>
     </class>
     <property>
       <defaultValue/>
@@ -1822,6 +1983,9 @@ Mocca Calendar Macro
     </property>
     <property>
       <name>month</name>
+    </property>
+    <property>
+      <type/>
     </property>
   </object>
   <object>
@@ -1876,6 +2040,15 @@ Mocca Calendar Macro
         <unmodifiable>0</unmodifiable>
         <classType>com.xpn.xwiki.objects.classes.StringClass</classType>
       </name>
+      <type>
+        <disabled>0</disabled>
+        <name>type</name>
+        <number>5</number>
+        <prettyName>Parameter type</prettyName>
+        <size>60</size>
+        <unmodifiable>0</unmodifiable>
+        <classType>com.xpn.xwiki.objects.classes.StringClass</classType>
+      </type>
     </class>
     <property>
       <defaultValue/>
@@ -1888,6 +2061,9 @@ Mocca Calendar Macro
     </property>
     <property>
       <name>date</name>
+    </property>
+    <property>
+      <type/>
     </property>
   </object>
 </xwikidoc>

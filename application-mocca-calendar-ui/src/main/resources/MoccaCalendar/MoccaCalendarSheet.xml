@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="UTF-8"?>
+<?xml version="1.1" encoding="UTF-8"?>
 
 <!--
  * See the NOTICE file distributed with this work for additional
@@ -27,12 +27,9 @@
   <defaultLanguage/>
   <translation>0</translation>
   <creator>xwiki:XWiki.Admin</creator>
-  <creationDate>1377502319000</creationDate>
   <parent>MoccaCalendarClass</parent>
   <author>xwiki:XWiki.Admin</author>
   <contentAuthor>xwiki:XWiki.Admin</contentAuthor>
-  <date>1605197414000</date>
-  <contentUpdateDate>1605197414000</contentUpdateDate>
   <version>1.1</version>
   <title/>
   <comment/>
@@ -47,42 +44,25 @@
 #set($discard = $xcontext.put('display','view'))
 #end
 {{html wiki="true"}}
-## A reusable color picker is available since XWiki 11.7-rc-1. If the returned value is the macro call, then the macro
-## does not exist and the following resources need to be used.
-#if ("#colorPicker()" == '#colorPicker()')
-  #set ($discard = $xwiki.jsfx.use('uicomponents/widgets/colorpicker/procolor.js', true))
-  #set ($discard = $xwiki.jsx.use("ColorThemes.ColorThemeSheet", {'defer': false}))
-  #set ($discard = $xwiki.ssx.use("ColorThemes.ColorThemeSheet"))
-#end
 #set ($discard = $doc.use('MoccaCalendar.MoccaCalendarClass'))
 #set($discard = $xwiki.jsx.use("MoccaCalendar.MoccaCalendarSheet"))
 (% class="xform" %)
 (((
 #if($myEdit)
   ; &lt;label for="MoccaCalendar.MoccaCalendarClass_0_color"&gt;$escapetool.xml($doc.displayPrettyName('color', false, false))&lt;/label&gt;
-  ## A reusable color picker is available since XWiki 11.7-rc-1
-  #if ("#colorPicker()" != '#colorPicker()')
-    #set ($colorPickerParams = {
-      'id': 'MoccaCalendar.MoccaCalendarClass_0_color',
-      'name': 'MoccaCalendar.MoccaCalendarClass_0_color',
-      'value': $escapetool.xml($doc.getValue('color'))
-    })
-    : #colorPicker($colorPickerParams)
-  #else
-    : &lt;input class="procolor" name="MoccaCalendar.MoccaCalendarClass_0_color" size="30" type="text" value="$escapetool.html($doc.getValue('color'))"/&gt;
-  #end
+  #set ($colorPickerParams = {
+    'id': 'MoccaCalendar.MoccaCalendarClass_0_color',
+    'name': 'MoccaCalendar.MoccaCalendarClass_0_color',
+    'value': $escapetool.xml($doc.getValue('color'))
+  })
+  : #colorPicker($colorPickerParams)
   ; &lt;label for="MoccaCalendar.MoccaCalendarClass_0_textColor"&gt;$escapetool.xml($doc.displayPrettyName('textColor', false, false))&lt;/label&gt;
-  ## A reusable color picker is available since XWiki 11.7-rc-1
-  #if ("#colorPicker()" != '#colorPicker()')
-    #set ($colorPickerParams = {
-      'id': 'MoccaCalendar.MoccaCalendarClass_0_textColor',
-      'name': 'MoccaCalendar.MoccaCalendarClass_0_textColor',
-      'value': $escapetool.xml($doc.getValue('textColor'))
-    })
-    : #colorPicker($colorPickerParams)
-  #else
-    : &lt;input class="procolor" name="MoccaCalendar.MoccaCalendarClass_0_textColor" size="30" type="text" value="$escapetool.html($doc.getValue('textColor'))"/&gt;
-  #end
+  #set ($colorPickerParams = {
+    'id': 'MoccaCalendar.MoccaCalendarClass_0_textColor',
+    'name': 'MoccaCalendar.MoccaCalendarClass_0_textColor',
+    'value': $escapetool.xml($doc.getValue('textColor'))
+  })
+  : #colorPicker($colorPickerParams)
 #else
   ; &lt;label for="MoccaCalendar.MoccaCalendarClass_0_color"&gt;$escapetool.xml($doc.displayPrettyName('color', false, false))&lt;/label&gt;
   : &lt;div class="moccaevent" style="border-color:${escapetool.html($doc.display('color'))}"&gt;&amp;#160;&lt;/div&gt;
@@ -124,8 +104,11 @@
       <validationScript/>
       <cache>
         <cache>0</cache>
+        <defaultValue>long</defaultValue>
         <disabled>0</disabled>
         <displayType>select</displayType>
+        <freeText>forbidden</freeText>
+        <largeStorage>0</largeStorage>
         <multiSelect>0</multiSelect>
         <name>cache</name>
         <number>5</number>
@@ -173,6 +156,8 @@
         <cache>0</cache>
         <disabled>0</disabled>
         <displayType>select</displayType>
+        <freeText>forbidden</freeText>
+        <largeStorage>0</largeStorage>
         <multiSelect>0</multiSelect>
         <name>use</name>
         <number>3</number>
