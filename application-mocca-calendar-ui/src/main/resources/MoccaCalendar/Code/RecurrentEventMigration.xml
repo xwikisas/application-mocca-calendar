@@ -1,0 +1,266 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!--
+ * See the NOTICE file distributed with this work for additional
+ * information regarding copyright ownership.
+ *
+ * This is free software; you can redistribute it and/or modify it
+ * under the terms of the GNU Lesser General Public License as
+ * published by the Free Software Foundation; either version 2.1 of
+ * the License, or (at your option) any later version.
+ *
+ * This software is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+ * Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public
+ * License along with this software; if not, write to the Free
+ * Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
+ * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
+-->
+
+<xwikidoc version="1.2" reference="MoccaCalendar.Code.RecurrentEventMigration" locale="">
+  <web>MoccaCalendar.Code</web>
+  <name>RecurrentEventMigration</name>
+  <language/>
+  <defaultLanguage/>
+  <translation>0</translation>
+  <creator>xwiki:XWiki.Admin</creator>
+  <parent>MoccaCalendar.Code.MoccaCalendarEventModificationClass</parent>
+  <author>xwiki:XWiki.Admin</author>
+  <contentAuthor>xwiki:XWiki.Admin</contentAuthor>
+  <version>1.1</version>
+  <title>Migration for Recurrent Events</title>
+  <comment/>
+  <minorEdit>false</minorEdit>
+  <syntaxId>xwiki/2.1</syntaxId>
+  <hidden>true</hidden>
+  <content>{{velocity}}
+#if("$!{request.outputSyntax}" != 'plain') ##
+  #set($count = $services.moccacalendarmigration.countUnmigratedEventsForRecurrency()) ##
+== Events to migrate ==
+
+  {{html wiki="false" clean="false"}}
+  #if($count &lt; 0)
+    An error occured while determining if events are to be migrated. Please check the server logs.
+  #else
+
+    There are &lt;span id="eventCounter"&gt;${count}&lt;/span&gt; events to migrate.
+
+    &lt;div id="errorMessage" class="box errormessage" style="display:none"&gt;&lt;/div&gt;
+
+    #if($count &gt;= 0)
+      &lt;form id="migrationform" class="xFormInline"&gt;
+        &lt;fieldset&gt;
+          &lt;label for="stepSize"&gt;Number of events to check at once&lt;/label&gt;
+          &lt;select id="stepSize" name="stepSize"&gt;
+            &lt;option&gt;10&lt;/option&gt;
+            &lt;option&gt;100&lt;/option&gt;
+            &lt;option value="1000" selected="selected"&gt;1,000&lt;/option&gt;
+            &lt;option value="10000"&gt;10,000&lt;/option&gt;
+          &lt;/select&gt;
+        &lt;/fieldset&gt;
+        &lt;fieldset&gt;
+          &lt;span class="buttonwrapper"&gt;&lt;input type="submit" id="startMigration" class="button primary" name="start" value="Start Migration" /&gt;
+          &lt;span id="loadSpinner" class="fa" style="width: 1em"&gt;&amp;nbsp;&lt;/span&gt;
+        &lt;/fieldset&gt;
+      &lt;/form&gt;
+    {{/html}}
+    #end
+  #end
+#end
+{{/velocity}}
+{{velocity wiki="false"}}
+#if("$!{request.outputSyntax}" == 'plain')
+  $response.setContentType('application/json')
+  #set($offset = $numbertool.toNumber($request.getParameter('offset')))
+  #set($limit = $numbertool.toNumber($request.getParameter('stepSize')))
+  #if($limit &gt; 0 &amp;&amp; $offset &gt;=0)
+    #set($result =  $services.moccacalendarmigration.migrateEventsForRecurrenty($offset, $limit))
+    #if(!$result['errorMessage'])
+      #set($discard = $result.put('remainingCount', $services.moccacalendarmigration.countUnmigratedEventsForRecurrency()))
+    #end
+  #else
+    #set($result = { 'errorMessage' : 'parameter "offset" or "stepSize" is missing'})
+  #end
+  $jsontool.serialize($result)
+#end
+{{/velocity}}
+</content>
+  <object>
+    <name>MoccaCalendar.Code.RecurrentEventMigration</name>
+    <number>0</number>
+    <className>XWiki.JavaScriptExtension</className>
+    <guid>7bafe4af-b9d7-48da-b654-242cc0b57939</guid>
+    <class>
+      <name>XWiki.JavaScriptExtension</name>
+      <customClass/>
+      <customMapping/>
+      <defaultViewSheet/>
+      <defaultEditSheet/>
+      <defaultWeb/>
+      <nameField/>
+      <validationScript/>
+      <cache>
+        <cache>0</cache>
+        <disabled>0</disabled>
+        <displayType>select</displayType>
+        <multiSelect>0</multiSelect>
+        <name>cache</name>
+        <number>5</number>
+        <prettyName>Caching policy</prettyName>
+        <relationalStorage>0</relationalStorage>
+        <separator> </separator>
+        <separators>|, </separators>
+        <size>1</size>
+        <unmodifiable>0</unmodifiable>
+        <values>long|short|default|forbid</values>
+        <classType>com.xpn.xwiki.objects.classes.StaticListClass</classType>
+      </cache>
+      <code>
+        <contenttype>PureText</contenttype>
+        <disabled>0</disabled>
+        <editor>PureText</editor>
+        <name>code</name>
+        <number>2</number>
+        <prettyName>Code</prettyName>
+        <rows>20</rows>
+        <size>50</size>
+        <unmodifiable>0</unmodifiable>
+        <classType>com.xpn.xwiki.objects.classes.TextAreaClass</classType>
+      </code>
+      <name>
+        <disabled>0</disabled>
+        <name>name</name>
+        <number>1</number>
+        <prettyName>Name</prettyName>
+        <size>30</size>
+        <unmodifiable>0</unmodifiable>
+        <classType>com.xpn.xwiki.objects.classes.StringClass</classType>
+      </name>
+      <parse>
+        <disabled>0</disabled>
+        <displayFormType>select</displayFormType>
+        <displayType>yesno</displayType>
+        <name>parse</name>
+        <number>4</number>
+        <prettyName>Parse content</prettyName>
+        <unmodifiable>0</unmodifiable>
+        <classType>com.xpn.xwiki.objects.classes.BooleanClass</classType>
+      </parse>
+      <use>
+        <cache>0</cache>
+        <disabled>0</disabled>
+        <displayType>select</displayType>
+        <multiSelect>0</multiSelect>
+        <name>use</name>
+        <number>3</number>
+        <prettyName>Use this extension</prettyName>
+        <relationalStorage>0</relationalStorage>
+        <separator> </separator>
+        <separators>|, </separators>
+        <size>1</size>
+        <unmodifiable>0</unmodifiable>
+        <values>currentPage|onDemand|always</values>
+        <classType>com.xpn.xwiki.objects.classes.StaticListClass</classType>
+      </use>
+    </class>
+    <property>
+      <cache>long</cache>
+    </property>
+    <property>
+      <code>(function() {
+
+  var counter = 0;
+  var spinner;
+  var button;
+
+  function showError(message) {
+    var error = $('errorMessage')
+    if (error) {
+      while (error.childNodes &amp;&amp; error.childNodes.length) {
+        error.removeChild(error.childNodes[0])
+      }
+      error.empty()
+      error.insert(message)
+      error.show()
+    } else {
+      new XWiki.widgets.Notification(message, "error");
+    }
+    spinner.removeClassName('loading')
+  }
+
+  function doMigration(stepSize) {
+    spinner.addClassName('loading')
+    button.setAttribute('disabled', 'disabled')
+    button.addClassName('disabled')
+    new Ajax.Request(
+      new XWiki.Document( new XWiki.DocumentReference('', ['MoccaCalendar','Code'], 'RecurrentEventMigration')).getURL('get'),
+      {
+        method: 'get',
+        parameters: 'outputSyntax=plain&amp;offset='+counter+'&amp;stepSize='+stepSize,
+        onSuccess: function(response) {
+          console.log(response)
+          if (response.responseJSON.errorMessage) {
+            showError(response.responseJSON.errorMessage)
+          } else {
+            var eventCounter = $('eventCounter')
+            while (eventCounter.childNodes &amp;&amp; eventCounter.childNodes.length) {
+              eventCounter.removeChild(eventCounter.childNodes[0])
+            }
+            eventCounter.insert(response.responseJSON.remainingCount)
+            if (response.responseJSON.migrationCount &gt; 0) {
+              counter += stepSize;
+              console.log('update by ', counter)
+              doMigration(stepSize);
+            } else {
+              spinner.removeClassName('loading')
+            }
+          }
+        },
+        onFailure: function(response) {
+          showError("internal server error")
+        },
+        onException: function(request, e) {
+          showError("internal software error");
+          console.log('while sending migration request ', e);
+        }
+      }
+    );
+  }
+
+  function startMigration(event) {
+     if(event) event.stop();
+     var stepSize = parseInt($('stepSize').getValue());
+
+     console.log('start migration with steps of size', stepSize);
+     if (stepSize &gt; 0) {
+       counter = 0;
+       doMigration(stepSize);
+    }
+  }
+
+  function hookMigrationEvents() {
+    var form = $('migrationform')
+    spinner = $('loadSpinner')
+    button = $('startMigration')
+    if (form) {
+      form.observe('submit', startMigration);
+    }
+  }
+
+  (XWiki &amp;&amp; XWiki.domIsLoaded &amp;&amp; hookMigrationEvents()) || document.observe("xwiki:dom:loaded", hookMigrationEvents);
+})();</code>
+    </property>
+    <property>
+      <name>migration steps</name>
+    </property>
+    <property>
+      <parse>0</parse>
+    </property>
+    <property>
+      <use>currentPage</use>
+    </property>
+  </object>
+</xwikidoc>

@@ -28,9 +28,9 @@
     <version>2.10.1-SNAPSHOT</version>
   </parent>
   <artifactId>application-mocca-calendar-tests</artifactId>
-  <name>Mocca Calendar Application - Functional Tests</name>
+  <name>Calendar Application - Functional Tests</name>
   <packaging>jar</packaging>
-  <description>Tests for the Mocca Calendar</description>
+  <description>Tests for the Calendar Application (Pro)</description>
   <properties>
     <!-- Override in order to add the plugins we need -->
     <xwikiCfgPlugins>\
@@ -72,12 +72,12 @@
       <scope>runtime</scope>
     </dependency>
     <!-- Test dependencies -->
-    <dependency>
+    <!-- dependency>
       <groupId>org.xwiki.platform</groupId>
       <artifactId>xwiki-platform-test-ui</artifactId>
       <version>${platform.version}</version>
       <scope>test</scope>
-    </dependency>
+    </dependency -->
     <dependency>
       <groupId>org.xwiki.platform</groupId>
       <artifactId>xwiki-platform-panels-test-pageobjects</artifactId>

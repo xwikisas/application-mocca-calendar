@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!--
+ * See the NOTICE file distributed with this work for additional
+ * information regarding copyright ownership.
+ *
+ * This is free software; you can redistribute it and/or modify it
+ * under the terms of the GNU Lesser General Public License as
+ * published by the Free Software Foundation; either version 2.1 of
+ * the License, or (at your option) any later version.
+ *
+ * This software is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+ * Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public
+ * License along with this software; if not, write to the Free
+ * Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
+ * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
+-->
+
+<xwikidoc version="1.2" reference="MoccaCalendar.Code.DateCheckService" locale="">
+  <web>MoccaCalendar.Code</web>
+  <name>DateCheckService</name>
+  <language/>
+  <defaultLanguage/>
+  <translation>0</translation>
+  <creator>xwiki:XWiki.Admin</creator>
+  <parent>MoccaCalendar.Code.WebHome</parent>
+  <author>xwiki:XWiki.Admin</author>
+  <contentAuthor>xwiki:XWiki.Admin</contentAuthor>
+  <version>1.1</version>
+  <title>DateCheckService</title>
+  <comment/>
+  <minorEdit>false</minorEdit>
+  <syntaxId>xwiki/2.1</syntaxId>
+  <hidden>true</hidden>
+  <content>{{velocity wiki="false"}}
+#if("$!{request.outputSyntax}" == 'plain')
+  $response.setContentType('application/json')
+#end
+#if($xcontext.action == 'get')
+## check if a date has a time part
+#set($isAllDay = '')
+#macro(checkDate $format $dateStr)
+  ## this check is ultra silly, but at least it works w/o timezone issues
+  #set($date = $datetool.toDate($fmt, $dateStr))
+  #set($dateStrReparsed = $datetool.format("yyyyMMdd", $date))
+  #set($date2 = $datetool.toDate("yyyyMMdd", $dateStrReparsed))
+  #if($date.time == $date2.time &amp;&amp; $isAllDay != false)
+    #set($isAllDay = true)
+  #else
+    #set($isAllDay = false)
+  #end
+#end
+#set($startDateStr = "$!{request.startDate}")
+#if($startDateStr)
+  #set($fmt = $xwiki.getDocument("MoccaCalendar.MoccaCalendarEventClass").getxWikiClass().get("startDate").getProperty('dateFormat').value)
+  #checkDate($fmt $startDateStr)
+#end
+#set($endDateStr = "$!{request.endDate}")
+#if($endDateStr)
+  #set($fmt = $xwiki.getDocument("MoccaCalendar.MoccaCalendarEventClass").getxWikiClass().get("endDate").getProperty('dateFormat').value)
+  #checkDate($fmt $endDateStr)
+#end
+$jsontool.serialize( { 'isAllDay' : $isAllDay } )
+#end
+{{/velocity}}</content>
+</xwikidoc>

@@ -31,12 +31,88 @@
   <author>xwiki:XWiki.Admin</author>
   <contentAuthor>xwiki:XWiki.Admin</contentAuthor>
   <version>1.1</version>
-  <title/>
+  <title> </title>
   <comment/>
   <minorEdit>false</minorEdit>
   <syntaxId>xwiki/2.1</syntaxId>
   <hidden>true</hidden>
   <content/>
+  <object>
+    <name>MoccaCalendar.MoccaCalendarEventTemplate</name>
+    <number>0</number>
+    <className>MoccaCalendar.Code.MoccaCalendarEventRecurrencyClass</className>
+    <guid>07920fcd-b3f2-4150-af0c-051acbfa38a4</guid>
+    <class>
+      <name>MoccaCalendar.Code.MoccaCalendarEventRecurrencyClass</name>
+      <customClass/>
+      <customMapping/>
+      <defaultViewSheet/>
+      <defaultEditSheet/>
+      <defaultWeb/>
+      <nameField/>
+      <validationScript/>
+      <firstInstance>
+        <customDisplay/>
+        <dateFormat>dd.MM.yyyy HH:mm</dateFormat>
+        <disabled>0</disabled>
+        <emptyIsToday>0</emptyIsToday>
+        <name>firstInstance</name>
+        <number>1</number>
+        <picker>1</picker>
+        <prettyName>firstInstance</prettyName>
+        <size>20</size>
+        <unmodifiable>0</unmodifiable>
+        <validationMessage/>
+        <validationRegExp/>
+        <classType>com.xpn.xwiki.objects.classes.DateClass</classType>
+      </firstInstance>
+      <frequency>
+        <cache>0</cache>
+        <customDisplay/>
+        <disabled>0</disabled>
+        <displayType>select</displayType>
+        <multiSelect>0</multiSelect>
+        <name>frequency</name>
+        <number>3</number>
+        <picker>0</picker>
+        <prettyName/>
+        <relationalStorage>0</relationalStorage>
+        <separator> </separator>
+        <separators>|, </separators>
+        <size>1</size>
+        <sort>none</sort>
+        <unmodifiable>0</unmodifiable>
+        <validationMessage/>
+        <validationRegExp/>
+        <values>daily|workdays|weekly|biweekly|monthly|quarterly|yearly</values>
+        <classType>com.xpn.xwiki.objects.classes.StaticListClass</classType>
+      </frequency>
+      <lastInstance>
+        <customDisplay/>
+        <dateFormat>dd.MM.yyyy HH:mm</dateFormat>
+        <disabled>0</disabled>
+        <emptyIsToday>0</emptyIsToday>
+        <name>lastInstance</name>
+        <number>2</number>
+        <picker>1</picker>
+        <prettyName>lastInstance</prettyName>
+        <size>20</size>
+        <unmodifiable>0</unmodifiable>
+        <validationMessage/>
+        <validationRegExp/>
+        <classType>com.xpn.xwiki.objects.classes.DateClass</classType>
+      </lastInstance>
+    </class>
+    <property>
+      <firstInstance/>
+    </property>
+    <property>
+      <frequency>monthly</frequency>
+    </property>
+    <property>
+      <lastInstance/>
+    </property>
+  </object>
   <object>
     <name>MoccaCalendar.MoccaCalendarEventTemplate</name>
     <number>0</number>
@@ -66,6 +142,7 @@
         <classType>com.xpn.xwiki.objects.classes.BooleanClass</classType>
       </allDay>
       <description>
+        <contenttype>---</contenttype>
         <customDisplay/>
         <disabled>0</disabled>
         <editor>Text</editor>
@@ -95,6 +172,20 @@
         <validationRegExp/>
         <classType>com.xpn.xwiki.objects.classes.DateClass</classType>
       </endDate>
+      <recurrent>
+        <customDisplay/>
+        <defaultValue>0</defaultValue>
+        <disabled>0</disabled>
+        <displayFormType>checkbox</displayFormType>
+        <displayType/>
+        <name>recurrent</name>
+        <number>6</number>
+        <prettyName>recurrent</prettyName>
+        <unmodifiable>0</unmodifiable>
+        <validationMessage/>
+        <validationRegExp/>
+        <classType>com.xpn.xwiki.objects.classes.BooleanClass</classType>
+      </recurrent>
       <startDate>
         <customDisplay/>
         <dateFormat>yyyy/MM/dd HH:mm</dateFormat>
@@ -131,6 +222,9 @@
     </property>
     <property>
       <endDate/>
+    </property>
+    <property>
+      <recurrent>0</recurrent>
     </property>
     <property>
       <startDate/>

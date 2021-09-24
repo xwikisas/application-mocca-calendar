@@ -20,8 +20,8 @@
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
 -->
 
-<xwikidoc version="1.3" reference="MoccaCalendar.Macro" locale="">
-  <web>MoccaCalendar</web>
+<xwikidoc version="1.3" reference="MoccaCalendar.Code.Macro" locale="">
+  <web>MoccaCalendar.Code</web>
   <name>Macro</name>
   <language/>
   <defaultLanguage/>
@@ -54,10 +54,10 @@ or
 {{moccacalendar filter="wiki"/}}
 </content>
   <object>
-    <name>MoccaCalendar.Macro</name>
+    <name>MoccaCalendar.Code.Macro</name>
     <number>0</number>
     <className>XWiki.JavaScriptExtension</className>
-    <guid>f8f9ab2d-9632-4662-af2b-e53db70f9191</guid>
+    <guid>e2b344c5-8dc6-4189-baf0-d786436d265d</guid>
     <class>
       <name>XWiki.JavaScriptExtension</name>
       <customClass/>
@@ -155,12 +155,15 @@ if (typeof(XWiki) == "undefined" || typeof(XWiki.widgets) == "undefined" || type
 #template('colorThemeInit.vm')
 
   XWiki.MoccaCalendar.Helper = Class.create({
-  initialize: function(calendar, dateFormat, jsonServiceUrl, createEventBaseUrl, updateEventUrl, newPageParams, formToken) {
+  initialize: function(calendar, dateFormat, jsonServiceUrl, createEventBaseUrl, updateEventUrl, newPageNameUrl, dateCheckUrl, deleteEventInstanceUrl, newPageParams, formToken) {
     this.calendar = calendar;
     this.dateFormat = dateFormat;
     this.jsonServiceUrl = jsonServiceUrl;
     this.createEventBaseUrl = createEventBaseUrl;
     this.updateEventUrl = updateEventUrl;
+    this.newPageNameUrl = newPageNameUrl;
+    this.dateCheckUrl = dateCheckUrl;
+    this.deleteEventInstanceUrl = deleteEventInstanceUrl;
     this.newPageParams = newPageParams;
     this.formToken = formToken;
     // hack: extract the "day only" and "time only" format, if possible
@@ -178,7 +181,10 @@ if (typeof(XWiki) == "undefined" || typeof(XWiki.widgets) == "undefined" || type
     if (!errorMessage) {
       errorMessage = "$escapetool.javascript($services.localization.render('MoccaCalendar.generic.errormessage'))";
     }
-    new XWiki.widgets.Notification("$escapetool.javascript($services.localization.render('core.widgets.confirmationBox.notification.failed'))" + errorMessage, "error");
+    if (this.errorNotification) {
+       this.errorNotification.hide()
+    }
+    this.errorNotification = new XWiki.widgets.Notification("$escapetool.javascript($services.localization.render('core.widgets.confirmationBox.notification.failed'))" + errorMessage, "error");
   },
   showCreateEventFrom: function(start, end) {
     var allDay = !start.hasTime();
@@ -215,20 +221,20 @@ if (typeof(XWiki) == "undefined" || typeof(XWiki.widgets) == "undefined" || type
       this.displayError();
       if (revertFunc) revertFunc();
     }.bind(this)).success(function (data) {
-      if (data.indexOf("OK ")==0) {
+      if (data.success) {
         savingBox.hide();
         savedBox.show();
         calendar.fullCalendar('refetchEvents');
       } else {
         savingBox.hide();
-        this.displayError();
+        this.displayError(data.message);
         if (revertFunc) revertFunc();
       }
     }.bind(this));
   }
   });
 
-  // 
+  //
   // "static" helpers
   //
   XWiki.MoccaCalendar.Helper.getCalendarView = function(defaultVal) {
@@ -258,7 +264,7 @@ if (typeof(XWiki) == "undefined" || typeof(XWiki.widgets) == "undefined" || type
     },
     initialize: function($super, interactionParameters, helper) {
       this.interactionParameters = Object.extend(Object.clone(this.defaultInteractionParameters), interactionParameters || {});
-      this.interactionParameters.isNew = (undefined == this.interactionParameters.event)
+      this.interactionParameters.isNew = (undefined === this.interactionParameters.event)
       this.helper = helper;
       this.saving = false;
       // call constructor from ModalPopup with params content, shortcuts, options
@@ -272,14 +278,56 @@ if (typeof(XWiki) == "undefined" || typeof(XWiki.widgets) == "undefined" || type
         {
           verticalPosition: "top",
           backgroundColor: "$theme.pageHeaderBackgroundColor",
-          title : this.interactionParameters.editMode ? "$escapetool.javascript($services.localization.render('MoccaCalendar.calendarevent.create'))" : "$escapetool.javascript($services.localization.render('MoccaCalendar.calendarevent.view'))"
+          title : this.interactionParameters.editMode ? "$escapetool.javascript($services.localization.render('MoccaCalendar.calendarevent.create'))" : "$escapetool.javascript($services.localization.render('MoccaCalendar.calendarevent.view'))",
+          removeOnClose : true,
+          onClose : function() {
+            document.stopObserving('xwiki:moccacalendar:editmode');
+            document.stopObserving('xwiki:moccacalendar:instancesaved');
+          }
         }
       );
+
+      var that = this;
+      document.observe('xwiki:moccacalendar:editloaded', function() {
+            $$('input.datetime').each(function(dateTimeInput) {
+              if (dateTimeInput.getAttribute('name') &amp;&amp; dateTimeInput.getAttribute('name').startsWith('MoccaCalendar.MoccaCalendarEventClass')) {
+                dateTimeInput.observe('change', function(event) {
+                  that.handleDatetimeFieldChange(event, $(this));
+                });
+              }
+            });
+            // newer implementation instead does:
+            jQuery(this.content).off('change.datetime', 'input.datetime').on('change.datetime', 'input.datetime', function(event) {
+              that.handleDatetimeFieldChange(event, $(this));
+            });
+
+            // this is the "all day" box
+            that.allDay = $('MoccaCalendar.MoccaCalendarEventClass_0_allDay');
+            that.allDay.observe('change', function(event) {
+              that.handleAllDayFieldChange(event, $(this));
+            });
+            // use handler to init date picker, too
+            that.handleAllDayFieldChange(null, that.allDay);
+      });
+
+      // only in case we are editing a recurrent event:
+      // a flag and a handler for events from the MoccaCalendar.Code.MoccaCalendarEventModificationClass
+      // signaling that we are switching between "one instance" and "all instances" of a recurrent event
+      this.editModeIsSingleInstance = false;
+      document.observe('xwiki:moccacalendar:editmode', function(event, element) {
+        this.editModeIsSingleInstance = event.memo.oneInstance;
+      }.bind(this));
+      // in case of an "one instance" save the action happens in the MoccaCalendarEventModificationClass
+      // and we only listen for the results to close the dialog
+      document.observe('xwiki:moccacalendar:instancesaved', function(event) {
+        this.savedBox.show();
+        this.closeDialog();
+        this.helper.calendar.fullCalendar('refetchEvents');
+      }.bind(this));
+
       this.loadEventContent();
       this.showDialog();
       this.setClass("moccacal-modal-popup");
-
-      $$(".xdialog-modal-container").each(function(div) { div.setStyle({position: 'absolute'}) }); // MOCCACAL-32
 
       this.savingBox = new XWiki.widgets.Notification("$escapetool.javascript($services.localization.render('core.widgets.confirmationBox.notification.inProgress'))", "inprogress", {inactive: true});
       this.savedBox = new XWiki.widgets.Notification("$escapetool.javascript($services.localization.render('core.widgets.confirmationBox.notification.done'))", "done", {inactive: true});
@@ -294,10 +342,17 @@ if (typeof(XWiki) == "undefined" || typeof(XWiki.widgets) == "undefined" || type
     },
 
     submitForm: function(event) {
+      if (this.editModeIsSingleInstance) {
+        // console.log('we are in single instance mode; skip saving the main form')
+        // we trust the code for editing single instances of recurrent events to handle the save
+        return;
+      }
+
       event.stop();
       var titleField = this.content.down('[name="title"]');
 
       var title = $(titleField).getValue();
+      title = title.replace(/^ +/,'').replace(/ +$/,'')
       if (title.length == 0) {
         $$(".val_title_notempty").each(Element.show);
         return false;
@@ -305,6 +360,7 @@ if (typeof(XWiki) == "undefined" || typeof(XWiki.widgets) == "undefined" || type
       else {
         $$(".val_title_notempty").each(Element.hide);
       }
+
       this.saving = true; // signal other events we are about to save
 
       this.savedBox.hide();
@@ -312,10 +368,10 @@ if (typeof(XWiki) == "undefined" || typeof(XWiki.widgets) == "undefined" || type
 
       if (this.interactionParameters.isNew) {
        // calculate "automatic" document name:
-       var name = title.replace(/[\/?]/g,'').replace(/^ +/,'').replace(/ +$/,'');
+       var name = title.replace(/[\/?]/g,'');
 
-       // ask the JSONService to create an unused event name for us      
-       new Ajax.Request( this.helper.jsonServiceUrl, {
+       // ask the JSONService to create an unused event name for us
+       new Ajax.Request( this.helper.newPageNameUrl, {
         method: 'get',
         parameters: { 'outputSyntax': 'plain', 'newEvent' : name, 'parent': $F($("calendarParent")) },
         onSuccess: function(response) {
@@ -326,7 +382,7 @@ if (typeof(XWiki) == "undefined" || typeof(XWiki.widgets) == "undefined" || type
               this.helper.displayError(error);
             } else {
               var eventName = response.responseJSON['name'];
-              var parentLocation = response.responseJSON['parent']; 
+              var parentLocation = response.responseJSON['parent'];
               this.saveEvent(parentLocation, eventName);
             }
           } catch(e) { alert(e); }
@@ -343,7 +399,7 @@ if (typeof(XWiki) == "undefined" || typeof(XWiki.widgets) == "undefined" || type
       } else {
         this.saveEvent();
       }
-      
+
       return false;
     },
 
@@ -376,7 +432,9 @@ if (typeof(XWiki) == "undefined" || typeof(XWiki.widgets) == "undefined" || type
             $("forminnercontent").innerHTML = responseText;
             this.savingBox.hide();
             if (e.status &gt; 400) { this.helper.displayError(); }
+
             document.fire('xwiki:dom:updated', {elements: [$('forminnercontent')]});
+            document.fire('xwiki:moccacalendar:editloaded');
           } catch (e) {
             alert('Failed to save event!');
           }
@@ -400,6 +458,37 @@ if (typeof(XWiki) == "undefined" || typeof(XWiki.widgets) == "undefined" || type
         onFailure: function(e) {
           pending.hide();
           this.helper.displayError();
+          this.helper.calendar.fullCalendar('refetchEvents');
+        }.bind(this)
+      });
+    },
+
+    deleteSingleEventInstance: function() {
+      if (!this.interactionParameters.event.recurrent) {
+        // use the "delete all instances" code, as we only have one instance of the event
+        return this.deleteEvent();
+      }
+
+      var pending = new XWiki.widgets.Notification("$escapetool.javascript($services.localization.render('core.widgets.confirmationBox.notification.inProgress'))", "inprogress");
+      new Ajax.Request(this.helper.deleteEventInstanceUrl, {
+        method: 'post',
+        parameters: {'instanceStart' : this.interactionParameters.event.start.format('YYYY-MM-DD[T]HH:mm'), 'event' : this.interactionParameters.event.id, 'outputSyntax':'plain' },
+        onSuccess: function(response) {
+          if (response.status == 0) {
+            return;
+          }
+          pending.hide();
+          if (response.responseJSON['error']) {
+            this.helper.displayError(response.responseJSON['error']);
+          } else {
+            new XWiki.widgets.Notification("$escapetool.javascript($services.localization.render('core.widgets.confirmationBox.notification.done'))", "done");
+          }
+          this.helper.calendar.fullCalendar('refetchEvents');
+        }.bind(this),
+        onFailure: function(e) {
+          pending.hide();
+          this.helper.displayError();
+          this.helper.calendar.fullCalendar('refetchEvents');
         }.bind(this)
       });
     },
@@ -435,18 +524,12 @@ if (typeof(XWiki) == "undefined" || typeof(XWiki.widgets) == "undefined" || type
             buttons.down('#save-moccacalendar-event').observe('click', this.submitForm.bind(this));
             buttons.insert('&lt;span class="buttonwrapper"&gt;&lt;a href="#" id="cancel-moccacalendar-event" class="secondary button"&gt;' + "$escapetool.javascript($services.localization.render('cancel'))" + '&lt;/a&gt;&lt;/span&gt;');
             buttons.down('#cancel-moccacalendar-event').observe('click', this.closeDialog.bind(this));
-            jQuery(this.content).off('change.datetime', 'input.datetime').on('change.datetime', 'input.datetime', function(event) {
-              that.handleDatetimeFieldChange(event, $(this));
-            });
 
-            // this is the "all day" box
-            this.allDay = $('MoccaCalendar.MoccaCalendarEventClass_0_allDay');
-            this.allDay.observe('change', function(event) {
-              that.handleAllDayFieldChange(event, $(this));
-            });
-            // use handler to init date picker, too
-            that.handleAllDayFieldChange(null, this.allDay);
+            // MOCCACAL-128: the event template has a space in the title to avoid showing the page name, but we want to remove this on load
+            var titleField = formcontent.down('input[name="title"]')
+            if (titleField &amp;&amp; titleField.getAttribute('value').trim() == '') { titleField.setAttribute('value','') }
 
+            document.fire('xwiki:moccacalendar:editloaded');
             $("MoccaCalendarEvent.MoccaCalendarEventClass_0_title").focus();
           } else {
             var leftGroup = new Element('div', {'class':'btn-group btn-group-left'});
@@ -527,7 +610,7 @@ if (typeof(XWiki) == "undefined" || typeof(XWiki.widgets) == "undefined" || type
       }.bind(this))
     },
     checkIfDateWithTime : function(callback) {
-      new Ajax.Request( this.helper.jsonServiceUrl, {
+      new Ajax.Request( this.helper.dateCheckUrl, {
         method: 'get',
         parameters: {action: 'checkDate', outputSyntax: 'plain', 'startDate' : $F('MoccaCalendar.MoccaCalendarEventClass_0_startDate'), 'endDate' : $F('MoccaCalendar.MoccaCalendarEventClass_0_endDate')},
         onSuccess: callback,
@@ -574,16 +657,18 @@ if (typeof(XWiki) == "undefined" || typeof(XWiki.widgets) == "undefined" || type
     // Given a single current unzoned date, produce information about what range to display.
     // Subclasses can override. Must return all properties.
     // we only have two ranges:
-    //   if date is in the past: from 10yrs ago to yesterday
-    //   if date is in the future: from now to 10yrs in the future
+    //   if date is in the past: from 2yrs ago to yesterday
+    //   if date is in the future: from now to 2yrs in the future
+    // Returning a larger interval might give much too much
+    // results in case of recurrent events.
     computeRange: function(date) {
       start = this.calendar.getNow().clone().stripTime();
       this.isPast = date.isBefore(start)
       if (this.isPast) {
         end = start.clone().subtract(1, 'd')
-        start = start.subtract(10, 'y')
+        start = start.subtract(2, 'y')
       } else {
-        end = start.clone().add(10, 'y')
+        end = start.clone().add(2, 'y')
       }
       return {
         intervalUnit: 'year',
@@ -628,11 +713,11 @@ if (typeof(XWiki) == "undefined" || typeof(XWiki.widgets) == "undefined" || type
       }
       return this.title;
     },
-  
-    destroyEvents: function() {
+
+    unrenderEvents: function() {
       if (this.container) { this.container.empty(); }
     },
-  
+
     renderEvents: function(events) {
       jQuery('img', this.container).remove();
       if (events.length == 0) {
@@ -672,7 +757,9 @@ require(['jquery'], function($) {
     $(this).data('relatedTarget', relatedTarget);
     var calendarPopup = relatedTarget.data('calendarPopup');
     calendarPopup.closeDialog();
+    var eventIsRecurrent = calendarPopup.interactionParameters.event.recurrent;
     var eventName = '«' + calendarPopup.interactionParameters.event.title + '»';
+    $(this).find('input.do-delete-all').toggle(eventIsRecurrent);
     $(this).find('.modal-body').text(
       $jsontool.serialize($services.localization.render('MoccaCalendar.calendarevent.confirmDelete', '__replace__'))
       .replace('__replace__', eventName));
@@ -680,7 +767,12 @@ require(['jquery'], function($) {
   /**
   * Events on modal buttons, for deleting an event or cancelling the action.
   */
-  $(document).on('click', '#deleteEvents input.btn-danger', function() {
+  $(document).on('click', '#deleteEvents input.btn-danger.do-delete', function() {
+    var relatedTarget = $('#deleteEvents').data('relatedTarget');
+    var calendarPopup = relatedTarget.data('calendarPopup');
+    calendarPopup.deleteSingleEventInstance();
+  });
+  $(document).on('click', '#deleteEvents input.btn-danger.do-delete-all', function() {
     var relatedTarget = $('#deleteEvents').data('relatedTarget');
     var calendarPopup = relatedTarget.data('calendarPopup');
     calendarPopup.deleteEvent();
@@ -703,10 +795,10 @@ require(['jquery'], function($) {
     </property>
   </object>
   <object>
-    <name>MoccaCalendar.Macro</name>
+    <name>MoccaCalendar.Code.Macro</name>
     <number>0</number>
     <className>XWiki.StyleSheetExtension</className>
-    <guid>39fbab16-bd28-4179-b01b-be606a79f869</guid>
+    <guid>45a5f3c1-9bc2-4338-bfda-735845df37cd</guid>
     <class>
       <name>XWiki.StyleSheetExtension</name>
       <customClass/>
@@ -843,6 +935,14 @@ div.xdialog-box-moccacal-modal-popup .btn-group .btn + .btn {
   z-index: 1006;
 }
 
+/* twiddeling with the recurrency input field position */
+div.xdialog-box-moccacal-modal-popup dl {
+   margin-bottom: 0;
+}
+div.xdialog-box-moccacal-modal-popup #recurrentFields dl {
+   margin-bottom: 20px;
+}
+
 /* calendar */
 body .fc {
   padding-right: 1px; /* odd hack to avoid scrollbars in FF at times */
@@ -895,10 +995,10 @@ div.calendar-buttons span.buttonwrapper {
     </property>
   </object>
   <object>
-    <name>MoccaCalendar.Macro</name>
+    <name>MoccaCalendar.Code.Macro</name>
     <number>0</number>
     <className>XWiki.WikiMacroClass</className>
-    <guid>c3a17b3d-6af7-4265-bbf0-844451bb73f1</guid>
+    <guid>1f960d6f-5530-4612-b3a3-8eed08888e10</guid>
     <class>
       <name>XWiki.WikiMacroClass</name>
       <customClass/>
@@ -914,7 +1014,7 @@ div.calendar-buttons span.buttonwrapper {
         <displayFormType>select</displayFormType>
         <displayType/>
         <name>async_cached</name>
-        <number>12</number>
+        <number>13</number>
         <prettyName>Cached</prettyName>
         <unmodifiable>0</unmodifiable>
         <classType>com.xpn.xwiki.objects.classes.BooleanClass</classType>
@@ -927,14 +1027,14 @@ div.calendar-buttons span.buttonwrapper {
         <largeStorage>0</largeStorage>
         <multiSelect>1</multiSelect>
         <name>async_context</name>
-        <number>13</number>
+        <number>14</number>
         <prettyName>Context elements</prettyName>
         <relationalStorage>0</relationalStorage>
-        <separator> </separator>
+        <separator>, </separator>
         <separators>|, </separators>
         <size>5</size>
         <unmodifiable>0</unmodifiable>
-        <values>doc.reference=Document|icon.theme=Icon theme|locale=Language|rendering.defaultsyntax=Default syntax|rendering.restricted=Restricted|rendering.targetsyntax=Target syntax|request.base=Request base URL|request.parameters=Request parameters|request.url=Request URL|request.wiki=Request wiki|user=User|wiki=Wiki</values>
+        <values>action=Action|doc.reference=Document|icon.theme=Icon theme|locale=Language|rendering.defaultsyntax=Default syntax|rendering.restricted=Restricted|rendering.targetsyntax=Target syntax|request.base=Request base URL|request.parameters=Request parameters|request.url=Request URL|request.wiki=Request wiki|user=User|wiki=Wiki</values>
         <classType>com.xpn.xwiki.objects.classes.StaticListClass</classType>
       </async_context>
       <async_enabled>
@@ -943,7 +1043,7 @@ div.calendar-buttons span.buttonwrapper {
         <displayFormType>select</displayFormType>
         <displayType/>
         <name>async_enabled</name>
-        <number>11</number>
+        <number>12</number>
         <prettyName>Asynchronous rendering</prettyName>
         <unmodifiable>0</unmodifiable>
         <classType>com.xpn.xwiki.objects.classes.BooleanClass</classType>
@@ -1048,6 +1148,16 @@ div.calendar-buttons span.buttonwrapper {
         <unmodifiable>0</unmodifiable>
         <classType>com.xpn.xwiki.objects.classes.StringClass</classType>
       </name>
+      <priority>
+        <disabled>0</disabled>
+        <name>priority</name>
+        <number>11</number>
+        <numberType>integer</numberType>
+        <prettyName>Priority</prettyName>
+        <size>10</size>
+        <unmodifiable>0</unmodifiable>
+        <classType>com.xpn.xwiki.objects.classes.NumberClass</classType>
+      </priority>
       <supportsInlineMode>
         <disabled>0</disabled>
         <displayFormType>select</displayFormType>
@@ -1089,14 +1199,16 @@ div.calendar-buttons span.buttonwrapper {
     <property>
       <code>{{velocity output="false"}}
 $xwiki.jsx.use("Calendar.FullCalendar", {'defer': false, 'minify': false})
-$xwiki.jsx.use("MoccaCalendar.Macro", {'defer': false, 'v' : '2.6'})
-$xwiki.jsx.use("MoccaCalendar.DatePickerExtension", {'defer': false})
-$xwiki.ssx.use("Calendar.FullCalendar")
-$xwiki.ssx.use("MoccaCalendar.Macro")
+$xwiki.jsx.use("MoccaCalendar.Code.Macro", {'defer': false, 'v' : '2.6'})
+$xwiki.jsx.use("MoccaCalendar.Code.DatePickerExtension", {'defer': false})
+$xwiki.jsx.use("MoccaCalendar.MoccaCalendarEventSheet")
+$xwiki.jsx.use("MoccaCalendar.Code.MoccaCalendarEventModificationClass")
 #dateTimePicker_import()
-#set($calcounter = $request.getAttribute('MoccaCalendar.Macro:counter'))
+$xwiki.ssx.use("Calendar.FullCalendar")
+$xwiki.ssx.use("MoccaCalendar.Code.Macro")
+#set($calcounter = $request.getAttribute('MoccaCalendar.Code.Macro:counter'))
 #if(!$calcounter) #set($calcounter = 0) #else #set($calcounter = $calcounter + 1) #end
-#set($discard = $request.setAttribute('MoccaCalendar.Macro:counter', $calcounter))
+#set($discard = $request.setAttribute('MoccaCalendar.Code.Macro:counter', $calcounter))
 #set($filter = $xcontext.macro.params.filter)
 #if(!$filter)
 #set($filter = 'page') ## possible values are wiki, space, page
@@ -1163,8 +1275,11 @@ $xwiki.ssx.use("MoccaCalendar.Macro")
 ##
 ## some hardwired values that you can feel free to customize
 ##
-#set($jsonUrl = $xwiki.getDocument("MoccaCalendar.JSONService").getURL("get"))
-#set($updateUrl = $xwiki.getDocument("MoccaCalendar.UpdateService").getURL("get"))
+#set($jsonUrl = $xwiki.getDocument("MoccaCalendar.Code.JSONService").getURL("get"))
+#set($newPageNameUrl = $xwiki.getDocument("MoccaCalendar.Code.NewEventNameService").getURL("get"))
+#set($dateCheckUrl = $xwiki.getDocument("MoccaCalendar.Code.DateCheckService").getURL("get"))
+#set($updateUrl = $xwiki.getDocument("MoccaCalendar.Code.UpdateService").getURL("get"))
+#set($deleteEventInstanceUrl = $xwiki.getDocument("MoccaCalendar.Code.DeleteEventInstanceService").getURL("get"))
 #set($left = "prev,next today")
 #set($center = "title")
 #set($right = "agendaDay,agendaWeek,month,plainList")
@@ -1186,7 +1301,9 @@ $xwiki.ssx.use("MoccaCalendar.Macro")
           &lt;div&gt;$services.localization.render('MoccaCalendar.calendarevent.confirmDelete')&lt;/div&gt;
         &lt;/div&gt;
         &lt;div class="modal-footer"&gt;
-          &lt;input type="button" class="btn btn-danger"
+          &lt;input type="button" class="btn btn-danger do-delete-all"
+            value="$escapetool.xml($services.localization.render('MoccaCalendar.calendarevent.confirmDelete.allEventsButton'))" data-dismiss="modal"&gt;
+          &lt;input type="button" class="btn btn-danger do-delete"
             value="$escapetool.xml($services.localization.render('yes'))" data-dismiss="modal"&gt;
           &lt;input type="button" class="btn btn-default"
             value="$escapetool.xml($services.localization.render('no'))" data-dismiss="modal"&gt;
@@ -1321,11 +1438,23 @@ require(['jquery', 'moccaCalendar'], function(jQuery) {
 #set($newPageParams = "template=MoccaCalendar.MoccaCalendarEventTemplate&amp;parentFROM=${escapetool.url($calendarDoc)}&amp;form_token=${services.csrf.getToken()}&amp;ocalcaction=create")
 #set($randomDocUrl = $xwiki.getURL("randomPage${util.generateRandomString(10)}",'edit',$newPageParams))
 #set($updateUrlParams="?xpage=plain&amp;outputSyntax=plain&amp;calendarDoc=${escapetool.url(${calendarDoc})}&amp;")
-  var calendarHelper = new XWiki.MoccaCalendar.Helper(calendar, "$!escapetool.javascript($dateFormat)", "$escapetool.javascript($jsonUrl)", "$escapetool.javascript($randomDocUrl)", "$escapetool.javascript("${updateUrl}${updateUrlParams}")", "$escapetool.javascript($newPageParams)", "${escapetool.javascript($services.csrf.getToken())}");
+  var calendarHelper = new XWiki.MoccaCalendar.Helper(calendar,
+    "$!escapetool.javascript($dateFormat)",
+    "$escapetool.javascript($jsonUrl)",
+    "$escapetool.javascript($randomDocUrl)",
+    "$escapetool.javascript("${updateUrl}${updateUrlParams}")",
+    "$escapetool.javascript($newPageNameUrl)",
+    "$escapetool.javascript($dateCheckUrl)",
+    "$escapetool.javascript($deleteEventInstanceUrl)",
+    "$escapetool.javascript($newPageParams)",
+    "${escapetool.javascript($services.csrf.getToken())}"
+  );
   });
 });
 &lt;/script&gt;
-#showDeleteEventsModal
+#if($calcounter == 0)
+  #showDeleteEventsModal
+#end
 {{/html}}
 #else ## of #if($xcontext.action=='view')
 Mocca Calendar Macro
@@ -1355,6 +1484,9 @@ Mocca Calendar Macro
       <name>Mocca Calendar</name>
     </property>
     <property>
+      <priority/>
+    </property>
+    <property>
       <supportsInlineMode>0</supportsInlineMode>
     </property>
     <property>
@@ -1362,10 +1494,10 @@ Mocca Calendar Macro
     </property>
   </object>
   <object>
-    <name>MoccaCalendar.Macro</name>
+    <name>MoccaCalendar.Code.Macro</name>
     <number>0</number>
     <className>XWiki.WikiMacroParameterClass</className>
-    <guid>2b173925-b2b6-496b-b18f-8a8092663b88</guid>
+    <guid>19383278-1cc2-4d08-91f4-e141dfe6af9b</guid>
     <class>
       <name>XWiki.WikiMacroParameterClass</name>
       <customClass/>
@@ -1443,10 +1575,10 @@ Mocca Calendar Macro
     </property>
   </object>
   <object>
-    <name>MoccaCalendar.Macro</name>
+    <name>MoccaCalendar.Code.Macro</name>
     <number>1</number>
     <className>XWiki.WikiMacroParameterClass</className>
-    <guid>47abb77b-820a-4406-aaba-618116667c32</guid>
+    <guid>ac5314c2-3e3d-4e02-8239-71fdd80dc0c8</guid>
     <class>
       <name>XWiki.WikiMacroParameterClass</name>
       <customClass/>
@@ -1521,10 +1653,10 @@ Mocca Calendar Macro
     </property>
   </object>
   <object>
-    <name>MoccaCalendar.Macro</name>
+    <name>MoccaCalendar.Code.Macro</name>
     <number>2</number>
     <className>XWiki.WikiMacroParameterClass</className>
-    <guid>b87943f2-eeba-4d00-94e5-2ca115bb7332</guid>
+    <guid>18d46da8-12e8-4e41-96a7-cae913605353</guid>
     <class>
       <name>XWiki.WikiMacroParameterClass</name>
       <customClass/>
@@ -1599,10 +1731,10 @@ Mocca Calendar Macro
     </property>
   </object>
   <object>
-    <name>MoccaCalendar.Macro</name>
+    <name>MoccaCalendar.Code.Macro</name>
     <number>3</number>
     <className>XWiki.WikiMacroParameterClass</className>
-    <guid>d07837c6-fa51-4eac-a1b0-a79aab60511e</guid>
+    <guid>3754af83-4f3c-4288-9b40-ad22fc711e1d</guid>
     <class>
       <name>XWiki.WikiMacroParameterClass</name>
       <customClass/>
@@ -1677,10 +1809,10 @@ Mocca Calendar Macro
     </property>
   </object>
   <object>
-    <name>MoccaCalendar.Macro</name>
+    <name>MoccaCalendar.Code.Macro</name>
     <number>4</number>
     <className>XWiki.WikiMacroParameterClass</className>
-    <guid>77d5c912-4d56-452d-a4f6-f4eabc42c52c</guid>
+    <guid>a03b024d-55d7-4b7f-a14c-65bf6f38fe12</guid>
     <class>
       <name>XWiki.WikiMacroParameterClass</name>
       <customClass/>
@@ -1755,10 +1887,10 @@ Mocca Calendar Macro
     </property>
   </object>
   <object>
-    <name>MoccaCalendar.Macro</name>
+    <name>MoccaCalendar.Code.Macro</name>
     <number>5</number>
     <className>XWiki.WikiMacroParameterClass</className>
-    <guid>1bf587c1-14b2-4b51-b1f4-babbf1d13ecf</guid>
+    <guid>bf7fe171-f1b8-4545-b3cf-7da63b114b0c</guid>
     <class>
       <name>XWiki.WikiMacroParameterClass</name>
       <customClass/>
@@ -1833,10 +1965,10 @@ Mocca Calendar Macro
     </property>
   </object>
   <object>
-    <name>MoccaCalendar.Macro</name>
+    <name>MoccaCalendar.Code.Macro</name>
     <number>6</number>
     <className>XWiki.WikiMacroParameterClass</className>
-    <guid>b6bb2e26-07c8-4b87-a628-e9f3d59faf0f</guid>
+    <guid>0dfd1de3-8c01-4b90-b8ce-127a69f26301</guid>
     <class>
       <name>XWiki.WikiMacroParameterClass</name>
       <customClass/>
@@ -1911,10 +2043,10 @@ Mocca Calendar Macro
     </property>
   </object>
   <object>
-    <name>MoccaCalendar.Macro</name>
+    <name>MoccaCalendar.Code.Macro</name>
     <number>7</number>
     <className>XWiki.WikiMacroParameterClass</className>
-    <guid>b42462f5-12d3-4775-a2e5-feccc98532ab</guid>
+    <guid>97daa50d-7ba8-4aaf-9182-c83ecd3ae36c</guid>
     <class>
       <name>XWiki.WikiMacroParameterClass</name>
       <customClass/>
@@ -1989,10 +2121,10 @@ Mocca Calendar Macro
     </property>
   </object>
   <object>
-    <name>MoccaCalendar.Macro</name>
+    <name>MoccaCalendar.Code.Macro</name>
     <number>8</number>
     <className>XWiki.WikiMacroParameterClass</className>
-    <guid>3f0c549b-6617-4e17-965c-b9b7586dc47d</guid>
+    <guid>6bda9131-9971-4721-9b0a-90c6a47b4658</guid>
     <class>
       <name>XWiki.WikiMacroParameterClass</name>
       <customClass/>

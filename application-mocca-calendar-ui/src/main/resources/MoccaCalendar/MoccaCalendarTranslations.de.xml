@@ -34,7 +34,7 @@
   <title/>
   <comment/>
   <minorEdit>false</minorEdit>
-  <syntaxId>xwiki/2.1</syntaxId>
+  <syntaxId>plain/1.0</syntaxId>
   <hidden>true</hidden>
   <content>#general
 MoccaCalendar.calendar=Kalender
@@ -54,6 +54,7 @@ MoccaCalendar.calendarevent.create=Neuen Termin anlegen
 MoccaCalendar.calendarevent.backlink=Zurück zum Kalender &amp;\#8222;{0}&amp;\#8220;
 MoccaCalendar.calendarevent.confirmDelete=Wollen Sie den Termin {0} wirklich löschen?
 MoccaCalendar.calendarevent.view=Termin
+MoccaCalendar.calendarevent.confirmDelete.allEventsButton=Alle Termine
 MoccaCalendar.generic.errormessage=Interner Fehler
 
 # Class fields
@@ -91,6 +92,28 @@ MoccaCalendar.MoccaCalendarEventClass_startDate=Startdatum
 MoccaCalendar.MoccaCalendarEventClass_endDate=Enddatum
 MoccaCalendar.MoccaCalendarEventClass_description=Beschreibung
 MoccaCalendar.MoccaCalendarEventClass_allDay=Ganztägig
+MoccaCalendar.MoccaCalendarEventClass_recurrent=Wiederkehrend
+
+# modification class fields
+MoccaCalendar.Code.MoccaCalendarEventRecurrencyClass_frequency=Wiederholung
+MoccaCalendar.Code.MoccaCalendarEventRecurrencyClass_frequency_daily=täglich
+MoccaCalendar.Code.MoccaCalendarEventRecurrencyClass_frequency_workdays=werktags
+MoccaCalendar.Code.MoccaCalendarEventRecurrencyClass_frequency_weekly=wöchentlich
+MoccaCalendar.Code.MoccaCalendarEventRecurrencyClass_frequency_biweekly=zweiwöchentlich
+MoccaCalendar.Code.MoccaCalendarEventRecurrencyClass_frequency_monthly=monatlich
+MoccaCalendar.Code.MoccaCalendarEventRecurrencyClass_frequency_quarterly=quartalsweise
+MoccaCalendar.Code.MoccaCalendarEventRecurrencyClass_frequency_yearly=jährlich
+MoccaCalendar.Code.MoccaCalendarEventRecurrencyClass_firstInstance=Datum der ersten Wiederholung
+MoccaCalendar.Code.MoccaCalendarEventRecurrencyClass_lastInstance=Datum der letzten Wiederholung
+MoccaCalendar.Code.MoccaCalendarEventModificationClass_title=geänderter Titel
+MoccaCalendar.Code.MoccaCalendarEventModificationClass_startDate=geändertes Startdatum
+MoccaCalendar.Code.MoccaCalendarEventModificationClass_endDate=geändertes Enddatum
+MoccaCalendar.Code.MoccaCalendarEventModificationClass_description=geänderte Beschreibung
+
+# the modification switch
+moccacalendarevent.editswitch.label=Bearbeiten von:
+moccacalendarevent.editswitch.oneInstance=diesem Eintrag
+moccacalendarevent.editswitch.allInstances=allen Einträgen
 
 # Event live table generic keys (currently unused)
 moccacalendarevent.livetable.doc.title=Seiten Titel
@@ -115,11 +138,34 @@ moccacalendarevent.livetable.startDate=Startdatum
 moccacalendarevent.livetable.endDate=Enddatum
 moccacalendarevent.livetable.description=Beschreibung
 
-# validation messages
-val_title_notvalid=Der Titel enthält ungültige Zeichen
-val_title_notempty=Bitte geben Sie einen Titel ein
-val_endDate=Das Enddatum muss nach dem Startdatum liegen
-val_title_already_exists=Ein Termin mit diesem Namen existiert bereits
+# validation messages: on save
+val_title_notvalid=Der Titel enthält ungültige Zeichen.
+val_title_notempty=Bitte geben Sie einen Titel ein.
+val_startDateMissing=Für die Veranstaltung fehlt ein Startdatum.
+val_startDateNotDate=Das angegebene Startdatum kann nicht als Datum interpretiert werden.
+val_endDateNotDate=Das angegebene Enddatum kann nicht als Datum interpretiert werden.
+val_endDate=Das Enddatum muss nach dem Startdatum liegen.
+val_title_already_exists=Ein Termin mit diesem Namen existiert bereits.
+moccacalendar.updates.firstInstance.notDate=Das angegebene Datum der ersten Instanz kann nicht als Datum gelesen werden.
+moccacalendar.updates.lastInstance.notDate=Das angegebene Datum der letzten Instanz kann nicht als Datum gelesen werden.
+
+# validation messages: Update Service
+moccacalendar.updates.eventUpdated=Der Termin wurde aktualisiert.
+moccacalendar.updates.eventrecurrent=Wiederkehrende Termine können nicht verschoben werden.
+moccacalendar.updates.valuesinvalid=Das neue Datum des Termins ist ungültig.
+moccacalendar.updates.nodocument=Der Termin ist nicht mehr verfügbar.
+
+# validation messages: Delete Service
+moccacalendar.delete.startDateInvalid=Das Startdatum des Termins wurde nicht erkannt.
+moccacalendar.delete.saveMessage=Eintrag am {0} gelöscht.
+
+# validation messages: Modification Service
+moccacalendar.modify.createMessage=Änderung für einen Termineintrag angelegt.
+moccacalendar.modify.saveMessage=Änderung für einen Termineintrag geändert.
+
+# Template provider
+templateProvider.calendar.name=Kalender
+templateProvider.calendar.description=Neuen Kalender hinzufügen
 
 ## Calendar macro
 rendering.macro.moccacalendar.name=Kalendar
@@ -141,6 +187,7 @@ rendering.macro.moccacalendar.parameter.year.description=Das Jahr, für das init
 rendering.macro.moccacalendar.parameter.month.name=Monat
 rendering.macro.moccacalendar.parameter.month.description=Der Monat, für den initial Termine angezeigt werden. Werte von 0\=Januar bis 11\=Dezember. Falls leer, wird der aktuelle Monat genommen. 
 rendering.macro.moccacalendar.parameter.date.name=Tag
-rendering.macro.moccacalendar.parameter.date.description=Der Tag, für den initial Termine angezeigt werden. Werte von 1 bis 31. Falls leer, wird der heutige Tag genommen. 
-</content>
+rendering.macro.moccacalendar.parameter.date.description=Der Tag, für den initial Termine angezeigt werden. Werte von 1 bis 31. Falls leer, wird der heutige Tag genommen.
+
+xwiki.calendar.button.plainList=Agenda</content>
 </xwikidoc>

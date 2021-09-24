@@ -39,84 +39,155 @@
   <content>#general
 MoccaCalendar.calendar=Calendario
 MoccaCalendar.calendar.title=Vista general del calendario
-### Missing: MoccaCalendar.calendar.defaultCalendarTitle=Other Events
+MoccaCalendar.calendar.defaultCalendarTitle=Otros eventos
 MoccaCalendar.calendar.viewall=Visión general de todos los calendarios
 MoccaCalendar.calendar.create=Crear un nuevo calendario
 MoccaCalendar.calendar.plainlist=Orden del Día
 MoccaCalendar.calendar.plainlist.titlepast=Eventos Pasados
 MoccaCalendar.calendar.plainlist.titleupcoming=Próximos Eventos
-MoccaCalendar.calendar.plainlist.nopastevents=No hay eventos pasados ​​encontrado.
+MoccaCalendar.calendar.plainlist.nopastevents=No hay eventos pasados encontrado.
 MoccaCalendar.calendar.plainlist.noupcomingevents=No hay próximos eventos encontrados.
 MoccaCalendar.calendar.firstDayOfWeek=1
 
-### Missing: MoccaCalendar.calendarevent.viewall=All events
+MoccaCalendar.calendarevent.viewall=Todos los eventos
 MoccaCalendar.calendarevent.create=Crear un evento
-### Missing: MoccaCalendar.calendarevent.backlink=Back to calendar &amp;#171;{0}&amp;#187;
-### Missing: MoccaCalendar.calendarevent.confirmDelete=Do you really want to delete the event {0} ?
-### Missing: MoccaCalendar.calendarevent.view=Event
-### Missing: MoccaCalendar.generic.errormessage=Internal Server Error
+MoccaCalendar.calendarevent.backlink=Volver al calendario &amp;#171;{0}&amp;#187;
+MoccaCalendar.calendarevent.confirmDelete=¿Estás seguro de querer borrar el evento {0} ?
+MoccaCalendar.calendarevent.view=Evento
+MoccaCalendar.calendarevent.confirmDelete.allEventsButton=Todas las instancias
+MoccaCalendar.generic.errormessage=Error interno del servidor
 
 # Class fields
-### Missing: MoccaCalendar.MoccaCalendarClass_title=Title
-### Missing: MoccaCalendar.MoccaCalendarClass_color=Color of entries in the calendar view
-### Missing: MoccaCalendar.MoccaCalendarClass_description=Description
-### Missing: MoccaCalendar.MoccaCalendarClass_content1=Content
+MoccaCalendar.MoccaCalendarClass_title=Título
+MoccaCalendar.MoccaCalendarClass_color=Color de fondo de las entradas en la vista calendario
+MoccaCalendar.MoccaCalendarClass_textColor=Color de texto de las entradas en la vista calendario
+MoccaCalendar.MoccaCalendarClass_description=Descripción
+MoccaCalendar.MoccaCalendarClass_content1=Contenido
+MoccaCalendar.MoccaCalendarClass.textColor.unset=(blanco)
 
 # Live table generic keys
 moccacalendar.livetable.doc.title=Calendario
 moccacalendar.livetable.doc.name=Nombre de la página
-### Missing: moccacalendar.livetable.doc.space=Space
-### Missing: moccacalendar.livetable.doc.fullname=Page full name
-### Missing: moccacalendar.livetable.doc.author=Last Author
+moccacalendar.livetable.doc.space=Espacio
+moccacalendar.livetable.doc.fullname=Nombre completo de la página
+moccacalendar.livetable.doc.author=Último autor
 moccacalendar.livetable.doc.creator=Creador
-### Missing: moccacalendar.livetable.doc.date=Update date
-### Missing: moccacalendar.livetable.doc.creationDate=Creation date
-### Missing: moccacalendar.livetable._avatar=Avatar
-### Missing: moccacalendar.livetable._images=Images
+moccacalendar.livetable.doc.date=Fecha de actualización
+moccacalendar.livetable.doc.creationDate=Fecha de creación
+moccacalendar.livetable._avatar=Avatar
+moccacalendar.livetable._images=Imágenes
 moccacalendar.livetable._attachments=Adjuntos
 moccacalendar.livetable._actions=Acciones
 moccacalendar.livetable._actions.edit=Editar
 moccacalendar.livetable._actions.delete=Borrar
-### Missing: moccacalendar.livetable.emptyvalue=-
-### Missing: moccacalendar.livetable.title=Title
-### Missing: moccacalendar.livetable.description=Description
-### Missing: moccacalendar.livetable.content1=Content
+moccacalendar.livetable.emptyvalue=-
+moccacalendar.livetable.title=Título
+moccacalendar.livetable.description=Descripción
+moccacalendar.livetable.content1=Contenido
 
 # Mocca Calendar Events keys
 # Class fields
-### Missing: MoccaCalendar.MoccaCalendarEventClass_title=Title
-### Missing: MoccaCalendar.MoccaCalendarEventClass_startDate=Start date
-### Missing: MoccaCalendar.MoccaCalendarEventClass_endDate=End date
-### Missing: MoccaCalendar.MoccaCalendarEventClass_description=Description
+MoccaCalendar.MoccaCalendarEventClass_title=Título
+MoccaCalendar.MoccaCalendarEventClass_startDate=Fecha de inicio
+MoccaCalendar.MoccaCalendarEventClass_endDate=Fecha de finalización
+MoccaCalendar.MoccaCalendarEventClass_description=Descripción
 MoccaCalendar.MoccaCalendarEventClass_allDay=Todo el día
+MoccaCalendar.MoccaCalendarEventClass_recurrent=Recurrente
+
+# modification class fields
+MoccaCalendar.Code.MoccaCalendarEventRecurrencyClass_frequency=Frecuencia
+MoccaCalendar.Code.MoccaCalendarEventRecurrencyClass_frequency_daily=diario
+MoccaCalendar.Code.MoccaCalendarEventRecurrencyClass_frequency_workdays=días laborales
+MoccaCalendar.Code.MoccaCalendarEventRecurrencyClass_frequency_weekly=semanal
+MoccaCalendar.Code.MoccaCalendarEventRecurrencyClass_frequency_biweekly=quincenal
+MoccaCalendar.Code.MoccaCalendarEventRecurrencyClass_frequency_monthly=mensual
+MoccaCalendar.Code.MoccaCalendarEventRecurrencyClass_frequency_quarterly=trimestral
+MoccaCalendar.Code.MoccaCalendarEventRecurrencyClass_frequency_yearly=anual
+MoccaCalendar.Code.MoccaCalendarEventRecurrencyClass_firstInstance=Primera ocurrencia del evento
+MoccaCalendar.Code.MoccaCalendarEventRecurrencyClass_lastInstance=Última ocurrencia del evento
+MoccaCalendar.Code.MoccaCalendarEventModificationClass_title=Título modificado
+MoccaCalendar.Code.MoccaCalendarEventModificationClass_startDate=Fecha de inicio modificada
+MoccaCalendar.Code.MoccaCalendarEventModificationClass_endDate=Fecha de finalización modificada
+MoccaCalendar.Code.MoccaCalendarEventModificationClass_description=Descripción modificada
+
+# the modification switch
+moccacalendarevent.editswitch.label=Editar:
+moccacalendarevent.editswitch.oneInstance=solo esta ocurrencia
+moccacalendarevent.editswitch.allInstances=todas las ocurrencias
 
 # Event live table generic keys (currently unused)
-### Missing: moccacalendarevent.livetable.doc.title=Page title
+moccacalendarevent.livetable.doc.title=Título de la página
 moccacalendarevent.livetable.doc.name=Nombre de la página
-### Missing: moccacalendarevent.livetable.doc.space=Space
-### Missing: moccacalendarevent.livetable.doc.fullname=Page full name
-### Missing: moccacalendarevent.livetable.doc.author=Last Author
+moccacalendarevent.livetable.doc.space=Espacio
+moccacalendarevent.livetable.doc.fullname=Nombre completo de la página
+moccacalendarevent.livetable.doc.author=Último autor
 moccacalendarevent.livetable.doc.creator=Creador
-### Missing: moccacalendarevent.livetable.doc.date=Update date
-### Missing: moccacalendarevent.livetable.doc.creationDate=Creation date
-### Missing: moccacalendarevent.livetable._avatar=Avatar
-### Missing: moccacalendarevent.livetable._images=Images
+moccacalendarevent.livetable.doc.date=Fecha de actualización
+moccacalendarevent.livetable.doc.creationDate=Fecha de creación
+moccacalendarevent.livetable._avatar=Avatar
+moccacalendarevent.livetable._images=Imágenes
 moccacalendarevent.livetable._attachments=Adjuntos
 moccacalendarevent.livetable._actions=Acción
 moccacalendarevent.livetable._actions.edit=Editar
 moccacalendarevent.livetable._actions.delete=Borrar
-### Missing: moccacalendarevent.livetable.emptyvalue=-
+moccacalendarevent.livetable.emptyvalue=-
 
 # Live table specific keys
-### Missing: moccacalendarevent.livetable.title=Title
-### Missing: moccacalendarevent.livetable.startDate=Start date
-### Missing: moccacalendarevent.livetable.endDate=End date
-### Missing: moccacalendarevent.livetable.description=Description
+moccacalendarevent.livetable.title=Título
+moccacalendarevent.livetable.startDate=Fecha de inicio
+moccacalendarevent.livetable.endDate=Fecha de finalización
+moccacalendarevent.livetable.description=Descripción
 
-# validation messages
-### Missing: val_title_notvalid=Title field contains invalid characters.
-### Missing: val_title_notempty=Title field is required.
-### Missing: val_endDate=End date must be after start date.
-### Missing: val_title_already_exists=An event with this name already exists.
-</content>
+# validation messages: on save
+val_title_notvalid=Este campo contiene caracteres no válidos.
+val_title_notempty=El campo Título es obligatorio.
+val_startDateMissing=Falta una fecha de inicio en el evento.
+val_startDateNotDate=La fecha de inicio dada no se puede leer como una fecha.
+val_endDateNotDate=La fecha de finalización dada no se puede leer como una fecha.
+val_endDate=La fecha de finalización debe ser posterior a la fecha de inicio.
+val_title_already_exists=Ya existe un evento con este nombre.
+moccacalendar.updates.firstInstance.notDate=La fecha dada para la primera ocurrencia no se puede leer como una fecha.
+moccacalendar.updates.lastInstance.notDate=La fecha dada para la última ocurrencia no se puede leer como una fecha.
+
+# validation messages: Update Service
+moccacalendar.updates.eventUpdated=Hora del evento actualizada.
+moccacalendar.updates.eventrecurrent=Los eventos recurrentes no se pueden mover.
+moccacalendar.updates.valuesinvalid=La nueva hora del evento no es válida.
+moccacalendar.updates.nodocument=El evento ya no está disponible.
+
+# validation messages: Delete Service
+moccacalendar.delete.startDateInvalid=La fecha de inicio del evento no se puede leer.
+moccacalendar.delete.saveMessage=Borrada la instancia del evento a las {0}.
+
+# validation messages: Modification Service
+moccacalendar.modify.createMessage=Modificación añadida para una ocurrencia del evento.
+moccacalendar.modify.saveMessage=Modificación actualizada para una ocurrencia del evento.
+
+# Template provider
+templateProvider.calendar.name=Calendario
+### Missing: templateProvider.calendar.description=Add a new calendar
+
+## Calendar macro
+rendering.macro.moccacalendar.name=Calendario
+rendering.macro.moccacalendar.description=Muestra un Calendario
+rendering.macro.moccacalendar.parameter.filter.name=Mostrar eventos de ...
+rendering.macro.moccacalendar.parameter.filter.description=Los valores posibles son "wiki", "space" o "page", donde: "page": solo se incluirán eventos cuyas páginas son hijos de esta página, "space": solo se incluirán eventos que están en el espacio del documento de calendario, "wiki": se incluirá todos los eventos.
+rendering.macro.moccacalendar.parameter.calendarDoc.name=Página de calendario
+rendering.macro.moccacalendar.parameter.calendarDoc.description=El documento de calendario cuyos eventos se muestran (solo si el filtro tiene el valor "page"). Este valor también se emplea como el calendario predeterminado para el que crear eventos nuevos. Si no se ha definido, se emplea el documento actual.
+rendering.macro.moccacalendar.parameter.defaultView.name=Vista predeterminada
+rendering.macro.moccacalendar.parameter.defaultView.description=La forma inicial en que se muestra el calendario; la puede cambiar cualquier usuario. Sus valores posibles son: "month" (mes), "agendaWeek" (semana de agenda), "agendaDay" (día de agenda) o "plainList" (lista simple).
+rendering.macro.moccacalendar.parameter.firstDay.name=Primer día de la semana
+rendering.macro.moccacalendar.parameter.firstDay.description=Primer día (desde 0 siendo Domingo a 6 siendo Lunes) de la semana a mostrar en el calendario. Dejar vacío para el Domingo.
+rendering.macro.moccacalendar.parameter.minTime.name=Primera hora
+rendering.macro.moccacalendar.parameter.minTime.description=Primera hora a mostrar en el calendario. Los usuarios no verán las horas anteriores a esta hora. Dejar vacío para la predeterminada (8:00).
+rendering.macro.moccacalendar.parameter.maxTime.name=Última hora
+rendering.macro.moccacalendar.parameter.maxTime.description=Última hora a mostrar en el calendario. Los usuarios no verán las horas posteriores a esta hora. Dejar vacío para la predeterminada (23:00).
+rendering.macro.moccacalendar.parameter.year.name=Año
+rendering.macro.moccacalendar.parameter.year.description=Año de la fecha a mostrar al cargar el calendario. Dejar vacío para hoy.
+rendering.macro.moccacalendar.parameter.month.name=Mes
+rendering.macro.moccacalendar.parameter.month.description=Mes (de 0 a 11) de la fecha a mostrar al cargar el calendario. Dejar vacío para hoy.
+rendering.macro.moccacalendar.parameter.date.name=Día
+rendering.macro.moccacalendar.parameter.date.description=Día (de 1 a 31) de la fecha a mostrar al cargar el calendario. Dejar vacío para hoy.
+
+### Missing: xwiki.calendar.button.plainList=Agenda</content>
 </xwikidoc>

@@ -20,8 +20,8 @@
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
 -->
 
-<xwikidoc version="1.3" reference="MoccaCalendar.UpdateService" locale="">
-  <web>MoccaCalendar</web>
+<xwikidoc version="1.3" reference="MoccaCalendar.Code.UpdateService" locale="">
+  <web>MoccaCalendar.Code</web>
   <name>UpdateService</name>
   <language/>
   <defaultLanguage/>
@@ -37,10 +37,12 @@
   <syntaxId>xwiki/2.0</syntaxId>
   <hidden>true</hidden>
   <content>{{velocity}}
+#set($result = { 'success' : false })
 #set($page = $request.page)
 #set($startfield = "startDate")
 #set($endfield = "endDate")
 #set($alldayfield = "allDay")
+#set($recurrentfield = "recurrent")
 
 #set($allDay = 0)
 #if("$!request.allDay" != '')
@@ -48,7 +50,7 @@
 #end
 #set($isResize = false)
 #if("$!request.isResize" == "1")
-	#set($isResize=true)
+	#set($isResize = true)
 #end
 
 #set($delta = $numbertool.toNumber($request.delta).intValue())
@@ -61,6 +63,12 @@
 #set($endDate = '')
 #if("$!request.endDate" != '')
 	#set($endDate = $datetool.toDate($dateFmt, $request.endDate))
+	## see MOCCACAL-114: end date is one day off for all day events
+	#if($allDay == 1)
+		#set($skipOneDay = $xwiki.jodatime.getMutableDateTime($endDate.getTime()))
+		#set($discard = $skipOneDay.addDays(-1))
+		#set($discard = $endDate.setTime($skipOneDay.getMillis()))
+	#end
 #end
 
 #set($success = false)
@@ -68,8 +76,11 @@
 #if("$!page" != "")
 	#set($pagedoc = $xwiki.getDocument($page))
 	#if(!$pagedoc.isNew())
+	    #set($discard = $pagedoc.use("MoccaCalendar.MoccaCalendarEventClass"))
+            #if($pagedoc.getValue($recurrentfield) == 1)
+                #set($discard = $result.put('message', $services.localization.render('moccacalendar.updates.eventrecurrent')))
+            #else
 		#if($startDate)
-			#set($discard = $pagedoc.use("MoccaCalendar.MoccaCalendarEventClass"))
 			#set($discard = $pagedoc.set($alldayfield, $allDay))
 			#set($discard = $pagedoc.set($startfield, $startDate))
 			#set($discard = $pagedoc.set($endfield, $endDate))
@@ -77,16 +88,21 @@
 		#end
 
 		#if($success)
-			#set($ok = $pagedoc.save("Update event time"))
-			OK $startfield: $pagedoc.getValue($startfield) - $endfield: $pagedoc.getValue($endfield) - allDay: $pagedoc.getValue($alldayfield) ; $delta
+			#set($discard = $pagedoc.save($services.localization.render('moccacalendar.updates.eventUpdated'), false))
 		#else
-			FAIL ($pagedoc.fullName  $pagedoc.getValue($startfield) $pagedoc.getValue($endfield))
+                	#set($discard = $result.put('message',  $services.localization.render('moccacalendar.updates.valuesinvalid')))
 		#end
+            #end
 	#else
-		FAIL Document gone
+            #set($discard = $result.put('message',  $services.localization.render('moccacalendar.updates.nodocument')))
 	#end
 #else
-FAIL No Document
+  #set($discard = $result.set('message', $services.localization.render('moccacalendar.updates.nodocument')))
 #end
+#set($discard = $result.put('success', $success))
+#if("$!{request.outputSyntax}" == 'plain')
+  $response.setContentType('application/json')
+#end
+$jsontool.serialize($result)
 {{/velocity}}</content>
 </xwikidoc>

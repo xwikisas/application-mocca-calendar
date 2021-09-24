@@ -45,8 +45,8 @@ MoccaCalendar.calendar.create=Izveidot jaunu kalendāru
 MoccaCalendar.calendar.plainlist=plāns
 MoccaCalendar.calendar.plainlist.titlepast=Pagājuši notikumi
 MoccaCalendar.calendar.plainlist.titleupcoming=Gaidāmi notikumi
-MoccaCalendar.calendar.plainlist.nopastevents=Nav atrasti pagājuši notikumi
-MoccaCalendar.calendar.plainlist.noupcomingevents=Nav atrasti gaidāmi notikumi
+MoccaCalendar.calendar.plainlist.nopastevents=Nav atrasti pagājuši notikumi.
+MoccaCalendar.calendar.plainlist.noupcomingevents=Nav atrasti gaidāmi notikumi.
 MoccaCalendar.calendar.firstDayOfWeek=1
 
 MoccaCalendar.calendarevent.viewall=Visi notikumi
@@ -54,13 +54,16 @@ MoccaCalendar.calendarevent.create=Izveidot jaunu notikumu
 MoccaCalendar.calendarevent.backlink=Atpakaļ uz kalendāru &amp;\#171;{0}&amp;\#187;
 MoccaCalendar.calendarevent.confirmDelete=Vai tiešām vēlaties izdzēst kalendāru {0} ?
 MoccaCalendar.calendarevent.view=Notikums
+### Missing: MoccaCalendar.calendarevent.confirmDelete.allEventsButton=All Instances
 MoccaCalendar.generic.errormessage=Iekšēja servera kļūda
 
 # Class fields
 MoccaCalendar.MoccaCalendarClass_title=Virsraksts
-MoccaCalendar.MoccaCalendarClass_color=Ierakstu krāsa kalendāra skatā
+MoccaCalendar.MoccaCalendarClass_color=Kalendāra ierakstu fona krāsa
+MoccaCalendar.MoccaCalendarClass_textColor=Kalendāra ierakstu teksta krāsa
 MoccaCalendar.MoccaCalendarClass_description=Apraksts
 MoccaCalendar.MoccaCalendarClass_content1=Saturs
+MoccaCalendar.MoccaCalendarClass.textColor.unset=(balts)
 
 # Live table generic keys
 moccacalendar.livetable.doc.title=Kalendārs
@@ -89,34 +92,102 @@ MoccaCalendar.MoccaCalendarEventClass_startDate=Sākuma datums
 MoccaCalendar.MoccaCalendarEventClass_endDate=Beigu datums
 MoccaCalendar.MoccaCalendarEventClass_description=Apraksts
 MoccaCalendar.MoccaCalendarEventClass_allDay=Visa diena
+### Missing: MoccaCalendar.MoccaCalendarEventClass_recurrent=Recurrent
+
+# modification class fields
+### Missing: MoccaCalendar.Code.MoccaCalendarEventRecurrencyClass_frequency=Frequency
+### Missing: MoccaCalendar.Code.MoccaCalendarEventRecurrencyClass_frequency_daily=daily
+### Missing: MoccaCalendar.Code.MoccaCalendarEventRecurrencyClass_frequency_workdays=workdays
+### Missing: MoccaCalendar.Code.MoccaCalendarEventRecurrencyClass_frequency_weekly=weekly
+### Missing: MoccaCalendar.Code.MoccaCalendarEventRecurrencyClass_frequency_biweekly=biweekly
+### Missing: MoccaCalendar.Code.MoccaCalendarEventRecurrencyClass_frequency_monthly=monthly
+### Missing: MoccaCalendar.Code.MoccaCalendarEventRecurrencyClass_frequency_quarterly=quarterly
+### Missing: MoccaCalendar.Code.MoccaCalendarEventRecurrencyClass_frequency_yearly=yearly
+### Missing: MoccaCalendar.Code.MoccaCalendarEventRecurrencyClass_firstInstance=First occurrence of the event
+### Missing: MoccaCalendar.Code.MoccaCalendarEventRecurrencyClass_lastInstance=Last occurrence of the event
+### Missing: MoccaCalendar.Code.MoccaCalendarEventModificationClass_title=Modified title
+### Missing: MoccaCalendar.Code.MoccaCalendarEventModificationClass_startDate=Modified start date
+### Missing: MoccaCalendar.Code.MoccaCalendarEventModificationClass_endDate=Modified end date
+### Missing: MoccaCalendar.Code.MoccaCalendarEventModificationClass_description=Modified description
+
+# the modification switch
+### Missing: moccacalendarevent.editswitch.label=Edit:
+### Missing: moccacalendarevent.editswitch.oneInstance=this instance only
+### Missing: moccacalendarevent.editswitch.allInstances=all instances
 
 # Event live table generic keys (currently unused)
-### Missing: moccacalendarevent.livetable.doc.title=Page title
-### Missing: moccacalendarevent.livetable.doc.name=Page name
-### Missing: moccacalendarevent.livetable.doc.space=Space
-### Missing: moccacalendarevent.livetable.doc.fullname=Page full name
-### Missing: moccacalendarevent.livetable.doc.author=Last Author
-### Missing: moccacalendarevent.livetable.doc.creator=Creator
-### Missing: moccacalendarevent.livetable.doc.date=Update date
-### Missing: moccacalendarevent.livetable.doc.creationDate=Creation date
-### Missing: moccacalendarevent.livetable._avatar=Avatar
-### Missing: moccacalendarevent.livetable._images=Images
+moccacalendarevent.livetable.doc.title=Lapas virsraksts
+moccacalendarevent.livetable.doc.name=Lapas nosaukums
+moccacalendarevent.livetable.doc.space=Vieta
+moccacalendarevent.livetable.doc.fullname=Pilnais lapas nosaukums
+moccacalendarevent.livetable.doc.author=Pēdējais autors
+moccacalendarevent.livetable.doc.creator=Izveidojis
+moccacalendarevent.livetable.doc.date=Atjaunots
+moccacalendarevent.livetable.doc.creationDate=Izveidots
+moccacalendarevent.livetable._avatar=Iemiesojums
+moccacalendarevent.livetable._images=Attēli
 moccacalendarevent.livetable._attachments=Pielikumi
 moccacalendarevent.livetable._actions=Darbība
 moccacalendarevent.livetable._actions.edit=Mainīt
 moccacalendarevent.livetable._actions.delete=Dzēst
-### Missing: moccacalendarevent.livetable.emptyvalue=-
+moccacalendarevent.livetable.emptyvalue=-
 
 # Live table specific keys
-### Missing: moccacalendarevent.livetable.title=Title
-### Missing: moccacalendarevent.livetable.startDate=Start date
-### Missing: moccacalendarevent.livetable.endDate=End date
-### Missing: moccacalendarevent.livetable.description=Description
+moccacalendarevent.livetable.title=Virsraksts
+moccacalendarevent.livetable.startDate=Sākuma datums
+moccacalendarevent.livetable.endDate=Beigu datums
+moccacalendarevent.livetable.description=Apraksts
 
-# validation messages
-### Missing: val_title_notvalid=Title field contains invalid characters.
-### Missing: val_title_notempty=Title field is required.
-### Missing: val_endDate=End date must be after start date.
-### Missing: val_title_already_exists=An event with this name already exists.
-</content>
+# validation messages: on save
+val_title_notvalid=Virsraksts satur nepareizas rakstzīmes.
+val_title_notempty=Lauka virsraksts ir obligāts.
+val_startDateMissing=Notikumam nav sākuma datuma.
+val_startDateNotDate=Norādītais sākums nav saprotams kā datums.
+val_endDateNotDate=Norādītās beigas nav saprotamas kā datums.
+val_endDate=Beigu datumam ir jābūt pēc sākuma datuma.
+val_title_already_exists=Notikums ar šādu nosaukumu jau pastāv.
+### Missing: moccacalendar.updates.firstInstance.notDate=The given first instance date cannot be read as a date.
+### Missing: moccacalendar.updates.lastInstance.notDate=The given last instance date cannot be read as a date.
+
+# validation messages: Update Service
+### Missing: moccacalendar.updates.eventUpdated=Updated event time.
+### Missing: moccacalendar.updates.eventrecurrent=Recurrent events cannot be moved.
+### Missing: moccacalendar.updates.valuesinvalid=The new event time is invalid.
+### Missing: moccacalendar.updates.nodocument=The event is no longer available.
+
+# validation messages: Delete Service
+### Missing: moccacalendar.delete.startDateInvalid=The event start date could not be read.
+### Missing: moccacalendar.delete.saveMessage=Event instance at {0} deleted.
+
+# validation messages: Modification Service
+### Missing: moccacalendar.modify.createMessage=Added modification for one event instance.
+### Missing: moccacalendar.modify.saveMessage=Updated modification for one event instance.
+
+# Template provider
+### Missing: templateProvider.calendar.name=Calendar
+### Missing: templateProvider.calendar.description=Add a new calendar
+
+## Calendar macro
+### Missing: rendering.macro.moccacalendar.name=Mocca Calendar
+### Missing: rendering.macro.moccacalendar.description=Displays a Calendar
+### Missing: rendering.macro.moccacalendar.parameter.filter.name=Show events from ...
+### Missing: rendering.macro.moccacalendar.parameter.filter.description=Possible values are 'wiki','space' or 'page', where: 'page': only events which are children pages of this page will be included,  'space': only events which are in the space of the calendar doc will be included, 'wiki': all events will be included.
+### Missing: rendering.macro.moccacalendar.parameter.calendarDoc.name=Calendar page
+### Missing: rendering.macro.moccacalendar.parameter.calendarDoc.description=The calendar document whose events are shown (only if filter is set to 'page'). This value is also used as the default calendar to create new events for. If missing, the current document is used.
+### Missing: rendering.macro.moccacalendar.parameter.defaultView.name=Default View
+### Missing: rendering.macro.moccacalendar.parameter.defaultView.description=The initial way the calendar is displayed; can be changed by the user. Possible values are: 'month', 'agendaWeek', 'agendaDay' or 'plainList'
+### Missing: rendering.macro.moccacalendar.parameter.firstDay.name=First day of week
+### Missing: rendering.macro.moccacalendar.parameter.firstDay.description=First day (from 0 being Sunday to 6 being Saturday) of the week to show in the calendar. Leave empty for Sunday.
+### Missing: rendering.macro.moccacalendar.parameter.minTime.name=First time
+### Missing: rendering.macro.moccacalendar.parameter.minTime.description=First time to show in the calendar. Users won't see hours before this time. Leave empty for default (8:00)
+### Missing: rendering.macro.moccacalendar.parameter.maxTime.name=Last time
+### Missing: rendering.macro.moccacalendar.parameter.maxTime.description=Last time to show in the calendar. Users won't see hours after this time. Leave empty for default (23:00)
+### Missing: rendering.macro.moccacalendar.parameter.year.name=Year
+### Missing: rendering.macro.moccacalendar.parameter.year.description=Year of the date to show when loading the calendar. Leave empty for today
+### Missing: rendering.macro.moccacalendar.parameter.month.name=Month
+### Missing: rendering.macro.moccacalendar.parameter.month.description=Month (from 0 to 11) of the date to show when loading the calendar. Leave empty for today
+### Missing: rendering.macro.moccacalendar.parameter.date.name=Day
+### Missing: rendering.macro.moccacalendar.parameter.date.description=Day (from 1 to 31) of the date to show when loading the calendar. Leave empty for today
+
+### Missing: xwiki.calendar.button.plainList=Agenda</content>
 </xwikidoc>
