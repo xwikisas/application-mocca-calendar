@@ -107,16 +107,17 @@ public class MoccaCalendarScriptService implements ScriptService
 
     @Inject
     private Map<String, MeetingEventSource> eventSources;
-    
+
     @Inject
     private DefaultEventAssembly eventAssembly;
-    
+
     @Inject
     private Logger logger;
 
     /**
-     * get all calendars.
-     * @return a list of document references point to pages containing calendar objects.
+     * Get all calendars.
+     *
+     * @return a list of document references pointing to pages containing calendar objects.
      */
     public List<DocumentReference> getAllCalendars()
     {
@@ -135,8 +136,8 @@ public class MoccaCalendarScriptService implements ScriptService
     }
 
     /**
-     * get a list of events matching the date and filter criteria.
-     * 
+     * Get a list of events matching the date and filter criteria.
+     *
      * @param dateFrom
      *            the start range
      * @param dateTo
@@ -160,36 +161,32 @@ public class MoccaCalendarScriptService implements ScriptService
             dateTo = dateFrom;
         }
 
-        EventQuery evQ = new EventQuery(EventConstants.MOCCA_CALENDAR_EVENT_CLASS_NAME, 
-            MOCCA_CALENDAR_EVENT_TEMPLATE);
+        EventQuery eventQuery = new EventQuery(EventConstants.MOCCA_CALENDAR_EVENT_CLASS_NAME, MOCCA_CALENDAR_EVENT_TEMPLATE);
 
         //
         // filter by date range
         //
-        evQ.addDateLimits(dateFrom, dateTo);
-        
+        eventQuery.addDateLimits(dateFrom, dateTo);
+
         // and search only non-recurrent events
         // FIXME: we need another helper for this. Why not using XWQL instead?
         // some issue with the date filter? is this still open?
-        evQ.addObjectProperty("IntegerProperty", "recurrent")
-            .addCondition(" and recurrent.value = 0 ");
-        
+        eventQuery.addObjectProperty("IntegerProperty", "recurrent").addCondition(" and recurrent.value = 0 ");
+
         //
         // now filter by event location
         //
-        DocumentReference parentRef = 
-            (parentReference == null) ? null
-            : stringDocRefResolver.resolve(parentReference);
+        DocumentReference parentRef = (parentReference == null) ? null : stringDocRefResolver.resolve(parentReference);
 
-        evQ.addLocationFilter(filter, parentRef);
-        
+        eventQuery.addLocationFilter(filter, parentRef);
+
         // finally the ordering
-        evQ.setAscending(sortAscending);
+        eventQuery.setAscending(sortAscending);
 
         List<DocumentReference> visibleEvents = Collections.emptyList();
 
         try {
-            visibleEvents = eventAssembly.executeQuery(evQ);
+            visibleEvents = eventAssembly.executeQuery(eventQuery);
         } catch (QueryException qe) {
             logger.error("error while fetching regular events", qe);
         }
@@ -198,8 +195,6 @@ public class MoccaCalendarScriptService implements ScriptService
 
         for (DocumentReference eventDocRef : visibleEvents) {
             try {
-                
-                // XXX: created copy of all try ... block
                 XWikiDocument eventDoc = context.getWiki().getDocument(eventDocRef, context);
                 BaseObject eventData = eventDoc
                     .getXObject(stringDocRefResolver.resolve(EventConstants.MOCCA_CALENDAR_EVENT_CLASS_NAME));
@@ -210,7 +205,6 @@ public class MoccaCalendarScriptService implements ScriptService
                 }
 
                 EventInstance event = new EventInstance();
-                event.setEventDocRef(eventDocRef);
 
                 Date startDate = eventData.getDateValue(EventConstants.PROPERTY_STARTDATE_NAME);
                 DateTime startDateTime = new DateTime(startDate.getTime());
@@ -232,22 +226,20 @@ public class MoccaCalendarScriptService implements ScriptService
         // so much for regular single events.
         // now about recurrent events
         //
-        EventQuery revQ = new EventQuery(EventConstants.MOCCA_CALENDAR_EVENT_CLASS_NAME, 
-            MOCCA_CALENDAR_EVENT_TEMPLATE);
+        EventQuery recurrentEventQuery = new EventQuery(EventConstants.MOCCA_CALENDAR_EVENT_CLASS_NAME, MOCCA_CALENDAR_EVENT_TEMPLATE);
         //
         // filter by location
         //
-        revQ.addLocationFilter(filter, parentRef);
+        recurrentEventQuery.addLocationFilter(filter, parentRef);
 
         // and search only recurrent events
-        revQ.addObjectProperty("IntegerProperty", "recurrent")
-            .addCondition(" and recurrent.value = 1 ");
-        
-        try {
-            List<DocumentReference> visibleRecurrentEvents = eventAssembly.executeQuery(revQ);
+        recurrentEventQuery.addObjectProperty("IntegerProperty", "recurrent").addCondition(" and recurrent.value = 1 ");
 
-            List<EventInstance> recurrentEventInstances = filterRecurrentEvents(visibleRecurrentEvents,
-                dateFrom, dateTo);
+        try {
+            List<DocumentReference> visibleRecurrentEventPages = eventAssembly.executeQuery(recurrentEventQuery);
+
+            List<EventInstance> recurrentEventInstances = filterRecurrentEvents(visibleRecurrentEventPages, dateFrom,
+                dateTo);
 
             events.addAll(recurrentEventInstances);
 
@@ -255,21 +247,23 @@ public class MoccaCalendarScriptService implements ScriptService
             logger.error("error while fetching recurrent events", e);
         }
 
-        
-        for (MeetingEventSource meetings : eventSources.values()) {
-            logger.info("add events from [{}]|", meetings);
-            List<EventInstance> meetingEvents = meetings.getEvents(dateFrom, dateTo, filter, parentReference);
+        for (Map.Entry<String, MeetingEventSource> meetings : eventSources.entrySet()) {
+            logger.info("add events from [{}]|", meetings.getKey());
+            List<EventInstance> meetingEvents = meetings.getValue().getEvents(dateFrom, dateTo, filter, parentRef, sortAscending);
             if (meetingEvents != null) {
+                for (EventInstance meeting : meetingEvents) {
+                    fillInColorsFromNextCalendar(meeting);
+                    meeting.setSource(meetings.getKey());
+                }
                 events.addAll(meetingEvents);
             }
         }
-        
+
         sortEvents(events, sortAscending);
 
         return events;
     }
 
-    
     private List<EventInstance> filterRecurrentEvents(List<DocumentReference> eventReferences, Date dateFrom,
         Date dateTo) throws XWikiException
     {
@@ -277,25 +271,23 @@ public class MoccaCalendarScriptService implements ScriptService
         final List<EventInstance> eventsInstances = new ArrayList<>();
         for (DocumentReference eventDocRef : eventReferences) {
             // XXX: similar, but different code from non-recurrent
-            // DocumentReference eventDocRef = stringDocRefResolver.resolve(docRef);
             XWikiDocument eventDoc = context.getWiki().getDocument(eventDocRef, context);
             BaseObject eventData = eventDoc
                 .getXObject(eventDoc.resolveClassReference(EventConstants.MOCCA_CALENDAR_EVENT_CLASS_NAME));
-            BaseObject eventRecData = eventDoc.getXObject(
-                eventDoc.resolveClassReference(EventConstants.MOCCA_CALENDAR_EVENT_RECURRENCY_CLASS_NAME));
+            BaseObject eventRecData = eventDoc
+                .getXObject(eventDoc.resolveClassReference(EventConstants.MOCCA_CALENDAR_EVENT_RECURRENCY_CLASS_NAME));
 
             if (eventRecData == null) {
                 // duh
-                logger.info("found recurrent event [{}] without recurrency information; skipping",
-                    eventDocRef);
+                logger.info("found recurrent event [{}] without recurrency information; skipping", eventDocRef);
                 continue;
             }
 
             String eventType = eventRecData.getStringValue("frequency");
             RecurrentEventGenerator generator = this.eventGenerators.get(eventType);
             if (generator == null) {
-                logger.error("no recurrent event generator found for frequency [{}] used by [{}]",
-                    eventType, eventDocRef);
+                logger.error("no recurrent event generator found for frequency [{}] used by [{}]", eventType,
+                    eventDocRef);
                 continue;
             }
 
@@ -305,8 +297,7 @@ public class MoccaCalendarScriptService implements ScriptService
             for (EventInstance event : generator.generate(eventDoc, dateFrom, dateTo)) {
                 if (deletions.contains(event.getStartDate().getMillis())) {
                     if (logger.isTraceEnabled()) {
-                        logger.trace("skip deleted event at {} for doc [{}])",
-                            event.getStartDate(), eventDoc);
+                        logger.trace("skip deleted event at {} for doc [{}])", event.getStartDate(), eventDoc);
                     }
                     continue;
                 }
@@ -341,13 +332,10 @@ public class MoccaCalendarScriptService implements ScriptService
         return eventsInstances;
     }
 
-    // XXX complete copy
     private void completeEventData(EventInstance event, XWikiDocument eventDoc, BaseObject eventData)
         throws XWikiException
     {
         final XWikiContext context = xcontextProvider.get();
-        final String defaultPageName = defaultEntityReferenceProvider.getDefaultReference(EntityType.DOCUMENT)
-            .getName();
         final DocumentReference eventDocRef = eventDoc.getDocumentReference();
 
         boolean isAllDay = eventData.getIntValue(EventConstants.PROPERTY_ALLDAY_NAME) == 1;
@@ -372,56 +360,73 @@ public class MoccaCalendarScriptService implements ScriptService
 
         event.setEventDocRef(eventDocRef);
 
-        /* the corresponding calendar page should be the default page of the parent space.
-         * this is the space of the page if the event page is terminal, and the parent
-         * of the events page space, if the page is non-terminal
-         */
-        BaseObject calendarData = null;
-        SpaceReference parentSpaceRef = null;
-        if (defaultPageName.equals(eventDocRef.getName())) {
-            EntityReference parentRef = eventDocRef.getLastSpaceReference().getParent();
-            if ((parentRef != null) && (parentRef instanceof SpaceReference)) {
-                parentSpaceRef = (SpaceReference) parentRef;
-            }
-        } else {
-            parentSpaceRef = eventDocRef.getLastSpaceReference();
-        }
-
-        if (parentSpaceRef != null) {
-            DocumentReference parentDoc = new DocumentReference(defaultPageName, parentSpaceRef);
-            XWikiDocument calendarDoc = context.getWiki().getDocument(parentDoc, context);
-            calendarData = calendarDoc
-                .getXObject(stringDocRefResolver.resolve(EventConstants.MOCCA_CALENDAR_CLASS_NAME));
-        }
-
-        if (calendarData == null) {
-            // some arbitrary defaults
-            event.setBackgroundColor("#888");
-            // text color can be missing
-            event.setTextColor("");
-        } else {
-            event.setTextColor(calendarData.getStringValue("textColor"));
-            event.setBackgroundColor(calendarData.getStringValue("color"));
-        }
-
+        fillInColorsFromNextCalendar(event);
     }
 
     /**
-     * find modification data for an event instance, if the event instance has been modified.
+     * Fill in the color and text color values from the "corresponding" calendar".
+     *
+     * The corresponding calendar page should be the default page of the parent space.
+     * this is the space of the page if the event page is terminal, and the parent
+     * of the events page space, if the page is non-terminal
+     */
+    private void fillInColorsFromNextCalendar(EventInstance event)
+    {
+        try {
+            final DocumentReference eventDocRef = event.getEventDocRef();
+            final XWikiContext context = xcontextProvider.get();
+            final String defaultPageName = defaultEntityReferenceProvider.getDefaultReference(EntityType.DOCUMENT)
+                .getName();
+
+            BaseObject calendarData = null;
+            SpaceReference parentSpaceRef = null;
+            if (defaultPageName.equals(eventDocRef.getName())) {
+                EntityReference parentRef = eventDocRef.getLastSpaceReference().getParent();
+                if ((parentRef != null) && (parentRef instanceof SpaceReference)) {
+                    parentSpaceRef = (SpaceReference) parentRef;
+                }
+            } else {
+                parentSpaceRef = eventDocRef.getLastSpaceReference();
+            }
+
+            if (parentSpaceRef != null) {
+                DocumentReference parentDoc = new DocumentReference(defaultPageName, parentSpaceRef);
+                XWikiDocument calendarDoc = context.getWiki().getDocument(parentDoc, context);
+                calendarData = calendarDoc
+                    .getXObject(stringDocRefResolver.resolve(EventConstants.MOCCA_CALENDAR_CLASS_NAME));
+            }
+
+            if (calendarData == null) {
+                // some arbitrary defaults
+                event.setBackgroundColor("#888");
+                // text color can be missing
+                event.setTextColor("");
+            } else {
+                event.setTextColor(calendarData.getStringValue("textColor"));
+                event.setBackgroundColor(calendarData.getStringValue("color"));
+            }
+        } catch (XWikiException xe) {
+            logger.warn("could not calculate colors for event", xe);
+        }
+    }
+
+    /**
+     * Find modification data for an event instance, if the event instance has been modified.
+     *
      * @param eventDoc the document of the recurrent event
      * @param eventStartDate the original start date of the event instance
      * @return the index of a MoccaCalendarEventModificationClass object for the event instance,
-     *    or -1 if no modification has been found for the event instance
+     *             or -1 if no modification has been found for the event instance
      */
     public int getModifiedEventObjectIndex(Document eventDoc, Date eventStartDate)
     {
-        final List<BaseObject> modificationNotices = eventDoc.getDocument().
-            getXObjects(stringDocRefResolver.resolve(EventConstants.MOCCA_CALENDAR_EVENT_MODIFICATION_CLASS_NAME));
+        final List<BaseObject> modificationNotices = eventDoc.getDocument()
+            .getXObjects(stringDocRefResolver.resolve(EventConstants.MOCCA_CALENDAR_EVENT_MODIFICATION_CLASS_NAME));
         if (modificationNotices != null) {
             for (int i = 0, n = modificationNotices.size(); i < n; i++) {
                 BaseObject modificationNotice = modificationNotices.get(i);
-                Date modificationDate = (modificationNotice == null)
-                    ? null : modificationNotice.getDateValue(EventConstants.PROPERTY_ORIG_STARTDATE_OF_MODIFIED_NAME);
+                Date modificationDate = (modificationNotice == null) ? null
+                    : modificationNotice.getDateValue(EventConstants.PROPERTY_ORIG_STARTDATE_OF_MODIFIED_NAME);
                 if (eventStartDate.equals(modificationDate)) {
                     return i;
                 }
@@ -431,7 +436,8 @@ public class MoccaCalendarScriptService implements ScriptService
     }
 
     /**
-     * create a dummy modification object to be used as placeholder in edit view.
+     * Create a dummy modification object to be used as placeholder in edit view.
+     *
      * @param eventDoc the document containing the (recurrent) event to be modified.
      * @param eventStartDate the original start date of the unmodified event instance
      * @return a non-persistent event modification object containing default values
@@ -439,8 +445,8 @@ public class MoccaCalendarScriptService implements ScriptService
     public com.xpn.xwiki.api.Object createModificationDummy(Document eventDoc, Date eventStartDate)
     {
         final XWikiDocument xwikiEventDoc = eventDoc.getDocument();
-        final BaseObject eventData = xwikiEventDoc.getXObject(
-            stringDocRefResolver.resolve(EventConstants.MOCCA_CALENDAR_EVENT_CLASS_NAME));
+        final BaseObject eventData = xwikiEventDoc
+            .getXObject(stringDocRefResolver.resolve(EventConstants.MOCCA_CALENDAR_EVENT_CLASS_NAME));
 
         BaseObject modificationData = new BaseObject();
         modificationData.setXClassReference(
@@ -449,8 +455,8 @@ public class MoccaCalendarScriptService implements ScriptService
         modificationData.setNumber(-1);
 
         if (eventData != null) {
-            Date defaultStartDate = (eventStartDate != null)
-                ? eventStartDate : eventData.getDateValue(EventConstants.PROPERTY_STARTDATE_NAME);
+            Date defaultStartDate = (eventStartDate != null) ? eventStartDate
+                : eventData.getDateValue(EventConstants.PROPERTY_STARTDATE_NAME);
             modificationData.setDateValue(EventConstants.PROPERTY_STARTDATE_NAME, defaultStartDate);
 
             final Date baseStartDate = eventData.getDateValue(EventConstants.PROPERTY_STARTDATE_NAME);
@@ -463,17 +469,17 @@ public class MoccaCalendarScriptService implements ScriptService
             modificationData.setLargeStringValue(EventConstants.PROPERTY_DESCRIPTION_NAME,
                 eventData.getLargeStringValue(EventConstants.PROPERTY_DESCRIPTION_NAME));
 
-            modificationData.setStringValue(EventConstants.PROPERTY_TITLE_NAME,
-                xwikiEventDoc.getTitle());
+            modificationData.setStringValue(EventConstants.PROPERTY_TITLE_NAME, xwikiEventDoc.getTitle());
         }
 
         return new com.xpn.xwiki.api.Object(modificationData, xcontextProvider.get());
     }
 
     /**
-     * create an event instance for the given date and document.
+     * Create an event instance for the given date and document.
      * if the event instance has been modified, update the event instance with the modifications.
      * this methods does not take deletion marks into account, but always returns an event instance.
+     *
      * @param eventDoc the document of the recurrent event
      * @param eventStartDate the original start date of the event instance (might be null for the unaltered event)
      * @return the EventInstance with the (possibly modified) values of the event
@@ -481,8 +487,8 @@ public class MoccaCalendarScriptService implements ScriptService
     public EventInstance getEventInstance(final Document eventDoc, final Date eventStartDate)
     {
         final XWikiDocument xwikiEventDoc = eventDoc.getDocument();
-        final BaseObject eventData = xwikiEventDoc.
-            getXObject(stringDocRefResolver.resolve(EventConstants.MOCCA_CALENDAR_EVENT_CLASS_NAME));
+        final BaseObject eventData = xwikiEventDoc
+            .getXObject(stringDocRefResolver.resolve(EventConstants.MOCCA_CALENDAR_EVENT_CLASS_NAME));
         EventInstance event = null;
         if (eventData == null) {
             return event;
@@ -490,8 +496,7 @@ public class MoccaCalendarScriptService implements ScriptService
 
         int objIndex;
         Date originalEventStartDate;
-        if (eventStartDate == null)
-        {
+        if (eventStartDate == null) {
             originalEventStartDate = eventData.getDateValue(EventConstants.PROPERTY_STARTDATE_NAME);
             objIndex = -1;
         } else {
@@ -501,9 +506,8 @@ public class MoccaCalendarScriptService implements ScriptService
 
         BaseObject modificationData = null;
         if (objIndex != -1) {
-            modificationData = xwikiEventDoc.
-                getXObject(stringDocRefResolver.resolve(
-                    EventConstants.MOCCA_CALENDAR_EVENT_MODIFICATION_CLASS_NAME), objIndex);
+            modificationData = xwikiEventDoc.getXObject(
+                stringDocRefResolver.resolve(EventConstants.MOCCA_CALENDAR_EVENT_MODIFICATION_CLASS_NAME), objIndex);
         } else {
             // we create a dummy which always returns null for all properties
             modificationData = new BaseObject();
@@ -513,13 +517,12 @@ public class MoccaCalendarScriptService implements ScriptService
         try {
             completeEventData(event, xwikiEventDoc, eventData);
         } catch (XWikiException xe) {
-            logger.info("could not create modified event data for document [{}] and date [{}]",
-                eventDoc, eventStartDate, xe);
+            logger.info("could not create modified event data for document [{}] and date [{}]", eventDoc,
+                eventStartDate, xe);
         }
 
         return event;
     }
-
 
     private void sortEvents(final List<EventInstance> events, final boolean ascending)
     {
@@ -548,12 +551,12 @@ public class MoccaCalendarScriptService implements ScriptService
     {
         Set<Long> deletions = new HashSet<>();
 
-        final List<BaseObject> deleteNotices = eventDoc.
-            getXObjects(stringDocRefResolver.resolve(EventConstants.MOCCA_CALENDAR_EVENT_DELETION_CLASS_NAME));
+        final List<BaseObject> deleteNotices = eventDoc
+            .getXObjects(stringDocRefResolver.resolve(EventConstants.MOCCA_CALENDAR_EVENT_DELETION_CLASS_NAME));
         if (deleteNotices != null) {
             for (BaseObject deleteNotice : deleteNotices) {
-                Date deleted = (deleteNotice == null)
-                    ? null : deleteNotice.getDateValue(EventConstants.PROPERTY_STARTDATE_OF_DELETED_NAME);
+                Date deleted = (deleteNotice == null) ? null
+                    : deleteNotice.getDateValue(EventConstants.PROPERTY_STARTDATE_OF_DELETED_NAME);
                 if (deleted != null) {
                     deletions.add(deleted.getTime());
                 }
@@ -568,7 +571,8 @@ public class MoccaCalendarScriptService implements ScriptService
     }
 
     /**
-     * find all modified events for an event document within a given time frame.
+     * Find all modified events for an event document within a given time frame.
+     *
      * @param eventDoc the document of the recurrent event
      * @param dateFrom the date from which the events are sought
      * @param dateTo the date up to which the events are sought
@@ -578,9 +582,9 @@ public class MoccaCalendarScriptService implements ScriptService
     {
         final Map<Long, EventInstance> results = new HashMap<>();
         final List<BaseObject> modificationNotices = eventDoc
-                .getXObjects(stringDocRefResolver.resolve(EventConstants.MOCCA_CALENDAR_EVENT_MODIFICATION_CLASS_NAME));
+            .getXObjects(stringDocRefResolver.resolve(EventConstants.MOCCA_CALENDAR_EVENT_MODIFICATION_CLASS_NAME));
         final BaseObject eventData = eventDoc
-                .getXObject(stringDocRefResolver.resolve(EventConstants.MOCCA_CALENDAR_EVENT_CLASS_NAME));
+            .getXObject(stringDocRefResolver.resolve(EventConstants.MOCCA_CALENDAR_EVENT_CLASS_NAME));
 
         if (modificationNotices != null) {
             for (int i = 0, n = modificationNotices.size(); i < n; i++) {
@@ -590,8 +594,8 @@ public class MoccaCalendarScriptService implements ScriptService
                     continue;
                 }
 
-                Date originalStartDate = modificationNotice.getDateValue(
-                    EventConstants.PROPERTY_ORIG_STARTDATE_OF_MODIFIED_NAME);
+                Date originalStartDate = modificationNotice
+                    .getDateValue(EventConstants.PROPERTY_ORIG_STARTDATE_OF_MODIFIED_NAME);
                 if (originalStartDate == null) {
                     continue;
                 }
@@ -614,6 +618,7 @@ public class MoccaCalendarScriptService implements ScriptService
      * If the modified event is not in the given date range, this helper returns a null.
      * The original start date is not optional, as we cannot guess it from the data if the modificationNotice is a dummy
      * The date ranges are optional, if they are null, no check for the date range is done.
+     *
      * @param eventDoc the document containing the event
      * @param eventData the main even data
      * @param modificationNotice the object containing the modification
@@ -622,9 +627,8 @@ public class MoccaCalendarScriptService implements ScriptService
      * @param dateTo the end of the date range can be null
      * @return the event instance with (only) the modified data filled in
      */
-    private EventInstance createModifiedEventData(XWikiDocument eventDoc,
-        BaseObject eventData, BaseObject modificationNotice,
-        Date originalStartDate, Date dateFrom, Date dateTo)
+    private EventInstance createModifiedEventData(XWikiDocument eventDoc, BaseObject eventData,
+        BaseObject modificationNotice, Date originalStartDate, Date dateFrom, Date dateTo)
     {
         final Date baseStartDate = eventData.getDateValue(EventConstants.PROPERTY_STARTDATE_NAME);
         final Date baseEndDate = Utils.fetchOrGuessEndDate(eventData);
@@ -633,9 +637,9 @@ public class MoccaCalendarScriptService implements ScriptService
         // now get both the original start / end date
         // and the modified start / end date, and add a rudimentary event instance to result,
         // unless:
-        //  a) both the original and new end date are before the "dateFrom"
+        // a) both the original and new end date are before the "dateFrom"
         // or
-        //  b) both the original start date or the modified start date are after the "dateTo"
+        // b) both the original start date or the modified start date are after the "dateTo"
 
         Date originalEndDate = new Date(originalStartDate.getTime() + baseDuration);
         Date actualStartDate = modificationNotice.getDateValue(EventConstants.PROPERTY_STARTDATE_NAME);
@@ -676,11 +680,12 @@ public class MoccaCalendarScriptService implements ScriptService
         String modifiedTitle = modificationNotice.getStringValue(EventConstants.PROPERTY_TITLE_NAME);
         if (modifiedTitle != null && !"".equals(modifiedTitle.trim())) {
             modifiedInstance.setTitle(eventDoc.getRenderedContent(modifiedTitle, eventDoc.getSyntax().toIdString(),
-                    Syntax.PLAIN_1_0.toIdString(), context));
+                Syntax.PLAIN_1_0.toIdString(), context));
         }
         String modifiedDescription = modificationNotice.getStringValue(EventConstants.PROPERTY_DESCRIPTION_NAME);
         if (modifiedDescription != null && !"".equals(modifiedDescription.trim())) {
-            Utils.fillDescription(modificationNotice, EventConstants.PROPERTY_DESCRIPTION_NAME, context, modifiedInstance);
+            Utils.fillDescription(modificationNotice, EventConstants.PROPERTY_DESCRIPTION_NAME, context,
+                modifiedInstance);
         }
 
         return modifiedInstance;

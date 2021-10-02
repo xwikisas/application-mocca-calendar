@@ -31,11 +31,8 @@ import javax.inject.Singleton;
 
 import org.slf4j.Logger;
 import org.xwiki.component.annotation.Component;
-import org.xwiki.contrib.moccacalendar.RecurrentEventGenerator;
-import org.xwiki.contrib.moccacalendar.internal.MeetingEventSource;
 import org.xwiki.model.reference.DocumentReference;
 import org.xwiki.model.reference.DocumentReferenceResolver;
-import org.xwiki.model.reference.EntityReferenceProvider;
 import org.xwiki.query.Query;
 import org.xwiki.query.QueryException;
 import org.xwiki.query.QueryFilter;
@@ -46,9 +43,11 @@ import org.xwiki.security.authorization.Right;
 import com.xpn.xwiki.XWikiContext;
 
 /**
+ * Fetch documents according to some criteria from the database.
+ * This helper also removes documents not visible from the current user from the result set.
  *
  * @version $Id: $
- * @since
+ * @since 11.0
  */
 @Singleton
 @Component(roles = { DefaultEventAssembly.class })
@@ -60,9 +59,6 @@ public class DefaultEventAssembly
 
     @Inject
     private QueryManager queryManager;
-
-    @Inject
-    private EntityReferenceProvider defaultEntityReferenceProvider;
 
     @Inject
     @Named("currentmixed")
@@ -87,12 +83,11 @@ public class DefaultEventAssembly
         for (Map.Entry<String, Object> param : query.queryParams.entrySet()) {
             hqlQuery.bindValue(param.getKey(), param.getValue());
         }
-        
+
         logger.debug("sending query [{}] and params [{}]", hqlQuery.getStatement(), query.queryParams);
         List<String> results = hqlQuery.execute();
 
         return filterViewableEvents(results);
-
     }
 
     // this is some rather unrelated helper
@@ -110,5 +105,4 @@ public class DefaultEventAssembly
 
         return visibleRefs;
     }
-
 }

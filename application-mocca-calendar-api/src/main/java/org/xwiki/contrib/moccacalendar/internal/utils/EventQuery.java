@@ -36,7 +36,11 @@ import org.xwiki.model.reference.EntityReferenceSerializer;
 import com.xpn.xwiki.web.Utils;
 
 /**
- * Fetch events of various types from the database.
+ * Helper to query documents by date criteria.
+ * FIXME: instead of this helper class we should use XWQL,
+ * except for historical date comparing issues
+ * which have been fixed by the current hibernate versions.
+ *
  * @version $Id: $
  * @since 11.0
  */
@@ -46,28 +50,26 @@ public class EventQuery
     private static final String SELECT_CLAUSE_FORMAT = ", BaseObject as obj,"
         + " DateProperty as startdate, DateProperty as enddate";
 
-    private static final String BASE_WHERE_CLAUSE_FORMAT = 
-        "WHERE obj.id=startdate.id.id and startdate.id.name='%s'"
-        + " and obj.id=enddate.id.id and enddate.id.name='%s'"
-        + " and doc.fullName=obj.name and doc.fullName!='%s'"
+    private static final String BASE_WHERE_CLAUSE_FORMAT = "WHERE obj.id=startdate.id.id and startdate.id.name='%s'"
+        + " and obj.id=enddate.id.id and enddate.id.name='%s'" + " and doc.fullName=obj.name and doc.fullName!='%s'"
         + " and obj.className='%s'";
-    
+
     private static final String FILTER_WIKI = "wiki";
     private static final String FILTER_SPACE = "space";
     private static final String FILTER_PAGE = "page";
-    
+
     private final String className;
     private final String templatePageName;
-    private final String startDateName; 
+    private final String startDateName;
     private final String endDateName;
-    
+
     private Logger logger;
-    
+
     protected StringBuilder selectClause = new StringBuilder();
     protected StringBuilder whereClause = new StringBuilder();
     protected StringBuilder orderClause = new StringBuilder();
     protected Map<String, Object> queryParams = new HashMap<>();
-    
+
     public EventQuery(String className, String templatePageName, String startDateName, String endDateName)
     {
         this.className = className;
@@ -77,15 +79,17 @@ public class EventQuery
         this.logger = LoggerFactory.getLogger(this.getClass());
         initQuery();
     }
-    
+
     public EventQuery(String className, String templatePageName)
     {
-       this(className, templatePageName, EventConstants.PROPERTY_STARTDATE_NAME, EventConstants.PROPERTY_ENDDATE_NAME);
+        this(className, templatePageName, EventConstants.PROPERTY_STARTDATE_NAME, EventConstants.PROPERTY_ENDDATE_NAME);
     }
-    
-    protected void initQuery() {
+
+    protected void initQuery()
+    {
         selectClause.append(SELECT_CLAUSE_FORMAT);
-        whereClause.append(String.format(BASE_WHERE_CLAUSE_FORMAT, startDateName, endDateName, templatePageName, className));
+        whereClause
+            .append(String.format(BASE_WHERE_CLAUSE_FORMAT, startDateName, endDateName, templatePageName, className));
     }
 
     public EventQuery addSelect(String wherePart)
@@ -96,21 +100,19 @@ public class EventQuery
 
     public EventQuery addObjectProperty(String propertyType, String propertyName)
     {
-        addSelect(String.format(", %s as %s",
-            propertyType, propertyName));
+        addSelect(String.format(", %s as %s", propertyType, propertyName));
         addCondition(
-            String.format(" and obj.id = %s.id.id and %s.id.name = '%s'", 
-                propertyName, propertyName, propertyName));
+            String.format(" and obj.id = %s.id.id and %s.id.name = '%s'", propertyName, propertyName, propertyName));
 
         return this;
     }
-    
+
     public EventQuery addCondition(String wherePart)
     {
         whereClause.append(wherePart);
         return this;
     }
-    
+
     public EventQuery addParam(String name, Object value)
     {
         queryParams.put(name, value);
@@ -120,7 +122,7 @@ public class EventQuery
     //
     // special clause creations:
     //
-    
+
     public EventQuery addDateLimits(Date dateFrom, Date dateTo)
     {
         // start date / lower limit check: find all events which are not finished before the start date
@@ -135,23 +137,23 @@ public class EventQuery
         // compared to this the upper limit check is straightforward, as we always have a startDate in the event
         whereClause.append(" and ");
         appendDateCriterion("startdate.value", "end", false);
-        
+
         appendDateParameters("start", dateFrom);
         appendDateParameters("end", dateTo);
-        
+
         return this;
     }
-    
+
     public EventQuery addLocationFilter(String filter, DocumentReference parentReference)
     {
         try {
-        ParameterizedType stringSerializerType =
-            new DefaultParameterizedType(null, EntityReferenceSerializer.class, String.class);
-        @SuppressWarnings("deprecation") // we are not a component, sorry
-        EntityReferenceSerializer<String> compactWikiSerializer = 
-            Utils.getComponentManager().getInstance(stringSerializerType , "compact");
-        
-        switch (filter) {
+            ParameterizedType stringSerializerType = new DefaultParameterizedType(null, EntityReferenceSerializer.class,
+                String.class);
+            @SuppressWarnings("deprecation") // we are not a component, sorry
+            EntityReferenceSerializer<String> compactWikiSerializer = Utils.getComponentManager()
+                .getInstance(stringSerializerType, "compact");
+
+            switch (filter) {
             case FILTER_PAGE:
                 selectClause.append(", XWikiSpace space");
                 whereClause.append(" and doc.space = space.reference and space.parent = :space");
@@ -168,22 +170,20 @@ public class EventQuery
             default:
                 // get events from the complete wiki: no filter to be added
                 break;
-        }
+            }
         } catch (ComponentLookupException cle) {
             logger.warn("could not find string serializer component; location filter ignored", cle);
         }
         return this;
     }
 
-    
-    public EventQuery setAscending(boolean direction) {
-        orderClause.append("ORDER BY startdate.value ")
-        .append(direction?"ASC":"DESC");
+    public EventQuery setAscending(boolean direction)
+    {
+        orderClause.append("ORDER BY startdate.value ").append(direction ? "ASC" : "DESC");
         return this;
     }
-    
-    
-    // the date comparision in HQL is always a bit painful - hide it in a helper
+
+    // the date comparision in HQL is/was always a bit painful - hide it in a helper
     // for appendDateCriterion(query, "date", "field", true) this will create something like:
     //
     // ( year(date) > :fieldyear or ( year(date) = :fieldyear and ( month(date) > :fieldmonth or
@@ -197,8 +197,8 @@ public class EventQuery
         whereClause.append(" or (year(" + dateField + ") = :" + prefix + "year and ");
         whereClause.append("(month(" + dateField + ") ").append(cmpSign).append(" :" + prefix + "month");
         whereClause.append(" or (month(" + dateField + ") = :" + prefix + "month ");
-        whereClause.append(" and day(").append(dateField).append(") ").append(cmpSign).append("= :")
-            .append(prefix).append("day");
+        whereClause.append(" and day(").append(dateField).append(") ").append(cmpSign).append("= :").append(prefix)
+            .append("day");
         whereClause.append(')');
         whereClause.append(')');
         whereClause.append(')');
@@ -241,5 +241,4 @@ public class EventQuery
     {
         return endDateName;
     }
-    
 }

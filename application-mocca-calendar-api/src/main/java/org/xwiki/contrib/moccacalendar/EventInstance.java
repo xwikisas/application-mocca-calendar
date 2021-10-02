@@ -24,14 +24,14 @@ import org.joda.time.DateTime;
 import org.xwiki.model.reference.DocumentReference;
 
 /**
- * Data container decribing an actual event.
+ * Data container describing an actual event.
  * This might be either a single event or an instance of a recurrent event.
  *
  * For recurrent events the generators must set the startDate and endDate
  * for the event; the rest can be figured out by the calendar service.
  *
  * @version $Id: $
-`* @since 2.7
+ * @since 2.7
  */
 public class EventInstance
 {
@@ -51,6 +51,8 @@ public class EventInstance
 
     private String textColor;
     private String backgroundColor;
+
+    private String source;
 
     /**
      * A reference to the document describing the event.
@@ -92,7 +94,6 @@ public class EventInstance
     {
         this.startDate = startDate;
     }
-
 
     /**
      * The date when the event would have started if not modified.
@@ -158,8 +159,8 @@ public class EventInstance
     }
 
     /**
-     * A flag if the event last a full day (or several full days). This information can be figured out by the {@link #getStartDate()} and
-     * {@link #getEndDate()} and is only here for convenience.
+     * A flag if the event last a full day (or several full days). This information can be figured out by the
+     * {@link #getStartDate()} and {@link #getEndDate()} and is only provided here for convenience.
      *
      * @return true if the event lasts all day
      */
@@ -169,7 +170,7 @@ public class EventInstance
     }
 
     /**
-     * Set the flag if the even lasts all day.
+     * Set the flag if the event lasts all day.
      *
      * @param allDay .
      */
@@ -291,11 +292,33 @@ public class EventInstance
 
     /**
      * Set the background color.
+     *
      * @param backgroundColor a color as RGB string.
      */
     public void setBackgroundColor(String backgroundColor)
     {
         this.backgroundColor = backgroundColor;
+    }
+
+    /**
+     * The informal name of the source this event is coming from.
+     * The default value is null, which means it is created by the event calendar itself.
+     *
+     * @return the source name, possibly null.
+     */
+    public String getSource()
+    {
+        return source;
+    }
+
+    /**
+     * Set the name of the source which has created this event.
+     *
+     * @param source the source name
+     */
+    public void setSource(String source)
+    {
+        this.source = source;
     }
 
 }

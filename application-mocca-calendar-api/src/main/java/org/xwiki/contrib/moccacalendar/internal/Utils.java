@@ -55,15 +55,22 @@ public final class Utils
      * property or calculates it from the &quot;startDate&quot; property
      *
      * @param eventData
-     *            the object describing the data. should have a 'startDate' and 'endDate' property.
+     *            the object describing the data. should have a 'startDate', 'allDay' and optional 'endDate' property.
      * @return the end date of the event
      */
     public static Date fetchOrGuessEndDate(BaseObject eventData)
     {
-        Date endDate = eventData.getDateValue(EventConstants.PROPERTY_ENDDATE_NAME);
+        return fetchOrGuessEndDate(eventData, EventConstants.PROPERTY_STARTDATE_NAME,
+            EventConstants.PROPERTY_ENDDATE_NAME, EventConstants.PROPERTY_ALLDAY_NAME);
+    }
+
+    public static Date fetchOrGuessEndDate(BaseObject eventData, String startDateName, String endDateName,
+        String allDayName)
+    {
+        Date endDate = eventData.getDateValue(endDateName);
         if (endDate == null) {
-            final boolean allDay = eventData.getIntValue(EventConstants.PROPERTY_ALLDAY_NAME) == 1;
-            final Date startDate = eventData.getDateValue(EventConstants.PROPERTY_STARTDATE_NAME);
+            final boolean allDay = (allDayName != null) && (eventData.getIntValue(allDayName) == 1);
+            final Date startDate = eventData.getDateValue(startDateName);
             endDate = guessEndDate(startDate, allDay);
         }
 
@@ -101,13 +108,14 @@ public final class Utils
      * @param context the current context
      * @param event the event instance whose description will be set
      */
-    public static void fillDescription(BaseObject eventData, String descriptionPropertyName, XWikiContext context, EventInstance event)
+    public static void fillDescription(BaseObject eventData, String descriptionPropertyName, XWikiContext context,
+        EventInstance event)
     {
         XWikiDocument eventDoc = eventData.getOwnerDocument();
         String idString = eventDoc.getSyntax().toIdString();
         String description = eventData.getStringValue(descriptionPropertyName);
-        event.setDescription(
-            eventDoc.getRenderedContent(description, idString, Syntax.PLAIN_1_0.toIdString(), context));
+        event
+            .setDescription(eventDoc.getRenderedContent(description, idString, Syntax.PLAIN_1_0.toIdString(), context));
         event.setDescriptionHtml(
             eventDoc.getRenderedContent(description, idString, Syntax.HTML_5_0.toIdString(), context));
     }
