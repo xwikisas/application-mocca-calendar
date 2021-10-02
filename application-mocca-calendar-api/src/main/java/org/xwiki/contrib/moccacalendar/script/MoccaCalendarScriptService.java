@@ -20,14 +20,12 @@
 package org.xwiki.contrib.moccacalendar.script;
 
 import java.util.ArrayList;
-import java.util.Calendar;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
-import java.util.ListIterator;
 import java.util.Map;
 import java.util.Set;
 
@@ -42,7 +40,10 @@ import org.xwiki.component.annotation.Component;
 import org.xwiki.contrib.moccacalendar.EventInstance;
 import org.xwiki.contrib.moccacalendar.RecurrentEventGenerator;
 import org.xwiki.contrib.moccacalendar.internal.EventConstants;
+import org.xwiki.contrib.moccacalendar.internal.MeetingEventSource;
 import org.xwiki.contrib.moccacalendar.internal.Utils;
+import org.xwiki.contrib.moccacalendar.internal.utils.DefaultEventAssembly;
+import org.xwiki.contrib.moccacalendar.internal.utils.EventQuery;
 import org.xwiki.model.EntityType;
 import org.xwiki.model.reference.DocumentReference;
 import org.xwiki.model.reference.DocumentReferenceResolver;
@@ -56,8 +57,6 @@ import org.xwiki.query.QueryFilter;
 import org.xwiki.query.QueryManager;
 import org.xwiki.rendering.syntax.Syntax;
 import org.xwiki.script.service.ScriptService;
-import org.xwiki.security.authorization.AuthorizationManager;
-import org.xwiki.security.authorization.Right;
 
 import com.xpn.xwiki.XWikiContext;
 import com.xpn.xwiki.XWikiException;
@@ -76,50 +75,10 @@ import com.xpn.xwiki.objects.BaseObject;
 @Component
 public class MoccaCalendarScriptService implements ScriptService
 {
-    private static final String BASE_QUERY_PREFIX = ", BaseObject as obj, IntegerProperty as recurrent,"
-        + " DateProperty as startdate, DateProperty as enddate"
-        + " where obj.id=startdate.id.id and startdate.id.name='startDate'"
-        + " and obj.id=enddate.id.id and enddate.id.name='endDate'"
-        + " and obj.id=recurrent.id.id and recurrent.id.name='recurrent'"
-        + " and doc.fullName=obj.name and doc.fullName!='MoccaCalendar.MoccaCalendarEventTemplate'"
-        + " and obj.className='" + EventConstants.MOCCA_CALENDAR_EVENT_CLASS_NAME + "'";
     private static final String CALENDAR_BASE_QUERY = ", BaseObject as obj"
         + " where doc.fullName=obj.name and doc.name!='MoccaCalendarTemplate'" + " and obj.className='"
         + EventConstants.MOCCA_CALENDAR_CLASS_NAME + "' order by doc.title, doc.name";
-
-    private static final String FILTER_WIKI = "wiki";
-    private static final String FILTER_SPACE = "space";
-    private static final String FILTER_PAGE = "page";
-
-    /**
-     * a small helper class to keep the data for a HQL query.
-     */
-    private static class QueryData
-    {
-        private final StringBuilder hql = new StringBuilder();
-        private final Map<String, Object> queryParams = new HashMap<>();
-        
-        /**
-         * build the hql query.
-         * @return the string builded to construct the query
-         */
-        public StringBuilder getHql()
-        {
-            return hql;
-        }
-
-        /**
-         * the parameters for the query.
-         * @return a map of parameters
-         */
-        Map<String, Object> getQueryParams()
-        {
-            return queryParams;
-        }
-    }
-
-    @Inject
-    private AuthorizationManager authorizationManager;
+    private static final String MOCCA_CALENDAR_EVENT_TEMPLATE = "MoccaCalendar.MoccaCalendarEventTemplate";
 
     @Inject
     private Provider<XWikiContext> xcontextProvider;
@@ -147,6 +106,12 @@ public class MoccaCalendarScriptService implements ScriptService
     private Map<String, RecurrentEventGenerator> eventGenerators;
 
     @Inject
+    private Map<String, MeetingEventSource> eventSources;
+    
+    @Inject
+    private DefaultEventAssembly eventAssembly;
+    
+    @Inject
     private Logger logger;
 
     /**
@@ -160,7 +125,8 @@ public class MoccaCalendarScriptService implements ScriptService
         try {
             Query query = queryManager.createQuery(CALENDAR_BASE_QUERY, Query.HQL).addFilter(hidden);
             List<String> results = query.execute();
-            calenderRefs = filterViewableEvents(results);
+            // FIXME: this should be more like a static helper, somewhere
+            calenderRefs = eventAssembly.filterViewableEvents(results);
         } catch (QueryException qe) {
             logger.error("error while fetching calendars", qe);
         }
@@ -194,52 +160,46 @@ public class MoccaCalendarScriptService implements ScriptService
             dateTo = dateFrom;
         }
 
-        QueryData simpleEvents = new QueryData();
-
-        simpleEvents.getHql().append(BASE_QUERY_PREFIX);
+        EventQuery evQ = new EventQuery(EventConstants.MOCCA_CALENDAR_EVENT_CLASS_NAME, 
+            MOCCA_CALENDAR_EVENT_TEMPLATE);
 
         //
         // filter by date range
         //
-
-        addDateRangeFilter(simpleEvents, dateFrom, dateTo);
-
+        evQ.addDateLimits(dateFrom, dateTo);
+        
         // and search only non-recurrent events
-        simpleEvents.getHql().append(" and recurrent.value = 0 ");
-
+        // FIXME: we need another helper for this. Why not using XWQL instead?
+        // some issue with the date filter? is this still open?
+        evQ.addObjectProperty("IntegerProperty", "recurrent")
+            .addCondition(" and recurrent.value = 0 ");
+        
         //
         // now filter by event location
         //
+        DocumentReference parentRef = 
+            (parentReference == null) ? null
+            : stringDocRefResolver.resolve(parentReference);
 
-        addLocationFilter(simpleEvents, filter, parentReference);
-
+        evQ.addLocationFilter(filter, parentRef);
+        
         // finally the ordering
-        addOrderBy(sortAscending, simpleEvents);
+        evQ.setAscending(sortAscending);
 
-        List<String> results = Collections.emptyList();
+        List<DocumentReference> visibleEvents = Collections.emptyList();
 
         try {
-
-            logger.debug("sending query [{}] and params [{}]", simpleEvents.getHql(), simpleEvents.getQueryParams());
-
-            Query query = queryManager.createQuery(simpleEvents.getHql().toString(), Query.HQL);
-
-            for (Map.Entry<String, Object> param : simpleEvents.getQueryParams().entrySet()) {
-                query.bindValue(param.getKey(), param.getValue());
-            }
-
-            results = query.execute();
+            visibleEvents = eventAssembly.executeQuery(evQ);
         } catch (QueryException qe) {
             logger.error("error while fetching regular events", qe);
         }
-
-        List<DocumentReference> visibleEvents = filterViewableEvents(results);
 
         List<EventInstance> events = new ArrayList<>();
 
         for (DocumentReference eventDocRef : visibleEvents) {
             try {
-                // DocumentReference eventDocRef = stringDocRefResolver.resolve(docRef);
+                
+                // XXX: created copy of all try ... block
                 XWikiDocument eventDoc = context.getWiki().getDocument(eventDocRef, context);
                 BaseObject eventData = eventDoc
                     .getXObject(stringDocRefResolver.resolve(EventConstants.MOCCA_CALENDAR_EVENT_CLASS_NAME));
@@ -272,34 +232,19 @@ public class MoccaCalendarScriptService implements ScriptService
         // so much for regular single events.
         // now about recurrent events
         //
-
-        QueryData recurrentEventQuery = new QueryData();
-
-        recurrentEventQuery.getHql().append(BASE_QUERY_PREFIX);
-
+        EventQuery revQ = new EventQuery(EventConstants.MOCCA_CALENDAR_EVENT_CLASS_NAME, 
+            MOCCA_CALENDAR_EVENT_TEMPLATE);
         //
         // filter by location
         //
-        addLocationFilter(recurrentEventQuery, filter, parentReference);
+        revQ.addLocationFilter(filter, parentRef);
 
         // and search only recurrent events
-        recurrentEventQuery.getHql().append(" and recurrent.value = 1 ");
-
+        revQ.addObjectProperty("IntegerProperty", "recurrent")
+            .addCondition(" and recurrent.value = 1 ");
+        
         try {
-            List<String> allRecurrentEvents = Collections.emptyList();
-
-            logger.debug("sending query [{}] and params [{}]", recurrentEventQuery.getHql(),
-                recurrentEventQuery.getQueryParams());
-
-            Query query = queryManager.createQuery(recurrentEventQuery.getHql().toString(), Query.HQL);
-
-            for (Map.Entry<String, Object> param : recurrentEventQuery.getQueryParams().entrySet()) {
-                query.bindValue(param.getKey(), param.getValue());
-            }
-
-            allRecurrentEvents = query.execute();
-
-            List<DocumentReference> visibleRecurrentEvents = filterViewableEvents(allRecurrentEvents);
+            List<DocumentReference> visibleRecurrentEvents = eventAssembly.executeQuery(revQ);
 
             List<EventInstance> recurrentEventInstances = filterRecurrentEvents(visibleRecurrentEvents,
                 dateFrom, dateTo);
@@ -310,32 +255,28 @@ public class MoccaCalendarScriptService implements ScriptService
             logger.error("error while fetching recurrent events", e);
         }
 
+        
+        for (MeetingEventSource meetings : eventSources.values()) {
+            logger.info("add events from [{}]|", meetings);
+            List<EventInstance> meetingEvents = meetings.getEvents(dateFrom, dateTo, filter, parentReference);
+            if (meetingEvents != null) {
+                events.addAll(meetingEvents);
+            }
+        }
+        
         sortEvents(events, sortAscending);
 
         return events;
     }
 
-    private List<DocumentReference> filterViewableEvents(List<String> eventDocRefs)
-    {
-        List<DocumentReference> visibleRefs = new ArrayList<>();
-        // check view rights on results ... should use "viewable" filter when minimal platform version is >= 9.8
-        final DocumentReference userReference = xcontextProvider.get().getUserReference();
-        for (ListIterator<String> iter = eventDocRefs.listIterator(); iter.hasNext();) {
-            DocumentReference eventDocRef = stringDocRefResolver.resolve(iter.next());
-            if (authorizationManager.hasAccess(Right.VIEW, userReference, eventDocRef)) {
-                visibleRefs.add(eventDocRef);
-            }
-        }
-
-        return visibleRefs;
-    }
-
+    
     private List<EventInstance> filterRecurrentEvents(List<DocumentReference> eventReferences, Date dateFrom,
         Date dateTo) throws XWikiException
     {
         final XWikiContext context = xcontextProvider.get();
         final List<EventInstance> eventsInstances = new ArrayList<>();
         for (DocumentReference eventDocRef : eventReferences) {
+            // XXX: similar, but different code from non-recurrent
             // DocumentReference eventDocRef = stringDocRefResolver.resolve(docRef);
             XWikiDocument eventDoc = context.getWiki().getDocument(eventDocRef, context);
             BaseObject eventData = eventDoc
@@ -400,6 +341,7 @@ public class MoccaCalendarScriptService implements ScriptService
         return eventsInstances;
     }
 
+    // XXX complete copy
     private void completeEventData(EventInstance event, XWikiDocument eventDoc, BaseObject eventData)
         throws XWikiException
     {
@@ -409,6 +351,7 @@ public class MoccaCalendarScriptService implements ScriptService
         final DocumentReference eventDocRef = eventDoc.getDocumentReference();
 
         boolean isAllDay = eventData.getIntValue(EventConstants.PROPERTY_ALLDAY_NAME) == 1;
+        event.setAllDay(isAllDay);
 
         DateTime endDateExclusive = event.getEndDate();
         if (isAllDay) {
@@ -419,14 +362,12 @@ public class MoccaCalendarScriptService implements ScriptService
 
         event.setEndDateExclusive(endDateExclusive);
 
-        event.setAllDay(isAllDay);
-
         if (null == event.getTitle()) {
             event.setTitle(eventDoc.getRenderedTitle(Syntax.PLAIN_1_0, context));
         }
 
         if (null == event.getDescription()) {
-            Utils.fillDescription(eventData, context, event);
+            Utils.fillDescription(eventData, EventConstants.PROPERTY_DESCRIPTION_NAME, context, event);
         }
 
         event.setEventDocRef(eventDocRef);
@@ -579,97 +520,6 @@ public class MoccaCalendarScriptService implements ScriptService
         return event;
     }
 
-    //
-    // these helpers probably should be "QueryData" methods
-    //
-
-    private void addDateRangeFilter(QueryData data, Date dateFrom, Date dateTo)
-    {
-        // start date / lower limit check: find all events which are not finished before the start date
-        // for this, confusingly, one need to compare the end date of the event with the start date for the range
-        // as a complication: to find events without end date, use the start date for them
-        data.getHql().append("and (enddate.value is not null and ");
-        appendDateCriterion(data, "enddate.value", "start", true);
-        data.getHql().append(" or ");
-        appendDateCriterion(data, "startdate.value", "start", true);
-        data.getHql().append(')');
-
-        // compared to this the upper limit check is straightforward, as we always have a startDate in the event
-        data.getHql().append(" and ");
-        appendDateCriterion(data, "startdate.value", "end", false);
-
-        appendDateParameters(data, "start", dateFrom);
-        appendDateParameters(data, "end", dateTo);
-    }
-
-    private void addLocationFilter(QueryData data, String filter, String parentReference)
-    {
-        switch (filter) {
-            case FILTER_PAGE:
-                DocumentReference parentRef = stringDocRefResolver.resolve(parentReference);
-                data.getHql().insert(0, ", XWikiSpace space");
-                data.getHql().append(" and doc.space = space.reference and space.parent = :space");
-                data.getQueryParams().put("space", compactWikiSerializer.serialize(parentRef.getLastSpaceReference()));
-                break;
-            case FILTER_SPACE:
-                parentRef = stringDocRefResolver.resolve(parentReference);
-                // XXX maybe use the "bindValue(...).literal(...) instead?
-                data.getHql().append(" and ( doc.space like :space escape '!')");
-                String spaceRefStr = compactWikiSerializer.serialize(parentRef.getLastSpaceReference());
-                String spaceLikeStr = spaceRefStr.replaceAll("([%_!])", "!$1").concat(".%");
-                data.getQueryParams().put("space", spaceLikeStr);
-                break;
-            case FILTER_WIKI:
-            default:
-                // get events from the complete wiki: no filter to be added
-                break;
-        }
-    }
-
-    private void addOrderBy(boolean sortAscending, QueryData simpleEvents)
-    {
-        simpleEvents.getHql().append(" order by startdate.value ");
-        if (sortAscending) {
-            simpleEvents.getHql().append("asc");
-        } else {
-            simpleEvents.getHql().append("desc");
-        }
-    }
-
-    // the date comparision in HQL is always a bit painful - hide it in a helper
-    // for appendDateCriterion(query, "date", "field", true) this will create something like:
-    //
-    // ( year(date) > :fieldyear or ( year(date) = :fieldyear and ( month(date) > :fieldmonth or
-    // ( month(date) = :fieldmonth and day(date) >= :fieldday ) ) ) )
-    // ...
-    private static void appendDateCriterion(QueryData data, String dateField, String prefix, boolean larger)
-    {
-        final char cmpSign = (larger) ? '>' : '<';
-
-        data.getHql().append("( year(" + dateField + ") ").append(cmpSign).append(" :" + prefix + "year ");
-        data.getHql().append(" or (year(" + dateField + ") = :" + prefix + "year and ");
-        data.getHql().append("(month(" + dateField + ") ").append(cmpSign).append(" :" + prefix + "month");
-        data.getHql().append(" or (month(" + dateField + ") = :" + prefix + "month ");
-        data.getHql().append(" and day(").append(dateField).append(") ").append(cmpSign).append("= :")
-            .append(prefix).append("day");
-        data.getHql().append(')');
-        data.getHql().append(')');
-        data.getHql().append(')');
-        data.getHql().append(')');
-    }
-
-    private void appendDateParameters(QueryData data, String prefix, Date date)
-    {
-        Calendar cal = Calendar.getInstance();
-        cal.setTime(date);
-
-        int year = cal.get(Calendar.YEAR);
-        int month = cal.get(Calendar.MONTH) + 1;
-        int day = cal.get(Calendar.DAY_OF_MONTH);
-        data.getQueryParams().put(prefix + "year", year);
-        data.getQueryParams().put(prefix + "month", month);
-        data.getQueryParams().put(prefix + "day", day);
-    }
 
     private void sortEvents(final List<EventInstance> events, final boolean ascending)
     {
@@ -830,7 +680,7 @@ public class MoccaCalendarScriptService implements ScriptService
         }
         String modifiedDescription = modificationNotice.getStringValue(EventConstants.PROPERTY_DESCRIPTION_NAME);
         if (modifiedDescription != null && !"".equals(modifiedDescription.trim())) {
-            Utils.fillDescription(modificationNotice, context, modifiedInstance);
+            Utils.fillDescription(modificationNotice, EventConstants.PROPERTY_DESCRIPTION_NAME, context, modifiedInstance);
         }
 
         return modifiedInstance;

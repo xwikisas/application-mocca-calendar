@@ -97,14 +97,15 @@ public final class Utils
      * The base object should either be a MoccaCalendarEvent or a MoccaCalendarEventModification.
      *
      * @param eventData the xwiki object to get the information from
+     * @param descriptionPropertyName then name of the property storing the description
      * @param context the current context
      * @param event the event instance whose description will be set
      */
-    public static void fillDescription(BaseObject eventData, XWikiContext context, EventInstance event)
+    public static void fillDescription(BaseObject eventData, String descriptionPropertyName, XWikiContext context, EventInstance event)
     {
         XWikiDocument eventDoc = eventData.getOwnerDocument();
         String idString = eventDoc.getSyntax().toIdString();
-        String description = eventData.getStringValue(EventConstants.PROPERTY_DESCRIPTION_NAME);
+        String description = eventData.getStringValue(descriptionPropertyName);
         event.setDescription(
             eventDoc.getRenderedContent(description, idString, Syntax.PLAIN_1_0.toIdString(), context));
         event.setDescriptionHtml(

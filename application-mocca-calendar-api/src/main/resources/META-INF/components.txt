@@ -9,3 +9,5 @@ org.xwiki.contrib.moccacalendar.internal.generators.BiWeeklyEventGenerator
 org.xwiki.contrib.moccacalendar.internal.generators.MonthlyEventGenerator
 org.xwiki.contrib.moccacalendar.internal.generators.QuarterlyEventGenerator
 org.xwiki.contrib.moccacalendar.internal.generators.YearlyEventGenerator
+org.xwiki.contrib.moccacalendar.internal.utils.DefaultEventAssembly
+org.xwiki.contrib.moccacalendar.internal.MeetingEventSource
