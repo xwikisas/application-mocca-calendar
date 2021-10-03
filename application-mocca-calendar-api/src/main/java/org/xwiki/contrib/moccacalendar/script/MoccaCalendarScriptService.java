@@ -38,9 +38,9 @@ import org.joda.time.DateTime;
 import org.slf4j.Logger;
 import org.xwiki.component.annotation.Component;
 import org.xwiki.contrib.moccacalendar.EventInstance;
+import org.xwiki.contrib.moccacalendar.EventSource;
 import org.xwiki.contrib.moccacalendar.RecurrentEventGenerator;
 import org.xwiki.contrib.moccacalendar.internal.EventConstants;
-import org.xwiki.contrib.moccacalendar.internal.MeetingEventSource;
 import org.xwiki.contrib.moccacalendar.internal.Utils;
 import org.xwiki.contrib.moccacalendar.internal.utils.DefaultEventAssembly;
 import org.xwiki.contrib.moccacalendar.internal.utils.EventQuery;
@@ -106,7 +106,7 @@ public class MoccaCalendarScriptService implements ScriptService
     private Map<String, RecurrentEventGenerator> eventGenerators;
 
     @Inject
-    private Map<String, MeetingEventSource> eventSources;
+    private Map<String, EventSource> eventSources;
 
     @Inject
     private DefaultEventAssembly eventAssembly;
@@ -126,7 +126,6 @@ public class MoccaCalendarScriptService implements ScriptService
         try {
             Query query = queryManager.createQuery(CALENDAR_BASE_QUERY, Query.HQL).addFilter(hidden);
             List<String> results = query.execute();
-            // FIXME: this should be more like a static helper, somewhere
             calenderRefs = eventAssembly.filterViewableEvents(results);
         } catch (QueryException qe) {
             logger.error("error while fetching calendars", qe);
@@ -161,7 +160,8 @@ public class MoccaCalendarScriptService implements ScriptService
             dateTo = dateFrom;
         }
 
-        EventQuery eventQuery = new EventQuery(EventConstants.MOCCA_CALENDAR_EVENT_CLASS_NAME, MOCCA_CALENDAR_EVENT_TEMPLATE);
+        EventQuery eventQuery = new EventQuery(EventConstants.MOCCA_CALENDAR_EVENT_CLASS_NAME,
+            MOCCA_CALENDAR_EVENT_TEMPLATE);
 
         //
         // filter by date range
@@ -226,7 +226,9 @@ public class MoccaCalendarScriptService implements ScriptService
         // so much for regular single events.
         // now about recurrent events
         //
-        EventQuery recurrentEventQuery = new EventQuery(EventConstants.MOCCA_CALENDAR_EVENT_CLASS_NAME, MOCCA_CALENDAR_EVENT_TEMPLATE);
+        EventQuery recurrentEventQuery = new EventQuery(EventConstants.MOCCA_CALENDAR_EVENT_CLASS_NAME,
+            MOCCA_CALENDAR_EVENT_TEMPLATE);
+
         //
         // filter by location
         //
@@ -247,12 +249,13 @@ public class MoccaCalendarScriptService implements ScriptService
             logger.error("error while fetching recurrent events", e);
         }
 
-        for (Map.Entry<String, MeetingEventSource> meetings : eventSources.entrySet()) {
-            logger.info("add events from [{}]|", meetings.getKey());
-            List<EventInstance> meetingEvents = meetings.getValue().getEvents(dateFrom, dateTo, filter, parentRef, sortAscending);
+        for (Map.Entry<String, EventSource> meetings : eventSources.entrySet()) {
+            logger.debug("add events from [{}]|", meetings.getKey());
+            List<EventInstance> meetingEvents = meetings.getValue()
+                .getEvents(dateFrom, dateTo, filter, parentRef, sortAscending);
             if (meetingEvents != null) {
                 for (EventInstance meeting : meetingEvents) {
-                    fillInColorsFromNextCalendar(meeting);
+                    fillInColorsFromNearestCalendar(meeting);
                     meeting.setSource(meetings.getKey());
                 }
                 events.addAll(meetingEvents);
@@ -262,6 +265,21 @@ public class MoccaCalendarScriptService implements ScriptService
         sortEvents(events, sortAscending);
 
         return events;
+    }
+
+    /**
+     * Give the full name to a document to be used as a sheet to be used to display this event.
+     * If the event needs no special sheet, return null.
+     * @param event the event instance to be displayed
+     * @return the full name of a document sheet or null
+     */
+    public String getDisplaySheetForEvent(EventInstance event) {
+        if (event == null || event.getSource() == null) {
+            return null;
+        }
+        // now we should ask the source of the event for a display sheet
+        // instead we directly fall back on the generic view sheet
+        return "MoccaCalendar.Code.EventViews.Generic";
     }
 
     private List<EventInstance> filterRecurrentEvents(List<DocumentReference> eventReferences, Date dateFrom,
@@ -359,8 +377,10 @@ public class MoccaCalendarScriptService implements ScriptService
         }
 
         event.setEventDocRef(eventDocRef);
+        event.setModifiable(true);
+        event.setMovable(!event.isRecurrent());
 
-        fillInColorsFromNextCalendar(event);
+        fillInColorsFromNearestCalendar(event);
     }
 
     /**
@@ -370,7 +390,7 @@ public class MoccaCalendarScriptService implements ScriptService
      * this is the space of the page if the event page is terminal, and the parent
      * of the events page space, if the page is non-terminal
      */
-    private void fillInColorsFromNextCalendar(EventInstance event)
+    private void fillInColorsFromNearestCalendar(EventInstance event)
     {
         try {
             final DocumentReference eventDocRef = event.getEventDocRef();
@@ -476,8 +496,29 @@ public class MoccaCalendarScriptService implements ScriptService
     }
 
     /**
+     * Create an event instance for the given date and document from the given source.
+     *
+     * If the document contains only information about one event, then the start date can be ignored.
+     * If there is no matching information that the source can use to create an event from the document,
+     * then return null.
+     *
+     * @param eventDoc the document storing the event
+     * @param eventStartDate the start date of the event
+     * @param source the source which has generated the event, can be null.
+     * @return the event instance matching the arguments, or null if no match as been found.
+     */
+    public EventInstance getEventInstance(final Document eventDoc, final Date eventStartDate, final String source)
+    {
+        EventSource eventSource = eventSources.get(source);
+        if (eventSource != null) {
+            return eventSource.getEventInstance(eventDoc, eventStartDate);
+        }
+        return getEventInstance(eventDoc, eventStartDate);
+    }
+
+    /**
      * Create an event instance for the given date and document.
-     * if the event instance has been modified, update the event instance with the modifications.
+     * If the event instance has been modified, update the event instance with the modifications.
      * this methods does not take deletion marks into account, but always returns an event instance.
      *
      * @param eventDoc the document of the recurrent event

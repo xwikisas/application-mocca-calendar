@@ -32,6 +32,7 @@ import org.joda.time.DateTime;
 import org.slf4j.Logger;
 import org.xwiki.component.annotation.Component;
 import org.xwiki.contrib.moccacalendar.EventInstance;
+import org.xwiki.contrib.moccacalendar.EventSource;
 import org.xwiki.contrib.moccacalendar.internal.utils.DefaultEventAssembly;
 import org.xwiki.contrib.moccacalendar.internal.utils.EventQuery;
 import org.xwiki.model.reference.DocumentReference;
@@ -42,21 +43,23 @@ import org.xwiki.rendering.syntax.Syntax;
 
 import com.xpn.xwiki.XWikiContext;
 import com.xpn.xwiki.XWikiException;
+import com.xpn.xwiki.api.Document;
 import com.xpn.xwiki.doc.XWikiDocument;
 import com.xpn.xwiki.objects.BaseObject;
 
 /**
- *
+ * Allows to show meetings as calendar entries.
  * @version $Id: $
  * @since 2.11
  */
-@Named("calendar.source.meeting")
+@Named("meetings")
 @Singleton
-@Component(roles = { MeetingEventSource.class })
-public class MeetingEventSource
+@Component
+public class MeetingEventSource implements EventSource
 {
 
-    private static String MEETING_ENTRY_CLASS_NAME = "Meeting.Code.MeetingClass";
+    private static final String MEETING_ENTRY_CLASS_NAME = "Meeting.Code.MeetingClass";
+    private static final String MEETING_TEMPLATE_PAGE = "Meeting.Code.MeetingTemplate";
 
     @Inject
     private Provider<XWikiContext> xcontextProvider;
@@ -75,13 +78,22 @@ public class MeetingEventSource
     @Inject
     private Logger logger;
 
+    /**
+     * Get a list of meetings as events.
+     *
+     * These events are currently not editable.
+     * The filtering parameter might need some work. too.
+     *
+     * {@inheritDoc}
+     */
+    @Override
     public List<EventInstance> getEvents(Date dateFrom, Date dateTo, String filter, DocumentReference parentRef,
         boolean sortAscending)
     {
         List<EventInstance> events = new ArrayList<EventInstance>();
 
         try {
-            EventQuery evQ = new EventQuery(MEETING_ENTRY_CLASS_NAME, "Meeting.Code.MeetingTemplate");
+            EventQuery evQ = new EventQuery(MEETING_ENTRY_CLASS_NAME, MEETING_TEMPLATE_PAGE);
 
             // filter by date range
             evQ.addDateLimits(dateFrom, dateTo);
@@ -133,7 +145,6 @@ public class MeetingEventSource
             event.setEndDateExclusive(endDateTime);
 
             if (null == event.getTitle()) {
-                // FIXME: do we always want the title?
                 event.setTitle(eventDoc.getRenderedTitle(Syntax.PLAIN_1_0, context));
             }
 
@@ -145,6 +156,21 @@ public class MeetingEventSource
         }
 
         return event;
+    }
+
+    /**
+     * Get the meeting of the given document as event.
+     *
+     * {@inheritDoc}
+     */
+    @Override
+    public EventInstance getEventInstance(Document eventDoc, Date eventStartDate)
+    {
+        // FIXME: it is odd that we use the event query only to transfer information
+        // about the startDate/endDate fields
+        EventQuery evQ = new EventQuery(MEETING_ENTRY_CLASS_NAME, MEETING_TEMPLATE_PAGE);
+
+        return convertToEventInstance(evQ, eventDoc.getDocumentReference());
     }
 
 }

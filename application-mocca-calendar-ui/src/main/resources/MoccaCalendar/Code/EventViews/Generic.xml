@@ -1,0 +1,71 @@
+<?xml version="1.1" encoding="UTF-8"?>
+
+<!--
+ * See the NOTICE file distributed with this work for additional
+ * information regarding copyright ownership.
+ *
+ * This is free software; you can redistribute it and/or modify it
+ * under the terms of the GNU Lesser General Public License as
+ * published by the Free Software Foundation; either version 2.1 of
+ * the License, or (at your option) any later version.
+ *
+ * This software is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+ * Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public
+ * License along with this software; if not, write to the Free
+ * Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
+ * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
+-->
+
+<xwikidoc version="1.3" reference="MoccaCalendar.Code.EventViews.Generic" locale="">
+  <web>MoccaCalendar.Code.EventViews</web>
+  <name>Generic</name>
+  <language/>
+  <defaultLanguage/>
+  <translation>0</translation>
+  <creator>xwiki:XWiki.Admin</creator>
+  <version>1.1</version>
+  <author>xwiki:XWiki.Admin</author>
+  <contentAuthor>xwiki:XWiki.Admin</contentAuthor>
+  <parent>WebHome</parent>
+  <title>#if($doc.fullName == 'MoccaCalendar.Code.EventViews.Generic')Generic Event View#{else}$services.display.title($doc, {'displayerHint': 'default'})#end</title>
+  <comment/>
+  <minorEdit>false</minorEdit>
+  <syntaxId>xwiki/2.1</syntaxId>
+  <hidden>true</hidden>
+  <content>{{velocity}}
+## this is mosty copy &amp; paste from the MoccaCalendarEventSheet
+#macro(getDateFormat $allDay $format)
+  #set($result = $xwiki.getSpacePreference('dateformat', 'yyyy/MM/dd HH:mm'))
+  #if($allDay)
+    ## try to cut the time because this event has the all day flag
+    #set($idx = $result.indexOfAny("HhKk"))
+    #if($idx &gt; 0)
+      #set($result = $result.substring(0, $idx).trim())
+    #end
+  #end
+  #set ($format = $NULL)
+  #setVariable ("$format" $result)
+#end
+#set($event = $services.moccacalendar.getEventInstance($doc, null, $request.getParameter('eventSource')))
+#if(!$event)
+{{html wiki="false"}}
+$services.localization.render('moccacalendar.sheets.generic.noevent',  ["&lt;a class='wikilink' href='$escapetool.xml($doc.getURL())'&gt;", '&lt;/a&gt;'])
+{{/html}}
+#else
+#getDateFormat($event.isAllDay() $format)
+#set($dateprinter = $xwiki.jodatime.getDateTimeFormatterForPattern($format))
+=== $services.rendering.escape($event.getTitle(), $doc.getSyntax()) ==
+
+; $services.localization.render('MoccaCalendar.MoccaCalendarEventClass_startDate')
+: $dateprinter.print($event.getStartDate())
+; $services.localization.render('MoccaCalendar.MoccaCalendarEventClass_endDate')
+: $dateprinter.print($event.getEndDate())
+; $services.localization.render('MoccaCalendar.MoccaCalendarEventClass_description')
+: $services.rendering.escape($event.getDescription(), $doc.getSyntax())
+#end
+{{/velocity}}</content>
+</xwikidoc>

@@ -39,6 +39,7 @@ import org.xwiki.query.QueryFilter;
 import org.xwiki.query.QueryManager;
 import org.xwiki.security.authorization.AuthorizationManager;
 import org.xwiki.security.authorization.Right;
+import org.xwiki.stability.Unstable;
 
 import com.xpn.xwiki.XWikiContext;
 
@@ -47,10 +48,11 @@ import com.xpn.xwiki.XWikiContext;
  * This helper also removes documents not visible from the current user from the result set.
  *
  * @version $Id: $
- * @since 11.0
+ * @since 2.11
  */
 @Singleton
 @Component(roles = { DefaultEventAssembly.class })
+@Unstable
 public class DefaultEventAssembly
 {
 
@@ -74,6 +76,16 @@ public class DefaultEventAssembly
     @Inject
     private Logger logger;
 
+    /**
+     * Run the given query and return a list of matching documents.
+     * This also filters entries not visible to the current user.
+     *
+     * @param query must not be null
+     * @return a list of document references, never null and not containing nulls
+     * @throws QueryException if there are problems with the query
+     * @see QueryManager#createQuery(String, String)
+     * @see Query#execute()
+     */
     public List<DocumentReference> executeQuery(EventQuery query) throws QueryException
     {
         StringBuilder hql = new StringBuilder();
@@ -83,6 +95,7 @@ public class DefaultEventAssembly
         for (Map.Entry<String, Object> param : query.queryParams.entrySet()) {
             hqlQuery.bindValue(param.getKey(), param.getValue());
         }
+        hqlQuery.addFilter(hidden);
 
         logger.debug("sending query [{}] and params [{}]", hqlQuery.getStatement(), query.queryParams);
         List<String> results = hqlQuery.execute();
@@ -90,7 +103,17 @@ public class DefaultEventAssembly
         return filterViewableEvents(results);
     }
 
-    // this is some rather unrelated helper
+    /**
+     * Helper to resolve a list of strings into their document references.
+     * This also filters away all documents not visible to the current user;
+     * the returned result list will be shorter if not visible documents are found.
+     *
+     * Unstable: This method is only public as it is used to filter calendars, too.
+     * It will be removed and replaced by a throughout use of the "viewable" query filter.
+     *
+     * @param eventDocRefs a list of strings, not null.
+     * @return the corresponding documents, filtered by view rights.
+     */
     public List<DocumentReference> filterViewableEvents(List<String> eventDocRefs)
     {
         List<DocumentReference> visibleRefs = new ArrayList<>();

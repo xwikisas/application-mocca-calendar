@@ -51,12 +51,14 @@ public final class Utils
     }
 
     /**
-     * return the end date of the event (or event modification). this either gets the date from the &quot;endDate&quot;
-     * property or calculates it from the &quot;startDate&quot; property
+     * Return the end date for the given object.
+     * This uses default values to determine the names of the start and end date properties.
      *
-     * @param eventData
-     *            the object describing the data. should have a 'startDate', 'allDay' and optional 'endDate' property.
+     * @param eventData the object describing the data.
+     *            should have a 'startDate' and optional 'allDay' and  'endDate' property.
      * @return the end date of the event
+     * @see EventConstants
+     * @see Utils#fetchOrGuessEndDate(BaseObject, String, String, String)
      */
     public static Date fetchOrGuessEndDate(BaseObject eventData)
     {
@@ -64,6 +66,18 @@ public final class Utils
             EventConstants.PROPERTY_ENDDATE_NAME, EventConstants.PROPERTY_ALLDAY_NAME);
     }
 
+    /**
+     * Return the end date of the event (or event modification).
+     * This either gets the date from the &quot;endDate&quot; property
+     * or calculates it from the &quot;startDate&quot; property
+     *
+     * @param eventData the object describing the event
+     * @param startDateName the name of the start date property
+     * @param endDateName the name of the start date property
+     * @param allDayName the name of the all day flag, can be null
+     * @return the stored or guessed end date
+     * @see Utils#guessEndDate(Date, boolean)
+     */
     public static Date fetchOrGuessEndDate(BaseObject eventData, String startDateName, String endDateName,
         String allDayName)
     {

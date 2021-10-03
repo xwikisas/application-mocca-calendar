@@ -32,6 +32,7 @@ import org.xwiki.component.util.DefaultParameterizedType;
 import org.xwiki.contrib.moccacalendar.internal.EventConstants;
 import org.xwiki.model.reference.DocumentReference;
 import org.xwiki.model.reference.EntityReferenceSerializer;
+import org.xwiki.stability.Unstable;
 
 import com.xpn.xwiki.web.Utils;
 
@@ -42,8 +43,9 @@ import com.xpn.xwiki.web.Utils;
  * which have been fixed by the current hibernate versions.
  *
  * @version $Id: $
- * @since 11.0
+ * @since 2.11
  */
+@Unstable
 public class EventQuery
 {
 

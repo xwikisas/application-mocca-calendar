@@ -77,8 +77,11 @@
         <artifactId>maven-checkstyle-plugin</artifactId>
         <configuration>
           <excludes>
-            <!-- mostly pointless errors about multiple string literals from queries -->
+            <!-- known issue: the script service does far too much -->
             org/xwiki/contrib/moccacalendar/script/MoccaCalendarScriptService.java,
+            <!-- this class encapsulates a mistake of not using XWQL and should go away
+              checkstyle creates mostly pointless errors about multiple string literals from queries -->
+            org/xwiki/contrib/moccacalendar/internal/utils/EventQuery.java,
             <!-- Class Fan-Out Complexity is XX (max allowed is 20): should be ok for a migrator -->
             org/xwiki/contrib/moccacalendar/migrations/AddReccurrentProperty.java
           </excludes>

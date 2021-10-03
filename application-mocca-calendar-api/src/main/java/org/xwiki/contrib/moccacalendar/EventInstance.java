@@ -45,6 +45,9 @@ public class EventInstance
     private boolean allDay;
     private boolean recurrent;
 
+    private boolean modifiable;
+    private boolean movable;
+
     private String title;
     private String description;
     private String descriptionHtml;
@@ -319,6 +322,48 @@ public class EventInstance
     public void setSource(String source)
     {
         this.source = source;
+    }
+
+    /**
+     * Indicate if this event is modifiable.
+     * This does not include any rights check, just signaling if the event source
+     * supports storing modifications to this event
+     * @return true if modifiable
+     */
+    public boolean isModifiable()
+    {
+        return modifiable;
+    }
+
+    /**
+     * Set the indicator if this event is modifiable.
+     * This should be called only by the event source
+     * @param modifiable true if modifiable
+     */
+    public void setModifiable(boolean modifiable)
+    {
+        this.modifiable = modifiable;
+    }
+
+    /**
+     * Indicate if this event is movable, i.e. start and end date can be updated.
+     * This does not include any rights check, just signaling if the event source
+     * supports storing date changes to this event
+     * @return true if movable
+     */
+    public boolean isMovable()
+    {
+        return movable;
+    }
+
+    /**
+     * Set the indicator if this event is movable.
+     * This should be called only by the event source
+     * @param movable true if movable
+     */
+    public void setMovable(boolean movable)
+    {
+        this.movable = movable;
     }
 
 }

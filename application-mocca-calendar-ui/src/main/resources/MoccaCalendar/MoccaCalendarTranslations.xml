@@ -169,6 +169,9 @@ moccacalendar.modify.saveMessage=Updated modification for one event instance.
 templateProvider.calendar.name=Calendar
 templateProvider.calendar.description=Add a new calendar
 
+## event sheets
+moccacalendar.sheets.generic.noevent=This page cannot be displayed in the calendar. {0}View it{1} as wiki page instead.
+
 ## Calendar macro
 rendering.macro.moccacalendar.name=Mocca Calendar
 rendering.macro.moccacalendar.description=Displays a Calendar
