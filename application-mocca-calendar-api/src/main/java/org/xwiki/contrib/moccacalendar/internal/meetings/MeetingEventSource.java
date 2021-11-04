@@ -17,9 +17,10 @@
  * Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
-package org.xwiki.contrib.moccacalendar.internal;
+package org.xwiki.contrib.moccacalendar.internal.meetings;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 
@@ -33,11 +34,13 @@ import org.slf4j.Logger;
 import org.xwiki.component.annotation.Component;
 import org.xwiki.contrib.moccacalendar.EventInstance;
 import org.xwiki.contrib.moccacalendar.EventSource;
+import org.xwiki.contrib.moccacalendar.internal.Utils;
 import org.xwiki.contrib.moccacalendar.internal.utils.DefaultEventAssembly;
 import org.xwiki.contrib.moccacalendar.internal.utils.EventQuery;
 import org.xwiki.model.reference.DocumentReference;
 import org.xwiki.model.reference.DocumentReferenceResolver;
 import org.xwiki.model.reference.EntityReferenceSerializer;
+import org.xwiki.model.reference.LocalDocumentReference;
 import org.xwiki.query.QueryException;
 import org.xwiki.rendering.syntax.Syntax;
 
@@ -49,6 +52,7 @@ import com.xpn.xwiki.objects.BaseObject;
 
 /**
  * Allows to show meetings as calendar entries.
+ *
  * @version $Id: $
  * @since 2.11
  */
@@ -77,6 +81,23 @@ public class MeetingEventSource implements EventSource
 
     @Inject
     private Logger logger;
+
+    @Override
+    public boolean isAvailable()
+    {
+        XWikiContext xcontext = xcontextProvider.get();
+        DocumentReference meetingClassReference = new DocumentReference(xcontext.getWikiId(),
+            Arrays.asList("Meeting", "Code"), "MeetingClass");
+        logger.debug("check if [{}] exists in current wiki [{}]|",
+            compactWikiSerializer.serialize(meetingClassReference), xcontext.getWikiId());
+        return xcontext.getWiki().exists(meetingClassReference, xcontext);
+    }
+
+    @Override
+    public LocalDocumentReference getConfigurationClass()
+    {
+        return MeetingsSourceConfigurationClassInitializer.classRef();
+    }
 
     /**
      * Get a list of meetings as events.

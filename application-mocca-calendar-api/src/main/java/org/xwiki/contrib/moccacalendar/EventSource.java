@@ -23,8 +23,10 @@ import java.util.Date;
 import java.util.List;
 
 import org.xwiki.component.annotation.Role;
+import org.xwiki.contrib.moccacalendar.internal.DefaultSourceConfigurationClassInitializer;
 import org.xwiki.contrib.moccacalendar.script.MoccaCalendarScriptService;
 import org.xwiki.model.reference.DocumentReference;
+import org.xwiki.model.reference.LocalDocumentReference;
 import org.xwiki.stability.Unstable;
 
 import com.xpn.xwiki.api.Document;
@@ -40,9 +42,19 @@ public interface EventSource
 {
 
     /**
+     * Check if the source is available in the given context.
+     * To get the context, use a context provider.
+     * @return true iff the source is available to create events
+     */
+    default boolean isAvailable()
+    {
+        return true;
+    };
+
+    /**
      * Get all events that this source can find for the given constraints.
      *
-     * If the "dateTo" is null, then assume a search for all events where the "dateFrom" is 
+     * If the "dateTo" is null, then assume a search for all events where the "dateFrom" is
      * between the start date and the end date of the event.
      * Otherwise return all events where the time interval between start date and end date (both inclusive)
      * overlaps with the (inclusive) interval of dateFrom to dateTo. It can be assumed that
@@ -60,7 +72,7 @@ public interface EventSource
      * @param dateTo the end date of the date search window, might be null
      * @param filter textual hint how to filter the events, might be null
      * @param parentRef the root document for the filter. might be null
-     * @param sortAscending if the events should be sorted by start date 
+     * @param sortAscending if the events should be sorted by start date
      * @return a list of event instances, should not be null, and should not contain nulls.
      * @see MoccaCalendarScriptService#queryEvents(Date, Date, String, String, boolean)
      */
@@ -78,4 +90,19 @@ public interface EventSource
      * @return an event instance or null, if not event data found
      */
     EventInstance getEventInstance(Document eventDoc, Date eventStartDate);
+
+    /**
+     * The configuration class to use for this event source.
+     * The configuration source allows to enable or disable the source for different calendars.
+     * It might also add more variables to configure the event source; if these should be used
+     * then the event source is responsible to get an instance of that configuration class from the current document.
+     * The default implementation returns {@code null} which means no special configuration class.
+     * In that case a default class will be used.
+     * @return a class name, or null. In the latter case a default implementation will be used.
+     * @see DefaultSourceConfigurationClassInitializer
+     */
+    default LocalDocumentReference getConfigurationClass()
+    {
+        return null;
+    }
 }

@@ -20,6 +20,7 @@
 package org.xwiki.contrib.moccacalendar.script;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.Date;
@@ -27,6 +28,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Set;
 
 import javax.inject.Inject;
@@ -40,6 +42,8 @@ import org.xwiki.component.annotation.Component;
 import org.xwiki.contrib.moccacalendar.EventInstance;
 import org.xwiki.contrib.moccacalendar.EventSource;
 import org.xwiki.contrib.moccacalendar.RecurrentEventGenerator;
+import org.xwiki.contrib.moccacalendar.internal.AbstractSourceConfigurationClassInitializer;
+import org.xwiki.contrib.moccacalendar.internal.DefaultSourceConfigurationClassInitializer;
 import org.xwiki.contrib.moccacalendar.internal.EventConstants;
 import org.xwiki.contrib.moccacalendar.internal.Utils;
 import org.xwiki.contrib.moccacalendar.internal.utils.DefaultEventAssembly;
@@ -50,7 +54,9 @@ import org.xwiki.model.reference.DocumentReferenceResolver;
 import org.xwiki.model.reference.EntityReference;
 import org.xwiki.model.reference.EntityReferenceProvider;
 import org.xwiki.model.reference.EntityReferenceSerializer;
+import org.xwiki.model.reference.LocalDocumentReference;
 import org.xwiki.model.reference.SpaceReference;
+import org.xwiki.model.reference.WikiReference;
 import org.xwiki.query.Query;
 import org.xwiki.query.QueryException;
 import org.xwiki.query.QueryFilter;
@@ -79,6 +85,9 @@ public class MoccaCalendarScriptService implements ScriptService
         + " where doc.fullName=obj.name and doc.name!='MoccaCalendarTemplate'" + " and obj.className='"
         + EventConstants.MOCCA_CALENDAR_CLASS_NAME + "' order by doc.title, doc.name";
     private static final String MOCCA_CALENDAR_EVENT_TEMPLATE = "MoccaCalendar.MoccaCalendarEventTemplate";
+
+    private static final LocalDocumentReference GLOBAL_SETTINGS_PAGE = new LocalDocumentReference(
+        Arrays.asList("MoccaCalendar", "Code"), "GlobalSettings");
 
     @Inject
     private Provider<XWikiContext> xcontextProvider;
@@ -250,9 +259,12 @@ public class MoccaCalendarScriptService implements ScriptService
         }
 
         for (Map.Entry<String, EventSource> meetings : eventSources.entrySet()) {
+            if (!sourceIsActive(meetings)) {
+                continue;
+            }
             logger.debug("add events from [{}]|", meetings.getKey());
-            List<EventInstance> meetingEvents = meetings.getValue()
-                .getEvents(dateFrom, dateTo, filter, parentRef, sortAscending);
+            List<EventInstance> meetingEvents = meetings.getValue().getEvents(dateFrom, dateTo, filter, parentRef,
+                sortAscending);
             if (meetingEvents != null) {
                 for (EventInstance meeting : meetingEvents) {
                     fillInColorsFromNearestCalendar(meeting);
@@ -267,19 +279,102 @@ public class MoccaCalendarScriptService implements ScriptService
         return events;
     }
 
+    private boolean sourceIsActive(Entry<String, EventSource> meetings)
+    {
+        String name = meetings.getKey();
+        EventSource source = meetings.getValue();
+        logger.debug("check if source [{}] is active", name);
+
+        if (!source.isAvailable()) {
+            logger.debug("source [{}] is unvailable", name);
+            return false;
+        }
+        // name should never be null, except for "default sources", which are always enabled
+        if (name == null) {
+            return true;
+        }
+
+        if (!isGloballyEnabled(name)) {
+            logger.debug("source [{}] is globally disabled", name);
+            return false;
+        }
+
+        logger.debug("source [{}] is globally disabled", name);
+        boolean locallyEnabled = isLocallyEnabled(name, source);
+        logger.debug("is source [{}] locally enabled: [{}]", name, locallyEnabled);
+        // FIXME: return locallyEnabled here if that is implemented in the UI
+        return true;
+    }
+
+    private boolean isGloballyEnabled(String sourceName)
+    {
+        XWikiContext context = xcontextProvider.get();
+        LocalDocumentReference defaultConfigClass = DefaultSourceConfigurationClassInitializer.getConfigurationClass();
+        boolean result = false;
+        try {
+            XWikiDocument globalPrefs = context.getWiki().getDocument(GLOBAL_SETTINGS_PAGE, context);
+            BaseObject configObj = globalPrefs.getXObject(
+                new DocumentReference(defaultConfigClass, new WikiReference(context.getWikiId())),
+                DefaultSourceConfigurationClassInitializer.SOURCE_NAME_FIELD, sourceName);
+            result = isActive(configObj);
+        } catch (XWikiException e) {
+            logger.warn("cannot load global calendar source settings", e);
+        }
+        return result;
+    }
+
+    private boolean isLocallyEnabled(String name, EventSource source)
+    {
+        XWikiContext context = xcontextProvider.get();
+        LocalDocumentReference defaultConfigClass = DefaultSourceConfigurationClassInitializer.getConfigurationClass();
+        LocalDocumentReference configClass = source.getConfigurationClass();
+        BaseObject configObj;
+        if (configClass != null) {
+            configObj = context.getDoc().getXObject(configClass);
+        } else {
+            configObj = context.getDoc().getXObject(
+                new DocumentReference(defaultConfigClass, new WikiReference(context.getWikiId())),
+                DefaultSourceConfigurationClassInitializer.ACTIVE_FIELD, name);
+        }
+        return isActive(configObj);
+    }
+
+    private boolean isActive(BaseObject configObject)
+    {
+        logger.debug("check config object [{}] from [{}] for active flag", configObject,
+            (configObject != null) ? configObject.getReference() : "n/a");
+        return (configObject != null
+            && configObject.getIntValue(AbstractSourceConfigurationClassInitializer.ACTIVE_FIELD) == 1);
+    }
+
     /**
      * Give the full name to a document to be used as a sheet to be used to display this event.
      * If the event needs no special sheet, return null.
+     *
      * @param event the event instance to be displayed
      * @return the full name of a document sheet or null
      */
-    public String getDisplaySheetForEvent(EventInstance event) {
+    public String getDisplaySheetForEvent(EventInstance event)
+    {
         if (event == null || event.getSource() == null) {
             return null;
         }
         // now we should ask the source of the event for a display sheet
         // instead we directly fall back on the generic view sheet
         return "MoccaCalendar.Code.EventViews.Generic";
+    }
+
+    /**
+     * Returns a list of all available event source names, except for the default ones.
+     *
+     * @return a list of strings, not null
+     */
+    public List<String> getAvailableSources()
+    {
+        return eventSources.keySet().stream().filter((String name) -> {
+            logger.trace("check availablity of source [{}]", name);
+            return eventSources.get(name).isAvailable();
+        }).collect(ArrayList::new, ArrayList::add, ArrayList::addAll);
     }
 
     private List<EventInstance> filterRecurrentEvents(List<DocumentReference> eventReferences, Date dateFrom,

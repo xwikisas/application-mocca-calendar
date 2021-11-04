@@ -96,6 +96,18 @@ MoccaCalendar.MoccaCalendarEventClass_description=Description
 MoccaCalendar.MoccaCalendarEventClass_allDay=All day
 MoccaCalendar.MoccaCalendarEventClass_recurrent=Recurrent
 
+# Calendar Source Configuration Class fields
+MoccaCalendar.Code.DefaultEventSourceConfigClass.source={0} as Events
+MoccaCalendar.Code.DefaultEventSourceConfigClass_active=Active
+MoccaCalendar.Code.DefaultEventSourceConfigClass_active.hint=If active, events from this source will be shown in this calendar.
+
+MoccaCalendar.Code.MeetingsSourceConfigClass.source=Meetings as Events
+MoccaCalendar.Code.MeetingsSourceConfigClass_active=Active
+MoccaCalendar.Code.MeetingsSourceConfigClass_active.hint=If active, meetings will be shown in this calendar.
+MoccaCalendar.Code.MeetingsSourceConfigClass_meetings=Meetings location
+MoccaCalendar.Code.MeetingsSourceConfigClass_meetings.hint=The location from which meetings are shown.
+
+
 # modification class fields
 MoccaCalendar.Code.MoccaCalendarEventRecurrencyClass_frequency=Frequency
 MoccaCalendar.Code.MoccaCalendarEventRecurrencyClass_frequency_daily=daily
@@ -194,7 +206,13 @@ rendering.macro.moccacalendar.parameter.month.description=Month (from 0 to 11) o
 rendering.macro.moccacalendar.parameter.date.name=Day
 rendering.macro.moccacalendar.parameter.date.description=Day (from 1 to 31) of the date to show when loading the calendar. Leave empty for today
 
-xwiki.calendar.button.plainList=Agenda</content>
+xwiki.calendar.button.plainList=Agenda
+
+# admin section
+admin.moccacalendar.sources.section=Calendar
+admin.moccacalendar.sources.header=Enable Calendar Event Sources
+admin.moccacalendar.sources.empty=There are no calendar event sources to configure.
+admin.moccacalendar.sources.active.label=Show events from source \u00AB{0}\u00BB:</content>
   <object>
     <name>MoccaCalendar.MoccaCalendarTranslations</name>
     <number>0</number>
