@@ -37,7 +37,9 @@ import com.xpn.xwiki.objects.classes.BaseClass;
  */
 public abstract class AbstractSourceConfigurationClassInitializer extends AbstractMandatoryClassInitializer
 {
+    /** The path path to the default code space. */
     public static final String EVENT_SOURCE_CLASSES_SPACE_PREFIX = "MoccaCalendar.Code.";
+    /** The name of the field to store of the source is active or not. */
     public static final String ACTIVE_FIELD = "active";
 
     // you know, because checkstyle
@@ -68,6 +70,10 @@ public abstract class AbstractSourceConfigurationClassInitializer extends Abstra
         return false;
     }
 
+    /**
+     * Here we store configuration class by default.
+     * @return a local reference to the default class space.
+     */
     public static EntityReference getDefaultConfigClassSpace()
     {
         return new LocalDocumentReference(CODE_SPACE, "WebHome").getParent();

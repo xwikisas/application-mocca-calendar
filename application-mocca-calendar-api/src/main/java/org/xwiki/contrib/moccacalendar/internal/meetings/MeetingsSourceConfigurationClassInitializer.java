@@ -43,6 +43,9 @@ public class MeetingsSourceConfigurationClassInitializer extends AbstractSourceC
     static final String MEETINGS_CONFIG_CLASS_NAME = "MeetingsSourceConfigClass";
     static final String MEETINGS_PAGE_FIELD_NAME = "meetings";
 
+    /**
+     * Default constructor.
+     */
     public MeetingsSourceConfigurationClassInitializer()
     {
         super(MEETINGS_CONFIG_CLASS_NAME);

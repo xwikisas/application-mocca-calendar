@@ -38,12 +38,16 @@ import com.xpn.xwiki.objects.classes.BaseClass;
 @Named(AbstractSourceConfigurationClassInitializer.EVENT_SOURCE_CLASSES_SPACE_PREFIX
     + DefaultSourceConfigurationClassInitializer.DEFAULT_SOURCE_CONFIG_CLASS_NAME)
 @Singleton
-
 public class DefaultSourceConfigurationClassInitializer extends AbstractSourceConfigurationClassInitializer
 {
+    /** The page name of the default event source configuration class. */
     public static final String DEFAULT_SOURCE_CONFIG_CLASS_NAME = "DefaultEventSourceConfigClass";
+    /** The name of the field to store the name of the source. */
     public static final String SOURCE_NAME_FIELD = "source";
 
+    /**
+     * Default constructor.
+     */
     public DefaultSourceConfigurationClassInitializer()
     {
         super(DEFAULT_SOURCE_CONFIG_CLASS_NAME);
@@ -56,6 +60,10 @@ public class DefaultSourceConfigurationClassInitializer extends AbstractSourceCo
         xclass.addTextField(SOURCE_NAME_FIELD, "Source Name", 30);
     }
 
+    /**
+     * Get the reference to the default source configuration class.
+     * @return the local reference to the default configuration class.
+     */
     public static LocalDocumentReference getConfigurationClass()
     {
         return new LocalDocumentReference(DEFAULT_SOURCE_CONFIG_CLASS_NAME,
