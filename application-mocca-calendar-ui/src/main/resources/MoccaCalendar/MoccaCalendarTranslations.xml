@@ -183,6 +183,7 @@ templateProvider.calendar.description=Add a new calendar
 
 ## event sheets
 moccacalendar.sheets.generic.noevent=This page cannot be displayed in the calendar. {0}View it{1} as wiki page instead.
+moccacalendar.sources.config.label=Configure events from source \u00AB{0}\u00BB
 
 ## Calendar macro
 rendering.macro.moccacalendar.name=Mocca Calendar

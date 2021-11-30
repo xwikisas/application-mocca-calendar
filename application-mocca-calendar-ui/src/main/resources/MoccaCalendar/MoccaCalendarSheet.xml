@@ -78,6 +78,55 @@
 #if(!${myEdit})
   : $doc.display('content1')
 #end
+
+#if(${myEdit})
+  #set($sources = $services.moccacalendar.getAvailableSourceConfigurations())
+  #if(!$sources.isEmpty())
+    #foreach($sourceName in $sources.keySet())
+=== ${services.localization.render('moccacalendar.sources.config.label', [$stringtool.capitalize($sourceName)])} ===
+
+      #set($configClassRef = $sources.get($sourceName))
+      #set($configClassName = $services.model.serialize($configClassRef, 'compactwiki'))
+      #set($needsSave = false)
+      ## if we get a generic ref, find the object with the right name
+      #if($configClassName == 'MoccaCalendar.Code.DefaultEventSourceConfigClass')
+        #set($configObject = $doc.getObject($configClassName, 'source', $sourceName))
+        #if($configObject == $null)
+          #set($configIndex = $doc.createNewObject($configClassName))
+          #set($configObject = $doc.getObject($configClassName, $configIndex))
+          #set($discard = $configObject.set('source', $sourceName))
+          #set($needsSave = true)
+        #end
+        $configObject.display('source', 'hidden')
+      #else
+        #set($configObject = $doc.getObject($configClassName))
+        #if($configObject == $null)
+          #set($configIndex = $doc.createNewObject($configClassName))
+          #set($configObject = $doc.getObject($configClassName, $configIndex))
+          #set($needsSave = true)
+        #end
+      #end
+      #if($needsSave)
+        #set($discard = $doc.save('Config added', false))
+      #end
+      #if($configObject != $null)
+        #set($xclass = $configObject.xWikiClass)
+        #set($discard = $doc.use($configObject))
+        #foreach($property in $xclass.properties)
+          ## FIXME: we should support the "active" setting here
+          #if($property.name != 'source' &amp;&amp; $property.name != 'active')
+            #set ($propertyId = "${xclass.name}_${configObject.number}_$property.name")
+            ; &lt;label for="$escapetool.xml($propertyId)"&gt; $escapetool.xml($property.translatedPrettyName) &lt;/label&gt;
+              &lt;span class="xHint"&gt;$!escapetool.xml($services.localization.render($property.hint))&lt;/span&gt;
+            : $doc.display($property.name, 'edit')
+          #end
+        #end
+      #end ## if $configObject != $null
+    #end
+  ##else
+  ##  no sources
+  #end
+#end
 )))
 
 #if(!${myEdit})

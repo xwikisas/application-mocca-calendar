@@ -372,10 +372,33 @@ public class MoccaCalendarScriptService implements ScriptService
     public List<String> getAvailableSources()
     {
         return eventSources.keySet().stream().filter((String name) -> {
-            logger.trace("check availablity of source [{}]", name);
+            logger.trace("check availability of source [{}]", name);
             return eventSources.get(name).isAvailable();
         }).collect(ArrayList::new, ArrayList::add, ArrayList::addAll);
     }
+
+    /**
+     * Returns a map of all available event source names to their configuration classes.
+     *
+     * @return a map of strings to class references, not null
+     */
+    public Map<String,LocalDocumentReference> getAvailableSourceConfigurations()
+    {
+        Map<String, LocalDocumentReference> sources = new HashMap<>();
+
+        for (Map.Entry<String, EventSource> source : eventSources.entrySet()) {
+            if (!source.getValue().isAvailable()) {
+                continue;
+            }
+            LocalDocumentReference configClass = source.getValue().getConfigurationClass();
+            if (configClass == null) {
+                configClass = DefaultSourceConfigurationClassInitializer.getConfigurationClass();
+            }
+            sources.put(source.getKey(), configClass);
+        }
+        return sources;
+    }
+
 
     private List<EventInstance> filterRecurrentEvents(List<DocumentReference> eventReferences, Date dateFrom,
         Date dateTo) throws XWikiException

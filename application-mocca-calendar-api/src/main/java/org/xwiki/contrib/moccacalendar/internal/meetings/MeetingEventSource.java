@@ -41,6 +41,7 @@ import org.xwiki.model.reference.DocumentReference;
 import org.xwiki.model.reference.DocumentReferenceResolver;
 import org.xwiki.model.reference.EntityReferenceSerializer;
 import org.xwiki.model.reference.LocalDocumentReference;
+import org.xwiki.model.reference.WikiReference;
 import org.xwiki.query.QueryException;
 import org.xwiki.rendering.syntax.Syntax;
 
@@ -102,25 +103,46 @@ public class MeetingEventSource implements EventSource
     /**
      * Get a list of meetings as events.
      *
-     * These events are currently not editable.
-     * The filtering parameter might need some work. too.
+     * These events are currently not editable. The filtering parameter might need some work. too.
      *
      * {@inheritDoc}
      */
     @Override
-    public List<EventInstance> getEvents(Date dateFrom, Date dateTo, String filter, DocumentReference parentRef,
-        boolean sortAscending)
+    public List<EventInstance> getEvents(Date dateFrom, Date dateTo, String filter,
+        DocumentReference parentRef, boolean sortAscending)
     {
         List<EventInstance> events = new ArrayList<EventInstance>();
 
         try {
+
+            logger.debug("try to determine source doc for events [{}]", parentRef);
+            DocumentReference sourceDoc = parentRef;
+            // FIXME: refactor into helper
+            if (sourceDoc != null) {
+                XWikiContext context = xcontextProvider.get();
+                XWikiDocument configDoc = context.getWiki().getDocument(parentRef, context);
+                BaseObject config = configDoc.getXObject(
+                    new DocumentReference(getConfigurationClass(), new WikiReference(context.getWikiId())));
+
+                if (config != null) {
+                    String sourceDocName = config
+                        .getStringValue(MeetingsSourceConfigurationClassInitializer.MEETINGS_PAGE_FIELD_NAME);
+                    logger.debug("we found source doc [{}] for calenderdoc [{}]", sourceDocName, parentRef);
+                    sourceDoc = stringDocRefResolver.resolve(sourceDocName);
+                } else {
+                    logger.debug("no source doc for events in [{}]", parentRef);
+                }
+            } else {
+                logger.debug("no source space for events");
+            }
+
             EventQuery evQ = new EventQuery(MEETING_ENTRY_CLASS_NAME, MEETING_TEMPLATE_PAGE);
 
             // filter by date range
             evQ.addDateLimits(dateFrom, dateTo);
 
             // filter by event location
-            evQ.addLocationFilter(filter, parentRef);
+            evQ.addLocationFilter(filter, sourceDoc);
 
             // finally the ordering
             evQ.setAscending(sortAscending);
@@ -133,7 +155,7 @@ public class MeetingEventSource implements EventSource
                     events.add(event);
                 }
             }
-        } catch (QueryException qe) {
+        } catch (QueryException | XWikiException qe) {
             logger.error("unexpected query error while fetching meetings", qe);
         }
 
@@ -148,8 +170,8 @@ public class MeetingEventSource implements EventSource
             XWikiDocument eventDoc = context.getWiki().getDocument(meetingDocRef, context);
             BaseObject eventData = eventDoc.getXObject(stringDocRefResolver.resolve(evQ.getClassName()));
             if (eventData == null) {
-                logger.error("data inconsistency: query returned [{}] which contains no object for [{}]", meetingDocRef,
-                    evQ.getClassName());
+                logger.error("data inconsistency: query returned [{}] which contains no object for [{}]",
+                    meetingDocRef, evQ.getClassName());
                 return null;
             }
 
@@ -160,7 +182,8 @@ public class MeetingEventSource implements EventSource
             DateTime startDateTime = new DateTime(startDate.getTime());
             event.setStartDate(startDateTime);
 
-            Date endDate = Utils.fetchOrGuessEndDate(eventData, evQ.getStartDateName(), evQ.getEndDateName(), null);
+            Date endDate = Utils.fetchOrGuessEndDate(eventData, evQ.getStartDateName(), evQ.getEndDateName(),
+                null);
             DateTime endDateTime = new DateTime(endDate.getTime());
             event.setEndDate(endDateTime);
             event.setEndDateExclusive(endDateTime);

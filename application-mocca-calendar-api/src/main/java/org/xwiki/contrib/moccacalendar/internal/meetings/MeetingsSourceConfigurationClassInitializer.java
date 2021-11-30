@@ -64,6 +64,6 @@ public class MeetingsSourceConfigurationClassInitializer extends AbstractSourceC
 
     static LocalDocumentReference classRef() {
         return new LocalDocumentReference(MEETINGS_CONFIG_CLASS_NAME,
-            AbstractSourceConfigurationClassInitializer.getDefaultConfigClassSpace().getParent());
+            AbstractSourceConfigurationClassInitializer.getDefaultConfigClassSpace());
     }
 }
