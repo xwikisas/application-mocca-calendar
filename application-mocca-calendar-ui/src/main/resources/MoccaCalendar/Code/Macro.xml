@@ -1016,7 +1016,7 @@ div.calendar-buttons span.buttonwrapper {
         <displayFormType>select</displayFormType>
         <displayType/>
         <name>async_cached</name>
-        <number>13</number>
+        <number>12</number>
         <prettyName>Cached</prettyName>
         <unmodifiable>0</unmodifiable>
         <classType>com.xpn.xwiki.objects.classes.BooleanClass</classType>
@@ -1029,14 +1029,14 @@ div.calendar-buttons span.buttonwrapper {
         <largeStorage>0</largeStorage>
         <multiSelect>1</multiSelect>
         <name>async_context</name>
-        <number>14</number>
+        <number>13</number>
         <prettyName>Context elements</prettyName>
         <relationalStorage>0</relationalStorage>
-        <separator>, </separator>
+        <separator> </separator>
         <separators>|, </separators>
         <size>5</size>
         <unmodifiable>0</unmodifiable>
-        <values>action=Action|doc.reference=Document|icon.theme=Icon theme|locale=Language|rendering.defaultsyntax=Default syntax|rendering.restricted=Restricted|rendering.targetsyntax=Target syntax|request.base=Request base URL|request.parameters=Request parameters|request.url=Request URL|request.wiki=Request wiki|user=User|wiki=Wiki</values>
+        <values>doc.reference=Document|icon.theme=Icon theme|locale=Language|rendering.defaultsyntax=Default syntax|rendering.restricted=Restricted|rendering.targetsyntax=Target syntax|request.base=Request base URL|request.parameters=Request parameters|request.url=Request URL|request.wiki=Request wiki|user=User|wiki=Wiki</values>
         <classType>com.xpn.xwiki.objects.classes.StaticListClass</classType>
       </async_context>
       <async_enabled>
@@ -1045,7 +1045,7 @@ div.calendar-buttons span.buttonwrapper {
         <displayFormType>select</displayFormType>
         <displayType/>
         <name>async_enabled</name>
-        <number>12</number>
+        <number>11</number>
         <prettyName>Asynchronous rendering</prettyName>
         <unmodifiable>0</unmodifiable>
         <classType>com.xpn.xwiki.objects.classes.BooleanClass</classType>
@@ -1150,16 +1150,6 @@ div.calendar-buttons span.buttonwrapper {
         <unmodifiable>0</unmodifiable>
         <classType>com.xpn.xwiki.objects.classes.StringClass</classType>
       </name>
-      <priority>
-        <disabled>0</disabled>
-        <name>priority</name>
-        <number>11</number>
-        <numberType>integer</numberType>
-        <prettyName>Priority</prettyName>
-        <size>10</size>
-        <unmodifiable>0</unmodifiable>
-        <classType>com.xpn.xwiki.objects.classes.NumberClass</classType>
-      </priority>
       <supportsInlineMode>
         <disabled>0</disabled>
         <displayFormType>select</displayFormType>
@@ -1218,6 +1208,10 @@ $xwiki.ssx.use("MoccaCalendar.Code.Macro")
 #set($calendarDoc = $xcontext.macro.params.calendarDoc)
 #if(!$calendarDoc)
 #set($calendarDoc = $doc.fullName)
+#end
+#set($filterDoc = $xcontext.macro.params.filterDoc)
+#if(!$filterDoc)
+#set($filterDoc = $calendarDoc)
 #end
 #set($defaultView = $xcontext.macro.params.defaultView)
 #if(!$defaultView)
@@ -1347,6 +1341,7 @@ require(['jquery', 'moccaCalendar'], function(jQuery) {
     outputSyntax: 'plain',
     calendarDoc: "$!escapetool.javascript($calendarDoc)",
     filter: "$!escapetool.javascript($filter)",
+    filterDoc: "$!escapetool.javascript($filterDoc)",
     classname: "MoccaCalendar.MoccaCalendarEventClass",
     startfield: "startDate",
     endfield: "endDate",
@@ -2195,6 +2190,84 @@ Mocca Calendar Macro
     </property>
     <property>
       <name>date</name>
+    </property>
+    <property>
+      <type/>
+    </property>
+  </object>
+  <object>
+    <name>MoccaCalendar.Code.Macro</name>
+    <number>9</number>
+    <className>XWiki.WikiMacroParameterClass</className>
+    <guid>bacc1918-86a5-4a5f-8305-8adfd7367375</guid>
+    <class>
+      <name>XWiki.WikiMacroParameterClass</name>
+      <customClass/>
+      <customMapping/>
+      <defaultViewSheet/>
+      <defaultEditSheet/>
+      <defaultWeb/>
+      <nameField/>
+      <validationScript/>
+      <defaultValue>
+        <disabled>0</disabled>
+        <name>defaultValue</name>
+        <number>4</number>
+        <prettyName>Parameter default value</prettyName>
+        <size>30</size>
+        <unmodifiable>0</unmodifiable>
+        <classType>com.xpn.xwiki.objects.classes.StringClass</classType>
+      </defaultValue>
+      <description>
+        <disabled>0</disabled>
+        <name>description</name>
+        <number>2</number>
+        <prettyName>Parameter description</prettyName>
+        <rows>5</rows>
+        <size>40</size>
+        <unmodifiable>0</unmodifiable>
+        <classType>com.xpn.xwiki.objects.classes.TextAreaClass</classType>
+      </description>
+      <mandatory>
+        <disabled>0</disabled>
+        <displayFormType>select</displayFormType>
+        <displayType>yesno</displayType>
+        <name>mandatory</name>
+        <number>3</number>
+        <prettyName>Parameter mandatory</prettyName>
+        <unmodifiable>0</unmodifiable>
+        <classType>com.xpn.xwiki.objects.classes.BooleanClass</classType>
+      </mandatory>
+      <name>
+        <disabled>0</disabled>
+        <name>name</name>
+        <number>1</number>
+        <prettyName>Parameter name</prettyName>
+        <size>30</size>
+        <unmodifiable>0</unmodifiable>
+        <classType>com.xpn.xwiki.objects.classes.StringClass</classType>
+      </name>
+      <type>
+        <disabled>0</disabled>
+        <name>type</name>
+        <number>5</number>
+        <prettyName>Parameter type</prettyName>
+        <size>60</size>
+        <unmodifiable>0</unmodifiable>
+        <classType>com.xpn.xwiki.objects.classes.StringClass</classType>
+      </type>
+    </class>
+    <property>
+      <defaultValue/>
+    </property>
+    <property>
+      <description>The root for the filter, to use in conjunction with the filter parameter. If specified, it will replace the usage of the calendarDoc for the application of the filter scope, in which case the the calendarDoc parameter would only be used as the default calendar. When not filled in, it defaults to the calendarDoc. If none are specified, the current document is used.</description>
+    </property>
+    <property>
+      <mandatory>0</mandatory>
+    </property>
+    <property>
+      <name>filterDoc</name>
     </property>
     <property>
       <type/>
