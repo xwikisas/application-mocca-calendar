@@ -76,7 +76,7 @@
       <version>${licensing.version}</version>
       <type>pom</type>
       <scope>test</scope>
-    </dependency -->
+    </dependency>
     <dependency>
       <groupId>org.xwiki.platform</groupId>
       <artifactId>xwiki-platform-panels-test-pageobjects</artifactId>
