@@ -24,39 +24,43 @@
   <modelVersion>4.0.0</modelVersion>
   <parent>
     <groupId>com.xwiki.mocca-calendar</groupId>
-    <artifactId>application-mocca-calendar</artifactId>
-    <version>2.10.1-SNAPSHOT</version>
+    <artifactId>application-mocca-calendar-test</artifactId>
+    <version>2.10.2-SNAPSHOT</version>
   </parent>
-  <artifactId>application-mocca-calendar-tests</artifactId>
-  <name>Calendar Application - Functional Tests</name>
+  <artifactId>application-mocca-calendar-test-docker</artifactId>
+  <name>Calendar Application - Test - Functional Docker Tests</name>
   <packaging>jar</packaging>
-  <description>Tests for the Calendar Application (Pro)</description>
+  <description>Functional tests for the Calendar application</description>
   <properties>
-    <!-- Override in order to add the plugins we need -->
-    <xwikiCfgPlugins>\
-      com.xpn.xwiki.plugin.skinx.JsSkinExtensionPlugin,\
-      com.xpn.xwiki.plugin.skinx.JsSkinFileExtensionPlugin,\
-      com.xpn.xwiki.plugin.skinx.CssSkinExtensionPlugin,\
-      com.xpn.xwiki.plugin.skinx.CssSkinFileExtensionPlugin,\
-      com.xpn.xwiki.plugin.skinx.LinkExtensionPlugin,\
-      com.xpn.xwiki.plugin.jodatime.JodaTimePlugin
-    </xwikiCfgPlugins>
     <!-- Functional tests are allowed to output content to the console -->
     <xwiki.surefire.captureconsole.skip>true</xwiki.surefire.captureconsole.skip>
-    <xwikiCfgSuperadminPassword>pass</xwikiCfgSuperadminPassword>
   </properties>
   <dependencies>
     <dependency>
       <groupId>com.xwiki.mocca-calendar</groupId>
       <artifactId>application-mocca-calendar-ui</artifactId>
+      <version>${project.version}</version>
       <type>xar</type>
       <scope>runtime</scope>
-      <version>${project.version}</version>
+      <exclusions>
+        <!-- Use the version bundled in XWiki Standard -->
+        <exclusion>
+          <groupId>org.webjars</groupId>
+          <artifactId>momentjs</artifactId>
+        </exclusion>
+        <!-- Run the functional tests without a license. -->
+        <exclusion>
+          <groupId>com.xwiki.licensing</groupId>
+          <artifactId>application-licensing-licensor-api</artifactId>
+        </exclusion>
+      </exclusions>
     </dependency>
+    <!-- Use a fake licensor script service while running the functional tests. -->
     <dependency>
       <groupId>com.xwiki.licensing</groupId>
-      <artifactId>application-licensing-licensor-api</artifactId>
+      <artifactId>application-licensing-test-api</artifactId>
       <version>${licensing.version}</version>
+      <scope>runtime</scope>
     </dependency>
     <dependency>
       <groupId>org.xwiki.platform</groupId>
@@ -65,17 +69,12 @@
       <scope>runtime</scope>
       <version>${platform.version}</version>
     </dependency>
-    <dependency>
-      <groupId>org.xwiki.platform</groupId>
-      <artifactId>xwiki-platform-mail-send-default</artifactId>
-      <version>${platform.version}</version>
-      <scope>runtime</scope>
-    </dependency>
     <!-- Test dependencies -->
-    <!-- dependency>
-      <groupId>org.xwiki.platform</groupId>
-      <artifactId>xwiki-platform-test-ui</artifactId>
-      <version>${platform.version}</version>
+    <dependency>
+      <groupId>com.xwiki.licensing</groupId>
+      <artifactId>application-licensing-test-dependencies</artifactId>
+      <version>${licensing.version}</version>
+      <type>pom</type>
       <scope>test</scope>
     </dependency -->
     <dependency>
@@ -88,32 +87,10 @@
   <build>
     <testSourceDirectory>src/test/it</testSourceDirectory>
     <plugins>
-      <!-- Make sure we only run AllTests since that test runs all the other ones, thus starting/stopping XWiki only
-           once -->
+      <!-- We need to explicitly include the failsafe plugin since it's not part of the default maven lifecycle -->
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-surefire-plugin</artifactId>
-        <configuration>
-          <includes>
-            <include>**/AllTests.java</include>
-          </includes>
-        </configuration>
-      </plugin>
-      <plugin>
-        <groupId>org.xwiki.platform</groupId>
-        <artifactId>xwiki-platform-tool-packager-plugin</artifactId>
-        <version>${platform.version}</version>
-        <configuration>
-          <importUser>superadmin</importUser>
-        </configuration>
-        <executions>
-          <execution>
-            <phase>generate-test-resources</phase>
-            <goals>
-              <goal>package</goal>
-            </goals>
-          </execution>
-        </executions>
+        <artifactId>maven-failsafe-plugin</artifactId>
       </plugin>
     </plugins>
   </build>
@@ -124,25 +101,25 @@
            It's needed because instrumented jars in the WAR will call Clover APIs at runtime when they execute. -->
       <dependencies>
         <dependency>
-          <groupId>com.cenqua.clover</groupId>
+          <groupId>org.openclover</groupId>
           <artifactId>clover</artifactId>
         </dependency>
       </dependencies>
       <build>
         <plugins>
-          <!-- Add the Clover JAR to the Packager plugin runtime classpath since the Packager plugin uses java classes
-               that have been instrumented with Clover (XWiki oldcore for example) -->
           <plugin>
-            <groupId>org.xwiki.platform</groupId>
-            <artifactId>xwiki-platform-tool-packager-plugin</artifactId>
-            <version>${platform.version}</version>
-            <dependencies>
-              <dependency>
-                <groupId>com.cenqua.clover</groupId>
-                <artifactId>clover</artifactId>
-                <version>${clover.version}</version>
-              </dependency>
-            </dependencies>
+            <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-failsafe-plugin</artifactId>
+            <configuration>
+              <systemProperties combine.children="append">
+                <!-- Tell the Docker-based test to activate the Clover profile so that the Clover JAR is added to
+                     WEB-INF/lib -->
+                <property>
+                  <name>xwiki.test.ui.profiles</name>
+                  <value>clover</value>
+                </property>
+              </systemProperties>
+            </configuration>
           </plugin>
         </plugins>
       </build>

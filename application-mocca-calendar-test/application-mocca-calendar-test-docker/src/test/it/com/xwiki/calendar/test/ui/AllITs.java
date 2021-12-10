@@ -17,18 +17,24 @@
  * Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
-package org.xwiki.contrib.moccacalendar;
+package com.xwiki.calendar.test.ui;
 
-import org.junit.runner.RunWith;
-import org.xwiki.test.ui.PageObjectSuite;
+import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Nested;
+import org.xwiki.test.docker.junit5.UITest;
 
 /**
- * Start/stop XWiki only once while running all functional tests
+ * All UI tests for the Calendar application.
  *
- * @version $Id: 23cf15dfb5d73e5d0c6e3b6962d02e8f831fb029 $
- * @since 5.4RC1
+ * @version $Id$
+ * @since 2.11
  */
-@RunWith(PageObjectSuite.class)
-public class AllTests
+@UITest
+class AllITs
 {
+    @Nested
+    @DisplayName("Overall Calendar UI")
+    class NestedCalendarIT extends CalendarIT
+    {
+    }
 }

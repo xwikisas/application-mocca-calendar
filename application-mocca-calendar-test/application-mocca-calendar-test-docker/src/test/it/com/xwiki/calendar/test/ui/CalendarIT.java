@@ -17,44 +17,31 @@
  * Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
-package org.xwiki.contrib.moccacalendar;
+package com.xwiki.calendar.test.ui;
 
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
-// import org.junit.Rule;
-
+import org.junit.jupiter.api.Test;
 import org.xwiki.panels.test.po.ApplicationsPanel;
-import org.xwiki.test.ui.AbstractTest;
-// import org.xwiki.test.ui.SuperAdminAuthenticationRule;
-import org.xwiki.test.ui.po.LiveTableElement;
+import org.xwiki.test.docker.junit5.UITest;
 import org.xwiki.test.ui.po.ViewPage;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
 /**
- * UI Tests for the MoccaCalendar application - Stub.
+ * UI Tests for the Calendar Application.
+ * 
+ * @since 2.11
  */
-public class CalendarTest extends AbstractTest
+@UITest
+class CalendarIT
 {
-
-    // use this when dependency on xwiki > 5.1
-    // @Rule
-    // public SuperAdminAuthenticationRule authenticationRule = new SuperAdminAuthenticationRule(getUtil(), getDriver());
-
-    @Before
-    public void setUp()
-    {
-        // Login as superadmin to have delete rights.
-        getDriver().get(getUtil().getURLToLoginAs("superadmin", "pass"));
-        getUtil().recacheSecretToken();
-    }
-
     @Test
-    public void testViewCalendar()
+    void calendarApplicationPanelEntry()
     {
         ApplicationsPanel applicationPanel = ApplicationsPanel.gotoPage();
         ViewPage vp = applicationPanel.clickApplication("Calendar");
-        Assert.assertEquals("MoccaCalendar", vp.getMetaDataValue("space"));
-        Assert.assertEquals("WebHome", vp.getMetaDataValue("page"));
-        // TODO: really test something ...
+        assertEquals("MoccaCalendar", vp.getMetaDataValue("space"));
+        assertEquals("WebHome", vp.getMetaDataValue("page"));
+
+        // TODO: Add more tests.
     }
 }

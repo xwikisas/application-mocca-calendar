@@ -1,4 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
+
 <!--
  * See the NOTICE file distributed with this work for additional
  * information regarding copyright ownership.
@@ -18,6 +19,7 @@
  * Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
 -->
+
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
   <modelVersion>4.0.0</modelVersion>
   <parent>
@@ -25,40 +27,22 @@
     <artifactId>application-mocca-calendar</artifactId>
     <version>2.10.2-SNAPSHOT</version>
   </parent>
-  <artifactId>application-mocca-calendar-ical</artifactId>
-  <name>Calendar Application - iCal</name>
-  <description>Add iCal export to Mocca Calendar</description>
-  <packaging>xar</packaging>
+  <artifactId>application-mocca-calendar-test</artifactId>
+  <name>Calendar Application - Test - Paren POM</name>
+  <packaging>pom</packaging>
   <properties>
-    <!-- Don't run CLIRR here since there's no Java code. -->
+    <!-- Don't run CLIRR and Revapi in test modules since we don't care about backward compatibility for tests. -->
     <xwiki.clirr.skip>true</xwiki.clirr.skip>
-    <!-- Name to display by the Extension Manager -->
-    <xwiki.extension.name>Calendar iCal export</xwiki.extension.name>
+    <xwiki.revapi.skip>true</xwiki.revapi.skip>
+    <!-- Don't run Checkstyle in test modules -->
+    <xwiki.checkstyle.skip>true</xwiki.checkstyle.skip>
   </properties>
-  <dependencies>
-    <dependency>
-      <groupId>com.xwiki.mocca-calendar</groupId>
-      <artifactId>application-mocca-calendar-ui</artifactId>
-      <version>${project.version}</version>
-      <type>xar</type>
-      <scope>runtime</scope>
-    </dependency>
-    <dependency>
-      <groupId>org.mnode.ical4j</groupId>
-      <artifactId>ical4j</artifactId>
-      <version>3.0.20</version>
-      <scope>runtime</scope>
-      <!-- Exclude transitive dependencies that are not compatible with XWiki 9.11 -->
-      <exclusions>
-        <exclusion>
-          <groupId>org.apache.commons</groupId>
-          <artifactId>commons-lang3</artifactId>
-        </exclusion>
-        <exclusion>
-          <groupId>com.sun.mail</groupId>
-          <artifactId>javax.mail</artifactId>
-        </exclusion>
-      </exclusions>
-    </dependency>
-  </dependencies>
+  <profiles>
+    <profile>
+      <id>docker</id>
+      <modules>
+        <module>application-mocca-calendar-test-docker</module>
+      </modules>
+    </profile>
+  </profiles>
 </project>

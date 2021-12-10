@@ -27,11 +27,11 @@
   </parent>
   <groupId>com.xwiki.mocca-calendar</groupId>
   <artifactId>application-mocca-calendar</artifactId>
-  <version>2.10.1-SNAPSHOT</version>
+  <version>2.10.2-SNAPSHOT</version>
   <name>Calendar Application - Parent POM</name>
   <packaging>pom</packaging>
   <properties>
-    <licensing.version>1.19</licensing.version>
+    <licensing.version>1.21-SNAPSHOT</licensing.version>
   </properties>
   <modules>
     <module>application-mocca-calendar-api</module>
@@ -52,7 +52,7 @@
     <profile>
       <id>integration-tests</id>
       <modules>
-        <module>application-mocca-calendar-tests</module>
+        <module>application-mocca-calendar-test</module>
       </modules>
     </profile>
   </profiles>
