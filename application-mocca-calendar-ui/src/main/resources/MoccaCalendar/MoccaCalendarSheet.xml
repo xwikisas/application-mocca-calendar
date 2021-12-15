@@ -113,8 +113,7 @@
         #set($xclass = $configObject.xWikiClass)
         #set($discard = $doc.use($configObject))
         #foreach($property in $xclass.properties)
-          ## FIXME: we should support the "active" setting here
-          #if($property.name != 'source' &amp;&amp; $property.name != 'active')
+          #if($property.name != 'source')
             #set ($propertyId = "${xclass.name}_${configObject.number}_$property.name")
             ; &lt;label for="$escapetool.xml($propertyId)"&gt; $escapetool.xml($property.translatedPrettyName) &lt;/label&gt;
               &lt;span class="xHint"&gt;$!escapetool.xml($services.localization.render($property.hint))&lt;/span&gt;
