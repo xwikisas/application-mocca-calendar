@@ -655,11 +655,136 @@ if (typeof(XWiki) == "undefined" || typeof(XWiki.widgets) == "undefined" || type
   // our "agenda" view - a bit different from what fullCalendar calls an "agenda"
   // so for fullCalendar we call it "plainList"
   //
+  // since fullcalendar3 parts of the view are split into component classes
+
+  // the date range generater
+  // we totally abuse the mechanism to have only two date ranges
+  // XXX: DateProfileGenerator has no "extends", so we "subclass" manually
+  var PastFutureGenerator =  (function () {
+    var _super = fullCalendar.DateProfileGenerator;
+    function PastFutureGenerator() {
+        return _super.apply(this, arguments)
+    }
+
+    PastFutureGenerator.prototype = Object.extend({}, _super.prototype)
+
+    // Given a single current unzoned date, produce information about what range to display.
+    //
+    // we only have two ranges:
+    //   if date is in the past: from 2yrs ago to yesterday
+    //   if date is in the future: from now to 2yrs in the future
+    PastFutureGenerator.prototype.buildCurrentRangeInfo = function(date, direction) {
+      duration = 0
+      unit = 'year'
+      if (direction === undefined) {
+        if (this._view.isPast) {
+          direction = -1
+        } else {
+          direction = 1
+        }
+      }
+      date = this._view.calendar.getNow().clone().stripTime()
+      if (direction &lt; 0) {
+        endDate = date.clone().subtract(1,'d')
+        startDate = endDate.clone().subtract(2, 'y')
+      } else {
+        startDate = date.clone()
+        endDate = startDate.clone().add(2, 'y')
+      }
+      unzonedRange = new fullCalendar.UnzonedRange(startDate, endDate);
+      return { duration: duration, unit: unit, unzonedRange: unzonedRange }
+    }
+
+    return PastFutureGenerator;
+  }());
+
+  // the "event renderer"
+  // this seems the way to go with fullcalendar3
+  // except that for some reason we still have to insert
+  // the generated html manually afterwards
+  var PlainListEventRenderer = (function () {
+    var _super = fullCalendar.EventRenderer;
+    function PlainListEventRenderer() {
+      return _super.apply(this, arguments)
+    }
+
+    PlainListEventRenderer.prototype = Object.extend({}, _super.prototype)
+
+    PlainListEventRenderer.prototype.render = function(eventsPayload) {
+      var events = []
+      // oh, great, the eventsPayload has repacked all events, loosing the sort
+      for (key in eventsPayload) {
+        var v = eventsPayload[key].eventInstances;
+        // console.log('render', key, v);
+        for (var i=0; i&lt;v.length; i++) {
+          events.push(v[i]);
+        }
+      }
+
+      var larger, smaller;
+      if (this.view.isPast) {
+        larger = 1
+        smaller = -1
+      } else {
+        larger = -1
+        smaller = 1
+      }
+      events.sort(function(e1,e2) {
+        if (e1.dateProfile.start.isBefore(e2.dateProfile.start)) {
+          return larger;
+        }
+        if (e2.dateProfile.start.isBefore(e1.dateProfile.start)) {
+          return smaller;
+        }
+        return 0;
+      })
+
+      rendered = []
+      for (var i=0; i&lt;events.length; i++) {
+        var event = events[i]
+        // here we should really render something
+        // instead of relying on the server side generated html
+        var seg = {
+          footprint: event,
+          el: jQuery(event.def.miscProps.html)
+        }
+        seg.el.data('fc-seg', seg)
+        rendered.push(seg)
+      }
+      this.fgSegs = rendered;
+      return true;
+    }
+
+    return PlainListEventRenderer;
+  }());
+
   var PlainList = fullCalendar.View.extend({
 
     initialize: function() {
-       this.isPast = false;
-       this.intervalDuration = moment.duration(10, 'year');
+      this._super = fullCalendar.ListView.prototype;
+      this.isPast = false;
+    },
+
+    executeEventRender: function(eventsPayload) {
+      var retVal = this._super.executeEventRender.apply(this, arguments);
+      // here we must have done something wrong,
+      // as we need to fetch the rendered elements from the eventRenderer
+      // and insert then manually
+      this.contentEl.empty()
+      segs = this.eventRenderer.fgSegs
+      if (segs.length == 0) {
+        this.contentEl.append(jQuery('&lt;p&gt;').text(this.options['noEventsMessage']))
+      } else {
+        for (var i=0;i&lt;segs.length; i++) {
+          this.contentEl.append(segs[i].el)
+        }
+      }
+      return retVal;
+    },
+
+    executeEventUnrender: function() {
+      this.contentEl.empty()
+      return this._super.executeEventUnrender.apply(this, arguments);
     },
 
     // Given a single current unzoned date, produce information about what range to display.
@@ -687,54 +812,30 @@ if (typeof(XWiki) == "undefined" || typeof(XWiki.widgets) == "undefined" || type
       };
     },
 
-    // this method is both called with the pre/next buttons
-    // and from other places to ensure the date is in range.
-    // we massively abuse this to have only two outcomes:
-    // a) if the date is in the past, page it yesterday
-    // b) if the date is in the future, make it today
-    massageCurrentDate: function(date, direction) {
-        now = this.calendar.getNow().clone().stripTime();
-
-        if (date.isBefore(now)) {
-           date = now.subtract(1, 'd');
-        } else {
-           date = now;
-        }
-
-        return date;
-    },
-
-
     renderSkeleton: function() {
       this.el.append('&lt;div class="fc-timeline-box" style="width:100%"/&gt;');
-      this.container = jQuery('.fc-timeline-box',this.el);
-      this.container.append('&lt;img src="$xwiki.getSkinFile('icons/xwiki/ajax-loader-large.gif')" alt="$escapetool.xml($services.localization.render('platform.livetable.loading'))" /&gt;');
+      this.contentEl = jQuery('.fc-timeline-box',this.el);
+      this.contentEl.append('&lt;img src="$xwiki.getSkinFile('icons/xwiki/ajax-loader-large.gif')" alt="$escapetool.xml($services.localization.render('platform.livetable.loading'))" /&gt;');
+    },
+
+    // this method is both called with the pre/next buttons
+    // and from other places to ensure the date is in range.
+    // we set the "isPast" flag as a side effect here
+    setDate: function(date) {
+      now = this.calendar.getNow().clone().stripTime();
+      this.isPast = date.isBefore(now);
+      return this._super.setDate.apply(this, arguments);
     },
 
     computeTitle: function() {
       if (this.isPast) {
         this.title = "$escapetool.javascript($services.localization.render('MoccaCalendar.calendar.plainlist.titlepast'))";
-        this.noEventMsg = "$escapetool.javascript($services.localization.render('MoccaCalendar.calendar.plainlist.nopastevents'))";
+        this.options['noEventsMessage'] = "$escapetool.javascript($services.localization.render('MoccaCalendar.calendar.plainlist.nopastevents'))";
       } else {
         this.title = "$escapetool.javascript($services.localization.render('MoccaCalendar.calendar.plainlist.titleupcoming'))";
-        this.noEventMsg = "$escapetool.javascript($services.localization.render('MoccaCalendar.calendar.plainlist.noupcomingevents'))";
+        this.options['noEventsMessage'] = "$escapetool.javascript($services.localization.render('MoccaCalendar.calendar.plainlist.noupcomingevents'))";
       }
       return this.title;
-    },
-
-    unrenderEvents: function() {
-      if (this.container) { this.container.empty(); }
-    },
-
-    renderEvents: function(events) {
-      jQuery('img', this.container).remove();
-      if (events.length == 0) {
-        this.container.append('&lt;p&gt;&lt;/p&gt;');
-        jQuery('p', this.container).addClass('noevents').text(this.noEventMsg);
-      } else for (var i=0; i&lt;events.length; i++) {
-        var ev = events[i];
-        this.container.append(ev.html || ev.title)
-      }
     },
 
     // drag &amp; drop protocol - no-ops
@@ -747,7 +848,12 @@ if (typeof(XWiki) == "undefined" || typeof(XWiki.widgets) == "undefined" || type
 
   }) // end PlainList extends View
 
-  jQuery.fullCalendar.views.plainList = PlainList;
+  // hook up component classes to the view
+  PlainList.prototype.dateProfileGeneratorClass = PastFutureGenerator
+  PlainList.prototype.eventRendererClass = PlainListEventRenderer
+
+  fullCalendar.defineView('plainList', PlainList)
+
 } // if the XWiki.widgets.ModalPopup  is defined
 
 });
@@ -1207,7 +1313,7 @@ div.calendar-buttons span.buttonwrapper {
     <property>
       <code>{{velocity output="false"}}
 $xwiki.jsx.use("Calendar.FullCalendar", {'defer': false, 'minify': false})
-$xwiki.jsx.use("MoccaCalendar.Code.Macro", {'defer': false, 'v' : '2.6'})
+$xwiki.jsx.use("MoccaCalendar.Code.Macro", {'defer': false, 'v' : '2.7'})
 $xwiki.jsx.use("MoccaCalendar.Code.DatePickerExtension", {'defer': false})
 $xwiki.jsx.use("MoccaCalendar.MoccaCalendarEventSheet")
 $xwiki.jsx.use("MoccaCalendar.Code.MoccaCalendarEventModificationClass")
