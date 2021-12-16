@@ -89,7 +89,7 @@ public class MeetingEventSource implements EventSource
         XWikiContext xcontext = xcontextProvider.get();
         DocumentReference meetingClassReference = new DocumentReference(xcontext.getWikiId(),
             Arrays.asList("Meeting", "Code"), "MeetingClass");
-        logger.debug("check if [{}] exists in current wiki [{}]|",
+        logger.debug("check if [{}] exists in current wiki [{}]",
             compactWikiSerializer.serialize(meetingClassReference), xcontext.getWikiId());
         return xcontext.getWiki().exists(meetingClassReference, xcontext);
     }
