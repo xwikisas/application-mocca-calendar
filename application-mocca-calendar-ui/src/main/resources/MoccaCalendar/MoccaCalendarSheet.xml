@@ -20,7 +20,7 @@
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
 -->
 
-<xwikidoc version="1.3" reference="MoccaCalendar.MoccaCalendarSheet" locale="">
+<xwikidoc version="1.4" reference="MoccaCalendar.MoccaCalendarSheet" locale="">
   <web>MoccaCalendar</web>
   <name>MoccaCalendarSheet</name>
   <language/>
@@ -49,6 +49,8 @@
 (% class="xform" %)
 (((
 #if($myEdit)
+  ; &lt;label for="MoccaCalendar.MoccaCalendarClass_0_title"&gt;$escapetool.xml($doc.displayPrettyName('title', false, false))&lt;/label&gt;
+  : $doc.display('title')
   ; &lt;label for="MoccaCalendar.MoccaCalendarClass_0_color"&gt;$escapetool.xml($doc.displayPrettyName('color', false, false))&lt;/label&gt;
   #set ($colorPickerParams = {
     'id': 'MoccaCalendar.MoccaCalendarClass_0_color',
@@ -95,7 +97,7 @@
           #set($configIndex = $doc.createNewObject($configClassName))
           #set($configObject = $doc.getObject($configClassName, $configIndex))
           #set($discard = $configObject.set('source', $sourceName))
-          #set($needsSave = true)
+          &lt;input type="hidden" name="addedObjects" value="$escapetool.url("${configClassName}_${configIndex}")" /&gt;
         #end
         $configObject.display('source', 'hidden')
       #else
@@ -103,11 +105,8 @@
         #if($configObject == $null)
           #set($configIndex = $doc.createNewObject($configClassName))
           #set($configObject = $doc.getObject($configClassName, $configIndex))
-          #set($needsSave = true)
+          &lt;input type="hidden" name="addedObjects" value="$escapetool.url("${configClassName}_${configIndex}")" /&gt;
         #end
-      #end
-      #if($needsSave)
-        #set($discard = $doc.save('Config added', false))
       #end
       #if($configObject != $null)
         #set($xclass = $configObject.xWikiClass)
