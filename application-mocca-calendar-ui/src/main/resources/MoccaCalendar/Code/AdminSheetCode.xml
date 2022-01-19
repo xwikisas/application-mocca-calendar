@@ -20,7 +20,7 @@
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
 -->
 
-<xwikidoc version="1.4" reference="MoccaCalendar.Code.AdminSheetCode" locale="">
+<xwikidoc version="1.3" reference="MoccaCalendar.Code.AdminSheetCode" locale="">
   <web>MoccaCalendar.Code</web>
   <name>AdminSheetCode</name>
   <language/>
@@ -121,7 +121,6 @@ $services.localization.render('admin.moccacalendar.sources.empty')
       <categoryIcon>
         <customDisplay/>
         <disabled>0</disabled>
-        <hint/>
         <name>categoryIcon</name>
         <number>11</number>
         <picker>0</picker>
@@ -133,11 +132,9 @@ $services.localization.render('admin.moccacalendar.sources.empty')
         <classType>com.xpn.xwiki.objects.classes.StringClass</classType>
       </categoryIcon>
       <codeToExecute>
-        <contenttype>VelocityWiki</contenttype>
         <customDisplay/>
         <disabled>0</disabled>
-        <editor>---</editor>
-        <hint/>
+        <editor>Text</editor>
         <name>codeToExecute</name>
         <number>7</number>
         <picker>0</picker>
@@ -153,13 +150,10 @@ $services.localization.render('admin.moccacalendar.sources.empty')
         <cache>0</cache>
         <classname/>
         <customDisplay/>
-        <defaultValue/>
         <disabled>0</disabled>
         <displayType>input</displayType>
-        <freeText/>
         <hint/>
         <idField/>
-        <largeStorage>0</largeStorage>
         <multiSelect>0</multiSelect>
         <name>configurationClass</name>
         <number>3</number>
@@ -177,10 +171,23 @@ $services.localization.render('admin.moccacalendar.sources.empty')
         <valueField/>
         <classType>com.xpn.xwiki.objects.classes.PageClass</classType>
       </configurationClass>
+      <configureGlobally>
+        <customDisplay/>
+        <defaultValue/>
+        <disabled>0</disabled>
+        <displayFormType>checkbox</displayFormType>
+        <displayType/>
+        <name>configureGlobally</name>
+        <number>4</number>
+        <prettyName>configureGlobally</prettyName>
+        <unmodifiable>0</unmodifiable>
+        <validationMessage/>
+        <validationRegExp/>
+        <classType>com.xpn.xwiki.objects.classes.BooleanClass</classType>
+      </configureGlobally>
       <displayBeforeCategory>
         <customDisplay/>
         <disabled>0</disabled>
-        <hint/>
         <name>displayBeforeCategory</name>
         <number>10</number>
         <picker>0</picker>
@@ -194,7 +201,6 @@ $services.localization.render('admin.moccacalendar.sources.empty')
       <displayInCategory>
         <customDisplay/>
         <disabled>0</disabled>
-        <hint/>
         <name>displayInCategory</name>
         <number>9</number>
         <picker>0</picker>
@@ -208,7 +214,6 @@ $services.localization.render('admin.moccacalendar.sources.empty')
       <displayInSection>
         <customDisplay/>
         <disabled>0</disabled>
-        <hint/>
         <name>displayInSection</name>
         <number>1</number>
         <picker>0</picker>
@@ -222,7 +227,6 @@ $services.localization.render('admin.moccacalendar.sources.empty')
       <heading>
         <customDisplay/>
         <disabled>0</disabled>
-        <hint/>
         <name>heading</name>
         <number>2</number>
         <picker>0</picker>
@@ -236,7 +240,6 @@ $services.localization.render('admin.moccacalendar.sources.empty')
       <iconAttachment>
         <customDisplay/>
         <disabled>0</disabled>
-        <hint/>
         <name>iconAttachment</name>
         <number>8</number>
         <picker>0</picker>
@@ -250,7 +253,6 @@ $services.localization.render('admin.moccacalendar.sources.empty')
       <linkPrefix>
         <customDisplay/>
         <disabled>0</disabled>
-        <hint/>
         <name>linkPrefix</name>
         <number>5</number>
         <picker>0</picker>
@@ -264,12 +266,8 @@ $services.localization.render('admin.moccacalendar.sources.empty')
       <propertiesToShow>
         <cache>0</cache>
         <customDisplay/>
-        <defaultValue/>
         <disabled>0</disabled>
         <displayType>input</displayType>
-        <freeText/>
-        <hint/>
-        <largeStorage>0</largeStorage>
         <multiSelect>1</multiSelect>
         <name>propertiesToShow</name>
         <number>6</number>
@@ -286,35 +284,9 @@ $services.localization.render('admin.moccacalendar.sources.empty')
         <values/>
         <classType>com.xpn.xwiki.objects.classes.StaticListClass</classType>
       </propertiesToShow>
-      <scope>
-        <cache>0</cache>
-        <customDisplay/>
-        <defaultValue/>
-        <disabled>0</disabled>
-        <displayType>select</displayType>
-        <freeText/>
-        <hint/>
-        <largeStorage>0</largeStorage>
-        <multiSelect>0</multiSelect>
-        <name>scope</name>
-        <number>12</number>
-        <picker>1</picker>
-        <prettyName>scope</prettyName>
-        <relationalStorage>0</relationalStorage>
-        <separator> </separator>
-        <separators>|, </separators>
-        <size>1</size>
-        <sort/>
-        <unmodifiable>0</unmodifiable>
-        <validationMessage/>
-        <validationRegExp/>
-        <values>WIKI|SPACE|ALL_SPACES|WIKI+ALL_SPACES</values>
-        <classType>com.xpn.xwiki.objects.classes.StaticListClass</classType>
-      </scope>
       <sectionOrder>
         <customDisplay/>
         <disabled>0</disabled>
-        <hint/>
         <name>sectionOrder</name>
         <number>12</number>
         <numberType>integer</numberType>
@@ -334,6 +306,9 @@ $services.localization.render('admin.moccacalendar.sources.empty')
     </property>
     <property>
       <configurationClass/>
+    </property>
+    <property>
+      <configureGlobally>1</configureGlobally>
     </property>
     <property>
       <displayBeforeCategory/>
