@@ -128,6 +128,10 @@
               <document>MoccaCalendar.Events.WebHome</document>
               <type>demo</type>
             </entry>
+            <entry>
+              <document>MoccaCalendar.Code.AdminSheetConfig</document>
+              <type>configuration</type>
+            </entry>
           </entries>
         </configuration>
       </plugin>
