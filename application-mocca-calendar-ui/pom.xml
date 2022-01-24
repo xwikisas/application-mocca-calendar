@@ -129,7 +129,7 @@
               <type>demo</type>
             </entry>
             <entry>
-              <document>MoccaCalendar.Code.AdminSheetConfig</document>
+              <document>MoccaCalendar.Code.AdminSheet</document>
               <type>configuration</type>
             </entry>
           </entries>
