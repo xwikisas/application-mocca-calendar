@@ -146,7 +146,6 @@ public class AddReccurrentProperty implements EventListener
     @Override
     public void onEvent(Event event, Object source, Object data)
     {
-        logger.info("handling event [{}]", event);
         if (event instanceof ApplicationReadyEvent) {
             addRecurrentPropertyToEvents(wikiManager.getCurrentWikiId());
         } else if (event instanceof WikiReadyEvent) {
