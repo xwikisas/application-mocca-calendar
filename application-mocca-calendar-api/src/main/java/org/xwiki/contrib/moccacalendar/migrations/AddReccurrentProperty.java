@@ -146,6 +146,7 @@ public class AddReccurrentProperty implements EventListener
     @Override
     public void onEvent(Event event, Object source, Object data)
     {
+        logger.info("handling event [{}]", event);
         if (event instanceof ApplicationReadyEvent) {
             addRecurrentPropertyToEvents(wikiManager.getCurrentWikiId());
         } else if (event instanceof WikiReadyEvent) {
@@ -237,7 +238,7 @@ public class AddReccurrentProperty implements EventListener
     {
         ExtensionId extensionId = xie.getExtensionId();
         final String namespace = xie.getNamespace();
-        if ("org.xwiki.contrib:application-mocca-calendar-ui".equals(extensionId.getId())) {
+        if ("com.xwiki.mocca-calendar:application-mocca-calendar-ui".equals(extensionId.getId())) {
             if (namespace == null || "".equals(namespace)) {
                 // upgrade on all wikis
                 try {
