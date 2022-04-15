@@ -46,19 +46,32 @@
     <dependency>
       <groupId>org.mnode.ical4j</groupId>
       <artifactId>ical4j</artifactId>
-      <version>3.0.20</version>
+      <version>3.2.1</version>
       <scope>runtime</scope>
-      <!-- Exclude transitive dependencies that are not compatible with XWiki 9.11 -->
       <exclusions>
-        <exclusion>
-          <groupId>org.apache.commons</groupId>
-          <artifactId>commons-lang3</artifactId>
-        </exclusion>
+        <!-- Banned dependency. Has been replaced with com.sun.mail:jakarta.mail -->
         <exclusion>
           <groupId>com.sun.mail</groupId>
           <artifactId>javax.mail</artifactId>
         </exclusion>
+        <!-- Use the slf4j version bundled in XWiki. -->
+        <exclusion>
+          <groupId>org.slf4j</groupId>
+          <artifactId>slf4j-api</artifactId>
+        </exclusion>
       </exclusions>
+    </dependency>
+    <!-- Replaces transitive dependency on com.sun.mail:javax.mail from ical4j -->
+    <dependency>
+      <groupId>com.sun.mail</groupId>
+      <artifactId>jakarta.mail</artifactId>
+      <scope>runtime</scope>
+    </dependency>
+    <!-- Added here because we excluded it as transitive dependency of ical4j -->
+    <dependency>
+      <groupId>org.slf4j</groupId>
+      <artifactId>slf4j-api</artifactId>
+      <scope>runtime</scope>
     </dependency>
   </dependencies>
 </project>
