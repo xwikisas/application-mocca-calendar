@@ -27,6 +27,7 @@ import javax.inject.Named;
 import javax.inject.Provider;
 import javax.inject.Singleton;
 
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.xwiki.bridge.event.AbstractWikiEvent;
 import org.xwiki.bridge.event.ApplicationReadyEvent;
@@ -335,13 +336,8 @@ public class AddReccurrentProperty implements EventListener
         boolean modified = false;
         for (BaseObject event : events) {
             boolean hasRecurrentProperty = event.getPropertyList().contains(EventConstants.PROPERTY_RECURRENT_NAME)
-                && event.getField(EventConstants.PROPERTY_RECURRENT_NAME) != null;
-            if (hasRecurrentProperty) {
-                // since XWiki 11.2(?) properties are auto-added even when not in the database
-                // we need to check for an empty value instead
-                String recurStringVal = event.getStringValue(EventConstants.PROPERTY_RECURRENT_NAME);
-                hasRecurrentProperty = recurStringVal != null && !"".equals(recurStringVal);
-            }
+                && event.getField(EventConstants.PROPERTY_RECURRENT_NAME) != null
+                && !StringUtils.isEmpty(event.getStringValue(EventConstants.PROPERTY_RECURRENT_NAME));
             if (!hasRecurrentProperty) {
                 IntegerProperty recurrent = new IntegerProperty();
                 recurrent.setValue(0);
