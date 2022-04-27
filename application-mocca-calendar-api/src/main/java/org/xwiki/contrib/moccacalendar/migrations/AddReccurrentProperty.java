@@ -36,6 +36,8 @@ import org.xwiki.bridge.event.WikiReadyEvent;
 import org.xwiki.component.annotation.Component;
 import org.xwiki.contrib.moccacalendar.internal.EventConstants;
 import org.xwiki.extension.ExtensionId;
+import org.xwiki.extension.event.ExtensionEvent;
+import org.xwiki.extension.event.ExtensionInstalledEvent;
 import org.xwiki.extension.event.ExtensionUpgradedEvent;
 import org.xwiki.model.reference.DocumentReference;
 import org.xwiki.model.reference.SpaceReference;
@@ -81,7 +83,9 @@ public class AddReccurrentProperty implements EventListener
     /**
      * The events observed by this event listener.
      */
-    private static final List<Event> EVENTS = Arrays.asList(new ExtensionUpgradedEvent(),
+    private static final List<Event> EVENTS = Arrays.asList(
+        new ExtensionInstalledEvent(),
+        new ExtensionUpgradedEvent(),
         new DocumentDeletedEvent(OLD_MACRO_LOCATION));
 
     /**
@@ -153,8 +157,8 @@ public class AddReccurrentProperty implements EventListener
             addRecurrentPropertyToEvents(((WikiReadyEvent) event).getWikiId());
         } else if (event instanceof DocumentDeletedEvent) {
             registerCalendarMacroAtNewLocation((XWikiDocument) source);
-        } else if (event instanceof ExtensionUpgradedEvent) {
-            addRecurrentPropertyToEvents((ExtensionUpgradedEvent) event);
+        } else if (event instanceof ExtensionEvent) {
+            addRecurrentPropertyToEvents((ExtensionEvent) event);
         } else {
             logger.warn("ignored event [{}] which we listened for", event);
         }
@@ -234,7 +238,7 @@ public class AddReccurrentProperty implements EventListener
         return addRecurrentPropertyToEvents(query, null, false);
     }
 
-    private void addRecurrentPropertyToEvents(ExtensionUpgradedEvent xie)
+    private void addRecurrentPropertyToEvents(ExtensionEvent xie)
     {
         ExtensionId extensionId = xie.getExtensionId();
         final String namespace = xie.getNamespace();
