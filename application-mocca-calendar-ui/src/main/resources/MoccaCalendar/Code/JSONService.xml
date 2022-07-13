@@ -99,6 +99,7 @@
 ##
 #set($startQuery = $datetool.toDate('yyyy-M-d', $request.start))
 #set($endQuery = $datetool.toDate('yyyy-M-d', $request.end))
+#set ($wikis = "$!request.wikis")
 #set($orderAsc=true)
 #if("$!{request.outputView}"=="plainList" &amp;&amp; $datetool.difference($datetool.getDate(),$endQuery).getSeconds()&lt;0)
   #set($orderAsc=false)
@@ -109,7 +110,15 @@
   #set($filterDoc = $!{request.calendarDoc})
 #end
 ##
-#set($events = $services.moccacalendar.queryEvents($startQuery, $endQuery, "$!{request.filter}", $filterDoc, $orderAsc))
+#if ($wikis != '')
+  #set ($wikiIds = [])
+  #foreach ($wikiId in $wikis.split(','))
+    #set ($discard = $wikiIds.add($wikiId.trim()))
+  #end
+  #set($events = $services.moccacalendar.queryEvents($startQuery, $endQuery, $wikiIds, $orderAsc))
+#else
+  #set($events = $services.moccacalendar.queryEvents($startQuery, $endQuery, "$!{request.filter}", $filterDoc, $orderAsc))
+#end
 ##
 #set($jsondateformat = $xwiki.jodatime.getDateTimeFormatterForPattern("yyyy-MM-dd'T'HH:mm"))
 #set($calDocParam = "calendarDoc=$!{escapetool.url($request.calendarDoc)}")

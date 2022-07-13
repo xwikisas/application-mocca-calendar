@@ -65,6 +65,9 @@ public class EventQuery
     private final String startDateName;
     private final String endDateName;
 
+    /** Target wiki identifier where events will be searched for. */
+    private final String wikiId;
+
     private Logger logger;
 
     protected StringBuilder selectClause = new StringBuilder();
@@ -74,10 +77,17 @@ public class EventQuery
 
     public EventQuery(String className, String templatePageName, String startDateName, String endDateName)
     {
+        this(className, templatePageName, startDateName, endDateName, null);
+    }
+
+    public EventQuery(String className, String templatePageName, String startDateName, String endDateName,
+        String wikiId)
+    {
         this.className = className;
         this.templatePageName = templatePageName;
         this.startDateName = startDateName;
         this.endDateName = endDateName;
+        this.wikiId = wikiId;
         this.logger = LoggerFactory.getLogger(this.getClass());
         initQuery();
     }
@@ -85,6 +95,12 @@ public class EventQuery
     public EventQuery(String className, String templatePageName)
     {
         this(className, templatePageName, EventConstants.PROPERTY_STARTDATE_NAME, EventConstants.PROPERTY_ENDDATE_NAME);
+    }
+
+    public EventQuery(String className, String templatePageName, String wiki)
+    {
+        this(className, templatePageName, EventConstants.PROPERTY_STARTDATE_NAME, EventConstants.PROPERTY_ENDDATE_NAME,
+            wiki);
     }
 
     protected void initQuery()
@@ -242,5 +258,10 @@ public class EventQuery
     public String getEndDateName()
     {
         return endDateName;
+    }
+
+    public String getWikiId()
+    {
+        return wikiId;
     }
 }

@@ -33,6 +33,7 @@ import org.slf4j.Logger;
 import org.xwiki.component.annotation.Component;
 import org.xwiki.model.reference.DocumentReference;
 import org.xwiki.model.reference.DocumentReferenceResolver;
+import org.xwiki.model.reference.WikiReference;
 import org.xwiki.query.Query;
 import org.xwiki.query.QueryException;
 import org.xwiki.query.QueryFilter;
@@ -91,6 +92,7 @@ public class DefaultEventAssembly
         StringBuilder hql = new StringBuilder();
         hql.append(query.selectClause).append(' ').append(query.whereClause).append(' ').append(query.orderClause);
         Query hqlQuery = queryManager.createQuery(hql.toString(), Query.HQL);
+        hqlQuery.setWiki(query.getWikiId());
 
         for (Map.Entry<String, Object> param : query.queryParams.entrySet()) {
             hqlQuery.bindValue(param.getKey(), param.getValue());
@@ -100,7 +102,16 @@ public class DefaultEventAssembly
         logger.debug("sending query [{}] and params [{}]", hqlQuery.getStatement(), query.queryParams);
         List<String> results = hqlQuery.execute();
 
-        return filterViewableEvents(results);
+        return filterViewableEvents(results, query.getWikiId());
+    }
+
+    /**
+     * Helper method which delegates the work to {@link #filterViewableEvents(List, String)}.
+     * @param eventDocRefs a list of strings, not null.
+     * @return the corresponding documents, filtered by view rights
+     */
+    public List<DocumentReference> filterViewableEvents(List<String> eventDocRefs) {
+        return filterViewableEvents(eventDocRefs, null);
     }
 
     /**
@@ -112,15 +123,21 @@ public class DefaultEventAssembly
      * It will be removed and replaced by a throughout use of the "viewable" query filter.
      *
      * @param eventDocRefs a list of strings, not null.
+     * @param wiki wiki identifier
      * @return the corresponding documents, filtered by view rights.
      */
-    public List<DocumentReference> filterViewableEvents(List<String> eventDocRefs)
+    public List<DocumentReference> filterViewableEvents(List<String> eventDocRefs, String wiki)
     {
         List<DocumentReference> visibleRefs = new ArrayList<>();
         // check view rights on results ... should use "viewable" filter when minimal platform version is >= 9.8
         final DocumentReference userReference = xcontextProvider.get().getUserReference();
         for (ListIterator<String> iter = eventDocRefs.listIterator(); iter.hasNext();) {
-            DocumentReference eventDocRef = stringDocRefResolver.resolve(iter.next());
+            DocumentReference eventDocRef = null;
+            if (wiki != null) {
+                eventDocRef = stringDocRefResolver.resolve(iter.next(), new WikiReference(wiki));
+            } else {
+                eventDocRef = stringDocRefResolver.resolve(iter.next());
+            }
             if (authorizationManager.hasAccess(Right.VIEW, userReference, eventDocRef)) {
                 visibleRefs.add(eventDocRef);
             }
