@@ -296,6 +296,7 @@ public class MoccaCalendarScriptService implements ScriptService
 
     /**
      * Gets the union of events on a set of wikis.
+     *
      * @param dateFrom the start range
      * @param dateTo the end range; can be null. in that case dates from a single day are returned
      * @param wikis list of wiki identifiers where events should be searched for
