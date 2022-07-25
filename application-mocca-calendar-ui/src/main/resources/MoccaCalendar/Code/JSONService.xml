@@ -42,7 +42,7 @@
 #end
 {{/velocity}}
 {{velocity filter="html" wiki="false"}}
-#if($xcontext.action == 'get')
+#if($xcontext.action == 'get' &amp;&amp; $services.csrf.isTokenValid($request.form_token))
 ##
 ## macro "renderAgendaView"
 ## render an event in "agenda" view
@@ -99,7 +99,6 @@
 ##
 #set($startQuery = $datetool.toDate('yyyy-M-d', $request.start))
 #set($endQuery = $datetool.toDate('yyyy-M-d', $request.end))
-#set ($wikis = "$!request.wikis")
 #set($orderAsc=true)
 #if("$!{request.outputView}"=="plainList" &amp;&amp; $datetool.difference($datetool.getDate(),$endQuery).getSeconds()&lt;0)
   #set($orderAsc=false)
@@ -110,12 +109,9 @@
   #set($filterDoc = $!{request.calendarDoc})
 #end
 ##
-#if ($wikis != '')
-  #set ($wikiIds = [])
-  #foreach ($wikiId in $wikis.split(','))
-    #set ($discard = $wikiIds.add($wikiId.trim()))
-  #end
-  #set($events = $services.moccacalendar.queryEvents($startQuery, $endQuery, $wikiIds, $orderAsc))
+#set ($wikis = $request.getParameterValues('wikis'))
+#if ($wikis != $NULL)
+  #set($events = $services.moccacalendar.queryEvents($startQuery, $endQuery, $wikis, $orderAsc))
 #else
   #set($events = $services.moccacalendar.queryEvents($startQuery, $endQuery, "$!{request.filter}", $filterDoc, $orderAsc))
 #end
