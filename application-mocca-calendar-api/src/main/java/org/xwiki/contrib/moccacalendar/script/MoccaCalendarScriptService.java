@@ -112,6 +112,10 @@ public class MoccaCalendarScriptService implements ScriptService
     private QueryFilter hidden;
 
     @Inject
+    @Named("viewable")
+    private QueryFilter viewableFilter;
+
+    @Inject
     private Map<String, RecurrentEventGenerator> eventGenerators;
 
     @Inject
@@ -134,8 +138,8 @@ public class MoccaCalendarScriptService implements ScriptService
 
         try {
             Query query = queryManager.createQuery(CALENDAR_BASE_QUERY, Query.HQL).addFilter(hidden);
-            List<String> results = query.execute();
-            calenderRefs = eventAssembly.filterViewableEvents(results);
+            query.addFilter(viewableFilter);
+            calenderRefs = query.execute();
         } catch (QueryException qe) {
             logger.error("error while fetching calendars", qe);
         }

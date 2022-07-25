@@ -19,9 +19,7 @@
  */
 package org.xwiki.contrib.moccacalendar.internal.utils;
 
-import java.util.ArrayList;
 import java.util.List;
-import java.util.ListIterator;
 import java.util.Map;
 
 import javax.inject.Inject;
@@ -33,13 +31,11 @@ import org.slf4j.Logger;
 import org.xwiki.component.annotation.Component;
 import org.xwiki.model.reference.DocumentReference;
 import org.xwiki.model.reference.DocumentReferenceResolver;
-import org.xwiki.model.reference.WikiReference;
 import org.xwiki.query.Query;
 import org.xwiki.query.QueryException;
 import org.xwiki.query.QueryFilter;
 import org.xwiki.query.QueryManager;
 import org.xwiki.security.authorization.AuthorizationManager;
-import org.xwiki.security.authorization.Right;
 import org.xwiki.stability.Unstable;
 
 import com.xpn.xwiki.XWikiContext;
@@ -75,6 +71,10 @@ public class DefaultEventAssembly
     private QueryFilter hidden;
 
     @Inject
+    @Named("viewable")
+    private QueryFilter viewableFilter;
+
+    @Inject
     private Logger logger;
 
     /**
@@ -98,51 +98,9 @@ public class DefaultEventAssembly
             hqlQuery.bindValue(param.getKey(), param.getValue());
         }
         hqlQuery.addFilter(hidden);
+        hqlQuery.addFilter(viewableFilter);
 
         logger.debug("sending query [{}] and params [{}]", hqlQuery.getStatement(), query.queryParams);
-        List<String> results = hqlQuery.execute();
-
-        return filterViewableEvents(results, query.getWikiId());
-    }
-
-    /**
-     * Helper method which delegates the work to {@link #filterViewableEvents(List, String)}.
-     * @param eventDocRefs a list of strings, not null.
-     * @return the corresponding documents, filtered by view rights
-     */
-    public List<DocumentReference> filterViewableEvents(List<String> eventDocRefs) {
-        return filterViewableEvents(eventDocRefs, null);
-    }
-
-    /**
-     * Helper to resolve a list of strings into their document references.
-     * This also filters away all documents not visible to the current user;
-     * the returned result list will be shorter if not visible documents are found.
-     *
-     * Unstable: This method is only public as it is used to filter calendars, too.
-     * It will be removed and replaced by a throughout use of the "viewable" query filter.
-     *
-     * @param eventDocRefs a list of strings, not null.
-     * @param wiki wiki identifier
-     * @return the corresponding documents, filtered by view rights.
-     */
-    public List<DocumentReference> filterViewableEvents(List<String> eventDocRefs, String wiki)
-    {
-        List<DocumentReference> visibleRefs = new ArrayList<>();
-        // check view rights on results ... should use "viewable" filter when minimal platform version is >= 9.8
-        final DocumentReference userReference = xcontextProvider.get().getUserReference();
-        for (ListIterator<String> iter = eventDocRefs.listIterator(); iter.hasNext();) {
-            DocumentReference eventDocRef = null;
-            if (wiki != null) {
-                eventDocRef = stringDocRefResolver.resolve(iter.next(), new WikiReference(wiki));
-            } else {
-                eventDocRef = stringDocRefResolver.resolve(iter.next());
-            }
-            if (authorizationManager.hasAccess(Right.VIEW, userReference, eventDocRef)) {
-                visibleRefs.add(eventDocRef);
-            }
-        }
-
-        return visibleRefs;
+        return hqlQuery.execute();
     }
 }
