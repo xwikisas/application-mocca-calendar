@@ -71,6 +71,10 @@ public class DefaultEventAssembly
     private QueryFilter hidden;
 
     @Inject
+    @Named("document")
+    private QueryFilter documentFilter;
+
+    @Inject
     @Named("viewable")
     private QueryFilter viewableFilter;
 
@@ -98,6 +102,7 @@ public class DefaultEventAssembly
             hqlQuery.bindValue(param.getKey(), param.getValue());
         }
         hqlQuery.addFilter(hidden);
+        hqlQuery.addFilter(documentFilter);
         hqlQuery.addFilter(viewableFilter);
 
         logger.debug("sending query [{}] and params [{}]", hqlQuery.getStatement(), query.queryParams);

@@ -112,6 +112,10 @@ public class MoccaCalendarScriptService implements ScriptService
     private QueryFilter hidden;
 
     @Inject
+    @Named("document")
+    private QueryFilter documentFilter;
+
+    @Inject
     @Named("viewable")
     private QueryFilter viewableFilter;
 
@@ -138,6 +142,7 @@ public class MoccaCalendarScriptService implements ScriptService
 
         try {
             Query query = queryManager.createQuery(CALENDAR_BASE_QUERY, Query.HQL).addFilter(hidden);
+            query.addFilter(documentFilter);
             query.addFilter(viewableFilter);
             calenderRefs = query.execute();
         } catch (QueryException qe) {
