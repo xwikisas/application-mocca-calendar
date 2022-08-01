@@ -209,6 +209,9 @@ rendering.macro.moccacalendar.parameter.date.description=Day (from 1 to 31) of t
 
 xwiki.calendar.button.plainList=Agenda
 
+# Upcoming events panel
+moccacalendar.panel.upcomingEvents.header=Upcoming Events
+
 # admin section
 admin.moccacalendar.sources.section=Calendar
 admin.moccacalendar.sources.header=Enable Calendar Event Sources
