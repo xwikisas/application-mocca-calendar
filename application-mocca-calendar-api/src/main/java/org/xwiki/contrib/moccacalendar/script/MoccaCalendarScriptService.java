@@ -317,11 +317,13 @@ public class MoccaCalendarScriptService implements ScriptService
         throws QueryException
     {
         List<EventInstance> events = new ArrayList<>();
-        for (String wiki : wikis) {
-            events.addAll(queryEvents(dateFrom, dateTo, "wiki", wiki, null, sortAscending));
+        if (wikis != null) {
+            for (String wiki : wikis) {
+                events.addAll(queryEvents(dateFrom, dateTo, "wiki", wiki, null, sortAscending));
+            }
+            // Sort events globally
+            sortEvents(events, sortAscending);
         }
-        // Sort events globally
-        sortEvents(events, sortAscending);
         return events;
     }
 
