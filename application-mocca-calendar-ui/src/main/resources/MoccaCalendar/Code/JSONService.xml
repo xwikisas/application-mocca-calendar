@@ -42,7 +42,7 @@
 #end
 {{/velocity}}
 {{velocity filter="html" wiki="false"}}
-#if($xcontext.action == 'get')
+#if($xcontext.action == 'get' &amp;&amp; $services.csrf.isTokenValid($request.form_token))
 ##
 ## macro "renderAgendaView"
 ## render an event in "agenda" view
@@ -109,7 +109,12 @@
   #set($filterDoc = $!{request.calendarDoc})
 #end
 ##
-#set($events = $services.moccacalendar.queryEvents($startQuery, $endQuery, "$!{request.filter}", $filterDoc, $orderAsc))
+#set ($wikis = $request.getParameterValues('wikis'))
+#if ($wikis != $NULL &amp;&amp; $wikis.size() &gt; 0)
+  #set($events = $services.moccacalendar.queryEvents($startQuery, $endQuery, $wikis, $orderAsc))
+#else
+  #set($events = $services.moccacalendar.queryEvents($startQuery, $endQuery, "$!{request.filter}", $filterDoc, $orderAsc))
+#end
 ##
 #set($jsondateformat = $xwiki.jodatime.getDateTimeFormatterForPattern("yyyy-MM-dd'T'HH:mm"))
 #set($calDocParam = "calendarDoc=$!{escapetool.url($request.calendarDoc)}")
