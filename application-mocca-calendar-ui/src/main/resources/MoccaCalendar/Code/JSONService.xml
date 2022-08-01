@@ -110,7 +110,7 @@
 #end
 ##
 #set ($wikis = $request.getParameterValues('wikis'))
-#if ($wikis != $NULL)
+#if ($wikis != $NULL &amp;&amp; $wikis.size() &gt; 0)
   #set($events = $services.moccacalendar.queryEvents($startQuery, $endQuery, $wikis, $orderAsc))
 #else
   #set($events = $services.moccacalendar.queryEvents($startQuery, $endQuery, "$!{request.filter}", $filterDoc, $orderAsc))

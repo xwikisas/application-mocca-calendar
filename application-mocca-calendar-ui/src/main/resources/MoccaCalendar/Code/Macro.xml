@@ -1314,13 +1314,11 @@ $xwiki.ssx.use("MoccaCalendar.Code.Macro")
 #if(!$calcounter) #set($calcounter = 0) #else #set($calcounter = $calcounter + 1) #end
 #set($discard = $request.setAttribute('MoccaCalendar.Code.Macro:counter', $calcounter))
 #set ($wikis = "$!xcontext.macro.params.wikis")
+#set ($wikiList = [])
 #if ($wikis != '')
-  #set ($wikiList = [])
   #foreach ($wikiId in $wikis.split(','))
     #set ($discard = $wikiList.add($wikiId.trim()))
   #end
-#else
-  #set ($wikiList = [$xcontext.wiki])
 #end
 #set($filter = $xcontext.macro.params.filter)
 #if(!$filter)
