@@ -209,6 +209,12 @@ rendering.macro.moccacalendar.parameter.date.description=Day (from 1 to 31) of t
 
 xwiki.calendar.button.plainList=Agenda
 
+# Upcoming events macro
+rendering.macro.moccacalendar.upcomingEvents.name=Mocca Calendar Upcoming Events
+rendering.macro.moccacalendar.upcomingEvents.description=Displays upcoming calendar events
+rendering.macro.moccacalendar.upcomingEvents.parameter.limit.name=limit
+rendering.macro.moccacalendar.upcomingEvents.parameter.limit.description=The maximum number of events to list.
+
 # admin section
 admin.moccacalendar.sources.section=Calendar
 admin.moccacalendar.sources.header=Enable Calendar Event Sources
