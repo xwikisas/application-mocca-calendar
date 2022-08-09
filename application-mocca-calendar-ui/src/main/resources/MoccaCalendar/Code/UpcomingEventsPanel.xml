@@ -180,10 +180,10 @@
 {{/velocity}}</content>
     </property>
     <property>
-      <description>Panel Description</description>
+      <description>Displays a list of upcoming calendar events</description>
     </property>
     <property>
-      <name>MoccaCalendarEventListPanel</name>
+      <name>Upcoming Events Panel</name>
     </property>
     <property>
       <type>view</type>
