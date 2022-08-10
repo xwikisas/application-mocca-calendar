@@ -215,6 +215,9 @@ rendering.macro.moccacalendar.upcomingEvents.description=Displays upcoming calen
 rendering.macro.moccacalendar.upcomingEvents.parameter.limit.name=limit
 rendering.macro.moccacalendar.upcomingEvents.parameter.limit.description=The maximum number of events to list.
 
+# Upcoming events panel
+moccacalendar.panel.upcomingEvents.header=Upcoming Events
+
 # admin section
 admin.moccacalendar.sources.section=Calendar
 admin.moccacalendar.sources.header=Enable Calendar Event Sources

@@ -112,6 +112,14 @@ public class MoccaCalendarScriptService implements ScriptService
     private QueryFilter hidden;
 
     @Inject
+    @Named("document")
+    private QueryFilter documentFilter;
+
+    @Inject
+    @Named("viewable")
+    private QueryFilter viewableFilter;
+
+    @Inject
     private Map<String, RecurrentEventGenerator> eventGenerators;
 
     @Inject
@@ -134,13 +142,24 @@ public class MoccaCalendarScriptService implements ScriptService
 
         try {
             Query query = queryManager.createQuery(CALENDAR_BASE_QUERY, Query.HQL).addFilter(hidden);
-            List<String> results = query.execute();
-            calenderRefs = eventAssembly.filterViewableEvents(results);
+            query.addFilter(documentFilter);
+            query.addFilter(viewableFilter);
+            calenderRefs = query.execute();
         } catch (QueryException qe) {
             logger.error("error while fetching calendars", qe);
         }
 
         return calenderRefs;
+    }
+
+    /**
+     * Queries events on the current wiki, see {@link #queryEvents(Date, Date, String, String, String, boolean)}.
+     */
+    public List<EventInstance> queryEvents(Date dateFrom, Date dateTo, String filter, String parentReference,
+        boolean sortAscending) throws QueryException
+    {
+        final XWikiContext context = xcontextProvider.get();
+        return queryEvents(dateFrom, dateTo, filter, context.getWikiId(), parentReference, sortAscending);
     }
 
     /**
@@ -160,8 +179,8 @@ public class MoccaCalendarScriptService implements ScriptService
      * @throws QueryException
      *             if an error occurs while fetching the events
      */
-    public List<EventInstance> queryEvents(Date dateFrom, Date dateTo, String filter, String parentReference,
-        boolean sortAscending) throws QueryException
+    public List<EventInstance> queryEvents(Date dateFrom, Date dateTo, String filter, String wiki,
+        String parentReference, boolean sortAscending) throws QueryException
     {
 
         final XWikiContext context = xcontextProvider.get();
@@ -170,8 +189,8 @@ public class MoccaCalendarScriptService implements ScriptService
             dateTo = dateFrom;
         }
 
-        EventQuery eventQuery = new EventQuery(EventConstants.MOCCA_CALENDAR_EVENT_CLASS_NAME,
-            MOCCA_CALENDAR_EVENT_TEMPLATE);
+        EventQuery eventQuery =
+            new EventQuery(EventConstants.MOCCA_CALENDAR_EVENT_CLASS_NAME, MOCCA_CALENDAR_EVENT_TEMPLATE, wiki);
 
         //
         // filter by date range
@@ -209,7 +228,7 @@ public class MoccaCalendarScriptService implements ScriptService
             try {
                 XWikiDocument eventDoc = context.getWiki().getDocument(eventDocRef, context);
                 BaseObject eventData = eventDoc
-                    .getXObject(stringDocRefResolver.resolve(EventConstants.MOCCA_CALENDAR_EVENT_CLASS_NAME));
+                    .getXObject(eventDoc.resolveClassReference(EventConstants.MOCCA_CALENDAR_EVENT_CLASS_NAME));
                 if (eventData == null) {
                     logger.error("data inconsistency: query returned [{}] which contains no object for [{}]",
                         eventDocRef, EventConstants.MOCCA_CALENDAR_EVENT_CLASS_NAME);
@@ -239,7 +258,7 @@ public class MoccaCalendarScriptService implements ScriptService
         // now about recurrent events
         //
         EventQuery recurrentEventQuery = new EventQuery(EventConstants.MOCCA_CALENDAR_EVENT_CLASS_NAME,
-            MOCCA_CALENDAR_EVENT_TEMPLATE);
+            MOCCA_CALENDAR_EVENT_TEMPLATE, wiki);
 
         //
         // filter by location
@@ -281,6 +300,30 @@ public class MoccaCalendarScriptService implements ScriptService
 
         sortEvents(events, sortAscending);
 
+        return events;
+    }
+
+    /**
+     * Gets the union of events on a set of wikis.
+     *
+     * @param dateFrom the range start
+     * @param dateTo the range end; can be null. in that case dates from a single day are returned
+     * @param wikis list of wiki identifiers where events should be searched for
+     * @param sortAscending if true, sort events ascending by start date, else descending
+     * @return a list of event instances matching the criteria; might be empty but never null
+     * @throws QueryException
+     */
+    public List<EventInstance> queryEvents(Date dateFrom, Date dateTo, List<String> wikis, boolean sortAscending)
+        throws QueryException
+    {
+        List<EventInstance> events = new ArrayList<>();
+        if (wikis != null) {
+            for (String wiki : wikis) {
+                events.addAll(queryEvents(dateFrom, dateTo, "wiki", wiki, null, sortAscending));
+            }
+            // Sort events globally
+            sortEvents(events, sortAscending);
+        }
         return events;
     }
 
@@ -554,7 +597,7 @@ public class MoccaCalendarScriptService implements ScriptService
                 DocumentReference parentDoc = new DocumentReference(defaultPageName, parentSpaceRef);
                 XWikiDocument calendarDoc = context.getWiki().getDocument(parentDoc, context);
                 calendarData = calendarDoc
-                    .getXObject(stringDocRefResolver.resolve(EventConstants.MOCCA_CALENDAR_CLASS_NAME));
+                    .getXObject(calendarDoc.resolveClassReference(EventConstants.MOCCA_CALENDAR_CLASS_NAME));
             }
 
             if (calendarData == null) {
