@@ -446,13 +446,13 @@
       <defaultCategory>Content</defaultCategory>
     </property>
     <property>
-      <description>Displays upcoming events </description>
+      <description>Displays upcoming calendar events</description>
     </property>
     <property>
       <id>moccacalendar.upcomingEvents</id>
     </property>
     <property>
-      <name>Upcoming Events</name>
+      <name>Mocca Calendar Upcoming Events</name>
     </property>
     <property>
       <priority/>
