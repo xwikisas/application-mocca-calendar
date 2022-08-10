@@ -183,7 +183,7 @@
       <description>Displays a list of upcoming calendar events</description>
     </property>
     <property>
-      <name>Upcoming Events Panel</name>
+      <name>Mocca Calendar Upcoming Events Panel</name>
     </property>
     <property>
       <type>view</type>
