@@ -136,13 +136,21 @@ public class MeetingEventSource implements EventSource
                 logger.debug("no source space for events");
             }
 
-            EventQuery evQ = new EventQuery(MEETING_ENTRY_CLASS_NAME, MEETING_TEMPLATE_PAGE);
+            EventQuery evQ = null;
+            if (sourceDoc != null) {
+                evQ = new EventQuery(MEETING_ENTRY_CLASS_NAME, MEETING_TEMPLATE_PAGE, sourceDoc.getWikiReference()
+                    .getName());
+            } else {
+                evQ = new EventQuery(MEETING_ENTRY_CLASS_NAME, MEETING_TEMPLATE_PAGE);
+            }
 
             // filter by date range
             evQ.addDateLimits(dateFrom, dateTo);
 
-            // filter by event location
-            evQ.addLocationFilter(filter, sourceDoc);
+            // filter by event location in case filter is not "wiki"
+            if (!"wiki".equals(filter)) {
+                evQ.addLocationFilter(filter, sourceDoc);
+            }
 
             // finally the ordering
             evQ.setAscending(sortAscending);
@@ -168,7 +176,7 @@ public class MeetingEventSource implements EventSource
         try {
             XWikiContext context = xcontextProvider.get();
             XWikiDocument eventDoc = context.getWiki().getDocument(meetingDocRef, context);
-            BaseObject eventData = eventDoc.getXObject(stringDocRefResolver.resolve(evQ.getClassName()));
+            BaseObject eventData = eventDoc.getXObject(stringDocRefResolver.resolve(evQ.getClassName(), meetingDocRef));
             if (eventData == null) {
                 logger.error("data inconsistency: query returned [{}] which contains no object for [{}]",
                     meetingDocRef, evQ.getClassName());
