@@ -406,7 +406,7 @@
       #if (!$event.isAllDay())
         #set ($dateTimeInfo = "$timeFormatter.print($event.getStartDate()) - $timeFormatter.print($event.getEndDate())")
       #else
-        #set ($dateTimeInfo = $dayFormatter.print($event.getStartDate()))
+        #set ($dateTimeInfo = $dateFormatter.print($event.getStartDate()))
       #end
     #elseif ($event.isAllDay())
       #set ($dateTimeInfo = "$dateFormatter.print($event.getStartDate()) - $dateFormatter.print($event.getEndDate())")
