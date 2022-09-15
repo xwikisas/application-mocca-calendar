@@ -63,6 +63,9 @@ import org.xwiki.query.QueryFilter;
 import org.xwiki.query.QueryManager;
 import org.xwiki.rendering.syntax.Syntax;
 import org.xwiki.script.service.ScriptService;
+import org.xwiki.wiki.descriptor.WikiDescriptor;
+import org.xwiki.wiki.descriptor.WikiDescriptorManager;
+import org.xwiki.wiki.manager.WikiManagerException;
 
 import com.xpn.xwiki.XWikiContext;
 import com.xpn.xwiki.XWikiException;
@@ -128,6 +131,9 @@ public class MoccaCalendarScriptService implements ScriptService
     @Inject
     private DefaultEventAssembly eventAssembly;
 
+    @Inject
+    private WikiDescriptorManager wikiDescriptorManager;
+    
     @Inject
     private Logger logger;
 
@@ -287,6 +293,16 @@ public class MoccaCalendarScriptService implements ScriptService
                 continue;
             }
             logger.debug("add events from [{}] source", meetings.getKey());
+            // In case the filter is "wiki" and "parentRef" is null, we create one pointing at the wiki home
+            // in order to be able to retrieve the target wiki reference when retrieving the events in MeetingEventSource
+            if ("wiki".equals(filter) && parentRef == null) {
+                try {
+                    WikiDescriptor wikiDescriptor = wikiDescriptorManager.getById(wiki);
+                    parentRef = wikiDescriptor.getMainPageReference();
+                } catch (WikiManagerException e) {
+                    logger.error("Could not retrieve wiki descriptor for [{}]", wiki, e);
+                }
+            }
             List<EventInstance> meetingEvents = meetings.getValue().getEvents(dateFrom, dateTo, filter,
                 parentRef, sortAscending);
             if (meetingEvents != null) {
