@@ -382,8 +382,8 @@
 #set ($dateTimeFormatter = $xwiki.jodatime.getDateTimeFormatterForPattern('dd/MM/yyyy HH:mm'))
 #set ($dateFormatter = $xwiki.jodatime.getDateTimeFormatterForPattern('dd/MM/yyyy'))
 #set ($timeFormatter = $xwiki.jodatime.getDateTimeFormatterForPattern('HH:mm'))
-#set ($dayFormatter = $xwiki.jodatime.getDateTimeFormatterForPattern('d').withLocale($xcontext.language))
-#set ($monthFormatter = $xwiki.jodatime.getDateTimeFormatterForPattern('MMM').withLocale($xcontext.language))
+#set ($dayFormatter = $xwiki.jodatime.getDateTimeFormatterForPattern('d').withLocale($xcontext.locale))
+#set ($monthFormatter = $xwiki.jodatime.getDateTimeFormatterForPattern('MMM').withLocale($xcontext.locale))
 #set ($wikiList = [])
 #set ($wikis = "$!wikimacro.parameters.wikis")
 #if ($wikis != '')
@@ -406,7 +406,7 @@
       #if (!$event.isAllDay())
         #set ($dateTimeInfo = "$timeFormatter.print($event.getStartDate()) - $timeFormatter.print($event.getEndDate())")
       #else
-        #set ($dateTimeInfo = $dateFormatter.print($event.getStartDate()))
+        #set ($dateTimeInfo = $dayFormatter.print($event.getStartDate()))
       #end
     #elseif ($event.isAllDay())
       #set ($dateTimeInfo = "$dateFormatter.print($event.getStartDate()) - $dateFormatter.print($event.getEndDate())")
