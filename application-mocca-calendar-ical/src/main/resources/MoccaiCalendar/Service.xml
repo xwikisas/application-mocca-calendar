@@ -211,37 +211,54 @@ xcontext.setFinished(true)
     </property>
     <property>
       <code>require(['jquery', 'xwiki-events-bridge'], function($) {
-  function addiCalButtons() {
-    $("#moccacalendar .xwiki-livetable-display-body tr").each(function(index) {
-      // Get calendar reference
-      // TODO: would be cleaner to have that in a UI extension called by the livetable for the actions
-      var calendarLink = $(this).find("td a")[0].attributes.href.value;
-
-      var baseURL = "$escapetool.javascript($xwiki.getURL('MoccaCalendar.WebHome'))";
-      if (baseURL.match('\/WebHome$')) {
-        baseURL = baseURL.replace(/MoccaCalendar\/WebHome$/g, '');
-      } else {
-        baseURL = baseURL.replace(/MoccaCalendar\/$/g, '');
+  var iCalIcon = $([]);
+  var iconURL = XWiki.contextPath + '/rest/wikis/' + XWiki.currentWiki + '/iconThemes/icons?name=download';
+  $.getJSON(iconURL).then(function(result) {
+    if (result.icons &amp;&amp; result.icons.length) {
+      var iconMetaData = result.icons[0];
+      if (iconMetaData.cssClass) {
+        iCalIcon = $('&lt;span&gt;&lt;/span&gt;').addClass(iconMetaData.cssClass);
+      } else if (iconMetaData.url) {
+        iCalIcon = $('&lt;img/&gt;').attr('src', iconMetaData.url);
       }
+      $('.actionical .action-icon').append(iCalIcon.clone());
+    }
+  });
 
-      calendarLink = calendarLink.substring(baseURL.length);
+  var addiCalAction = function(data) {
+    // Extend the Actions column with the iCal link.
+    var calendarURL = new XWiki.Document('Service', 'MoccaiCalendar').getURL('get',
+      'calendar=' + encodeURIComponent(data.data.doc_fullName));
+    var iCalAction = $(
+      '&lt;a class="action actionical"&gt;' +
+        '&lt;span class="action-icon" title="iCal"&gt;&lt;/span&gt;' +
+        '&lt;span class="action-label"&gt;iCal&lt;/span&gt;' +
+      '&lt;/a&gt;'
+    ).attr('href', calendarURL).appendTo($(data.row).find('.actions'));
+    iCalAction.find('.action-icon').append(iCalIcon.clone());
+  };
 
-      var calendarReference = decodeURIComponent(calendarLink.replace(/\//g, '.').replace(/\+/g, ' '));
-      if (calendarReference.match('\.$')) {
-        calendarReference += 'WebHome';
-      }
-
-      // Insert a iCal link
-      var actionsCell = $(this).find(".actions");
-      actionsCell.append("&lt;a class=\"action actionical\" href=\"$xwiki.getURL('MoccaiCalendar.Service', 'get')?calendar=" + encodeURIComponent(calendarReference) + "\"&gt;iCal&lt;/a&gt;")
+  var maybeAddiCalAction = function() {
+    var calendarLiveTable = window['livetable_moccacalendar'];
+    if (!calendarLiveTable || !calendarLiveTable.fetchedRows || !calendarLiveTable.fetchedRows.length) {
+      // The calendar live table is missing or is not loaded yet or is empty.
+      return;
+    }
+    $('#moccacalendar.xwiki-livetable .xwiki-livetable-display-body tr').each(function() {
+      var rowIndex = parseInt($(this).attr('data-index'));
+      addiCalAction({
+        data: calendarLiveTable.fetchedRows[rowIndex],
+        row: this,
+        table: calendarLiveTable
+      });
     });
   };
 
-  $(document).on('xwiki:livetable:moccacalendar:displayComplete', function(event, data) {
-    addiCalButtons();
+  $(document).on('xwiki:livetable:moccacalendar:newrow', function(event, data) {
+    addiCalAction(data);
   });
 
-  addiCalButtons();
+  $(maybeAddiCalAction);
 });
 </code>
     </property>
