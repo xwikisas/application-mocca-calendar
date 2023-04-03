@@ -2,7 +2,7 @@
 
 A calendar application for XWiki
 
-* Project Lead: [Alex Cotiugă](https://github.com/acotiuga)
+* Project Lead: N/A
 * [Documentation](https://store.xwiki.com/xwiki/bin/view/Extension/MoccaCalendarApplication)
 * [Development Practices](http://dev.xwiki.org)
 * Minimal XWiki version supported: XWiki 11.10
