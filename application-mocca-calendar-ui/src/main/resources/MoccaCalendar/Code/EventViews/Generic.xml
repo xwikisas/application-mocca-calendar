@@ -20,17 +20,17 @@
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
 -->
 
-<xwikidoc version="1.3" reference="MoccaCalendar.Code.EventViews.Generic" locale="">
+<xwikidoc version="1.4" reference="MoccaCalendar.Code.EventViews.Generic" locale="">
   <web>MoccaCalendar.Code.EventViews</web>
   <name>Generic</name>
   <language/>
   <defaultLanguage/>
   <translation>0</translation>
   <creator>xwiki:XWiki.Admin</creator>
-  <version>1.1</version>
+  <parent>WebHome</parent>
   <author>xwiki:XWiki.Admin</author>
   <contentAuthor>xwiki:XWiki.Admin</contentAuthor>
-  <parent>WebHome</parent>
+  <version>1.1</version>
   <title>#if($doc.fullName == 'MoccaCalendar.Code.EventViews.Generic')Generic Event View#{else}$services.display.title($doc, {'displayerHint': 'default'})#end</title>
   <comment/>
   <minorEdit>false</minorEdit>

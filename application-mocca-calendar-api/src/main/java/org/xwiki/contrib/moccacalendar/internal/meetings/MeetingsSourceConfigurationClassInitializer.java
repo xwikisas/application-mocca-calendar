@@ -41,6 +41,7 @@ import com.xpn.xwiki.objects.classes.BaseClass;
 public class MeetingsSourceConfigurationClassInitializer extends AbstractSourceConfigurationClassInitializer
 {
     static final String MEETINGS_CONFIG_CLASS_NAME = "MeetingsSourceConfigClass";
+
     static final String MEETINGS_PAGE_FIELD_NAME = "meetings";
 
     /**
@@ -62,7 +63,8 @@ public class MeetingsSourceConfigurationClassInitializer extends AbstractSourceC
                 + " and doc.name not like '%Template'");
     }
 
-    static LocalDocumentReference classRef() {
+    static LocalDocumentReference classRef()
+    {
         return new LocalDocumentReference(MEETINGS_CONFIG_CLASS_NAME,
             AbstractSourceConfigurationClassInitializer.getDefaultConfigClassSpace());
     }

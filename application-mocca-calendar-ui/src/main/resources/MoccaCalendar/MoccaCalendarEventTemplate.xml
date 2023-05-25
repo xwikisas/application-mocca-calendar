@@ -20,7 +20,7 @@
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
 -->
 
-<xwikidoc version="1.3" reference="MoccaCalendar.MoccaCalendarEventTemplate" locale="">
+<xwikidoc version="1.4" reference="MoccaCalendar.MoccaCalendarEventTemplate" locale="">
   <web>MoccaCalendar</web>
   <name>MoccaCalendarEventTemplate</name>
   <language/>
@@ -75,7 +75,7 @@
         <name>frequency</name>
         <number>3</number>
         <picker>0</picker>
-        <prettyName/>
+        <prettyName>Frequency</prettyName>
         <relationalStorage>0</relationalStorage>
         <separator> </separator>
         <separators>|, </separators>
@@ -228,9 +228,6 @@
     </property>
     <property>
       <startDate/>
-    </property>
-    <property>
-      <title/>
     </property>
   </object>
 </xwikidoc>

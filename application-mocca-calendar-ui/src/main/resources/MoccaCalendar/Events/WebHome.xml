@@ -20,7 +20,7 @@
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
 -->
 
-<xwikidoc version="1.3" reference="MoccaCalendar.Events.WebHome" locale="">
+<xwikidoc version="1.4" reference="MoccaCalendar.Events.WebHome" locale="">
   <web>MoccaCalendar.Events</web>
   <name>WebHome</name>
   <language/>
@@ -120,9 +120,6 @@
     </class>
     <property>
       <color>#E8D245</color>
-    </property>
-    <property>
-      <content1/>
     </property>
     <property>
       <description/>

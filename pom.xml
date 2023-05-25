@@ -23,7 +23,7 @@
   <parent>
     <groupId>com.xwiki.parent</groupId>
     <artifactId>xwikisas-parent-platform</artifactId>
-    <version>11.10</version>
+    <version>13.10-3</version>
   </parent>
   <groupId>com.xwiki.mocca-calendar</groupId>
   <artifactId>application-mocca-calendar</artifactId>
@@ -31,7 +31,7 @@
   <name>Calendar Application - Parent POM</name>
   <packaging>pom</packaging>
   <properties>
-    <licensing.version>1.22.1</licensing.version>
+    <licensing.version>1.24.1</licensing.version>
   </properties>
   <modules>
     <module>application-mocca-calendar-api</module>
