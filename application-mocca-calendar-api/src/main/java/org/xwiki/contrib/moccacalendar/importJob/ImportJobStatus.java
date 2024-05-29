@@ -17,34 +17,30 @@
  * Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
-package org.xwiki.contrib.moccacalendar.internal.generators;
+package org.xwiki.contrib.moccacalendar.importJob;
 
-import java.util.Calendar;
+import java.util.ArrayList;
+import java.util.List;
 
-import javax.inject.Named;
-import javax.inject.Singleton;
+import org.xwiki.job.DefaultJobStatus;
+import org.xwiki.logging.LoggerManager;
+import org.xwiki.observation.ObservationManager;
 
-import org.xwiki.component.annotation.Component;
-
-/**
- * A generator for events happening every working day.
- *
- * @version $Id: $
- * @since 2.7
- */
-@Component
-@Singleton
-@Named("workdays")
-public class WorkDaysEventGenerator extends AbstractRecurrentEventGenerator
+public class ImportJobStatus extends DefaultJobStatus<ImportJobRequest>
 {
-    /**
-     * increment the calendar by one day, skipping weekends.
-     * TODO: configure which days are weekdays
-     */
-    protected void incrementCalendarByOnePeriod(Calendar cal)
+    private List<String> UIDList = new ArrayList<>();
+    public ImportJobStatus(String jobType, ImportJobRequest request, ObservationManager observationManager,
+        LoggerManager loggerManager)
     {
-        do {
-            cal.add(Calendar.DAY_OF_YEAR, 1);
-        } while (cal.get(Calendar.DAY_OF_WEEK) == Calendar.SATURDAY || cal.get(Calendar.DAY_OF_WEEK) == Calendar.SUNDAY);
+        super(jobType, request, null, observationManager, loggerManager);
+        setCancelable(true);
+    }
+
+    public void storeUID(String UID) {
+        UIDList.add(UID);
+    }
+
+    public boolean isDuplicate(String UID) {
+        return UIDList.contains(UID);
     }
 }

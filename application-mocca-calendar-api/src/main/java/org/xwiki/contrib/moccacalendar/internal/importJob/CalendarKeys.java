@@ -17,34 +17,13 @@
  * Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
-package org.xwiki.contrib.moccacalendar.internal.generators;
+package org.xwiki.contrib.moccacalendar.internal.importJob;
 
-import java.util.Calendar;
-
-import javax.inject.Named;
-import javax.inject.Singleton;
-
-import org.xwiki.component.annotation.Component;
-
-/**
- * A generator for events happening every working day.
- *
- * @version $Id: $
- * @since 2.7
- */
-@Component
-@Singleton
-@Named("workdays")
-public class WorkDaysEventGenerator extends AbstractRecurrentEventGenerator
+public final class CalendarKeys
 {
-    /**
-     * increment the calendar by one day, skipping weekends.
-     * TODO: configure which days are weekdays
-     */
-    protected void incrementCalendarByOnePeriod(Calendar cal)
-    {
-        do {
-            cal.add(Calendar.DAY_OF_YEAR, 1);
-        } while (cal.get(Calendar.DAY_OF_WEEK) == Calendar.SATURDAY || cal.get(Calendar.DAY_OF_WEEK) == Calendar.SUNDAY);
-    }
+    public static final String ICS_CALENDAR_TITLE = "SUMMARY";
+    public static final String ICS_CALENDAR_DESCRIPTION = "Description";
+    public static final String ICS_CALENDAR_START_DATE = "DtStart";
+    public static final String ICS_CALENDAR_END_DATE = "DtEnd";
+    public static final String ICS_CALENDAR_ORGANIZER = "Organizer";
 }

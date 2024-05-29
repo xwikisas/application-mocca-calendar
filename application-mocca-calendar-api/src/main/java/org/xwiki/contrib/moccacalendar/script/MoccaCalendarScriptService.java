@@ -19,6 +19,7 @@
  */
 package org.xwiki.contrib.moccacalendar.script;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -42,12 +43,17 @@ import org.xwiki.component.annotation.Component;
 import org.xwiki.contrib.moccacalendar.EventInstance;
 import org.xwiki.contrib.moccacalendar.EventSource;
 import org.xwiki.contrib.moccacalendar.RecurrentEventGenerator;
+import org.xwiki.contrib.moccacalendar.importJob.ImportJobRequest;
 import org.xwiki.contrib.moccacalendar.internal.AbstractSourceConfigurationClassInitializer;
 import org.xwiki.contrib.moccacalendar.internal.DefaultSourceConfigurationClassInitializer;
 import org.xwiki.contrib.moccacalendar.internal.EventConstants;
 import org.xwiki.contrib.moccacalendar.internal.Utils;
+import org.xwiki.contrib.moccacalendar.internal.importJob.ImportJob;
 import org.xwiki.contrib.moccacalendar.internal.utils.DefaultEventAssembly;
 import org.xwiki.contrib.moccacalendar.internal.utils.EventQuery;
+import org.xwiki.job.Job;
+import org.xwiki.job.JobException;
+import org.xwiki.job.JobExecutor;
 import org.xwiki.model.EntityType;
 import org.xwiki.model.reference.DocumentReference;
 import org.xwiki.model.reference.DocumentReferenceResolver;
@@ -133,7 +139,10 @@ public class MoccaCalendarScriptService implements ScriptService
 
     @Inject
     private WikiDescriptorManager wikiDescriptorManager;
-    
+
+    @Inject
+    private JobExecutor jobExecutor;
+
     @Inject
     private Logger logger;
 
@@ -775,6 +784,24 @@ public class MoccaCalendarScriptService implements ScriptService
         }
 
         return event;
+    }
+
+    /**
+     * to do.
+     * @param jobId
+     * @param file
+     * @return
+     * @throws JobException
+     */
+    public Job runImportJob(List<String> jobId, byte[] file) throws JobException
+    {
+        Job job = this.jobExecutor.getJob(jobId);
+        if (job == null) {
+            ImportJobRequest importJobRequest = new ImportJobRequest();
+            return this.jobExecutor.execute(ImportJob.JOB_TYPE, importJobRequest);
+        } else {
+            return job;
+        }
     }
 
     private void sortEvents(final List<EventInstance> events, final boolean ascending)
