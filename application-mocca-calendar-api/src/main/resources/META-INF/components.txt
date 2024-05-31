@@ -14,4 +14,6 @@ org.xwiki.contrib.moccacalendar.internal.meetings.MeetingEventSource
 org.xwiki.contrib.moccacalendar.internal.meetings.MeetingsSourceConfigurationClassInitializer
 org.xwiki.contrib.moccacalendar.internal.utils.DefaultEventAssembly
 org.xwiki.contrib.moccacalendar.internal.importJob.ImportJob
+org.xwiki.contrib.moccacalendar.internal.importJob.CalendarEventProcessor
+org.xwiki.contrib.moccacalendar.internal.importJob.CalendarEventDurationProcessor
 org.xwiki.contrib.moccacalendar.internal.rest.DefaultMoccaCalendarResource

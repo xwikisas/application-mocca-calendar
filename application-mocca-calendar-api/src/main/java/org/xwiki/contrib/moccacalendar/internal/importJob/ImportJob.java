@@ -21,9 +21,6 @@ package org.xwiki.contrib.moccacalendar.internal.importJob;
 
 import java.io.IOException;
 import java.io.StringReader;
-import java.time.LocalDate;
-import java.time.ZoneId;
-import java.time.ZoneOffset;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -36,6 +33,7 @@ import javax.inject.Provider;
 import org.xwiki.component.annotation.Component;
 import org.xwiki.contrib.moccacalendar.importJob.ImportJobRequest;
 import org.xwiki.contrib.moccacalendar.importJob.ImportJobStatus;
+import org.xwiki.contrib.moccacalendar.importJob.result.MoccaCalendarEventResult;
 import org.xwiki.contrib.moccacalendar.internal.EventConstants;
 import org.xwiki.job.AbstractJob;
 import org.xwiki.job.GroupedJob;
@@ -43,29 +41,36 @@ import org.xwiki.job.JobGroupPath;
 import org.xwiki.model.reference.DocumentReference;
 import org.xwiki.model.reference.DocumentReferenceResolver;
 import org.xwiki.model.reference.SpaceReference;
+import org.xwiki.stability.Unstable;
 
 import com.xpn.xwiki.XWiki;
 import com.xpn.xwiki.XWikiContext;
+import com.xpn.xwiki.XWikiException;
 import com.xpn.xwiki.doc.XWikiDocument;
 import com.xpn.xwiki.objects.BaseObject;
 
 import net.fortuna.ical4j.data.CalendarBuilder;
 import net.fortuna.ical4j.data.ParserException;
 import net.fortuna.ical4j.model.Calendar;
-import net.fortuna.ical4j.model.Property;
-import net.fortuna.ical4j.model.PropertyList;
 import net.fortuna.ical4j.model.component.CalendarComponent;
 
+/**
+ * A list of used ical constants.
+ *
+ * @version $Id$
+ * @since 2.14
+ */
+@Unstable
 @Component
 @Named(ImportJob.JOB_TYPE)
 public class ImportJob extends AbstractJob<ImportJobRequest, ImportJobStatus> implements GroupedJob
 {
     /**
-     * Admin Tools health check job type.
+     * Mocca calendar import job type.
      */
     public static final String JOB_TYPE = "moccacalendar.import";
 
-    private String importedFileContent;
+    private static final String NEW_EVENT_HOME = "WebHome";
 
     @Inject
     @Named("current")
@@ -73,6 +78,9 @@ public class ImportJob extends AbstractJob<ImportJobRequest, ImportJobStatus> im
 
     @Inject
     private Provider<XWikiContext> wikiContextProvider;
+
+    @Inject
+    private Provider<CalendarEventProcessor> eventProcessorProvider;
 
     @Override
     public String getType()
@@ -83,12 +91,10 @@ public class ImportJob extends AbstractJob<ImportJobRequest, ImportJobStatus> im
     @Override
     public JobGroupPath getGroupPath()
     {
-        XWikiContext wikiContext = wikiContextProvider.get();
-        String wikiId = wikiContext.getWikiId();
         List<String> path = new ArrayList<>();
         path.add("moccacalendar");
         path.add("import");
-        path.add(wikiId);
+        path.add(request.getParentRef());
         return new JobGroupPath(path);
     }
 
@@ -102,55 +108,30 @@ public class ImportJob extends AbstractJob<ImportJobRequest, ImportJobStatus> im
     protected void runInternal()
     {
         try {
-            this.importedFileContent = new String(request.getFile());
-            List<CalendarComponent> sortedComponents = getCalendarComponents().stream().sorted((c1, c2) -> {
-                String dtStartStr1 = c1.getProperty("DTSTART").getValue();
-                String dtStartStr2 = c2.getProperty("DTSTART").getValue();
-                return dtStartStr1.compareTo(dtStartStr2);
-            }).collect(Collectors.toList());
-            this.progressManager.pushLevelProgress(sortedComponents.size(), this);
-            DocumentReference eventClassRef =
-                documentReferenceResolver.resolve(EventConstants.MOCCA_CALENDAR_EVENT_CLASS_NAME);
-            DocumentReference eventRecClassRef =
-                documentReferenceResolver.resolve(EventConstants.MOCCA_CALENDAR_EVENT_RECURRENCY_CLASS_NAME);
-            CalendarEventDateProcessor dateProcessor = new CalendarEventDateProcessor();
+            List<CalendarComponent> sortedComponents = getCalendarComponents(new String(request.getFile()));
+            List<XWikiDocument> eventDocuments = new ArrayList<>();
+            this.progressManager.pushLevelProgress(sortedComponents.size() + 1, this);
+
             for (CalendarComponent component : sortedComponents) {
-                String eventUID = component.getProperty("UID").getValue();
-                if (eventUID.equals("58o56mrujl4ishdqvvmvq9ve72@google.com")) {
-                    String a = "";
-                    String c = a + "21";
-                }
                 progressManager.startStep(this);
+                String eventUID = component.getProperty(CalendarKeys.ICS_CALENDAR_PROPERTY_UID).getValue();
                 if (status.isCanceled()) {
+                    progressManager.endStep(this);
                     break;
                 } else if (!this.status.isDuplicate(eventUID)) {
-                    XWikiContext wikiContext = wikiContextProvider.get();
-                    XWikiDocument eventDoc =
-                        getUniqueEventName(component.getProperty("SUMMARY").getValue().trim(), request.getParentRef());
-                    BaseObject eventObj = eventDoc.newXObject(eventClassRef, wikiContext);
-                    BaseObject eventRecObj = eventDoc.newXObject(eventRecClassRef, wikiContext);
-
-                    for (String moccaCalendarField : EventConstants.getClassFields()) {
-                        if (moccaCalendarField.equals(EventConstants.PROPERTY_STARTDATE_NAME)) {
-                            dateProcessor.processEventDate(component, ZoneId.of("UTC").getId());
-                            setDates(eventObj, eventRecObj, dateProcessor);
-                        } else {
-                            eventObj.set(moccaCalendarField, generateEventData(component, moccaCalendarField),
-                                wikiContext);
-                        }
-                    }
-
+                    XWikiDocument eventDoc = getUniqueEventName(
+                        component.getProperty(CalendarKeys.ICS_CALENDAR_PROPERTY_SUMMARY).getValue().trim(),
+                        request.getParentRef(), eventDocuments);
+                    createCalendarObjects(eventDoc, component);
                     eventDoc.setAuthorReference(request.getUserReference());
                     eventDoc.setCreatorReference(request.getUserReference());
-                    wikiContext.getWiki().saveDocument(eventDoc, "Created new event.", wikiContext);
                     this.status.storeUID(eventUID);
-                } else {
-                    String b = "";
-                    String d = b + "21";
+                    eventDocuments.add(eventDoc);
                 }
                 progressManager.endStep(this);
                 Thread.yield();
             }
+            batchSave(eventDocuments);
         } catch (Exception e) {
             throw new RuntimeException(e);
         } finally {
@@ -158,106 +139,76 @@ public class ImportJob extends AbstractJob<ImportJobRequest, ImportJobStatus> im
         }
     }
 
-    private void setDates(BaseObject eventObj, BaseObject recEventObj, CalendarEventDateProcessor dateProcessor)
+    private void batchSave(List<XWikiDocument> eventDocuments) throws XWikiException
     {
-        Date startDate = dateProcessor.getStartDate();
-        eventObj.set(EventConstants.PROPERTY_STARTDATE_NAME, startDate, this.wikiContextProvider.get());
-        eventObj.set(EventConstants.PROPERTY_ENDDATE_NAME, dateProcessor.getEndDate(), this.wikiContextProvider.get());
-        eventObj.set(EventConstants.PROPERTY_ALLDAY_NAME, dateProcessor.getAllDay(), this.wikiContextProvider.get());
-        int recurrenceValue = dateProcessor.getIsRecurrent();
-        eventObj.set(EventConstants.PROPERTY_RECURRENT_NAME, recurrenceValue, this.wikiContextProvider.get());
-        if (recurrenceValue == 1) {
-            LocalDate localDateStartDate = startDate.toInstant().atZone(ZoneOffset.UTC).toLocalDate();
-            recEventObj.set(EventConstants.PROPERTY_FIRSTINSTANCE_NAME, startDate, this.wikiContextProvider.get());
-
-            if (dateProcessor.getRecEndDate() != null) {
-                recEventObj.set(EventConstants.PROPERTY_LASTINSTANCE_NAME, dateProcessor.getRecEndDate(),
-                    this.wikiContextProvider.get());
-            } else {
-                // Add 5 years to the start date
-                LocalDate futureLocalDate = localDateStartDate.plusYears(5);
-                Date futureDate = Date.from(futureLocalDate.atStartOfDay(ZoneOffset.UTC).toInstant());
-                recEventObj.set(EventConstants.PROPERTY_LASTINSTANCE_NAME, futureDate, this.wikiContextProvider.get());
+        if (!status.isCanceled()) {
+            XWikiContext wikiContext = wikiContextProvider.get();
+            XWiki wiki = wikiContext.getWiki();
+            progressManager.startStep(this);
+            for (XWikiDocument eventDocument : eventDocuments) {
+                wiki.saveDocument(eventDocument, "Created new event.", wikiContext);
             }
-
-            recEventObj.set("frequency", dateProcessor.getRecurrenceFreq(), this.wikiContextProvider.get());
+            progressManager.endStep(this);
         }
     }
 
-    private String generateEventData(CalendarComponent component, String field)
+    private void createCalendarObjects(XWikiDocument eventDoc, CalendarComponent component) throws XWikiException
     {
-        String value;
-        switch (field) {
-            case EventConstants.PROPERTY_TITLE_NAME:
-                value = component.getProperty("SUMMARY").getValue();
-                return value;
-            case EventConstants.PROPERTY_DESCRIPTION_NAME:
-                return formDescription(component);
-            default:
-                return "";
+        MoccaCalendarEventResult eventResult = eventProcessorProvider.get().processEvent(component);
+        XWikiContext wikiContext = wikiContextProvider.get();
+        DocumentReference eventClassRef =
+            documentReferenceResolver.resolve(EventConstants.MOCCA_CALENDAR_EVENT_CLASS_NAME);
+        DocumentReference eventRecClassRef =
+            documentReferenceResolver.resolve(EventConstants.MOCCA_CALENDAR_EVENT_RECURRENCY_CLASS_NAME);
+        BaseObject eventObj = eventDoc.newXObject(eventClassRef, wikiContext);
+        BaseObject eventRecObj = eventDoc.newXObject(eventRecClassRef, wikiContext);
+
+        eventObj.set(EventConstants.PROPERTY_TITLE_NAME, eventResult.getTitle(), wikiContext);
+        eventObj.set(EventConstants.PROPERTY_DESCRIPTION_NAME, eventResult.getDescription(), wikiContext);
+        Date startDate = eventResult.getStartDate();
+        eventObj.set(EventConstants.PROPERTY_STARTDATE_NAME, startDate, wikiContext);
+        eventObj.set(EventConstants.PROPERTY_ENDDATE_NAME, eventResult.getEndDate(), wikiContext);
+        eventObj.set(EventConstants.PROPERTY_ALLDAY_NAME, eventResult.getAllDay(), wikiContext);
+        int recurrenceValue = eventResult.getIsRecurrent();
+        eventObj.set(EventConstants.PROPERTY_RECURRENT_NAME, recurrenceValue, wikiContext);
+        if (recurrenceValue == 1) {
+            eventRecObj.set(EventConstants.PROPERTY_FIRSTINSTANCE_NAME, startDate, wikiContext);
+            eventRecObj.set(EventConstants.PROPERTY_LASTINSTANCE_NAME, eventResult.getRecEndDate(), wikiContext);
+            eventRecObj.set(EventConstants.PROPERTY_FREQUENCY_NAME, eventResult.getRecurrenceFreq(), wikiContext);
         }
     }
 
-    private String formDescription(CalendarComponent component)
+    private List<CalendarComponent> getCalendarComponents(String importedFileContent)
+        throws IOException, ParserException
     {
-        Property descrProperty = component.getProperty("DESCRIPTION");
-        Property organizerProperty = component.getProperty("ORGANIZER");
-        Property locationProperty = component.getProperty("LOCATION");
-        PropertyList<Property> attendeesProperty = component.getProperties("ATTENDEE");
-        StringBuilder descriptionBuilder = new StringBuilder();
-
-        appendOrganizerPropriety(descriptionBuilder, organizerProperty);
-        for (Property attendeeProperty : attendeesProperty) {
-            appendPropriety(descriptionBuilder, "Attendee:", attendeeProperty);
-        }
-
-        appendPropriety(descriptionBuilder, "Location:", locationProperty);
-        descriptionBuilder.append("\n");
-        appendPropriety(descriptionBuilder, "", descrProperty);
-
-        return descriptionBuilder.toString();
-    }
-
-    private void appendOrganizerPropriety(StringBuilder descriptionBuilder, Property property)
-    {
-        if (property != null && (!property.getValue().contains("unknownorganizer"))) {
-            descriptionBuilder.append(String.format("Organizer: %s\n", property.getValue()));
-        }
-    }
-
-    private void appendPropriety(StringBuilder descriptionBuilder, String label, Property property)
-    {
-        if (property != null) {
-            descriptionBuilder.append(String.format("%s %s\n", label, property.getValue()));
-        }
-    }
-
-    private List<CalendarComponent> getCalendarComponents() throws IOException, ParserException
-    {
-        int beginIndex = importedFileContent.indexOf("BEGIN:VCALENDAR");
-        int endIndex = importedFileContent.indexOf("END:VCALENDAR") + "END:VCALENDAR".length();
+        int beginIndex = importedFileContent.indexOf(CalendarKeys.ICS_CALENDAR_CALENDAR_BEGIN);
+        int endIndex = importedFileContent.indexOf(CalendarKeys.ICS_CALENDAR_CALENDAR_END)
+            + CalendarKeys.ICS_CALENDAR_CALENDAR_END.length();
         String filteredCalendarContent = importedFileContent.substring(beginIndex, endIndex);
 
         StringReader stringReader = new StringReader(filteredCalendarContent);
         CalendarBuilder builder = new CalendarBuilder();
         Calendar calendar = builder.build(stringReader);
-        return calendar.getComponents("VEVENT");
+        return calendar.getComponents(CalendarKeys.ICS_CALENDAR_CALENDAR_EVENT).stream().sorted((c1, c2) -> {
+            String dtStartStr1 = c1.getProperty(CalendarKeys.ICS_CALENDAR_PROPERTY_START_DATE).getValue();
+            String dtStartStr2 = c2.getProperty(CalendarKeys.ICS_CALENDAR_PROPERTY_START_DATE).getValue();
+            return dtStartStr1.compareTo(dtStartStr2);
+        }).collect(Collectors.toList());
     }
 
-    private XWikiDocument getUniqueEventName(String eventName, String parentRef)
+    private XWikiDocument getUniqueEventName(String eventName, String parentRef, List<XWikiDocument> eventDocuments)
     {
         XWikiContext wikiContext = this.wikiContextProvider.get();
-        XWiki wiki = wikiContext.getWiki();
 
         DocumentReference parentDocRef = documentReferenceResolver.resolve(parentRef);
         SpaceReference documentSpaceRef = new SpaceReference(eventName, parentDocRef.getLastSpaceReference());
-        DocumentReference eventRef = new DocumentReference("WebHome", documentSpaceRef);
+        DocumentReference eventRef = new DocumentReference(NEW_EVENT_HOME, documentSpaceRef);
         XWikiDocument eventDoc;
 
-        if (wiki.exists(eventRef, wikiContext)) {
-            String newEventName = eventName + "_" + System.currentTimeMillis();
+        if (wikiContext.getWiki().exists(eventRef, wikiContext) || sameNameEvent(eventRef, eventDocuments)) {
+            String newEventName = eventName + "_" + System.nanoTime();
             SpaceReference newDocumentSpaceRef = new SpaceReference(newEventName, parentDocRef.getLastSpaceReference());
-            DocumentReference newEventRef = new DocumentReference("WebHome", newDocumentSpaceRef);
+            DocumentReference newEventRef = new DocumentReference(NEW_EVENT_HOME, newDocumentSpaceRef);
             eventDoc = new XWikiDocument(newEventRef);
         } else {
             eventDoc = new XWikiDocument(eventRef);
@@ -265,5 +216,15 @@ public class ImportJob extends AbstractJob<ImportJobRequest, ImportJobStatus> im
         eventDoc.setTitle(eventName);
         eventDoc.setParentReference(parentDocRef);
         return eventDoc;
+    }
+
+    private boolean sameNameEvent(DocumentReference eventRef, List<XWikiDocument> eventDocuments)
+    {
+        for (XWikiDocument document : eventDocuments) {
+            if (document.getDocumentReference().equals(eventRef)) {
+                return true;
+            }
+        }
+        return false;
     }
 }

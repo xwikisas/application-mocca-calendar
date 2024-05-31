@@ -25,10 +25,27 @@ import java.util.List;
 import org.xwiki.job.DefaultJobStatus;
 import org.xwiki.logging.LoggerManager;
 import org.xwiki.observation.ObservationManager;
+import org.xwiki.stability.Unstable;
 
+/**
+ * The status of the import job.
+ *
+ * @version $Id$
+ * @since 2.14
+ */
+@Unstable
 public class ImportJobStatus extends DefaultJobStatus<ImportJobRequest>
 {
-    private List<String> UIDList = new ArrayList<>();
+    private List<String> uidList = new ArrayList<>();
+
+    /**
+     * Create a new import job status.
+     *
+     * @param jobType the job type.
+     * @param request the request provided when the job was started.
+     * @param observationManager the observation manager.
+     * @param loggerManager the logger manager.
+     */
     public ImportJobStatus(String jobType, ImportJobRequest request, ObservationManager observationManager,
         LoggerManager loggerManager)
     {
@@ -36,11 +53,24 @@ public class ImportJobStatus extends DefaultJobStatus<ImportJobRequest>
         setCancelable(true);
     }
 
-    public void storeUID(String UID) {
-        UIDList.add(UID);
+    /**
+     * Update the events UID that have already been used.
+     *
+     * @param uid the id of the event.
+     */
+    public void storeUID(String uid)
+    {
+        uidList.add(uid);
     }
 
-    public boolean isDuplicate(String UID) {
-        return UIDList.contains(UID);
+    /**
+     * Check if an event with a given id has already been processed.
+     *
+     * @param uid the id of the event.
+     * @return {@code true} if an event with the same id has already been processed, or {@code false} otherwise.
+     */
+    public boolean isDuplicate(String uid)
+    {
+        return uidList.contains(uid);
     }
 }

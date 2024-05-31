@@ -19,11 +19,76 @@
  */
 package org.xwiki.contrib.moccacalendar.internal.importJob;
 
+/**
+ * A list of often used constants in an ical calendar.
+ *
+ * @version $Id$
+ * @since 2.14
+ */
 public final class CalendarKeys
 {
-    public static final String ICS_CALENDAR_TITLE = "SUMMARY";
-    public static final String ICS_CALENDAR_DESCRIPTION = "Description";
-    public static final String ICS_CALENDAR_START_DATE = "DtStart";
-    public static final String ICS_CALENDAR_END_DATE = "DtEnd";
-    public static final String ICS_CALENDAR_ORGANIZER = "Organizer";
+    /**
+     * Calendar summary propriety.
+     */
+    public static final String ICS_CALENDAR_PROPERTY_SUMMARY = "SUMMARY";
+
+    /**
+     * Calendar description propriety.
+     */
+    public static final String ICS_CALENDAR_PROPERTY_DESCRIPTION = "DESCRIPTION";
+
+    /**
+     * Calendar uid propriety.
+     */
+    public static final String ICS_CALENDAR_PROPERTY_UID = "UID";
+
+    /**
+     * Calendar location propriety.
+     */
+    public static final String ICS_CALENDAR_PROPERTY_LOCATION = "LOCATION";
+
+    /**
+     * Calendar date start propriety.
+     */
+    public static final String ICS_CALENDAR_PROPERTY_START_DATE = "DTSTART";
+
+    /**
+     * Calendar date end propriety.
+     */
+    public static final String ICS_CALENDAR_PROPERTY_END_DATE = "DTEND";
+
+    /**
+     * Calendar organizer propriety.
+     */
+    public static final String ICS_CALENDAR_PROPERTY_ORGANIZER = "ORGANIZER";
+
+    /**
+     * Calendar attendee propriety.
+     */
+    public static final String ICS_CALENDAR_PROPERTY_ATTENDEE = "ATTENDEE";
+
+    /**
+     * Calendar recurrence rule propriety.
+     */
+    public static final String ICS_CALENDAR_PROPERTY_RECURRENCE_RULE = "RRULE";
+
+    /**
+     * Calendar end key.
+     */
+    public static final String ICS_CALENDAR_CALENDAR_END = "END:VCALENDAR";
+
+    /**
+     * Calendar event key.
+     */
+    public static final String ICS_CALENDAR_CALENDAR_EVENT = "VEVENT";
+
+    /**
+     * Calendar begin key.
+     */
+    public static final String ICS_CALENDAR_CALENDAR_BEGIN = "BEGIN:VCALENDAR";
+
+    private CalendarKeys()
+    {
+
+    }
 }

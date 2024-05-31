@@ -45,6 +45,7 @@ public class WorkDaysEventGenerator extends AbstractRecurrentEventGenerator
     {
         do {
             cal.add(Calendar.DAY_OF_YEAR, 1);
-        } while (cal.get(Calendar.DAY_OF_WEEK) == Calendar.SATURDAY || cal.get(Calendar.DAY_OF_WEEK) == Calendar.SUNDAY);
+        } while (cal.get(Calendar.DAY_OF_WEEK) == Calendar.SATURDAY
+            || cal.get(Calendar.DAY_OF_WEEK) == Calendar.SUNDAY);
     }
 }

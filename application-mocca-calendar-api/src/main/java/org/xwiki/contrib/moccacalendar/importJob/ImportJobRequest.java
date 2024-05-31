@@ -19,13 +19,20 @@
  */
 package org.xwiki.contrib.moccacalendar.importJob;
 
-import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
 import org.xwiki.job.AbstractRequest;
 import org.xwiki.model.reference.DocumentReference;
+import org.xwiki.stability.Unstable;
 
+/**
+ * Represents a request to start a import job.
+ *
+ * @version $Id$
+ * @since 2.14
+ */
+@Unstable
 public class ImportJobRequest extends AbstractRequest
 {
     private byte[] file;
@@ -34,12 +41,23 @@ public class ImportJobRequest extends AbstractRequest
 
     private DocumentReference userReference;
 
+    /**
+     * Default constructor.
+     */
     public ImportJobRequest()
     {
         setDefaultId();
     }
 
-    public ImportJobRequest(List<String> requestId, byte[] file,String parentRef, DocumentReference userReference)
+    /**
+     * Creates a specific request for the ical file import job.
+     *
+     * @param requestId the ID of the request.
+     * @param file the file to be processed.
+     * @param parentRef the reference to the parent calendar.
+     * @param userReference the user who requests the job.
+     */
+    public ImportJobRequest(List<String> requestId, byte[] file, String parentRef, DocumentReference userReference)
     {
 
         setId(requestId);
@@ -48,27 +66,41 @@ public class ImportJobRequest extends AbstractRequest
         this.userReference = userReference;
     }
 
-    // TODO: get the calendar name in the id & get the file path or the file
+    /**
+     * Get the content of the given file.
+     *
+     * @return the content of the file as a {@link Byte} array.
+     */
+    public byte[] getFile()
+    {
+        return file;
+    }
+
+    /**
+     * Get the reference to the parent calendar.
+     *
+     * @return the reference to the parent calendar.
+     */
+    public String getParentRef()
+    {
+        return parentRef;
+    }
+
+    /**
+     * Get the reference to the user who requested the import.
+     *
+     * @return the reference to the user.
+     */
+    public DocumentReference getUserReference()
+    {
+        return userReference;
+    }
+
     private void setDefaultId()
     {
         List<String> id = new ArrayList<>();
         id.add("moccaCalendar");
         id.add("import");
         setId(id);
-    }
-
-    public byte[] getFile()
-    {
-        return file;
-    }
-
-    public String getParentRef()
-    {
-        return parentRef;
-    }
-
-    public DocumentReference getUserReference()
-    {
-        return userReference;
     }
 }

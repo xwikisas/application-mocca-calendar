@@ -21,7 +21,6 @@ package org.xwiki.contrib.moccacalendar.internal.rest;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 
 import javax.inject.Inject;
 import javax.inject.Named;
@@ -38,17 +37,16 @@ import org.xwiki.contrib.moccacalendar.internal.importJob.ImportJob;
 import org.xwiki.contrib.moccacalendar.rest.MoccaCalendarResource;
 import org.xwiki.job.Job;
 import org.xwiki.job.JobExecutor;
-import org.xwiki.rest.XWikiRestException;
 import org.xwiki.rest.internal.resources.pages.ModifiablePageResource;
 import org.xwiki.stability.Unstable;
 
 import com.xpn.xwiki.XWikiContext;
-import com.xpn.xwiki.web.XWikiRequest;
 
 /**
  * Default implementation of {@link MoccaCalendarResource}.
  *
  * @version $Id$
+ * @since 2.14
  */
 @Unstable
 @Component
@@ -63,7 +61,7 @@ public class DefaultMoccaCalendarResource extends ModifiablePageResource impleme
     private JobExecutor jobExecutor;
 
     @Override
-    public Response importCalendarFile(String calendarSpace, String calendarName, String parentCalendar, byte[] file)
+    public Response importCalendarFile(String parentCalendar, byte[] file)
     {
         try {
             XWikiContext wikiContext = xcontextProvider.get();
@@ -73,13 +71,13 @@ public class DefaultMoccaCalendarResource extends ModifiablePageResource impleme
             jobId.add(parentCalendar);
             Job job = this.jobExecutor.getJob(jobId);
             if (job == null) {
-                ImportJobRequest importJobRequest = new ImportJobRequest(jobId, file, parentCalendar, wikiContext.getUserReference());
+                ImportJobRequest importJobRequest =
+                    new ImportJobRequest(jobId, file, parentCalendar, wikiContext.getUserReference());
                 this.jobExecutor.execute(ImportJob.JOB_TYPE, importJobRequest);
-                return Response.status(201).type(MediaType.TEXT_PLAIN_TYPE).build();
+                return Response.status(202).type(MediaType.TEXT_PLAIN_TYPE).build();
             } else {
                 return Response.notModified().type(MediaType.TEXT_PLAIN_TYPE).build();
             }
-
         } catch (Exception e) {
             logger.warn("Failed to import .ics file data. Root cause: [{}]", ExceptionUtils.getRootCauseMessage(e));
             throw new WebApplicationException(Response.Status.INTERNAL_SERVER_ERROR);

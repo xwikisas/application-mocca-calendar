@@ -19,35 +19,33 @@
  */
 package org.xwiki.contrib.moccacalendar.rest;
 
-import javax.servlet.annotation.MultipartConfig;
-import javax.ws.rs.Encoded;
 import javax.ws.rs.POST;
-import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
-import javax.ws.rs.PathParam;
 import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.Response;
 
-import org.xwiki.model.reference.DocumentReference;
-import org.xwiki.rest.XWikiRestComponent;
 import org.xwiki.rest.XWikiRestException;
 import org.xwiki.stability.Unstable;
 
 /**
- * Provides the APIs needed by the Admin Tools server in order to download and view configuration files and logs.
+ * Provides the APIs needed by the Mocca Calendar server in order to import an ical file.
  *
  * @version $Id$
+ * @since 2.14
  */
 @Unstable
 @Path("/moccacalendar")
 public interface MoccaCalendarResource
 {
+    /**
+     * Import a given ical file and create a job that handles the event processing.
+     * @param parentCalendar the calendar for which the events are created.
+     * @param file the file to be processed.
+     * @return HTML status code 202 to hint that the file had been accepted and the job started.
+     * @throws XWikiRestException if an error occurred while creating the job.
+     */
     @POST
-    @Path("/import/{calendarSpace: .+}/{calendarName}")
-    Response importCalendarFile(
-        @PathParam("calendarSpace") @Encoded String calendarSpace,
-        @PathParam("calendarName") String calendarName,
-        @QueryParam("parentCalendar") String parentCalendar,
-        byte[] file
-    ) throws XWikiRestException;
+    @Path("/import")
+    Response importCalendarFile(@QueryParam("parentCalendar") String parentCalendar, byte[] file)
+        throws XWikiRestException;
 }

@@ -57,6 +57,14 @@ MoccaCalendar.calendarevent.view=Event
 MoccaCalendar.calendarevent.confirmDelete.allEventsButton=All Instances
 MoccaCalendar.generic.errormessage=Internal Server Error
 
+# Import ical file
+MoccaCalendar.import.modal.title=Import calendar
+MoccaCalendar.import.modal.file.label=.ics file to be imported
+MoccaCalendar.import.modal.button.start=Begin import
+MoccaCalendar.import.notification.inprogress=Calendar file import in progress...
+MoccaCalendar.import.notification.done=Calendar import successful!
+MoccaCalendar.import.notification.error=There was an error while importing the data. Please try again or consult the logs!
+
 # Class fields
 MoccaCalendar.MoccaCalendarClass_title=Title
 MoccaCalendar.MoccaCalendarClass_color=Background color of entries in the calendar view
