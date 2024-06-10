@@ -50,9 +50,11 @@
 == $services.localization.render('MoccaCalendar.calendar.viewall') ==
 
 #if($hasCreatePage)
-{{html}}&lt;span class="buttonwrapper"&gt;&lt;a class="button" href="$doc.getURL('create','template=MoccaCalendar.MoccaCalendarTemplate')"&gt;$escapetool.xml($services.localization.render('MoccaCalendar.calendar.create'))&lt;/a&gt;&lt;/span&gt;{{/html}}
+{{html}}&lt;span class="buttonwrapper"&gt;&lt;a class="button" href="$doc.getURL('create','template=MoccaCalendar.MoccaCalendarTemplate')"&gt;$escapetool.xml($services.localization.render('MoccaCalendar.calendar.create'))&lt;/a&gt;&lt;/span&gt;{{/html}} ##
 #end
-
+#if($hasCreatePage)
+{{html}}&lt;span class="buttonwrapper"&gt;&lt;a class="button" href="$doc.getURL('create','template=MoccaCalendar.MoccaCalendarSubscribeTemplate')"&gt;$escapetool.xml($services.localization.render('MoccaCalendar.calendar.subscribe'))&lt;/a&gt;&lt;/span&gt;{{/html}}
+#end
 #set ($columnsProperties = {
   'doc.title': {"type":"text","size":10,"link":"view"},
 'doc.creator': {"type":"text","size":10,"link":"author"},
@@ -70,6 +72,23 @@
 })
 #set ($columns = ['doc.title', 'doc.creator', '_actions'])
 #livetable('moccacalendar' $columns $columnsProperties $options)
+(% style="border-color:gray" %)
+----
+====== $escapetool.xml($services.localization.render('MoccaCalendar.calendar.viewSubscribed')) ======
+## Subscribed calendars livedata
+#set ($columns = ['doc.title', 'doc.creator', '_actions'])
+#set ($options = {
+  'className': 'MoccaCalendar.MoccaCalendarSubscribeClass',
+  'resultPage': 'MoccaCalendar.Code.MoccaCalendarLiveTableResults',
+  'translationPrefix': 'moccacalendar.livetable.',
+  'tagCloud': false,
+  'rowCount': 15,
+  'maxPages': 10,
+  'selectedColumn': 'doc.subscribed',
+  'defaultOrder': 'asc'
+})
+#livetable('subscribedCalendars' $columns $columnsProperties $options)
+
 #set($docextras=[])
 #end
 {{/velocity}}

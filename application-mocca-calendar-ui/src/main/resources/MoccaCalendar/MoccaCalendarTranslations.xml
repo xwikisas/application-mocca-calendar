@@ -41,13 +41,16 @@ MoccaCalendar.calendar=Calendar
 MoccaCalendar.calendar.title=Calendar
 MoccaCalendar.calendar.defaultCalendarTitle=Other Events
 MoccaCalendar.calendar.viewall=Overview of all calendars
+MoccaCalendar.calendar.viewSubscribed=Subscribed calendars
 MoccaCalendar.calendar.create=Create new calendar
+MoccaCalendar.calendar.subscribe=Subscribe to a calendar
 MoccaCalendar.calendar.plainlist=agenda
 MoccaCalendar.calendar.plainlist.titlepast=Past Events
 MoccaCalendar.calendar.plainlist.titleupcoming=Upcoming Events
 MoccaCalendar.calendar.plainlist.nopastevents=No past events found.
 MoccaCalendar.calendar.plainlist.noupcomingevents=No upcoming events found.
 MoccaCalendar.calendar.firstDayOfWeek=0
+MoccaCalendar.calendar.readonly=This is a read only calendar and you can not create events for it.
 
 MoccaCalendar.calendarevent.viewall=All events
 MoccaCalendar.calendarevent.create=Create new event
@@ -65,8 +68,20 @@ MoccaCalendar.MoccaCalendarClass_description=Description
 MoccaCalendar.MoccaCalendarClass_content1=Content
 MoccaCalendar.MoccaCalendarClass.textColor.unset=(white)
 
+# Subscribe class fields
+MoccaCalendar.MoccaCalendarSubscribeClass_title=Title
+MoccaCalendar.MoccaCalendarSubscribeClass_color=Background color of entries in the calendar view
+MoccaCalendar.MoccaCalendarSubscribeClass_textColor=Text color of entries in the calendar view
+MoccaCalendar.MoccaCalendarSubscribeClass_description=Description
+MoccaCalendar.MoccaCalendarSubscribeClass_content1=Content
+MoccaCalendar.MoccaCalendarSubscribeClass_iCal=The iCal of the calendar
+MoccaCalendar.MoccaCalendarSubscribeClass_gCal=The gCal of the calendar
+MoccaCalendar.MoccaCalendarSubscribeClass_gApiKey=Google API key
+MoccaCalendar.MoccaCalendarSubscribeClass_globalDisplay=Display the events inside the global calendar
+
 # Live table generic keys
 moccacalendar.livetable.doc.title=Calendar
+moccacalendar.livetable.doc.subscribed=Subscribed calendar
 moccacalendar.livetable.doc.name=Page name
 moccacalendar.livetable.doc.space=Space
 moccacalendar.livetable.doc.fullname=Page full name
@@ -84,7 +99,6 @@ moccacalendar.livetable.emptyvalue=-
 moccacalendar.livetable.title=Title
 moccacalendar.livetable.description=Description
 moccacalendar.livetable.content1=Content
-
 moccacalendar.extension.name=Calendar Application (Pro)
 
 # Mocca Calendar Events keys
@@ -206,6 +220,12 @@ rendering.macro.moccacalendar.parameter.month.name=Month
 rendering.macro.moccacalendar.parameter.month.description=Month (from 0 to 11) of the date to show when loading the calendar. Leave empty for today
 rendering.macro.moccacalendar.parameter.date.name=Day
 rendering.macro.moccacalendar.parameter.date.description=Day (from 1 to 31) of the date to show when loading the calendar. Leave empty for today
+rendering.macro.moccacalendar.parameter.gCal.name=gCal
+rendering.macro.moccacalendar.parameter.gCal.description=Google calendar IDs separated by commas.
+rendering.macro.moccacalendar.parameter.gApiKey.name=gApiKey
+rendering.macro.moccacalendar.parameter.gApiKey.description=Key for the Google Calendar API.
+rendering.macro.moccacalendar.parameter.iCal.name=iCal
+rendering.macro.moccacalendar.parameter.iCal.description=The iCalendar URL.
 
 xwiki.calendar.button.plainList=Agenda
 
