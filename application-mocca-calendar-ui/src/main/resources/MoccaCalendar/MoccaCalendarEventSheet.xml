@@ -64,7 +64,7 @@
   #getDateFormat($field true $format)
   #set($formattedValue = $escapetool.xml($datetool.format($format, $doc.getValue($field))))
 $!formattedValue
-#else
+#else 
 $doc.display($field)
 #end
 #end
@@ -117,7 +117,7 @@ $doc.display($field)
   #end
 #end
 {{/velocity}}{{velocity}}{{html wiki="true" clean="false"}}
-#if($!request.disabled == "")
+#if($request.disabled != "disabled")
   (% class="xform" %)
   (((
   ##
