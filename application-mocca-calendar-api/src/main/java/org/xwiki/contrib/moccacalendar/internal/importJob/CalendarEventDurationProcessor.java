@@ -32,13 +32,15 @@ import java.util.regex.Pattern;
 import javax.inject.Singleton;
 
 import org.xwiki.component.annotation.Component;
+import org.xwiki.contrib.moccacalendar.importJob.result.MoccaCalendarEventResult;
 
 import net.fortuna.ical4j.model.Parameter;
 import net.fortuna.ical4j.model.Property;
 import net.fortuna.ical4j.model.component.CalendarComponent;
 
 /**
- * Ical file import helper class for processing an event duration.
+ * ics file import helper class used for processing the data related to the event duration from a
+ * {@link CalendarComponent} extracted from an ical file, and mapping it to a {@link MoccaCalendarEventResult}.
  *
  * @version $Id$
  * @since 2.14
@@ -52,13 +54,15 @@ public class CalendarEventDurationProcessor
     /**
      * Check if an event takes all day.
      *
-     * @param component the ical event.
+     * @param date the checked date.
      * @return {@code 1} if the event takes all day, or {@code 0} otherwise.
      */
-    public int isAllDay(CalendarComponent component)
+    public int isAllDay(String date)
     {
-        String dateStartValue = component.getProperty(CalendarKeys.ICS_CALENDAR_PROPERTY_START_DATE).getValue();
-        if (dateStartValue.length() > 8) {
+        // In an ics file there is no flag to mark an event that takes all day. Instead, if an event takes all day,
+        // the start and end date will only have the date and not also the time. This means the maximum length of
+        // the date parameter will be 8 characters.
+        if (date.length() > 8) {
             return 0;
         } else {
             return 1;
@@ -66,17 +70,17 @@ public class CalendarEventDurationProcessor
     }
 
     /**
-     * Process the date of the event given property.
+     * Extract the formatted date from the event, for a given event property.
      *
      * @param component the ical event.
      * @param propertyName the property for which the date is processed.
      * @return the {@link Date} of the event given property.
      */
-    public Date processEventDates(CalendarComponent component, String propertyName)
+    public Date getEventDate(CalendarComponent component, String propertyName)
     {
         String dateStartValue = component.getProperty(propertyName).getValue();
         DateTimeFormatter dateTimeFormatter = getDateFormat(dateStartValue);
-        if (isAllDay(component) == 0) {
+        if (isAllDay(component.getProperty(CalendarKeys.ICS_CALENDAR_PROPERTY_START_DATE).getValue()) == 0) {
             return processTimedEventDates(component, dateTimeFormatter, propertyName);
         } else {
             return processAllDayEventDates(component, dateTimeFormatter, propertyName);
@@ -109,12 +113,12 @@ public class CalendarEventDurationProcessor
     {
         String recurrenceRule = component.getProperty(CalendarKeys.ICS_CALENDAR_PROPERTY_RECURRENCE_RULE).getValue();
         String untilPattern = "(?<=UNTIL=)[^;]+";
-        String untilValue = extractValue(recurrenceRule, untilPattern);
+        String untilValue = extractValueByPattern(recurrenceRule, untilPattern);
         if (untilValue != null) {
             return extractRecEndValue(untilValue);
         } else {
             LocalDate localDateStartDate =
-                this.processEventDates(component, CalendarKeys.ICS_CALENDAR_PROPERTY_START_DATE).toInstant()
+                this.getEventDate(component, CalendarKeys.ICS_CALENDAR_PROPERTY_START_DATE).toInstant()
                     .atZone(ZoneId.of(DEFAULT_TIME_ZONE)).toLocalDate();
             LocalDate futureLocalDate = localDateStartDate.plusYears(5);
             return Date.from(futureLocalDate.atStartOfDay(ZoneId.of(DEFAULT_TIME_ZONE)).toInstant());
@@ -139,13 +143,17 @@ public class CalendarEventDurationProcessor
     private DateTimeFormatter getDateFormat(String dateValue)
     {
         DateTimeFormatter formatter;
-        if (dateValue.length() > 8) {
+
+        if (isAllDay(dateValue) == 0) {
             if (dateValue.endsWith("Z")) {
+                // Used format for those date formats that already include the time zone.
                 formatter = DateTimeFormatter.ofPattern("yyyyMMdd'T'HHmmssX");
             } else {
+                // Used format for those date formats that must have the time zone computed.
                 formatter = DateTimeFormatter.ofPattern("yyyyMMdd'T'HHmmss");
             }
         } else {
+            // Used format for those events that take all day.
             formatter = DateTimeFormatter.ofPattern("yyyyMMdd");
         }
         return formatter;
@@ -175,7 +183,7 @@ public class CalendarEventDurationProcessor
     private Date extractRecEndValue(String untilValue)
     {
         DateTimeFormatter recDateTimeFormatter = getDateFormat(untilValue);
-        if (untilValue.length() > 8) {
+        if (isAllDay(untilValue) == 0) {
             LocalDateTime endRecDateTime = LocalDateTime.parse(untilValue, recDateTimeFormatter);
             return Date.from(endRecDateTime.atZone(ZoneId.of(DEFAULT_TIME_ZONE)).toInstant());
         } else {
@@ -186,7 +194,7 @@ public class CalendarEventDurationProcessor
 
     private String processRecurrenceFrequency(String recurrenceRule)
     {
-        String freqValue = extractValue(recurrenceRule, "(?<=FREQ=)[^;]+");
+        String freqValue = extractValueByPattern(recurrenceRule, "(?<=FREQ=)[^;]+");
         if (freqValue != null) {
             if (freqValue.equals("WEEKLY")) {
                 return checkWeeklyFrequency(recurrenceRule);
@@ -199,8 +207,8 @@ public class CalendarEventDurationProcessor
 
     private String checkWeeklyFrequency(String recurrenceRule)
     {
-        String byDayValue = extractValue(recurrenceRule, "(?<=BYDAY=)[^;]+");
-        String intervalValue = extractValue(recurrenceRule, "(?<=INTERVAL=)[^;]+");
+        String byDayValue = extractValueByPattern(recurrenceRule, "(?<=BYDAY=)[^;]+");
+        String intervalValue = extractValueByPattern(recurrenceRule, "(?<=INTERVAL=)[^;]+");
 
         if (isEveryWeekday(byDayValue)) {
             return "workdays";
@@ -233,7 +241,7 @@ public class CalendarEventDurationProcessor
         return true;
     }
 
-    private String extractValue(String rule, String pattern)
+    private String extractValueByPattern(String rule, String pattern)
     {
         Pattern compiledPattern = Pattern.compile(pattern);
         Matcher matcher = compiledPattern.matcher(rule);

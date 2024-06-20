@@ -55,7 +55,7 @@ import net.fortuna.ical4j.model.Calendar;
 import net.fortuna.ical4j.model.component.CalendarComponent;
 
 /**
- * A list of used ical constants.
+ * The Mocca calendar import job.
  *
  * @version $Id$
  * @since 2.14
@@ -154,7 +154,7 @@ public class ImportJob extends AbstractJob<ImportJobRequest, ImportJobStatus> im
 
     private void createCalendarObjects(XWikiDocument eventDoc, CalendarComponent component) throws XWikiException
     {
-        MoccaCalendarEventResult eventResult = eventProcessorProvider.get().processEvent(component);
+        MoccaCalendarEventResult eventResult = eventProcessorProvider.get().getMoccaEvent(component);
         XWikiContext wikiContext = wikiContextProvider.get();
         DocumentReference eventClassRef =
             documentReferenceResolver.resolve(EventConstants.MOCCA_CALENDAR_EVENT_CLASS_NAME);
@@ -189,6 +189,7 @@ public class ImportJob extends AbstractJob<ImportJobRequest, ImportJobStatus> im
         StringReader stringReader = new StringReader(filteredCalendarContent);
         CalendarBuilder builder = new CalendarBuilder();
         Calendar calendar = builder.build(stringReader);
+        //
         return calendar.getComponents(CalendarKeys.ICS_CALENDAR_CALENDAR_EVENT).stream().sorted((c1, c2) -> {
             String dtStartStr1 = c1.getProperty(CalendarKeys.ICS_CALENDAR_PROPERTY_START_DATE).getValue();
             String dtStartStr2 = c2.getProperty(CalendarKeys.ICS_CALENDAR_PROPERTY_START_DATE).getValue();
@@ -205,7 +206,7 @@ public class ImportJob extends AbstractJob<ImportJobRequest, ImportJobStatus> im
         DocumentReference eventRef = new DocumentReference(NEW_EVENT_HOME, documentSpaceRef);
         XWikiDocument eventDoc;
 
-        if (wikiContext.getWiki().exists(eventRef, wikiContext) || sameNameEvent(eventRef, eventDocuments)) {
+        if (wikiContext.getWiki().exists(eventRef, wikiContext) || sameNameEventExists(eventRef, eventDocuments)) {
             String newEventName = eventName + "_" + System.nanoTime();
             SpaceReference newDocumentSpaceRef = new SpaceReference(newEventName, parentDocRef.getLastSpaceReference());
             DocumentReference newEventRef = new DocumentReference(NEW_EVENT_HOME, newDocumentSpaceRef);
@@ -218,7 +219,7 @@ public class ImportJob extends AbstractJob<ImportJobRequest, ImportJobStatus> im
         return eventDoc;
     }
 
-    private boolean sameNameEvent(DocumentReference eventRef, List<XWikiDocument> eventDocuments)
+    private boolean sameNameEventExists(DocumentReference eventRef, List<XWikiDocument> eventDocuments)
     {
         for (XWikiDocument document : eventDocuments) {
             if (document.getDocumentReference().equals(eventRef)) {

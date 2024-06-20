@@ -49,16 +49,16 @@ public class CalendarEventProcessor
      * @return a {@link MoccaCalendarEventResult} containing the required fields for a Mocca calendar event and
      *     recurrent event class .
      */
-    public MoccaCalendarEventResult processEvent(CalendarComponent component)
+    public MoccaCalendarEventResult getMoccaEvent(CalendarComponent component)
     {
         MoccaCalendarEventResult eventResult = new MoccaCalendarEventResult();
-        eventResult.setTitle(processTitle(component));
-        eventResult.setDescription(processDescription(component));
-        eventResult.setAllDay(durationProcessor.isAllDay(component));
+        eventResult.setTitle(getTitle(component));
+        eventResult.setDescription(getDescription(component));
+        eventResult.setAllDay(durationProcessor.isAllDay(
+            component.getProperty(CalendarKeys.ICS_CALENDAR_PROPERTY_START_DATE).getValue()));
         eventResult.setStartDate(
-            durationProcessor.processEventDates(component, CalendarKeys.ICS_CALENDAR_PROPERTY_START_DATE));
-        eventResult.setEndDate(
-            durationProcessor.processEventDates(component, CalendarKeys.ICS_CALENDAR_PROPERTY_END_DATE));
+            durationProcessor.getEventDate(component, CalendarKeys.ICS_CALENDAR_PROPERTY_START_DATE));
+        eventResult.setEndDate(durationProcessor.getEventDate(component, CalendarKeys.ICS_CALENDAR_PROPERTY_END_DATE));
         setRecurrence(eventResult, component);
         return eventResult;
     }
@@ -74,12 +74,12 @@ public class CalendarEventProcessor
         }
     }
 
-    private String processTitle(CalendarComponent component)
+    private String getTitle(CalendarComponent component)
     {
         return component.getProperty(CalendarKeys.ICS_CALENDAR_PROPERTY_SUMMARY).getValue();
     }
 
-    private String processDescription(CalendarComponent component)
+    private String getDescription(CalendarComponent component)
     {
         Property descrProperty = component.getProperty(CalendarKeys.ICS_CALENDAR_PROPERTY_DESCRIPTION);
         Property organizerProperty = component.getProperty(CalendarKeys.ICS_CALENDAR_PROPERTY_ORGANIZER);

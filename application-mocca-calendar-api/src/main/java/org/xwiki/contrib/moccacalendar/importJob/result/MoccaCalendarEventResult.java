@@ -53,7 +53,6 @@ public class MoccaCalendarEventResult
      */
     public MoccaCalendarEventResult()
     {
-        // TODO document why this constructor is empty
     }
 
     /**
