@@ -25,6 +25,7 @@ import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.util.Date;
 import java.util.HashSet;
+import java.util.Optional;
 import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -50,6 +51,8 @@ import net.fortuna.ical4j.model.component.CalendarComponent;
 public class CalendarEventDurationProcessor
 {
     private static final String DEFAULT_TIME_ZONE = ZoneId.of("UTC").getId();
+
+    private static final String WEEKLY_FREQUENCY = "weekly";
 
     /**
      * Check if an event takes all day.
@@ -131,13 +134,13 @@ public class CalendarEventDurationProcessor
      * @param component the ical event.
      * @return the frequency of the recurrence.
      */
-    public String getRecurrenceFrequency(CalendarComponent component)
+    public Optional<String> getRecurrenceFrequency(CalendarComponent component)
     {
         if (isRecurrentEvent(component) == 1) {
-            return processRecurrenceFrequency(
-                component.getProperty(CalendarKeys.ICS_CALENDAR_PROPERTY_RECURRENCE_RULE).getValue());
+            return Optional.of(processRecurrenceFrequency(
+                component.getProperty(CalendarKeys.ICS_CALENDAR_PROPERTY_RECURRENCE_RULE).getValue()));
         }
-        return "";
+        return Optional.empty();
     }
 
     private DateTimeFormatter getDateFormat(String dateValue)
@@ -196,7 +199,7 @@ public class CalendarEventDurationProcessor
     {
         String freqValue = extractValueByPattern(recurrenceRule, "(?<=FREQ=)[^;]+");
         if (freqValue != null) {
-            if (freqValue.equals("WEEKLY")) {
+            if (freqValue.equalsIgnoreCase(WEEKLY_FREQUENCY)) {
                 return checkWeeklyFrequency(recurrenceRule);
             } else {
                 return freqValue.toLowerCase();
@@ -217,7 +220,7 @@ public class CalendarEventDurationProcessor
         } else if (byDayValue != null && byDayValue.length() > 2) {
             return "";
         } else {
-            return "weekly";
+            return WEEKLY_FREQUENCY;
         }
     }
 

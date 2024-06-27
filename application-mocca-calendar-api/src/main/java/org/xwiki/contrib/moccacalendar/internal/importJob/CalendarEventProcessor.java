@@ -24,13 +24,15 @@ import javax.inject.Singleton;
 
 import org.xwiki.component.annotation.Component;
 import org.xwiki.contrib.moccacalendar.importJob.result.MoccaCalendarEventResult;
+import org.xwiki.localization.ContextualLocalizationManager;
 
 import net.fortuna.ical4j.model.Property;
 import net.fortuna.ical4j.model.PropertyList;
 import net.fortuna.ical4j.model.component.CalendarComponent;
 
 /**
- * Ical file import helper class for processing an event.
+ * Ical file import helper class used for processing the data related to an event from a {@link CalendarComponent}
+ * extracted from a file, and mapping it to a {@link MoccaCalendarEventResult}.
  *
  * @version $Id$
  * @since 2.14
@@ -39,8 +41,15 @@ import net.fortuna.ical4j.model.component.CalendarComponent;
 @Singleton
 public class CalendarEventProcessor
 {
+    private static final String LINE_BREAK = "\n";
+
+    private static final String LABEL_DESCRIPTION = "description";
+
     @Inject
     private CalendarEventDurationProcessor durationProcessor;
+
+    @Inject
+    private ContextualLocalizationManager contextLocalization;
 
     /**
      * Process the ical event and adapt them to the Mocca calendar event and recurrent event class.
@@ -65,7 +74,7 @@ public class CalendarEventProcessor
 
     private void setRecurrence(MoccaCalendarEventResult eventResult, CalendarComponent component)
     {
-        String recFreq = durationProcessor.getRecurrenceFrequency(component);
+        String recFreq = durationProcessor.getRecurrenceFrequency(component).orElse("");
         eventResult.setIsRecurrent(0);
         if (durationProcessor.isRecurrentEvent(component) == 1 && !recFreq.isEmpty()) {
             eventResult.setIsRecurrent(1);
@@ -87,29 +96,40 @@ public class CalendarEventProcessor
         PropertyList<Property> attendeesProperty = component.getProperties(CalendarKeys.ICS_CALENDAR_PROPERTY_ATTENDEE);
         StringBuilder descriptionBuilder = new StringBuilder();
 
-        appendOrganizerPropriety(descriptionBuilder, organizerProperty);
+        appendOrganizerProperty(descriptionBuilder, organizerProperty);
         for (Property attendeeProperty : attendeesProperty) {
-            appendPropriety(descriptionBuilder, "Attendee:", attendeeProperty);
+            appendProperty(descriptionBuilder, "attendee", attendeeProperty);
         }
 
-        appendPropriety(descriptionBuilder, "Location:", locationProperty);
-        descriptionBuilder.append("\n");
-        appendPropriety(descriptionBuilder, "", descrProperty);
+        appendProperty(descriptionBuilder, "location", locationProperty);
+        appendProperty(descriptionBuilder, LABEL_DESCRIPTION, descrProperty);
 
         return descriptionBuilder.toString();
     }
 
-    private void appendOrganizerPropriety(StringBuilder descriptionBuilder, Property property)
+    private void appendOrganizerProperty(StringBuilder descriptionBuilder, Property property)
     {
         if (property != null && (!property.getValue().contains("unknownorganizer"))) {
-            descriptionBuilder.append(String.format("Organizer: %s\n", property.getValue()));
+            String translationPlain =
+                contextLocalization.getTranslationPlain("MoccaCalendar.import.generated.description.organizer",
+                    property.getValue());
+            descriptionBuilder.append(translationPlain);
+            descriptionBuilder.append(LINE_BREAK);
         }
     }
 
-    private void appendPropriety(StringBuilder descriptionBuilder, String label, Property property)
+    private void appendProperty(StringBuilder descriptionBuilder, String label, Property property)
     {
         if (property != null) {
-            descriptionBuilder.append(String.format("%s %s\n", label, property.getValue()));
+            if (!label.equals(LABEL_DESCRIPTION)) {
+                String translationKey = String.format("%s.%s", "MoccaCalendar.import.generated.description", label);
+                String translationPlain = contextLocalization.getTranslationPlain(translationKey, property.getValue());
+                descriptionBuilder.append(translationPlain);
+                descriptionBuilder.append(LINE_BREAK);
+            } else {
+                descriptionBuilder.append(LINE_BREAK);
+                descriptionBuilder.append(property.getValue());
+            }
         }
     }
 }
