@@ -66,6 +66,7 @@ MoccaCalendar.import.modal.button.start=Begin import
 MoccaCalendar.import.notification.inprogress=Calendar file import in progress...
 MoccaCalendar.import.notification.done=Calendar import successful!
 MoccaCalendar.import.notification.error=There was an error while importing the data. Please try again or consult the logs!
+MoccaCalendar.import.notification.filetoolarge=The size of the file is too large!
 MoccaCalendar.import.generated.description.attendee=Attendee: {0}
 MoccaCalendar.import.generated.description.location=Location: {0}
 MoccaCalendar.import.generated.description.organizer=Organizer: {0}

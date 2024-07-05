@@ -45,6 +45,10 @@ public class CalendarEventProcessor
 
     private static final String LABEL_DESCRIPTION = "description";
 
+    private static final String MAILTO = "mailto:";
+
+    private static final String MAILTO_REPLACEMENT = "mailto~:";
+
     @Inject
     private CalendarEventDurationProcessor durationProcessor;
 
@@ -112,7 +116,7 @@ public class CalendarEventProcessor
         if (property != null && (!property.getValue().contains("unknownorganizer"))) {
             String translationPlain =
                 contextLocalization.getTranslationPlain("MoccaCalendar.import.generated.description.organizer",
-                    property.getValue());
+                    maybeEscapeMailWikiSyntax(property.getValue()));
             descriptionBuilder.append(translationPlain);
             descriptionBuilder.append(LINE_BREAK);
         }
@@ -121,15 +125,21 @@ public class CalendarEventProcessor
     private void appendProperty(StringBuilder descriptionBuilder, String label, Property property)
     {
         if (property != null) {
+            String appendedValue = maybeEscapeMailWikiSyntax(property.getValue());
             if (!label.equals(LABEL_DESCRIPTION)) {
                 String translationKey = String.format("%s.%s", "MoccaCalendar.import.generated.description", label);
-                String translationPlain = contextLocalization.getTranslationPlain(translationKey, property.getValue());
+                String translationPlain = contextLocalization.getTranslationPlain(translationKey, appendedValue);
                 descriptionBuilder.append(translationPlain);
                 descriptionBuilder.append(LINE_BREAK);
             } else {
                 descriptionBuilder.append(LINE_BREAK);
-                descriptionBuilder.append(property.getValue());
+                descriptionBuilder.append(appendedValue);
             }
         }
+    }
+
+    private String maybeEscapeMailWikiSyntax(String inputValue)
+    {
+        return inputValue.contains(MAILTO) ? inputValue.replace(MAILTO, MAILTO_REPLACEMENT) : inputValue;
     }
 }

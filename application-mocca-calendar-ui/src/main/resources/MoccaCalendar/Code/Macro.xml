@@ -866,7 +866,8 @@ define('mocca-calendar-import-notification', {
   keys: [
     'inprogress',
     'done',
-    'error'
+    'error',
+    'filetoolarge'
   ]
 });
 
@@ -923,14 +924,19 @@ require(['jquery', 'xwiki-meta', 'xwiki-job-runner', 'xwiki-l10n!mocca-calendar-
   var startUploading = function (form) {
     var formData = new FormData(form);
     var select = form.down("#import-calendar-parent");
-    var urlQueryParameter = "?" + select.name + "=" + select.value;
-    formData.action = form.action + urlQueryParameter;
+    var input = form.down("#import-ical-file-input");
+    if (input.files[0].size &lt; input.dataset.maxFileSize) {
+      var urlQueryParameter = "?" + select.name + "=" + select.value;
+      formData.action = form.action + urlQueryParameter;
 
-    // Create XMLHttpRequest object and POST the data
-    var request = this.request = new XMLHttpRequest();
-    request.open('POST', formData.action);
-    request.send(formData);
-    checkImportJob(select.value);
+      // Create XMLHttpRequest object and POST the data
+      var request = this.request = new XMLHttpRequest();
+      request.open('POST', formData.action);
+      request.send(formData);
+      checkImportJob(select.value);
+    } else {
+      var notification = new XWiki.widgets.Notification(l10n.get('filetoolarge'), 'error');
+    }
   }
 
   const checkImportJob = function(selectedCalendar) {
