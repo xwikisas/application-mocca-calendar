@@ -64,7 +64,7 @@
   #getDateFormat($field true $format)
   #set($formattedValue = $escapetool.xml($datetool.format($format, $doc.getValue($field))))
 $!formattedValue
-#else 
+#else
 $doc.display($field)
 #end
 #end
@@ -263,7 +263,21 @@ $doc.display($field)
     : $doc.display('recurrent')
     #end
   #else
-  This page does not contain an event.
+    #if($!{request.readOnly} != "true")
+      This page does not contain an event.
+    #else
+    ; &lt;label&gt;$escapetool.xml($services.localization.render('MoccaCalendar.MoccaCalendarEventClass_title'))&lt;/label&gt;
+    : $request.title
+    ; &lt;label for="startDate"&gt;$escapetool.xml($services.localization.render('MoccaCalendar.MoccaCalendarEventClass_startDate'))&lt;/label&gt;
+    : $request.start
+    ; &lt;label for="endDate"&gt;$escapetool.xml($services.localization.render('MoccaCalendar.MoccaCalendarEventClass_endDate'))&lt;/label&gt;
+    : $request.end
+    ; &lt;label for="allDay"&gt;$escapetool.xml($services.localization.render('MoccaCalendar.MoccaCalendarEventClass_allDay'))&lt;/label&gt;
+    ## XXX allDay cannot be modified yet, but we will need a localized string representation in the eventInstance for this if we make if modifiable!
+    : $request.allDay
+    ; &lt;label for="description"&gt;$escapetool.xml($services.localization.render('description'))&lt;/label&gt;
+    : $request.description
+    #end
   #end
   #end ## if isEdit else part
 

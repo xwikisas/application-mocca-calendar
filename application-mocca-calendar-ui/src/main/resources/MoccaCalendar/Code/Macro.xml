@@ -552,13 +552,19 @@ if (typeof(XWiki) == "undefined" || typeof(XWiki.widgets) == "undefined" || type
             }
             // FIXME: this should be a plain link, but then it has no styles
             if (oldSkin) {
-              leftGroup.insert(this.createButton("button","$escapetool.javascript($services.localization.render('view'))","","view-moccacalendar-event","btn"));
+              if (this.interactionParameters.event.readOnly != true) {
+                leftGroup.insert(this.createButton("button","$escapetool.javascript($services.localization.render('view'))","","view-moccacalendar-event","btn"));
+              }
               leftGroup.insert('&lt;span class="buttonwrapper"&gt;&lt;a href="#" id="cancel-moccacalendar-event" class="secondary button"&gt;' + "$escapetool.javascript($services.localization.render('cancel'))" + '&lt;/a&gt;&lt;/span&gt;');
             } else {
-              leftGroup.insert(' &lt;button class="button btn btn-default" id="view-moccacalendar-event"&gt;&lt;span class="glyphicon glyphicon-file"&gt;&lt;/span&gt; '+"$escapetool.javascript($services.localization.render('view'))"+'&lt;/button&gt;');
+              if (this.interactionParameters.event.readOnly != true) {
+                leftGroup.insert(' &lt;button class="button btn btn-default" id="view-moccacalendar-event"&gt;&lt;span class="glyphicon glyphicon-file"&gt;&lt;/span&gt; '+"$escapetool.javascript($services.localization.render('view'))"+'&lt;/button&gt;');
+              }
               leftGroup.insert('&lt;button class="button btn btn-default" id="cancel-moccacalendar-event"&gt;&lt;span class="glyphicon glyphicon-remove"&gt;&lt;/span&gt; '+"$escapetool.javascript($services.localization.render('cancel'))"+'&lt;/button&gt;');
             }
-            leftGroup.down("#view-moccacalendar-event").observe('click', function(e) { e.stop(); window.location.href = this.interactionParameters.event.viewUrl; }.bind(this));
+            if (this.interactionParameters.event.readOnly != true) {
+              leftGroup.down("#view-moccacalendar-event").observe('click', function(e) { e.stop(); window.location.href = this.interactionParameters.event.viewUrl; }.bind(this));
+            }
             leftGroup.down('#cancel-moccacalendar-event').observe('click', this.closeDialog.bind(this));
             if (this.interactionParameters.event.canDelete) {
               var rightGroup = new Element('div', {'class':'btn-group btn-group-right'});
@@ -1541,7 +1547,14 @@ $xwiki.ssx.use("MoccaCalendar.Code.Macro")
 #end
 &lt;div id="calendar${calcounter}"&gt;&lt;/div&gt;
 &lt;script type="text/javascript"&gt;
-require(['xwiki-meta', 'jquery', 'gcal', 'moccaCalendar'], function(xwikiMeta, jQuery) {
+require.config({
+  paths: {
+    purify: "$services.webjars.url('org.webjars.npm:dompurify', 'dist/purify.js')"
+  },
+});
+
+
+require(['xwiki-meta', 'jquery', 'moment','purify', 'gcal', 'moccaCalendar'], function(xwikiMeta, jQuery, moment, purify) {
  jQuery(document).ready(function() {
   var defaultView = XWiki.MoccaCalendar.Helper.getCalendarView("$!escapetool.javascript($defaultView)");
 
@@ -1613,6 +1626,31 @@ require(['xwiki-meta', 'jquery', 'gcal', 'moccaCalendar'], function(xwikiMeta, j
       #end
     ],
     eventClick: function(calEvent, jsEvent, view) {
+      // Prepare the read only events for the modal.
+      if (!calEvent.viewUrl){
+        // The XWiki default format for date is yyyy/MM/dd, which translates into 2024/01/17. However, for some weird
+        // reason, when using the date.format() from JavaScript, it translates into 2024/01/Mon. We need to use the
+        // moment().toMomentFormatString(format) to get the right format.
+        const dateFormat = moment().toMomentFormatString(calendarHelper.dateFormat);
+
+        // Get the sheet URL.
+        const sheetURL = new XWiki.Document('MoccaCalendarEventSheet', 'MoccaCalendar').getURL('get');
+        // Parameters for the modal content.
+        purify
+        console.log('test')
+        const params = {
+          title: purify.sanitize(calEvent.title),
+          start: calEvent.start.format(dateFormat),
+          end: calEvent.end.format(dateFormat),
+          allDay: calEvent.allDay ? 'Yes' : 'No',
+          description: purify.sanitize(calEvent.description),
+          readOnly: 'true'
+        };
+        const queryString = jQuery.param(params);
+        const requestURL = `${sheetURL}?${queryString}`;
+        calEvent.url = requestURL;
+        calEvent.readOnly=true;
+      }
       new XWiki.MoccaCalendar.MoccaCalendarPopup({editMode: false, event: calEvent}, calendarHelper);
       jsEvent.preventDefault();
       return false;
