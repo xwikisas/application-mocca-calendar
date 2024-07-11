@@ -926,9 +926,9 @@ require(['jquery', 'xwiki-meta', 'xwiki-job-runner', 'xwiki-l10n!mocca-calendar-
     var select = form.down("#import-calendar-parent");
     var input = form.down("#import-ical-file-input");
     if (input.files[0].size &lt; input.dataset.maxFileSize) {
-      var urlQueryParameter = "?" + select.name + "=" + select.value;
-      formData.action = form.action + urlQueryParameter;
-
+      var params = {};
+      params[select.name] = select.value;
+      formData.action = form.action + "?" + $.param(params);
       // Create XMLHttpRequest object and POST the data
       var request = this.request = new XMLHttpRequest();
       request.open('POST', formData.action);
@@ -942,7 +942,7 @@ require(['jquery', 'xwiki-meta', 'xwiki-job-runner', 'xwiki-l10n!mocca-calendar-
   const checkImportJob = function(selectedCalendar) {
     let documentReference = XWiki.Model.resolve('MoccaCalendar.Code.ImportJobResource', XWiki.EntityType.DOCUMENT);
     var targetURL = new XWiki.Document(documentReference).getURL('get');
-    var targetJobId = ['moccacalendar', 'import', selectedCalendar]
+    var targetJobId = ['moccacalendar', 'import', selectedCalendar];
     var data = [];
     data.push(
       {name: 'outputSyntax', value: 'plain'},
@@ -1559,12 +1559,12 @@ $xwiki.ssx.use("MoccaCalendar.Code.Macro")
               &lt;label for="import-calendar-parent"&gt;
                 $escapetool.xml($services.localization.render('MoccaCalendar.calendar'))&lt;/label&gt;
               &lt;select id="import-calendar-parent" name="parentCalendar"&gt;
-                #foreach($item in $services.moccacalendar.getAllCalendars()) ## TODO: add filter here, see MOCCACAL-76
-                  #set($itemdoc = $xwiki.getDocument($item))
-                  #if($!{itemdoc} &amp;&amp; ${itemdoc.hasAccessLevel("edit")})
-                    #set($selected="")
-                    #if($itemdoc.getId() == $doc.getId())
-                      #set($selected=" selected='selected'")
+                #foreach ($item in $services.moccacalendar.getAllCalendars()) ## TODO: add filter here, see MOCCACAL-76
+                  #set ($itemdoc = $xwiki.getDocument($item))
+                  #if ($!{itemdoc} &amp;&amp; ${itemdoc.hasAccessLevel("edit")})
+                    #set ($selected="")
+                    #if ($itemdoc.getId() == $doc.getId())
+                      #set ($selected=" selected='selected'")
                     #end
                     &lt;option value="$escapetool.html($itemdoc.getFullName())"$selected&gt;
                       $itemdoc.getDisplayTitle()&lt;/option&gt;

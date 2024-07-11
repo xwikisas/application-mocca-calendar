@@ -22,6 +22,8 @@ package org.xwiki.contrib.moccacalendar.internal.importJob;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 
+import org.jsoup.Jsoup;
+import org.jsoup.safety.Safelist;
 import org.xwiki.component.annotation.Component;
 import org.xwiki.contrib.moccacalendar.importJob.result.MoccaCalendarEventResult;
 import org.xwiki.localization.ContextualLocalizationManager;
@@ -47,7 +49,11 @@ public class CalendarEventProcessor
 
     private static final String MAILTO = "mailto:";
 
-    private static final String MAILTO_REPLACEMENT = "mailto~:";
+    private static final String ESCAPED_MAILTO = "mailto~:";
+
+    private static final String DOUBLE_SLASHES = "//";
+
+    private static final String ESCAPED_DOUBLE_SLASHES = "\\/\\/";
 
     @Inject
     private CalendarEventDurationProcessor durationProcessor;
@@ -116,7 +122,7 @@ public class CalendarEventProcessor
         if (property != null && (!property.getValue().contains("unknownorganizer"))) {
             String translationPlain =
                 contextLocalization.getTranslationPlain("MoccaCalendar.import.generated.description.organizer",
-                    maybeEscapeMailWikiSyntax(property.getValue()));
+                    escapeSyntax(property.getValue()));
             descriptionBuilder.append(translationPlain);
             descriptionBuilder.append(LINE_BREAK);
         }
@@ -125,21 +131,36 @@ public class CalendarEventProcessor
     private void appendProperty(StringBuilder descriptionBuilder, String label, Property property)
     {
         if (property != null) {
-            String appendedValue = maybeEscapeMailWikiSyntax(property.getValue());
+            String cleanedValue = escapeSyntax(property.getValue());
             if (!label.equals(LABEL_DESCRIPTION)) {
                 String translationKey = String.format("%s.%s", "MoccaCalendar.import.generated.description", label);
-                String translationPlain = contextLocalization.getTranslationPlain(translationKey, appendedValue);
+                String translationPlain = contextLocalization.getTranslationPlain(translationKey, cleanedValue);
                 descriptionBuilder.append(translationPlain);
                 descriptionBuilder.append(LINE_BREAK);
             } else {
                 descriptionBuilder.append(LINE_BREAK);
-                descriptionBuilder.append(appendedValue);
+                descriptionBuilder.append("{{html clean=\"false\"}}");
+                descriptionBuilder.append(cleanedValue);
+                descriptionBuilder.append("{{/html}}");
             }
         }
     }
 
+    private String escapeSyntax(String inputValue)
+    {
+        String escapedValue = Jsoup.clean(inputValue, Safelist.basic());
+        String escapedMailSyntax = maybeEscapeMailWikiSyntax(escapedValue);
+        return maybeEscapeURLSyntax(escapedMailSyntax);
+    }
+
     private String maybeEscapeMailWikiSyntax(String inputValue)
     {
-        return inputValue.contains(MAILTO) ? inputValue.replace(MAILTO, MAILTO_REPLACEMENT) : inputValue;
+        return inputValue.contains(MAILTO) ? inputValue.replace(MAILTO, ESCAPED_MAILTO) : inputValue;
+    }
+
+    private String maybeEscapeURLSyntax(String inputValue)
+    {
+        return inputValue.contains(DOUBLE_SLASHES) ? inputValue.replace(DOUBLE_SLASHES, ESCAPED_DOUBLE_SLASHES)
+            : inputValue;
     }
 }
