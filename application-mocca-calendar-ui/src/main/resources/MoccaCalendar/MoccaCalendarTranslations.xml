@@ -51,6 +51,7 @@ MoccaCalendar.calendar.plainlist.nopastevents=No past events found.
 MoccaCalendar.calendar.plainlist.noupcomingevents=No upcoming events found.
 MoccaCalendar.calendar.firstDayOfWeek=0
 MoccaCalendar.calendar.readonly=This is a read only calendar and you can not create events for it.
+MoccaCalendar.calendar.noevent=This page does not contain an event.
 
 MoccaCalendar.calendarevent.viewall=All events
 MoccaCalendar.calendarevent.create=Create new event
@@ -78,6 +79,10 @@ MoccaCalendar.MoccaCalendarSubscribeClass_iCal=The iCal of the calendar
 MoccaCalendar.MoccaCalendarSubscribeClass_gCal=The gCal of the calendar
 MoccaCalendar.MoccaCalendarSubscribeClass_gApiKey=Google API key
 MoccaCalendar.MoccaCalendarSubscribeClass_globalDisplay=Display the events inside the global calendar
+
+# Subscribed event localization
+moccacalendar.subscribedevent.allday.yes=Yes
+moccacalendar.subscribedevent.allday.no=No
 
 # Live table generic keys
 moccacalendar.livetable.doc.title=Calendar

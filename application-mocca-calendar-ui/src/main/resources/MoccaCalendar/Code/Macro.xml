@@ -526,18 +526,20 @@ if (typeof(XWiki) == "undefined" || typeof(XWiki.widgets) == "undefined" || type
           var buttons = new Element('div', {'class':'buttons'});
           var oldSkin = ! $('body').hasClassName('skin-flamingo'); // FIXME: bad b/w compat hack
           formcontent.insert(buttons);
+          // When you are in a read only calendar you only need the close button for the modal and you MUST Not fire
+          // the xwiki:moccacalendar:editloaded event because you will get a bunch of errors.
           if (this.interactionParameters.editMode) {
             var that = this;
-            buttons.insert(this.createButton("submit","$escapetool.javascript($services.localization.render('save'))","","save-moccacalendar-event","btn"));
-            buttons.down('#save-moccacalendar-event').observe('click', this.submitForm.bind(this));
+            if(this.helper.createEventBaseUrl.indexOf('disabled=disabled') === -1) {
+              buttons.insert(this.createButton("submit","$escapetool.javascript($services.localization.render('save'))","","save-moccacalendar-event","btn"));
+              buttons.down('#save-moccacalendar-event').observe('click', this.submitForm.bind(this));
+              // MOCCACAL-128: the event template has a space in the title to avoid showing the page name, but we want to remove this on load
+              var titleField = formcontent.down('input[name="title"]')
+              if (titleField &amp;&amp; titleField.getAttribute('value').trim() == '') { titleField.setAttribute('value','') }
+              document.fire('xwiki:moccacalendar:editloaded');
+            }
             buttons.insert('&lt;span class="buttonwrapper"&gt;&lt;a href="#" id="cancel-moccacalendar-event" class="secondary button"&gt;' + "$escapetool.javascript($services.localization.render('cancel'))" + '&lt;/a&gt;&lt;/span&gt;');
             buttons.down('#cancel-moccacalendar-event').observe('click', this.closeDialog.bind(this));
-
-            // MOCCACAL-128: the event template has a space in the title to avoid showing the page name, but we want to remove this on load
-            var titleField = formcontent.down('input[name="title"]')
-            if (titleField &amp;&amp; titleField.getAttribute('value').trim() == '') { titleField.setAttribute('value','') }
-
-            document.fire('xwiki:moccacalendar:editloaded');
             $("MoccaCalendarEvent.MoccaCalendarEventClass_0_title").focus();
           } else {
             var leftGroup = new Element('div', {'class':'btn-group btn-group-left'});
@@ -1637,7 +1639,8 @@ require(['xwiki-meta', 'jquery', 'moment','purify', 'gcal', 'moccaCalendar'], fu
           title: purify.sanitize(calEvent.title),
           start: calEvent.start.format(dateFormat),
           end: calEvent.end.format(dateFormat),
-          allDay: calEvent.allDay ? 'Yes' : 'No',
+          allDay: calEvent.allDay ? "$escapetool.xml($services.localization.render('moccacalendar.subscribedevent.allday.yes'))" :
+                                    "$escapetool.xml($services.localization.render('moccacalendar.subscribedevent.allday.no'))",
           description: purify.sanitize(calEvent.description),
           readOnly: 'true'
         };

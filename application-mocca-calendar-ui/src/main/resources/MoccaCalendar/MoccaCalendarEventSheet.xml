@@ -264,7 +264,7 @@ $doc.display($field)
     #end
   #else
     #if($!{request.readOnly} != "true")
-      This page does not contain an event.
+      $escapetool.xml($services.localization.render('MoccaCalendar.calendar.noevent'))
     #else
     ; &lt;label&gt;$escapetool.xml($services.localization.render('MoccaCalendar.MoccaCalendarEventClass_title'))&lt;/label&gt;
     : $request.title
