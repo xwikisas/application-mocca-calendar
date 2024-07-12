@@ -40,8 +40,8 @@
 ## pretty desparate measure to avoid edit form mess when embedded into another document, which is turn gets edited // from the intial sheet
 #set($myEdit = ($xcontext.action == 'edit') &amp;&amp; ($doc.getURL("edit") == $xcontext.getRequest().getRequestURI()) )
 #if(($xcontext.action == 'edit') &amp;&amp; !$myEdit)
-#set($oldView = $xcontext.get('display'))
-#set($discard = $xcontext.put('display','view'))
+  #set($oldView = $xcontext.get('display'))
+  #set($discard = $xcontext.put('display','view'))
 #end
 {{html wiki="true"}}
 #set ($discard = $doc.use('MoccaCalendar.MoccaCalendarSubscribeClass'))

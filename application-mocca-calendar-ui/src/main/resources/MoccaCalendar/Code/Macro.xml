@@ -1386,10 +1386,7 @@ $xwiki.ssx.use("MoccaCalendar.Code.Macro")
 #if(!$date)
  #set($date = "")
 #end
-#set($gCal = $xcontext.macro.params.gCal)
-#if(!$gCal)
-  #set($gCal = "")
-#end
+#set($gCal = "$!xcontext.macro.params.gCal")
 #set($gApiKey = $xcontext.macro.params.gApiKey)
 #if(!$gApiKey)
   #set($gApiKey = "")
@@ -1636,8 +1633,6 @@ require(['xwiki-meta', 'jquery', 'moment','purify', 'gcal', 'moccaCalendar'], fu
         // Get the sheet URL.
         const sheetURL = new XWiki.Document('MoccaCalendarEventSheet', 'MoccaCalendar').getURL('get');
         // Parameters for the modal content.
-        purify
-        console.log('test')
         const params = {
           title: purify.sanitize(calEvent.title),
           start: calEvent.start.format(dateFormat),
