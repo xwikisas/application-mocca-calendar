@@ -1,0 +1,209 @@
+<?xml version="1.1" encoding="UTF-8"?>
+
+<!--
+ * See the NOTICE file distributed with this work for additional
+ * information regarding copyright ownership.
+ *
+ * This is free software; you can redistribute it and/or modify it
+ * under the terms of the GNU Lesser General Public License as
+ * published by the Free Software Foundation; either version 2.1 of
+ * the License, or (at your option) any later version.
+ *
+ * This software is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+ * Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public
+ * License along with this software; if not, write to the Free
+ * Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
+ * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
+-->
+
+<xwikidoc version="1.4" reference="MoccaCalendar.MoccaCalendarSubscribeTemplate" locale="">
+  <web>MoccaCalendar</web>
+  <name>MoccaCalendarSubscribeTemplate</name>
+  <language/>
+  <defaultLanguage/>
+  <translation>0</translation>
+  <creator>xwiki:XWiki.Admin</creator>
+  <parent>MoccaCalendar.MoccaCalendarSubscribeClass</parent>
+  <author>xwiki:XWiki.Admin</author>
+  <contentAuthor>xwiki:XWiki.Admin</contentAuthor>
+  <version>1.1</version>
+  <title>MoccaCalendarSubscribe Template</title>
+  <comment/>
+  <minorEdit>false</minorEdit>
+  <syntaxId>xwiki/2.1</syntaxId>
+  <hidden>true</hidden>
+  <content>{{moccacalendar filter="page"/}}</content>
+  <object>
+    <name>MoccaCalendar.MoccaCalendarSubscribeTemplate</name>
+    <number>0</number>
+    <className>MoccaCalendar.MoccaCalendarSubscribeClass</className>
+    <guid>f02c6a3a-be91-4ee2-87cc-8eb6c172b0a1</guid>
+    <class>
+      <name>MoccaCalendar.MoccaCalendarSubscribeClass</name>
+      <customClass/>
+      <customMapping/>
+      <defaultViewSheet/>
+      <defaultEditSheet/>
+      <defaultWeb/>
+      <nameField/>
+      <validationScript/>
+      <color>
+        <customDisplay/>
+        <disabled>0</disabled>
+        <hint/>
+        <name>color</name>
+        <number>8</number>
+        <picker>1</picker>
+        <prettyName>color</prettyName>
+        <size>30</size>
+        <unmodifiable>0</unmodifiable>
+        <validationMessage/>
+        <validationRegExp/>
+        <classType>com.xpn.xwiki.objects.classes.StringClass</classType>
+      </color>
+      <content1>
+        <customDisplay>{{include reference="AppWithinMinutes.Content"/}}</customDisplay>
+        <disabled>0</disabled>
+        <hint/>
+        <name>content1</name>
+        <number>6</number>
+        <prettyName>Content</prettyName>
+        <script/>
+        <unmodifiable>0</unmodifiable>
+        <validationMessage/>
+        <validationRegExp/>
+        <classType>com.xpn.xwiki.objects.classes.ComputedFieldClass</classType>
+      </content1>
+      <description>
+        <contenttype>---</contenttype>
+        <customDisplay/>
+        <disabled>0</disabled>
+        <editor>---</editor>
+        <hint/>
+        <name>description</name>
+        <number>2</number>
+        <picker>0</picker>
+        <prettyName>Description</prettyName>
+        <rows>5</rows>
+        <size>40</size>
+        <unmodifiable>0</unmodifiable>
+        <validationMessage/>
+        <validationRegExp/>
+        <classType>com.xpn.xwiki.objects.classes.TextAreaClass</classType>
+      </description>
+      <gApiKey>
+        <customDisplay/>
+        <disabled>0</disabled>
+        <hint/>
+        <name>gApiKey</name>
+        <number>4</number>
+        <picker>1</picker>
+        <prettyName>gApiKey</prettyName>
+        <size>30</size>
+        <unmodifiable>0</unmodifiable>
+        <validationMessage/>
+        <validationRegExp/>
+        <classType>com.xpn.xwiki.objects.classes.StringClass</classType>
+      </gApiKey>
+      <gCal>
+        <customDisplay/>
+        <disabled>0</disabled>
+        <hint/>
+        <name>gCal</name>
+        <number>5</number>
+        <picker>1</picker>
+        <prettyName>gCal</prettyName>
+        <size>30</size>
+        <unmodifiable>0</unmodifiable>
+        <validationMessage/>
+        <validationRegExp/>
+        <classType>com.xpn.xwiki.objects.classes.StringClass</classType>
+      </gCal>
+      <globalDisplay>
+        <customDisplay/>
+        <defaultValue/>
+        <disabled>0</disabled>
+        <displayFormType>checkbox</displayFormType>
+        <displayType/>
+        <hint/>
+        <name>globalDisplay</name>
+        <number>7</number>
+        <prettyName>Global Display</prettyName>
+        <unmodifiable>0</unmodifiable>
+        <validationMessage/>
+        <validationRegExp/>
+        <classType>com.xpn.xwiki.objects.classes.BooleanClass</classType>
+      </globalDisplay>
+      <iCal>
+        <customDisplay/>
+        <disabled>0</disabled>
+        <hint/>
+        <name>iCal</name>
+        <number>3</number>
+        <picker>1</picker>
+        <prettyName>iCal</prettyName>
+        <size>30</size>
+        <unmodifiable>0</unmodifiable>
+        <validationMessage/>
+        <validationRegExp/>
+        <classType>com.xpn.xwiki.objects.classes.StringClass</classType>
+      </iCal>
+      <textColor>
+        <customDisplay/>
+        <disabled>0</disabled>
+        <hint/>
+        <name>textColor</name>
+        <number>9</number>
+        <picker>1</picker>
+        <prettyName>textColor</prettyName>
+        <size>30</size>
+        <unmodifiable>0</unmodifiable>
+        <validationMessage/>
+        <validationRegExp/>
+        <classType>com.xpn.xwiki.objects.classes.StringClass</classType>
+      </textColor>
+      <title>
+        <customDisplay>{{include reference="AppWithinMinutes.Title"/}}</customDisplay>
+        <disabled>0</disabled>
+        <hint/>
+        <name>title</name>
+        <number>1</number>
+        <picker>1</picker>
+        <prettyName>Title</prettyName>
+        <size>30</size>
+        <unmodifiable>0</unmodifiable>
+        <validationMessage/>
+        <validationRegExp/>
+        <classType>com.xpn.xwiki.objects.classes.StringClass</classType>
+      </title>
+    </class>
+    <property>
+      <color/>
+    </property>
+    <property>
+      <description/>
+    </property>
+    <property>
+      <gApiKey/>
+    </property>
+    <property>
+      <gCal/>
+    </property>
+    <property>
+      <globalDisplay/>
+    </property>
+    <property>
+      <iCal/>
+    </property>
+    <property>
+      <textColor/>
+    </property>
+    <property>
+      <title/>
+    </property>
+  </object>
+</xwikidoc>
