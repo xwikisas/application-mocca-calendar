@@ -275,25 +275,24 @@ $doc.display($field)
       &lt;/dt&gt;
       &lt;dd&gt;$request.title&lt;/dd&gt;
       &lt;dt&gt;&lt;label
-              for="startDate"&gt;$escapetool.xml($services.localization.render('MoccaCalendar.MoccaCalendarEventClass_startDate'))&lt;/label&gt;
+            for="startDate"&gt;$escapetool.xml($services.localization.render('MoccaCalendar.MoccaCalendarEventClass_startDate'))&lt;/label&gt;
       &lt;/dt&gt;
       &lt;dd&gt;$request.start&lt;/dd&gt;
       &lt;dt&gt;&lt;label
-              for="endDate"&gt;$escapetool.xml($services.localization.render('MoccaCalendar.MoccaCalendarEventClass_endDate'))&lt;/label&gt;
+            for="endDate"&gt;$escapetool.xml($services.localization.render('MoccaCalendar.MoccaCalendarEventClass_endDate'))&lt;/label&gt;
       &lt;/dt&gt;
       &lt;dd&gt;$request.end&lt;/dd&gt;
       &lt;dt&gt;&lt;label
-              for="allDay"&gt;$escapetool.xml($services.localization.render('MoccaCalendar.MoccaCalendarEventClass_allDay'))&lt;/label&gt;
+            for="allDay"&gt;$escapetool.xml($services.localization.render('MoccaCalendar.MoccaCalendarEventClass_allDay'))&lt;/label&gt;
       &lt;/dt&gt;
       &lt;dd&gt;$request.allDay&lt;/dd&gt;
       &lt;dt&gt;&lt;label for="description"&gt;$escapetool.xml($services.localization.render('description'))&lt;/label&gt;&lt;/dt&gt;
       &lt;dd&gt;
-          $request.description
+        $request.description
       &lt;/dd&gt;
     &lt;/dl&gt;
     #end
   {{/html}}
-
   #end
   #end ## if isEdit else part
 
