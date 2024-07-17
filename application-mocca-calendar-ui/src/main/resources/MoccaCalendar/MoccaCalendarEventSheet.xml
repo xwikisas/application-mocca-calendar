@@ -263,21 +263,36 @@ $doc.display($field)
     : $doc.display('recurrent')
     #end
   #else
+  ## This branch is only reached by events from iCals and gCals. The "xwiki false" setting is necessary because we
+  ## don't have control over the data from other providers. If the wiki syntax is set to true, the data might be
+  ## interpreted in a strange way and break the display.
+  {{html xwiki='false'}}
     #if($!{request.readOnly} != "true")
       $escapetool.xml($services.localization.render('MoccaCalendar.calendar.noevent'))
     #else
-    ; &lt;label&gt;$escapetool.xml($services.localization.render('MoccaCalendar.MoccaCalendarEventClass_title'))&lt;/label&gt;
-    : $request.title
-    ; &lt;label for="startDate"&gt;$escapetool.xml($services.localization.render('MoccaCalendar.MoccaCalendarEventClass_startDate'))&lt;/label&gt;
-    : $request.start
-    ; &lt;label for="endDate"&gt;$escapetool.xml($services.localization.render('MoccaCalendar.MoccaCalendarEventClass_endDate'))&lt;/label&gt;
-    : $request.end
-    ; &lt;label for="allDay"&gt;$escapetool.xml($services.localization.render('MoccaCalendar.MoccaCalendarEventClass_allDay'))&lt;/label&gt;
-    ## XXX allDay cannot be modified yet, but we will need a localized string representation in the eventInstance for this if we make if modifiable!
-    : $request.allDay
-    ; &lt;label for="description"&gt;$escapetool.xml($services.localization.render('description'))&lt;/label&gt;
-    : $request.description
+    &lt;dl&gt;
+      &lt;dt&gt;&lt;label&gt;$escapetool.xml($services.localization.render('MoccaCalendar.MoccaCalendarEventClass_title'))&lt;/label&gt;
+      &lt;/dt&gt;
+      &lt;dd&gt;$request.title&lt;/dd&gt;
+      &lt;dt&gt;&lt;label
+            for="startDate"&gt;$escapetool.xml($services.localization.render('MoccaCalendar.MoccaCalendarEventClass_startDate'))&lt;/label&gt;
+      &lt;/dt&gt;
+      &lt;dd&gt;$request.start&lt;/dd&gt;
+      &lt;dt&gt;&lt;label
+            for="endDate"&gt;$escapetool.xml($services.localization.render('MoccaCalendar.MoccaCalendarEventClass_endDate'))&lt;/label&gt;
+      &lt;/dt&gt;
+      &lt;dd&gt;$request.end&lt;/dd&gt;
+      &lt;dt&gt;&lt;label
+            for="allDay"&gt;$escapetool.xml($services.localization.render('MoccaCalendar.MoccaCalendarEventClass_allDay'))&lt;/label&gt;
+      &lt;/dt&gt;
+      &lt;dd&gt;$request.allDay&lt;/dd&gt;
+      &lt;dt&gt;&lt;label for="description"&gt;$escapetool.xml($services.localization.render('description'))&lt;/label&gt;&lt;/dt&gt;
+      &lt;dd&gt;
+        $request.description
+      &lt;/dd&gt;
+    &lt;/dl&gt;
     #end
+  {{/html}}
   #end
   #end ## if isEdit else part
 
