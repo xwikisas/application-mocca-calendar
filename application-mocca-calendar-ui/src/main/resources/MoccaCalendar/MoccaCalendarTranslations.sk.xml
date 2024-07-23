@@ -91,6 +91,8 @@ MoccaCalendar.MoccaCalendarEventClass_title=Nadpis
 MoccaCalendar.MoccaCalendarEventClass_startDate=Dátum začiatku
 MoccaCalendar.MoccaCalendarEventClass_endDate=Dátum ukončenia
 MoccaCalendar.MoccaCalendarEventClass_description=Popis
+MoccaCalendar.MoccaCalendarEventClass_backgroundColor=Farba pozadia
+MoccaCalendar.MoccaCalendarEventClass_textColor=Farba textu
 ### Missing: MoccaCalendar.MoccaCalendarEventClass_allDay=All day
 ### Missing: MoccaCalendar.MoccaCalendarEventClass_recurrent=Recurrent
 
