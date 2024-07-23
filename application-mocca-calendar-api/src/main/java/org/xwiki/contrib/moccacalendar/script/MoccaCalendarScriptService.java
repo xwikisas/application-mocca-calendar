@@ -559,6 +559,8 @@ public class MoccaCalendarScriptService implements ScriptService
 
         boolean isAllDay = eventData.getIntValue(EventConstants.PROPERTY_ALLDAY_NAME) == 1;
         event.setAllDay(isAllDay);
+        String textColor = eventData.getStringValue(EventConstants.PROPERTY_TEXTCOLOR_NAME);
+        String backgroundColor = eventData.getStringValue(EventConstants.PROPERTY_BACKGROUNDCOLOR_NAME);
 
         DateTime endDateExclusive = event.getEndDate();
         if (isAllDay) {
@@ -580,6 +582,8 @@ public class MoccaCalendarScriptService implements ScriptService
         event.setEventDocRef(eventDocRef);
         event.setModifiable(true);
         event.setMovable(!event.isRecurrent());
+        event.setTextColor(textColor);
+        event.setBackgroundColor(backgroundColor);
 
         fillInColorsFromNearestCalendar(event);
     }
@@ -618,12 +622,21 @@ public class MoccaCalendarScriptService implements ScriptService
 
             if (calendarData == null) {
                 // some arbitrary defaults
-                event.setBackgroundColor("#888");
+                if (event.getBackgroundColor().length() == 0) {
+                    event.setBackgroundColor("#888");
+                }
                 // text color can be missing
-                event.setTextColor("");
+                if (event.getTextColor().length() == 0) {
+                    // not that great
+                    event.setTextColor("");
+                }
             } else {
-                event.setTextColor(calendarData.getStringValue("textColor"));
-                event.setBackgroundColor(calendarData.getStringValue("color"));
+                if (event.getBackgroundColor().length() == 0) {
+                    event.setBackgroundColor(calendarData.getStringValue("color"));
+                }
+                if (event.getTextColor().length() == 0) {
+                    event.setTextColor(calendarData.getStringValue("textColor"));
+                }
             }
         } catch (XWikiException xe) {
             logger.warn("could not calculate colors for event", xe);
