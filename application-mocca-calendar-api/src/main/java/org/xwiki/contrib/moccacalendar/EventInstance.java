@@ -263,7 +263,7 @@ public class EventInstance
     }
 
     /**
-     * The font color to be used to render this event in die calendar overview
+     * The font color to be used to render this event in the calendar overview
      * (as RGB string).
      *
      * @return a color as RGB string

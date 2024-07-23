@@ -589,7 +589,7 @@ public class MoccaCalendarScriptService implements ScriptService
     }
 
     /**
-     * Fill in the color and text color values from the "corresponding" calendar".
+     * Fill in the color and text color values from the "corresponding" calendar.
      *
      * The corresponding calendar page should be the default page of the parent space. this is the space of the page if the
      * event page is terminal, and the parent of the events page space, if the page is non-terminal
