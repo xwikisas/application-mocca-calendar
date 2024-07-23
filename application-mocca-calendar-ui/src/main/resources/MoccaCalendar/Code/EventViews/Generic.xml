@@ -66,6 +66,10 @@ $services.localization.render('moccacalendar.sheets.generic.noevent',  ["&lt;a c
 : $dateprinter.print($event.getEndDate())
 ; $services.localization.render('MoccaCalendar.MoccaCalendarEventClass_description')
 : $services.rendering.escape($event.getDescription(), $doc.getSyntax())
+; $services.localization.render('MoccaCalendar.MoccaCalendarEventClass_backgroundColor')
+: $services.rendering.escape($event.getBackgroundColor(), $doc.getSyntax())
+; $services.localization.render('MoccaCalendar.MoccaCalendarEventClass_textColor')
+: $services.rendering.escape($event.getTextColor(), $doc.getSyntax())
 #end
 {{/velocity}}</content>
 </xwikidoc>

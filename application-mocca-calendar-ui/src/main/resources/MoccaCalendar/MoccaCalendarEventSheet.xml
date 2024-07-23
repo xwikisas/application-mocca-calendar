@@ -117,6 +117,7 @@ $doc.display($field)
   #end
 #end
 {{/velocity}}{{velocity}}{{html wiki="true" clean="false"}}
+#template('display_macros.vm')## Comment to escape new line so the UI displays properly
 #if($request.disabled != "disabled")
   (% class="xform" %)
   (((
@@ -132,6 +133,7 @@ $doc.display($field)
     {{/error}}
   #end
   #if($isEdit)
+  #initRequiredSkinExtensions()
   ##
   ## add the groovy script to the validation (the xvalidation parameter in the request also works to set the groovy script validation)
   ##
@@ -184,6 +186,21 @@ $doc.display($field)
     : $doc.display('allDay')
     ; &lt;label for="${editPrefix}_description"&gt;$escapetool.xml($doc.displayPrettyName('description', false, false))&lt;/label&gt;
     : $doc.display('description')
+    ; &lt;label for="${editPrefix}_backgroundColor"&gt;$escapetool.xml($doc.displayPrettyName('backgroundColor', false, false))&lt;/label&gt;
+    #set ($colorPickerParams = {
+      'id': "${editPrefix}_backgroundColor",
+      'name': "${editPrefix}_backgroundColor",
+      'value': $escapetool.xml($!doc.getValue('backgroundColor'))
+    })
+    : #colorPicker($colorPickerParams)
+    ; &lt;label for="${editPrefix}_textColor"&gt;$escapetool.xml($doc.displayPrettyName('textColor', false, false))&lt;/label&gt;
+    #set ($colorPickerParams = {
+      'id': "${editPrefix}_textColor",
+      'name': "${editPrefix}_textColor",
+      'value': $escapetool.xml($!doc.getValue('textColor'))
+    })
+    : #colorPicker($colorPickerParams)
+
   ## FIXME: recurrency flag disabled for the merge; reactivate it later
   #if(false)
     ; &lt;label for="${editPrefix}_recurrent"&gt;$escapetool.xml($doc.displayPrettyName('recurrent', false, false))&lt;/label&gt;
@@ -228,6 +245,20 @@ $doc.display($field)
     : #displayDate('endDate')#showvalidationmessage("MoccaCalendar.Code.MoccaCalendarEventModificationClass.validation.endDateBeforeStartDate")#showvalidationmessage("MoccaCalendar.Code.MoccaCalendarEventModificationClass.validation.endDateNotDate")
     ; &lt;label for="${editOnePrefix}_description"&gt;$escapetool.xml($doc.displayPrettyName('description', false, false))&lt;/label&gt;
     : $doc.display('description')
+    ; &lt;label for="${editOnePrefix}_backgroundColor"&gt;$escapetool.xml($doc.displayPrettyName('backgroundColor', false, false))&lt;/label&gt;
+    #set ($colorPickerParams = {
+      'id': "${editOnePrefix}_backgroundColor",
+      'name': "${editOnePrefix}_backgroundColor",
+      'value': $escapetool.xml($!doc.getValue('backgroundColor'))
+    })
+    : #colorPicker($colorPickerParams)
+    ; &lt;label for="${editOnePrefix}_textColor"&gt;$escapetool.xml($doc.displayPrettyName('textColor', false, false))&lt;/label&gt;
+    #set ($colorPickerParams = {
+      'id': "${editOnePrefix}_textColor",
+      'name': "${editOnePrefix}_textColor",
+      'value': $escapetool.xml($!doc.getValue('textColor'))
+    })
+    : #colorPicker($colorPickerParams)
 
     &lt;input type="hidden" name="classname" value="MoccaCalendar.Code.MoccaCalendarEventModificationClass" /&gt;
     &lt;input type="hidden" id="modificationIsNew" name="modificationIsNew" value="$modifiedEventObjectIsNew" /&gt;
@@ -235,6 +266,13 @@ $doc.display($field)
     &lt;input type="hidden" name="eventDoc"  value="$escapetool.html($services.model.serialize($doc.getDocumentReference(),'default'))" /&gt;
   &lt;/div&gt;
   #end ## if isSingleInstance
+
+    ##
+    ## Load required js/css for colorPicker when included/modal in another page
+    ##
+    #getRequiredSkinExtensions($requiredSkinExtensions)
+    $requiredSkinExtensions ## This is what works for me, the Header below doesn't fetch the css for some reason
+    #set ($discard = $response.setHeader('X-XWIKI-HTML-HEAD', $requiredSkinExtensions))
 
   #else ## if !isEdit
   ## the "view" code: very crude, to be polished quite a bit later
@@ -256,6 +294,21 @@ $doc.display($field)
     : $doc.display('allDay')
     ; &lt;label for="description"&gt;$escapetool.xml($doc.displayPrettyName('description', false, false))&lt;/label&gt;
     : $eventInstance.getDescriptionHtml()
+      ## The colors here are for the XWiki Object (from the page url).
+      ## Colors displayed in the calendar are defined in the MoccaCalendarScriptService.java file.
+      ## There is another validation check made in MoccaCalendarScriptService.java. See the fillInColorsFromNearestCalendar() method.
+    ; &lt;label for="backgroundColor"&gt;$escapetool.xml($doc.displayPrettyName('backgroundColor', false, false))&lt;/label&gt;
+    #if ($doc.getValue('backgroundColor').length() == 0) ## If the color is valid or should default to parent calendar colors.
+      : &lt;div class="moccaevent" style="border-color:${escapetool.html($calendarDoc.getValue('color'))}"&gt;&amp;#160; (Calendar Default)&lt;/div&gt;
+    #else
+      : &lt;div class="moccaevent" style="border-color:${escapetool.html($doc.getValue('backgroundColor'))}"&gt;&amp;#160;&lt;/div&gt;
+    #end
+      ; &lt;label for="textColor"&gt;$escapetool.xml($doc.displayPrettyName('textColor', false, false))&lt;/label&gt;
+    #if ($doc.getValue('textColor').length() == 0)
+      : &lt;div class="moccaevent" style="border-color:${escapetool.html($calendarDoc.getValue('textColor'))}"&gt;&amp;#160; (Calendar Default)&lt;/div&gt;
+    #else
+      : &lt;div class="moccaevent" style="border-color:${escapetool.html($doc.getValue('textColor'))}"&gt;&amp;#160;&lt;/div&gt;
+    #end
     ## FIXME: recurrency flag disabled for the merge; reactivate it later
     #if(false)
     ; &lt;label for="recurrent"&gt;$escapetool.xml($doc.displayPrettyName('recurrent', false, false))&lt;/label&gt;
@@ -266,6 +319,8 @@ $doc.display($field)
   ## This branch is only reached by events from iCals and gCals. The "xwiki false" setting is necessary because we
   ## don't have control over the data from other providers. If the wiki syntax is set to true, the data might be
   ## interpreted in a strange way and break the display.
+
+  ## (event text and bg colors might be broken for this branch)
   {{html xwiki='false'}}
     #if($!{request.readOnly} != "true")
       $escapetool.xml($services.localization.render('MoccaCalendar.calendar.noevent'))
@@ -289,6 +344,14 @@ $doc.display($field)
       &lt;dt&gt;&lt;label for="description"&gt;$escapetool.xml($services.localization.render('description'))&lt;/label&gt;&lt;/dt&gt;
       &lt;dd&gt;
         $request.description
+      &lt;/dd&gt;
+      &lt;dt&gt;&lt;label for="backgroundColor"&gt;$escapetool.xml($services.localization.render('MoccaCalendar.MoccaCalendarEventClass_backgroundColor'))&lt;/label&gt;&lt;/dt&gt;
+      &lt;dd&gt;
+        $request.backgroundColor
+      &lt;/dd&gt;
+      &lt;dt&gt;&lt;label for="textColor"&gt;$escapetool.xml($services.localization.render('MoccaCalendar.MoccaCalendarEventClass_textColor'))&lt;/label&gt;&lt;/dt&gt;
+      &lt;dd&gt;
+        $request.textColor
       &lt;/dd&gt;
     &lt;/dl&gt;
     #end

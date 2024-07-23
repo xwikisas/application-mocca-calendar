@@ -113,6 +113,8 @@ MoccaCalendar.MoccaCalendarEventClass_title=Title
 MoccaCalendar.MoccaCalendarEventClass_startDate=Start date
 MoccaCalendar.MoccaCalendarEventClass_endDate=End date
 MoccaCalendar.MoccaCalendarEventClass_description=Description
+MoccaCalendar.MoccaCalendarEventClass_backgroundColor=Background color
+MoccaCalendar.MoccaCalendarEventClass_textColor=Text color
 MoccaCalendar.MoccaCalendarEventClass_allDay=All day
 MoccaCalendar.MoccaCalendarEventClass_recurrent=Recurrent
 
