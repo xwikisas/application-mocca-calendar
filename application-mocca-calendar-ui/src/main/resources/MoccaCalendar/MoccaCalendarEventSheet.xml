@@ -271,7 +271,6 @@ $doc.display($field)
     ## Load required js/css for colorPicker when included/modal in another page
     ##
     #getRequiredSkinExtensions($requiredSkinExtensions)
-    $requiredSkinExtensions ## This is what works for me, the Header below doesn't fetch the css for some reason
     #set ($discard = $response.setHeader('X-XWIKI-HTML-HEAD', $requiredSkinExtensions))
 
   #else ## if !isEdit

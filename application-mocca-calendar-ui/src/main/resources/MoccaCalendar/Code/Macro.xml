@@ -606,6 +606,10 @@ if (typeof(XWiki) == "undefined" || typeof(XWiki.widgets) == "undefined" || type
         script.remove();
       });
       content.insert('&lt;div id="formcontent"&gt;&lt;div id="forminnercontent"&gt;' + container.innerHTML + '&lt;/div&gt;&lt;/div&gt;');
+
+      //trigger xwiki:dom:updated right after loading xform in modal
+      var parentModalPopup = jQuery('.xdialog-box-moccacal-modal-popup').toArray();
+      document.fire('xwiki:dom:updated', {elements: parentModalPopup});
     },
     handleDatetimeFieldChange : function(event, element) {
       if (this.saving) { return; }
