@@ -529,18 +529,20 @@ if (typeof(XWiki) == "undefined" || typeof(XWiki.widgets) == "undefined" || type
           var buttons = new Element('div', {'class':'buttons'});
           var oldSkin = ! $('body').hasClassName('skin-flamingo'); // FIXME: bad b/w compat hack
           formcontent.insert(buttons);
+          // When you are in a read only calendar you only need the close button for the modal and you MUST Not fire
+          // the xwiki:moccacalendar:editloaded event because you will get a bunch of errors.
           if (this.interactionParameters.editMode) {
             var that = this;
-            buttons.insert(this.createButton("submit","$escapetool.javascript($services.localization.render('save'))","","save-moccacalendar-event","btn"));
-            buttons.down('#save-moccacalendar-event').observe('click', this.submitForm.bind(this));
+            if(this.helper.createEventBaseUrl.indexOf('disabled=disabled') === -1) {
+              buttons.insert(this.createButton("submit","$escapetool.javascript($services.localization.render('save'))","","save-moccacalendar-event","btn"));
+              buttons.down('#save-moccacalendar-event').observe('click', this.submitForm.bind(this));
+              // MOCCACAL-128: the event template has a space in the title to avoid showing the page name, but we want to remove this on load
+              var titleField = formcontent.down('input[name="title"]')
+              if (titleField &amp;&amp; titleField.getAttribute('value').trim() == '') { titleField.setAttribute('value','') }
+              document.fire('xwiki:moccacalendar:editloaded');
+            }
             buttons.insert('&lt;span class="buttonwrapper"&gt;&lt;a href="#" id="cancel-moccacalendar-event" class="secondary button"&gt;' + "$escapetool.javascript($services.localization.render('cancel'))" + '&lt;/a&gt;&lt;/span&gt;');
             buttons.down('#cancel-moccacalendar-event').observe('click', this.closeDialog.bind(this));
-
-            // MOCCACAL-128: the event template has a space in the title to avoid showing the page name, but we want to remove this on load
-            var titleField = formcontent.down('input[name="title"]')
-            if (titleField &amp;&amp; titleField.getAttribute('value').trim() == '') { titleField.setAttribute('value','') }
-
-            document.fire('xwiki:moccacalendar:editloaded');
             $("MoccaCalendarEvent.MoccaCalendarEventClass_0_title").focus();
           } else {
             var leftGroup = new Element('div', {'class':'btn-group btn-group-left'});
@@ -555,13 +557,19 @@ if (typeof(XWiki) == "undefined" || typeof(XWiki.widgets) == "undefined" || type
             }
             // FIXME: this should be a plain link, but then it has no styles
             if (oldSkin) {
-              leftGroup.insert(this.createButton("button","$escapetool.javascript($services.localization.render('view'))","","view-moccacalendar-event","btn"));
+              if (this.interactionParameters.event.readOnly != true) {
+                leftGroup.insert(this.createButton("button","$escapetool.javascript($services.localization.render('view'))","","view-moccacalendar-event","btn"));
+              }
               leftGroup.insert('&lt;span class="buttonwrapper"&gt;&lt;a href="#" id="cancel-moccacalendar-event" class="secondary button"&gt;' + "$escapetool.javascript($services.localization.render('cancel'))" + '&lt;/a&gt;&lt;/span&gt;');
             } else {
-              leftGroup.insert(' &lt;button class="button btn btn-default" id="view-moccacalendar-event"&gt;&lt;span class="glyphicon glyphicon-file"&gt;&lt;/span&gt; '+"$escapetool.javascript($services.localization.render('view'))"+'&lt;/button&gt;');
+              if (this.interactionParameters.event.readOnly != true) {
+                leftGroup.insert(' &lt;button class="button btn btn-default" id="view-moccacalendar-event"&gt;&lt;span class="glyphicon glyphicon-file"&gt;&lt;/span&gt; '+"$escapetool.javascript($services.localization.render('view'))"+'&lt;/button&gt;');
+              }
               leftGroup.insert('&lt;button class="button btn btn-default" id="cancel-moccacalendar-event"&gt;&lt;span class="glyphicon glyphicon-remove"&gt;&lt;/span&gt; '+"$escapetool.javascript($services.localization.render('cancel'))"+'&lt;/button&gt;');
             }
-            leftGroup.down("#view-moccacalendar-event").observe('click', function(e) { e.stop(); window.location.href = this.interactionParameters.event.viewUrl; }.bind(this));
+            if (this.interactionParameters.event.readOnly != true) {
+              leftGroup.down("#view-moccacalendar-event").observe('click', function(e) { e.stop(); window.location.href = this.interactionParameters.event.viewUrl; }.bind(this));
+            }
             leftGroup.down('#cancel-moccacalendar-event').observe('click', this.closeDialog.bind(this));
             if (this.interactionParameters.event.canDelete) {
               var rightGroup = new Element('div', {'class':'btn-group btn-group-right'});
@@ -1482,6 +1490,33 @@ $xwiki.ssx.use("MoccaCalendar.Code.Macro")
 #if(!$date)
  #set($date = "")
 #end
+#set($gCal = "$!xcontext.macro.params.gCal")
+#set($gApiKey = $xcontext.macro.params.gApiKey)
+#if(!$gApiKey)
+  #set($gApiKey = "")
+#end
+#set($iCal = $xcontext.macro.params.iCal)
+#if(!$iCal)
+  #set ($iCal = "")
+#end
+## Prepare the fields if the subscribed class is present
+#set ($subscribed = $doc.getObject('MoccaCalendar.MoccaCalendarSubscribeClass'))
+#if ($subscribed)
+  #set ($subscribediCal = $subscribed.getValue('iCal'))
+  #set ($subscribedgCals = $subscribed.getValue('gCal'))
+  #set ($gApiKeySubscribed = $subscribed.getValue('gApiKey'))
+  #set ($subscribedColor = $subscribed.getValue('color'))
+  #set ($subscribedTextColor = $subscribed.getValue('textColor'))
+  #set ($disableCreationEvent = 'disabled')
+#else
+  #set ($subscribediCals = '')
+  #set ($subscribedgCals = '')
+  #set ($gApiKeySubscribed = '')
+  #set ($subscribedColor = 'blue')
+  #set ($subscribedTextColor = 'white')
+  #set ($disableCreationEvent = "")
+#end
+
 ## If the date format is not set in MoccaCalendarEventClass, we are going to use the date format from the current wiki.
 #set($dateFormat = $!xwiki.getClass("MoccaCalendar.MoccaCalendarEventClass").get("startDate").getProperty('dateFormat').value)
 #if("$!dateFormat" == "")
@@ -1591,6 +1626,58 @@ $xwiki.ssx.use("MoccaCalendar.Code.Macro")
 {{/velocity}}
 
 {{velocity}}
+#macro(getSubscribedCalendars)
+  #set ($query =  ", BaseObject as obj where doc.fullName = obj.name and obj.className = 'MoccaCalendar.MoccaCalendarSubscribeClass'")
+  #set ($calendarDocumentsReferences = $services.query.hql($query).execute())
+  #set ($properties = [])
+  #foreach($reference in $calendarDocumentsReferences)
+    #set ($document = $xwiki.getDocument($reference))
+    #set ($class = $document.getObject('MoccaCalendar.MoccaCalendarSubscribeClass'))
+    #if ($class.getValue('globalDisplay') == '1')
+      #set ($discard =  $properties.add({
+      'iCal': $class.getValue('iCal'),
+      'gCal': $class.getValue('gCal'),
+      'gApiKey': $class.getValue('gApiKey'),
+      'color': $class.getValue('color'),
+      'textColor': $class.getValue('textColor')
+      }))
+    #end
+  #end
+#end
+
+## Macro for handling iCal sources
+#macro(handleICalSources $iCalList $color $textColor)
+  #set($iCals = $stringtool.split($iCalList, ','))
+  #foreach($iCal in $iCals)
+    #set($json = $xwiki.getDocument('Calendar.ICalToJSON').getURL('get', "iCal=$escapetool.url($stringtool.strip($iCal))"))
+    {
+       url: "$json&amp;outputSyntax=plain&amp;startfield=datetime",
+       backgroundColor: "$color",
+       textColor: "$textColor"
+    }
+    #if($foreach.count &lt; $iCals.size())
+      ,
+    #end
+  #end
+#end
+
+## Macro for handling Google Calendar sources
+#macro(handleGoogleCalendarSources $gCalList $apiKey $color, $textColor)
+  #set($googleCalendars = $stringtool.split($gCalList, ','))
+  #foreach($calendar in $googleCalendars)
+    {
+      googleCalendarId: "$stringtool.strip($calendar)",
+      googleCalendarApiKey: "$apiKey",
+      backgroundColor: "$color",
+      textColor: "$textColor"
+    }
+    #if($foreach.count &lt; $googleCalendars.size())
+      ,
+    #end
+  #end
+#end
+
+
 ## We need to check if there is a valid license because the macro is registered even if the user doesn't have view right
 ## on the macro definition page. See XWIKI-14828: Rendering macros defined in wiki pages are available to users that
 ## don't have view right on those pages.
@@ -1613,7 +1700,14 @@ $xwiki.ssx.use("MoccaCalendar.Code.Macro")
 #end
 &lt;div id="calendar${calcounter}"&gt;&lt;/div&gt;
 &lt;script type="text/javascript"&gt;
-require(['xwiki-meta', 'jquery', 'moccaCalendar'], function(xwikiMeta, jQuery) {
+require.config({
+  paths: {
+    purify: "$services.webjars.url('org.webjars.npm:dompurify', 'dist/purify.js')"
+  },
+});
+
+
+require(['xwiki-meta', 'jquery', 'moment','purify', 'gcal', 'moccaCalendar'], function(xwikiMeta, jQuery, moment, purify) {
  jQuery(document).ready(function() {
   var defaultView = XWiki.MoccaCalendar.Helper.getCalendarView("$!escapetool.javascript($defaultView)");
 
@@ -1636,21 +1730,79 @@ require(['xwiki-meta', 'jquery', 'moccaCalendar'], function(xwikiMeta, jQuery) {
 
   // page is now ready, initialize the calendar...
   var calendar = jQuery('#calendar${calcounter}').fullCalendar({
-    events: {
-      url : "$!escapetool.javascript($jsonUrl)",
-      type: 'GET',
-      data : function() {
-        // as we also get called before the calendar is fully initialized
-        // we cannot get the current view reliably from the calendar itself
-        // instead use our trusty helper 
-        return jQuery.extend(defaultEventData, {'outputView': XWiki.MoccaCalendar.Helper.getCalendarView(defaultView)} );
-      },
-      error: function() {
-        calendarHelper.displayError();        
-      },
-      traditional: true
-    },
+    eventSources: [
+      ## Source where the xwiki events are stored.
+      {
+        url: "$!escapetool.javascript($jsonUrl)",
+        type: 'GET',
+        data: function() {
+          // as we also get called before the calendar is fully initialized
+          // we cannot get the current view reliably from the calendar itself
+          // instead use our trusty helper
+          return jQuery.extend(defaultEventData, {'outputView': XWiki.MoccaCalendar.Helper.getCalendarView(defaultView)} );
+        },
+        error: function() {
+          calendarHelper.displayError();
+        },
+        traditional: true
+      }
+      ## Subscribed iCal sources
+      #if($subscribediCal)
+        ,
+        #handleICalSources($subscribediCal, $subscribedColor, $subscribedTextColor)
+      #end
+      ## Subscribed Google Calendar sources
+      #if($!subscribedgCals != "")
+        ,
+        #handleGoogleCalendarSources($subscribedgCals, $gApiKeySubscribed, $subscribedColor, $subscribedTextColor)
+      #end
+      ## Global events
+      #if($doc.getFullName() == 'MoccaCalendar.WebHome')
+        #getSubscribedCalendars()
+        #foreach($property in $properties)
+          ,
+          #handleICalSources($property['iCal'], $property['color'], $property['textColor'])
+          ,
+          #handleGoogleCalendarSources($property['gCal'], $property['gApiKey'], $property['color'], $property['textColor'])
+        #end
+      #end
+      ## In case the user uses the calendar macro directly and dosen't use the UI to create it.
+      ## iCal sources
+      #if($!iCal != "")
+        ,
+        #handleICalSources($iCal 'black')
+      #end
+      ## Google Calendar public sources
+      #if($!gCal != "")
+        ,
+        #handleGoogleCalendarSources($gCal $gApiKey 'blue')
+      #end
+    ],
     eventClick: function(calEvent, jsEvent, view) {
+      // Prepare the read only events for the modal.
+      if (!calEvent.viewUrl){
+        // The XWiki default format for date is yyyy/MM/dd, which translates into 2024/01/17. However, for some weird
+        // reason, when using the date.format() from JavaScript, it translates into 2024/01/Mon. We need to use the
+        // moment().toMomentFormatString(format) to get the right format.
+        const dateFormat = moment().toMomentFormatString(calendarHelper.dateFormat);
+
+        // Get the sheet URL.
+        const sheetURL = new XWiki.Document('MoccaCalendarEventSheet', 'MoccaCalendar').getURL('get');
+        // Parameters for the modal content.
+        const params = {
+          title: purify.sanitize(calEvent.title),
+          start: calEvent.start.format(dateFormat),
+          end: calEvent.end.format(dateFormat),
+          allDay: calEvent.allDay ? "$escapetool.xml($services.localization.render('moccacalendar.subscribedevent.allday.yes'))" :
+                                    "$escapetool.xml($services.localization.render('moccacalendar.subscribedevent.allday.no'))",
+          description: purify.sanitize(calEvent.description),
+          readOnly: 'true'
+        };
+        const queryString = jQuery.param(params);
+        const requestURL = `${sheetURL}?${queryString}`;
+        calEvent.url = requestURL;
+        calEvent.readOnly=true;
+      }
       new XWiki.MoccaCalendar.MoccaCalendarPopup({editMode: false, event: calEvent}, calendarHelper);
       jsEvent.preventDefault();
       return false;
@@ -1719,7 +1871,7 @@ require(['xwiki-meta', 'jquery', 'moccaCalendar'], function(xwikiMeta, jQuery) {
   });
   jQuery('#calendar${calcounter}-btn').click( function(e) { calendarHelper.showCreateEvent(); e.preventDefault(); });
   // helper to be used in callback above
-#set($newPageParams = "template=MoccaCalendar.MoccaCalendarEventTemplate&amp;parentFROM=${escapetool.url($calendarDoc)}&amp;form_token=${services.csrf.getToken()}&amp;ocalcaction=create")
+#set($newPageParams = "template=MoccaCalendar.MoccaCalendarEventTemplate&amp;parentFROM=${escapetool.url($calendarDoc)}&amp;form_token=${services.csrf.getToken()}&amp;ocalcaction=create&amp;disabled=$disableCreationEvent")
 #set($randomDocUrl = $xwiki.getURL("randomPage${util.generateRandomString(10)}",'edit',$newPageParams))
 #set($updateUrlParams="?xpage=plain&amp;outputSyntax=plain&amp;calendarDoc=${escapetool.url(${calendarDoc})}&amp;")
   var calendarHelper = new XWiki.MoccaCalendar.Helper(calendar,
@@ -2634,6 +2786,240 @@ Mocca Calendar Macro
     </property>
     <property>
       <name>wikis</name>
+    </property>
+    <property>
+      <type/>
+    </property>
+  </object>
+  <object>
+    <name>MoccaCalendar.Code.Macro</name>
+    <number>11</number>
+    <className>XWiki.WikiMacroParameterClass</className>
+    <guid>c786fbfe-af07-4bc5-bcdb-5229b3c8f8c2</guid>
+    <class>
+      <name>XWiki.WikiMacroParameterClass</name>
+      <customClass/>
+      <customMapping/>
+      <defaultViewSheet/>
+      <defaultEditSheet/>
+      <defaultWeb/>
+      <nameField/>
+      <validationScript/>
+      <defaultValue>
+        <disabled>0</disabled>
+        <name>defaultValue</name>
+        <number>4</number>
+        <prettyName>Parameter default value</prettyName>
+        <size>30</size>
+        <unmodifiable>0</unmodifiable>
+        <classType>com.xpn.xwiki.objects.classes.StringClass</classType>
+      </defaultValue>
+      <description>
+        <disabled>0</disabled>
+        <name>description</name>
+        <number>2</number>
+        <prettyName>Parameter description</prettyName>
+        <rows>5</rows>
+        <size>40</size>
+        <unmodifiable>0</unmodifiable>
+        <classType>com.xpn.xwiki.objects.classes.TextAreaClass</classType>
+      </description>
+      <mandatory>
+        <disabled>0</disabled>
+        <displayFormType>select</displayFormType>
+        <displayType>yesno</displayType>
+        <name>mandatory</name>
+        <number>3</number>
+        <prettyName>Parameter mandatory</prettyName>
+        <unmodifiable>0</unmodifiable>
+        <classType>com.xpn.xwiki.objects.classes.BooleanClass</classType>
+      </mandatory>
+      <name>
+        <disabled>0</disabled>
+        <name>name</name>
+        <number>1</number>
+        <prettyName>Parameter name</prettyName>
+        <size>30</size>
+        <unmodifiable>0</unmodifiable>
+        <classType>com.xpn.xwiki.objects.classes.StringClass</classType>
+      </name>
+      <type>
+        <disabled>0</disabled>
+        <name>type</name>
+        <number>5</number>
+        <prettyName>Parameter type</prettyName>
+        <size>60</size>
+        <unmodifiable>0</unmodifiable>
+        <classType>com.xpn.xwiki.objects.classes.StringClass</classType>
+      </type>
+    </class>
+    <property>
+      <defaultValue/>
+    </property>
+    <property>
+      <description/>
+    </property>
+    <property>
+      <mandatory>0</mandatory>
+    </property>
+    <property>
+      <name>gCal</name>
+    </property>
+    <property>
+      <type/>
+    </property>
+  </object>
+  <object>
+    <name>MoccaCalendar.Code.Macro</name>
+    <number>12</number>
+    <className>XWiki.WikiMacroParameterClass</className>
+    <guid>3231376e-5df5-4ca3-bc03-e61a38aa439c</guid>
+    <class>
+      <name>XWiki.WikiMacroParameterClass</name>
+      <customClass/>
+      <customMapping/>
+      <defaultViewSheet/>
+      <defaultEditSheet/>
+      <defaultWeb/>
+      <nameField/>
+      <validationScript/>
+      <defaultValue>
+        <disabled>0</disabled>
+        <name>defaultValue</name>
+        <number>4</number>
+        <prettyName>Parameter default value</prettyName>
+        <size>30</size>
+        <unmodifiable>0</unmodifiable>
+        <classType>com.xpn.xwiki.objects.classes.StringClass</classType>
+      </defaultValue>
+      <description>
+        <disabled>0</disabled>
+        <name>description</name>
+        <number>2</number>
+        <prettyName>Parameter description</prettyName>
+        <rows>5</rows>
+        <size>40</size>
+        <unmodifiable>0</unmodifiable>
+        <classType>com.xpn.xwiki.objects.classes.TextAreaClass</classType>
+      </description>
+      <mandatory>
+        <disabled>0</disabled>
+        <displayFormType>select</displayFormType>
+        <displayType>yesno</displayType>
+        <name>mandatory</name>
+        <number>3</number>
+        <prettyName>Parameter mandatory</prettyName>
+        <unmodifiable>0</unmodifiable>
+        <classType>com.xpn.xwiki.objects.classes.BooleanClass</classType>
+      </mandatory>
+      <name>
+        <disabled>0</disabled>
+        <name>name</name>
+        <number>1</number>
+        <prettyName>Parameter name</prettyName>
+        <size>30</size>
+        <unmodifiable>0</unmodifiable>
+        <classType>com.xpn.xwiki.objects.classes.StringClass</classType>
+      </name>
+      <type>
+        <disabled>0</disabled>
+        <name>type</name>
+        <number>5</number>
+        <prettyName>Parameter type</prettyName>
+        <size>60</size>
+        <unmodifiable>0</unmodifiable>
+        <classType>com.xpn.xwiki.objects.classes.StringClass</classType>
+      </type>
+    </class>
+    <property>
+      <defaultValue/>
+    </property>
+    <property>
+      <description/>
+    </property>
+    <property>
+      <mandatory>0</mandatory>
+    </property>
+    <property>
+      <name>gApiKey</name>
+    </property>
+    <property>
+      <type/>
+    </property>
+  </object>
+  <object>
+    <name>MoccaCalendar.Code.Macro</name>
+    <number>13</number>
+    <className>XWiki.WikiMacroParameterClass</className>
+    <guid>a8354333-6729-469d-8255-42a3d2fa50d5</guid>
+    <class>
+      <name>XWiki.WikiMacroParameterClass</name>
+      <customClass/>
+      <customMapping/>
+      <defaultViewSheet/>
+      <defaultEditSheet/>
+      <defaultWeb/>
+      <nameField/>
+      <validationScript/>
+      <defaultValue>
+        <disabled>0</disabled>
+        <name>defaultValue</name>
+        <number>4</number>
+        <prettyName>Parameter default value</prettyName>
+        <size>30</size>
+        <unmodifiable>0</unmodifiable>
+        <classType>com.xpn.xwiki.objects.classes.StringClass</classType>
+      </defaultValue>
+      <description>
+        <disabled>0</disabled>
+        <name>description</name>
+        <number>2</number>
+        <prettyName>Parameter description</prettyName>
+        <rows>5</rows>
+        <size>40</size>
+        <unmodifiable>0</unmodifiable>
+        <classType>com.xpn.xwiki.objects.classes.TextAreaClass</classType>
+      </description>
+      <mandatory>
+        <disabled>0</disabled>
+        <displayFormType>select</displayFormType>
+        <displayType>yesno</displayType>
+        <name>mandatory</name>
+        <number>3</number>
+        <prettyName>Parameter mandatory</prettyName>
+        <unmodifiable>0</unmodifiable>
+        <classType>com.xpn.xwiki.objects.classes.BooleanClass</classType>
+      </mandatory>
+      <name>
+        <disabled>0</disabled>
+        <name>name</name>
+        <number>1</number>
+        <prettyName>Parameter name</prettyName>
+        <size>30</size>
+        <unmodifiable>0</unmodifiable>
+        <classType>com.xpn.xwiki.objects.classes.StringClass</classType>
+      </name>
+      <type>
+        <disabled>0</disabled>
+        <name>type</name>
+        <number>5</number>
+        <prettyName>Parameter type</prettyName>
+        <size>60</size>
+        <unmodifiable>0</unmodifiable>
+        <classType>com.xpn.xwiki.objects.classes.StringClass</classType>
+      </type>
+    </class>
+    <property>
+      <defaultValue/>
+    </property>
+    <property>
+      <description/>
+    </property>
+    <property>
+      <mandatory>0</mandatory>
+    </property>
+    <property>
+      <name>iCal</name>
     </property>
     <property>
       <type/>
