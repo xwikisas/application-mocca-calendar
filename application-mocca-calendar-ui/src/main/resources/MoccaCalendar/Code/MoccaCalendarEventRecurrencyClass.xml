@@ -48,7 +48,7 @@
     <validationScript/>
     <firstInstance>
       <customDisplay/>
-      <dateFormat>dd.MM.yyyy HH:mm</dateFormat>
+      <dateFormat>yyyy/MM/dd HH:mm</dateFormat>
       <disabled>0</disabled>
       <emptyIsToday>0</emptyIsToday>
       <name>firstInstance</name>
@@ -84,7 +84,7 @@
     </frequency>
     <lastInstance>
       <customDisplay/>
-      <dateFormat>dd.MM.yyyy HH:mm</dateFormat>
+      <dateFormat>yyyy/MM/dd HH:mm</dateFormat>
       <disabled>0</disabled>
       <emptyIsToday>0</emptyIsToday>
       <name>lastInstance</name>
