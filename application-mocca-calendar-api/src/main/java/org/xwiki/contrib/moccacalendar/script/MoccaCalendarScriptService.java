@@ -627,7 +627,6 @@ public class MoccaCalendarScriptService implements ScriptService
                 }
                 // text color can be missing
                 if (event.getTextColor().length() == 0) {
-                    // not that great
                     event.setTextColor("");
                 }
             } else {
