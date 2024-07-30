@@ -184,14 +184,11 @@ $doc.display($field)
     : $doc.display('allDay')
     ; &lt;label for="${editPrefix}_description"&gt;$escapetool.xml($doc.displayPrettyName('description', false, false))&lt;/label&gt;
     : $doc.display('description')
-  ## FIXME: recurrency flag disabled for the merge; reactivate it later
-  #if(false)
     ; &lt;label for="${editPrefix}_recurrent"&gt;$escapetool.xml($doc.displayPrettyName('recurrent', false, false))&lt;/label&gt;
-    #if(!$doc.isNew())
+  #if(!$doc.isNew())
     : $doc.display('recurrent','view') #if($isEdit) $doc.display('recurrent','hidden') #end
-    #else
+  #else
     : $doc.display('recurrent')
-    #end
   #end
   #if($doc.isNew() || $isRecurrent)
   #set($discard = $doc.use($eventRecurrentClass)) ##
@@ -218,7 +215,14 @@ $doc.display($field)
     #set($discard = $doc.use('MoccaCalendar.Code.MoccaCalendarEventModificationClass', $modifiedEventObjIndex))
     #set($editOnePrefix = "MoccaCalendar.Code.MoccaCalendarEventModificationClass_${modifiedEventObjIndex}")
   #end
-  &lt;div id="oneEventFields"&gt;
+
+  #set($dateFormat = $!xwiki.getClass('MoccaCalendar.Code.MoccaCalendarEventModificationClass').get('startDate').getProperty('dateFormat').value)
+  #if("$!dateFormat" == "")
+    ## If the date format set from the current xwiki is not set, a default value will be provided.
+    #set($dateFormat = $xwiki.getXWikiPreference('dateformat', 'yyyy/MM/dd HH:mm'))
+  #end
+
+  &lt;div id="oneEventFields" data-original-format="$dateFormat"&gt;
 
     ; &lt;label for="${editOnePrefix}_title"&gt;$escapetool.xml($doc.displayPrettyName('title', false, false))&lt;span class="xRequired"&gt;&lt;/span&gt;&lt;/label&gt;
     : $doc.display('title')
@@ -256,12 +260,9 @@ $doc.display($field)
     : $doc.display('allDay')
     ; &lt;label for="description"&gt;$escapetool.xml($doc.displayPrettyName('description', false, false))&lt;/label&gt;
     : $eventInstance.getDescriptionHtml()
-    ## FIXME: recurrency flag disabled for the merge; reactivate it later
-    #if(false)
     ; &lt;label for="recurrent"&gt;$escapetool.xml($doc.displayPrettyName('recurrent', false, false))&lt;/label&gt;
     ## XXX same as allDay, we might need a localized string representation in the eventInstance
     : $doc.display('recurrent')
-    #end
   #else
   ## This branch is only reached by events from iCals and gCals. The "xwiki false" setting is necessary because we
   ## don't have control over the data from other providers. If the wiki syntax is set to true, the data might be
