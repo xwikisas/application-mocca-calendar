@@ -214,20 +214,20 @@
   function enable(element) { element.removeAttribute('disabled') }
 
   function setOriginalDateFormat() {
-    var endDateInput = document.querySelector('input[id^="MoccaCalendar\\.Code\\.MoccaCalendarEventModificationClass_"][id$="_endDate"]');
-    var startDateInput = document.querySelector('input[id^="MoccaCalendar\\.Code\\.MoccaCalendarEventModificationClass_"][id$="_startDate"]');
-    const originalFormat = $('used-format').value;
-    var momentFormat = moment().toMomentFormatString(originalFormat);
+    const endDateInput = document.querySelector('input[id^="MoccaCalendar\\.Code\\.MoccaCalendarEventModificationClass_"][id$="_endDate"]');
+    const startDateInput = document.querySelector('input[id^="MoccaCalendar\\.Code\\.MoccaCalendarEventModificationClass_"][id$="_startDate"]');
+    const originalFormat = document.getElementById('oneEventFields').getAttribute('data-original-format');
+    const momentFormat = moment().toMomentFormatString(originalFormat);
 
     if(endDateInput) {
       endDateInput.setAttribute('data-format', originalFormat);
-      let endDate = moment(endDateInput.value)
-      endDateInput.value = endDate.format(momentFormat)
+      let endDate = moment(endDateInput.value);
+      endDateInput.value = endDate.format(momentFormat);
     }
     if(startDateInput) {
       startDateInput.setAttribute('data-format', originalFormat);
-      let startDate = moment(startDateInput.value)
-      startDateInput.value = startDate.format(momentFormat)
+      let startDate = moment(startDateInput.value);
+      startDateInput.value = startDate.format(momentFormat);
     }
   }
 
@@ -247,14 +247,14 @@
     // MoccaCalendarEventModificationClass date format, so that the corresponding object can be created or modified
     // correctly.
     if ($('MoccaCalendar.MoccaCalendarEventClass_0_allDay').checked) {
-      setOriginalDateFormat()
+      setOriginalDateFormat();
     }
     if (action == 'action_save' || action == 'action_saveandcontinue' || action == 'save-moccacalendar-event') {
       new Ajax.Request(
          new XWiki.Document( new XWiki.DocumentReference('', ['MoccaCalendar','Code'], 'EventModificationService')).getURL('get'),
          {
            method: 'post',
-           parameters: $('edit-form').serialize({submit:false}),
+           parameters: $('mocca-event-edit-form').serialize({submit:false}),
            onSuccess: function(response) {
               if (action == 'action_save') {
                 new XWiki.widgets.Notification( "saved", "done");
@@ -285,7 +285,7 @@
     // here we tell the default handler in the main "Macro" code not to save
     // if we are in the edit dialog modal
     document.fire('xwiki:moccacalendar:editmode', {'oneInstance' : true})
-    $$("#edit-form input#save-moccacalendar-event").each(function (e) { e.observe('click', onSaveClick) } )
+    $$("#mocca-event-edit-form input#save-moccacalendar-event").each(function (e) { e.observe('click', onSaveClick) } )
     $('allEventsFields').hide()
     $$('#allEventsFields input').each(disable)
     $$('#allEventsFields textarea').each(disable)
@@ -297,7 +297,7 @@
 
   function editAllInstances() {
     document.fire('xwiki:moccacalendar:editmode', {'oneInstance' : false})
-    $$("#edit-form input#save-moccacalendar-event").each(function (e) { e.stopObserving('click', onSaveClick) } )
+    $$("#mocca-event-edit-form input#save-moccacalendar-event").each(function (e) { e.stopObserving('click', onSaveClick) } )
     $('oneEventFields').hide()
     $$('#oneEventFields input').each(disable)
     $$('#oneEventFields textarea').each(disable)
