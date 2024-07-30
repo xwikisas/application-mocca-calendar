@@ -278,7 +278,7 @@ if (typeof(XWiki) == "undefined" || typeof(XWiki.widgets) == "undefined" || type
       // call constructor from ModalPopup with params content, shortcuts, options
       $super(
         // this element will end up as 'this.content'
-        new Element('form', {'class' : 'xform', 'id' : 'edit-form'}),
+        new Element('form', {'class' : 'xform', 'id' : 'mocca-event-edit-form'}),
         {
           "show": {method: this.showDialog, keys: []},
           "close": {method: this.closeDialog, keys: ['Esc']}

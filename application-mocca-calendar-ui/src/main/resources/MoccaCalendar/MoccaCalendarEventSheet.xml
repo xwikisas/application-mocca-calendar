@@ -215,7 +215,14 @@ $doc.display($field)
     #set($discard = $doc.use('MoccaCalendar.Code.MoccaCalendarEventModificationClass', $modifiedEventObjIndex))
     #set($editOnePrefix = "MoccaCalendar.Code.MoccaCalendarEventModificationClass_${modifiedEventObjIndex}")
   #end
-  &lt;div id="oneEventFields"&gt;
+
+  #set($dateFormat = $!xwiki.getClass('MoccaCalendar.Code.MoccaCalendarEventModificationClass').get('startDate').getProperty('dateFormat').value)
+    #if("$!dateFormat" == "")
+    ## If the date format set from the current xwiki is not set, a default value will be provided.
+    #set($dateFormat = $xwiki.getXWikiPreference('dateformat', 'yyyy/MM/dd HH:mm'))
+  #end
+
+  &lt;div id="oneEventFields" data-original-format="$dateFormat"&gt;
 
     ; &lt;label for="${editOnePrefix}_title"&gt;$escapetool.xml($doc.displayPrettyName('title', false, false))&lt;span class="xRequired"&gt;&lt;/span&gt;&lt;/label&gt;
     : $doc.display('title')
@@ -225,17 +232,11 @@ $doc.display($field)
     : #displayDate('endDate')#showvalidationmessage("MoccaCalendar.Code.MoccaCalendarEventModificationClass.validation.endDateBeforeStartDate")#showvalidationmessage("MoccaCalendar.Code.MoccaCalendarEventModificationClass.validation.endDateNotDate")
     ; &lt;label for="${editOnePrefix}_description"&gt;$escapetool.xml($doc.displayPrettyName('description', false, false))&lt;/label&gt;
     : $doc.display('description')
-    
-    #set($dateFormat = $!xwiki.getClass("MoccaCalendar.Code.MoccaCalendarEventModificationClass").get("startDate").getProperty('dateFormat').value)
-    #if("$!dateFormat" == "")
-      ## If the date format set from the current xwiki is not set, a default value will be provided.
-      #set($dateFormat = $xwiki.getXWikiPreference('dateformat', 'yyyy/MM/dd HH:mm'))
-    #end
+
     &lt;input type="hidden" name="classname" value="MoccaCalendar.Code.MoccaCalendarEventModificationClass" /&gt;
     &lt;input type="hidden" id="modificationIsNew" name="modificationIsNew" value="$modifiedEventObjectIsNew" /&gt;
     &lt;input type="hidden" id="eventOrigStartDate" name="${editOnePrefix}_eventOrigStartDate" value="$escapetool.html($instanceStartStr)" /&gt;
     &lt;input type="hidden" name="eventDoc"  value="$escapetool.html($services.model.serialize($doc.getDocumentReference(),'default'))" /&gt;
-    &lt;input type="hidden" id="used-format" name="used-format" value="$dateFormat" /&gt;
   &lt;/div&gt;
   #end ## if isSingleInstance
 
@@ -259,7 +260,6 @@ $doc.display($field)
     : $doc.display('allDay')
     ; &lt;label for="description"&gt;$escapetool.xml($doc.displayPrettyName('description', false, false))&lt;/label&gt;
     : $eventInstance.getDescriptionHtml()
-    ## FIXME: recurrency flag disabled for the merge; reactivate it later
     ; &lt;label for="recurrent"&gt;$escapetool.xml($doc.displayPrettyName('recurrent', false, false))&lt;/label&gt;
     ## XXX same as allDay, we might need a localized string representation in the eventInstance
     : $doc.display('recurrent')
