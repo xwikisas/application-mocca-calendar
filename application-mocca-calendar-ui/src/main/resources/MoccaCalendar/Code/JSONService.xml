@@ -57,7 +57,7 @@
   #set($sameDay = ($endDate.getYear() == $startDate.getYear() &amp;&amp; $endDate.getDayOfYear() == $startDate.getDayOfYear()))
   #set($format = $eventDoc.getObject("MoccaCalendar.MoccaCalendarEventClass").getxWikiClass().get('startDate').getProperty('dateFormat').value)
   #if("$!{format}"=="")
-    #set($format = $xwiki.getSpacePreference('dateformat', 'dd.MM.yyyy HH:mm'))
+    #set($format = $xwiki.getSpacePreference('dateformat', 'yyyy/MM/dd HH:mm'))
   #end
   #set($idx = $format.indexOf("H"))
   #if($idx &gt; 0)
