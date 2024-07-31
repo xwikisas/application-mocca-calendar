@@ -64,7 +64,7 @@
     </description>
     <endDate>
       <customDisplay/>
-      <dateFormat>dd.MM.yyyy HH:mm</dateFormat>
+      <dateFormat>yyyy/MM/dd HH:mm</dateFormat>
       <disabled>0</disabled>
       <emptyIsToday>0</emptyIsToday>
       <name>endDate</name>
@@ -94,7 +94,7 @@
     </eventOrigStartDate>
     <startDate>
       <customDisplay/>
-      <dateFormat>dd.MM.yyyy HH:mm</dateFormat>
+      <dateFormat>yyyy/MM/dd HH:mm</dateFormat>
       <disabled>0</disabled>
       <emptyIsToday>0</emptyIsToday>
       <name>startDate</name>
@@ -208,10 +208,28 @@
       <cache>long</cache>
     </property>
     <property>
-      <code>(function() {
+      <code>require(['moment'], function(moment) {
 
   function disable(element) { element.setAttribute('disabled','disabled') }
   function enable(element) { element.removeAttribute('disabled') }
+
+  function setOriginalDateFormat() {
+    const endDateInput = document.querySelector('input[id^="MoccaCalendar\\.Code\\.MoccaCalendarEventModificationClass_"][id$="_endDate"]');
+    const startDateInput = document.querySelector('input[id^="MoccaCalendar\\.Code\\.MoccaCalendarEventModificationClass_"][id$="_startDate"]');
+    const originalFormat = document.getElementById('oneEventFields').getAttribute('data-original-format');
+    const momentFormat = moment().toMomentFormatString(originalFormat);
+
+    if(endDateInput) {
+      endDateInput.setAttribute('data-format', originalFormat);
+      let endDate = moment(endDateInput.value);
+      endDateInput.value = endDate.format(momentFormat);
+    }
+    if(startDateInput) {
+      startDateInput.setAttribute('data-format', originalFormat);
+      let startDate = moment(startDateInput.value);
+      startDateInput.value = startDate.format(momentFormat);
+    }
+  }
 
   /* the save / save &amp; view / preview buttons actions must be patched
      as otherwise the save_action parameter value send with them adds some side effects */
@@ -220,22 +238,26 @@
     if (action == null) {
        action = this.getAttribute('id')
     }
-    // alert('clicked ' + action)
     if (action == 'action_cancel' || action == 'cancel-moccacalendar-event') {
       return
     }
     event.stop()
 
+    // If an event has the allDay flag checked, we must change the format of the dates back to the original
+    // MoccaCalendarEventModificationClass date format, so that the corresponding object can be created or modified
+    // correctly.
+    if ($('MoccaCalendar.MoccaCalendarEventClass_0_allDay').checked) {
+      setOriginalDateFormat();
+    }
     if (action == 'action_save' || action == 'action_saveandcontinue' || action == 'save-moccacalendar-event') {
       new Ajax.Request(
          new XWiki.Document( new XWiki.DocumentReference('', ['MoccaCalendar','Code'], 'EventModificationService')).getURL('get'),
          {
            method: 'post',
-           parameters: $('inline').serialize({submit:false}),
+           parameters: $('mocca-event-edit-form').serialize({submit:false}),
            onSuccess: function(response) {
               if (action == 'action_save') {
                 new XWiki.widgets.Notification( "saved", "done");
- // "$escapetool.javascript($services.localization.render('core.widgets.confirmationBox.notification.done'))", "done", {inactive: true})
                 var viewUrl =  docviewurl + '?instanceStart=' + encodeURIComponent($('eventOrigStartDate').getAttribute('value'))
                 window.location.href = viewUrl;
               } else if (action == 'save-moccacalendar-event') {
@@ -253,17 +275,17 @@
              console.log('while sending save request ', e);
            }
          }
-      )    
+      )
     } else if (action == 'action_preview') {
       alert('preview not implemented yet')
-    }  
+    }
   }
 
   function editOnlyThisInstance() {
     // here we tell the default handler in the main "Macro" code not to save
     // if we are in the edit dialog modal
     document.fire('xwiki:moccacalendar:editmode', {'oneInstance' : true})
-    $$("#inline input.btn").each(function (e) { e.observe('click', onSaveClick) } )
+    $$("#mocca-event-edit-form input#save-moccacalendar-event").each(function (e) { e.observe('click', onSaveClick) } )
     $('allEventsFields').hide()
     $$('#allEventsFields input').each(disable)
     $$('#allEventsFields textarea').each(disable)
@@ -275,7 +297,7 @@
 
   function editAllInstances() {
     document.fire('xwiki:moccacalendar:editmode', {'oneInstance' : false})
-    $$("#inline input.btn").each(function (e) { e.stopObserving('click', onSaveClick) } )
+    $$("#mocca-event-edit-form input#save-moccacalendar-event").each(function (e) { e.stopObserving('click', onSaveClick) } )
     $('oneEventFields').hide()
     $$('#oneEventFields input').each(disable)
     $$('#oneEventFields textarea').each(disable)
@@ -315,7 +337,7 @@
 
   document.observe('xwiki:moccacalendar:editloaded', hookEventEditSwitch);
   (XWiki &amp;&amp; XWiki.domIsLoaded &amp;&amp; hookEventEditSwitch()) || document.observe("xwiki:dom:loaded", hookEventEditSwitch);
-})();</code>
+});</code>
     </property>
     <property>
       <name>edit view modifications for events</name>
