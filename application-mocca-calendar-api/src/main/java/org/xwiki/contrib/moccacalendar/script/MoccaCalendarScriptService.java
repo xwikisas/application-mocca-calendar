@@ -582,8 +582,12 @@ public class MoccaCalendarScriptService implements ScriptService
         event.setEventDocRef(eventDocRef);
         event.setModifiable(true);
         event.setMovable(!event.isRecurrent());
-        event.setTextColor(textColor);
-        event.setBackgroundColor(backgroundColor);
+        if (event.getTextColor() == null) {
+            event.setTextColor(textColor);
+        }
+        if (event.getBackgroundColor() == null) {
+            event.setBackgroundColor(backgroundColor);
+        }
 
         fillInColorsFromNearestCalendar(event);
     }
@@ -622,13 +626,8 @@ public class MoccaCalendarScriptService implements ScriptService
 
             if (calendarData == null) {
                 // some arbitrary defaults
-                if (event.getBackgroundColor().length() == 0) {
-                    event.setBackgroundColor("#888");
-                }
-                // text color can be missing
-                if (event.getTextColor().length() == 0) {
-                    event.setTextColor("");
-                }
+                event.setBackgroundColor("");
+                event.setTextColor("");
             } else {
                 if (event.getBackgroundColor().length() == 0) {
                     event.setBackgroundColor(calendarData.getStringValue("color"));
@@ -948,6 +947,12 @@ public class MoccaCalendarScriptService implements ScriptService
         modifiedInstance.setStartDate(new DateTime(actualStartDate.getTime()));
         modifiedInstance.setOriginalStartDate(new DateTime(originalStartDate.getTime()));
         modifiedInstance.setEndDate(new DateTime(actualEndDate.getTime()));
+
+        String actualBackgroundColor = modificationNotice.getStringValue(EventConstants.PROPERTY_BACKGROUNDCOLOR_NAME);
+        String actualTextColor = modificationNotice.getStringValue(EventConstants.PROPERTY_TEXTCOLOR_NAME);
+
+        modifiedInstance.setBackgroundColor(actualBackgroundColor);
+        modifiedInstance.setTextColor(actualTextColor);
 
         XWikiContext context = xcontextProvider.get();
         String modifiedTitle = modificationNotice.getStringValue(EventConstants.PROPERTY_TITLE_NAME);

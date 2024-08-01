@@ -146,6 +146,8 @@ MoccaCalendar.Code.MoccaCalendarEventModificationClass_title=Modified title
 MoccaCalendar.Code.MoccaCalendarEventModificationClass_startDate=Modified start date
 MoccaCalendar.Code.MoccaCalendarEventModificationClass_endDate=Modified end date
 MoccaCalendar.Code.MoccaCalendarEventModificationClass_description=Modified description
+MoccaCalendar.Code.MoccaCalendarEventModificationClass_backgroundColor=Modified background color
+MoccaCalendar.Code.MoccaCalendarEventModificationClass_textColor=Modified text color
 
 # the modification switch
 moccacalendarevent.editswitch.label=Edit:
