@@ -135,6 +135,7 @@ $doc.display($field)
   #end
   
   #set($eventInstance = $services.moccacalendar.getEventInstance($doc, $instanceStart))
+  #set($eventInstanceRecurrentBase = $services.moccacalendar.getEventInstance($doc, null))
   
   #if($isEdit)
   #initRequiredSkinExtensions()
@@ -194,14 +195,14 @@ $doc.display($field)
     #set ($colorPickerParams = {
       'id': "${editPrefix}_backgroundColor",
       'name': "${editPrefix}_backgroundColor",
-      'value': $escapetool.xml($eventInstance.getBackgroundColor())
+      'value': $escapetool.xml($eventInstanceRecurrentBase.getBackgroundColor())
     })
     : #colorPicker($colorPickerParams)
     ; &lt;label for="${editPrefix}_textColor"&gt;$escapetool.xml($doc.displayPrettyName('textColor', false, false))&lt;/label&gt;
     #set ($colorPickerParams = {
       'id': "${editPrefix}_textColor",
       'name': "${editPrefix}_textColor",
-      'value': $escapetool.xml($eventInstance.getTextColor())
+      'value': $escapetool.xml($eventInstanceRecurrentBase.getTextColor())
     })
     : #colorPicker($colorPickerParams)
     ; &lt;label for="${editPrefix}_recurrent"&gt;$escapetool.xml($doc.displayPrettyName('recurrent', false, false))&lt;/label&gt;

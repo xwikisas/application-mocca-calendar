@@ -582,10 +582,10 @@ public class MoccaCalendarScriptService implements ScriptService
         event.setEventDocRef(eventDocRef);
         event.setModifiable(true);
         event.setMovable(!event.isRecurrent());
-        if (event.getTextColor() == null) {
+        if (event.getTextColor() == null || "" == event.getTextColor()) {
             event.setTextColor(textColor);
         }
-        if (event.getBackgroundColor() == null) {
+        if (event.getBackgroundColor() == null || "" == event.getBackgroundColor()) {
             event.setBackgroundColor(backgroundColor);
         }
 
