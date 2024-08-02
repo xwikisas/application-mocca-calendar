@@ -108,13 +108,13 @@ public class ImportJob extends AbstractJob<ImportJobRequest, ImportJobStatus> im
     {
         try {
             List<MoccaCalendarEvent> calendarEventsJson =
-                fullCalendarManager.getICalEventsFromFile(getICSFileContent(request.getFile()), true);
+                fullCalendarManager.getICalEventsFromFile(getICSFileContent(request.getFile()), null, null, true);
             List<XWikiDocument> eventDocuments = new ArrayList<>();
             this.progressManager.pushLevelProgress(calendarEventsJson.size() + 1, this);
 
             for (MoccaCalendarEvent calendarEvent : calendarEventsJson) {
                 progressManager.startStep(this);
-                if (!status.isCanceled()) {
+                if (status.isCanceled()) {
                     progressManager.endStep(this);
                     break;
                 }
@@ -135,7 +135,7 @@ public class ImportJob extends AbstractJob<ImportJobRequest, ImportJobStatus> im
         }
     }
 
-    private void batchSave(List<XWikiDocument> eventDocuments) throws XWikiException, ParseException
+    private void batchSave(List<XWikiDocument> eventDocuments) throws XWikiException
     {
         if (!status.isCanceled()) {
             XWikiContext wikiContext = wikiContextProvider.get();
@@ -207,7 +207,7 @@ public class ImportJob extends AbstractJob<ImportJobRequest, ImportJobStatus> im
         }
     }
 
-    private byte[] getICSFileContent(byte[] importedFileContent) throws ParserException
+    private byte[] getICSFileContent(byte[] importedFileContent)
     {
         String importedFileString = new String(importedFileContent);
         int beginIndex = importedFileString.indexOf(CalendarKeys.ICS_CALENDAR_CALENDAR_BEGIN);
