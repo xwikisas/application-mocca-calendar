@@ -19,7 +19,6 @@
  */
 package org.xwiki.contrib.moccacalendar.internal.importJob;
 
-import java.text.ParseException;
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
 import java.util.ArrayList;
@@ -30,6 +29,8 @@ import javax.inject.Inject;
 import javax.inject.Named;
 import javax.inject.Provider;
 
+import org.jsoup.Jsoup;
+import org.jsoup.safety.Safelist;
 import org.xwiki.component.annotation.Component;
 import org.xwiki.contrib.moccacalendar.importJob.ImportJobRequest;
 import org.xwiki.contrib.moccacalendar.importJob.ImportJobStatus;
@@ -43,15 +44,15 @@ import org.xwiki.job.JobGroupPath;
 import org.xwiki.model.reference.DocumentReference;
 import org.xwiki.model.reference.DocumentReferenceResolver;
 import org.xwiki.model.reference.SpaceReference;
+import org.xwiki.rendering.syntax.Syntax;
 import org.xwiki.stability.Unstable;
+import org.xwiki.wysiwyg.converter.HTMLConverter;
 
 import com.xpn.xwiki.XWiki;
 import com.xpn.xwiki.XWikiContext;
 import com.xpn.xwiki.XWikiException;
 import com.xpn.xwiki.doc.XWikiDocument;
 import com.xpn.xwiki.objects.BaseObject;
-
-import net.fortuna.ical4j.data.ParserException;
 
 /**
  * The Mocca calendar import job.
@@ -80,6 +81,9 @@ public class ImportJob extends AbstractJob<ImportJobRequest, ImportJobStatus> im
 
     @Inject
     private FullCalendarManager fullCalendarManager;
+
+    @Inject
+    private HTMLConverter htmlConverter;
 
     @Override
     public String getType()
@@ -155,8 +159,10 @@ public class ImportJob extends AbstractJob<ImportJobRequest, ImportJobStatus> im
             documentReferenceResolver.resolve(EventConstants.MOCCA_CALENDAR_EVENT_CLASS_NAME);
         BaseObject eventObj = eventDoc.newXObject(eventClassRef, wikiContext);
 
-        eventObj.set(EventConstants.PROPERTY_TITLE_NAME, component.getTitle(), wikiContext);
-        eventObj.set(EventConstants.PROPERTY_DESCRIPTION_NAME, component.getDescription(), wikiContext);
+        addConvertedPropertyToObject(component.getDescription(), eventObj, Syntax.XWIKI_2_1.toIdString(),
+            EventConstants.PROPERTY_DESCRIPTION_NAME);
+        addConvertedPropertyToObject(component.getTitle(), eventObj, Syntax.XWIKI_2_1.toIdString(),
+            EventConstants.PROPERTY_TITLE_NAME);
 
         int allDay = component.isAllDay() ? 1 : 0;
         eventObj.set(EventConstants.PROPERTY_ALLDAY_NAME, allDay, wikiContext);
@@ -172,13 +178,21 @@ public class ImportJob extends AbstractJob<ImportJobRequest, ImportJobStatus> im
         int recurrenceValue = component.isRecurrent();
         eventObj.set(EventConstants.PROPERTY_RECURRENT_NAME, recurrenceValue, wikiContext);
         if (recurrenceValue == 1) {
-            processRecurrence(eventDoc, component, wikiContext);
+            processRecurrence(eventDoc, component);
         }
     }
 
-    private void processRecurrence(XWikiDocument eventDoc, MoccaCalendarEvent component, XWikiContext wikiContext)
-        throws XWikiException
+    private void addConvertedPropertyToObject(String content, BaseObject eventObj, String syntax, String property)
     {
+        String cleanContent = Jsoup.clean(content, Safelist.basic());
+        String convertedContent = htmlConverter.fromHTML(cleanContent, syntax);
+
+        eventObj.set(property, convertedContent, wikiContextProvider.get());
+    }
+
+    private void processRecurrence(XWikiDocument eventDoc, MoccaCalendarEvent component) throws XWikiException
+    {
+        XWikiContext wikiContext = wikiContextProvider.get();
         DocumentReference eventRecClassRef =
             documentReferenceResolver.resolve(EventConstants.MOCCA_CALENDAR_EVENT_RECURRENCY_CLASS_NAME);
         BaseObject eventRecObj = eventDoc.newXObject(eventRecClassRef, wikiContext);
@@ -189,21 +203,21 @@ public class ImportJob extends AbstractJob<ImportJobRequest, ImportJobStatus> im
             wikiContext);
 
         List<RecurrentEventModification> modList = component.getModificationList();
-        if (!modList.isEmpty()) {
-            for (RecurrentEventModification eventModification : modList) {
-                DocumentReference eventRecModifiedRef =
-                    documentReferenceResolver.resolve(EventConstants.MOCCA_CALENDAR_EVENT_MODIFICATION_CLASS_NAME);
-                BaseObject eventModObj = eventDoc.newXObject(eventRecModifiedRef, wikiContext);
-                eventModObj.set(EventConstants.PROPERTY_ORIG_STARTDATE_OF_MODIFIED_NAME,
-                    eventModification.getOriginalDate(), wikiContext);
-                eventModObj.set(EventConstants.PROPERTY_STARTDATE_NAME, eventModification.getModifiedStartDate(),
-                    wikiContext);
-                eventModObj.set(EventConstants.PROPERTY_ENDDATE_NAME, eventModification.getModifiedEndDate(),
-                    wikiContext);
-                eventModObj.set(EventConstants.PROPERTY_TITLE_NAME, eventModification.getModifiedTitle(), wikiContext);
-                eventModObj.set(EventConstants.PROPERTY_DESCRIPTION_NAME, eventModification.getModifiedDescription(),
-                    wikiContext);
-            }
+        DocumentReference eventRecModifiedRef =
+            documentReferenceResolver.resolve(EventConstants.MOCCA_CALENDAR_EVENT_MODIFICATION_CLASS_NAME);
+
+        for (RecurrentEventModification eventModification : modList) {
+            BaseObject eventModObj = eventDoc.newXObject(eventRecModifiedRef, wikiContext);
+            eventModObj.set(EventConstants.PROPERTY_ORIG_STARTDATE_OF_MODIFIED_NAME,
+                eventModification.getOriginalDate(), wikiContext);
+            eventModObj.set(EventConstants.PROPERTY_STARTDATE_NAME, eventModification.getModifiedStartDate(),
+                wikiContext);
+            eventModObj.set(EventConstants.PROPERTY_ENDDATE_NAME, eventModification.getModifiedEndDate(), wikiContext);
+            addConvertedPropertyToObject(eventModification.getModifiedTitle(), eventModObj,
+                Syntax.XWIKI_2_1.toIdString(), EventConstants.PROPERTY_TITLE_NAME);
+
+            addConvertedPropertyToObject(eventModification.getModifiedDescription(), eventModObj,
+                Syntax.XWIKI_2_1.toIdString(), EventConstants.PROPERTY_DESCRIPTION_NAME);
         }
     }
 
