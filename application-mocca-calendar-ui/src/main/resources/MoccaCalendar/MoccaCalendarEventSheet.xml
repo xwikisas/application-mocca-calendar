@@ -133,10 +133,10 @@ $doc.display($field)
       #end
     {{/error}}
   #end
-  
-  #set($eventInstance = $services.moccacalendar.getEventInstance($doc, $instanceStart))
-  #set($eventInstanceRecurrentBase = $services.moccacalendar.getEventInstance($doc, null))
-  
+  #if(!$doc.isNew())
+    #set($eventInstance = $services.moccacalendar.getEventInstance($doc, $instanceStart))
+    #set($eventInstanceRecurrentBase = $services.moccacalendar.getEventInstance($doc, null))
+  #end
   #if($isEdit)
   #initRequiredSkinExtensions()
   ##
