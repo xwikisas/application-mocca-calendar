@@ -73,7 +73,7 @@ $doc.display($field)
 #set($eventClass = 'MoccaCalendar.MoccaCalendarEventClass')
 #set($eventValidationDoc = 'MoccaCalendar.Code.MoccaCalendarEventValidation')
 #set($eventRecurrentClass = 'MoccaCalendar.Code.MoccaCalendarEventRecurrencyClass')
-#set ($discard = $xwiki.ssx.use("MoccaCalendar.Code.Macro"))
+#set ($discard = $xwiki.ssx.use('MoccaCalendar.Code.Macro'))
 #set($discard=$xwiki.jsx.use("MoccaCalendar.Code.DatePickerExtension", {'defer': false}))
 #if($isEdit)
   #set($discard=$xwiki.jsx.use("MoccaCalendar.Code.MoccaCalendarEventModificationClass", {'defer': false, 'minify': false}))
@@ -133,10 +133,6 @@ $doc.display($field)
       #end
     {{/error}}
   #end
-  #if(!$doc.isNew())
-    #set ($eventInstance = $services.moccacalendar.getEventInstance($doc, $instanceStart))
-    #set ($eventInstanceRecurrentBase = $services.moccacalendar.getEventInstance($doc, null))
-  #end
   #if($isEdit)
   #initRequiredSkinExtensions()
   ##
@@ -195,14 +191,14 @@ $doc.display($field)
     #set ($colorPickerParams = {
       'id': "${editPrefix}_backgroundColor",
       'name': "${editPrefix}_backgroundColor",
-      'value': $escapetool.xml($eventInstanceRecurrentBase.getBackgroundColor())
+      'value': $escapetool.xml($doc.getValue('backgroundColor'))
     })
     : #colorPicker($colorPickerParams)
     ; &lt;label for="${editPrefix}_textColor"&gt;$escapetool.xml($doc.displayPrettyName('textColor', false, false))&lt;/label&gt;
     #set ($colorPickerParams = {
       'id': "${editPrefix}_textColor",
       'name': "${editPrefix}_textColor",
-      'value': $escapetool.xml($eventInstanceRecurrentBase.getTextColor())
+      'value': $escapetool.xml($doc.getValue('textColor'))
     })
     : #colorPicker($colorPickerParams)
     ; &lt;label for="${editPrefix}_recurrent"&gt;$escapetool.xml($doc.displayPrettyName('recurrent', false, false))&lt;/label&gt;
@@ -257,14 +253,14 @@ $doc.display($field)
     #set ($colorPickerParams = {
       'id': "${editOnePrefix}_backgroundColor",
       'name': "${editOnePrefix}_backgroundColor",
-      'value': $escapetool.xml($eventInstance.getBackgroundColor())
+      'value': $escapetool.xml($doc.getValue('backgroundColor'))
     })
     : #colorPicker($colorPickerParams)
     ; &lt;label for="${editOnePrefix}_textColor"&gt;$escapetool.xml($doc.displayPrettyName('textColor', false, false))&lt;/label&gt;
     #set ($colorPickerParams = {
       'id': "${editOnePrefix}_textColor",
       'name': "${editOnePrefix}_textColor",
-      'value': $escapetool.xml($eventInstance.getTextColor())
+      'value': $escapetool.xml($doc.getValue('textColor'))
     })
     : #colorPicker($colorPickerParams)
     &lt;input type="hidden" name="classname" value="MoccaCalendar.Code.MoccaCalendarEventModificationClass" /&gt;
@@ -283,6 +279,7 @@ $doc.display($field)
   #else ## if !isEdit
   ## the "view" code: very crude, to be polished quite a bit later
   ## also use helper to insert values from modifications, if present
+  #set($eventInstance = $services.moccacalendar.getEventInstance($doc, $instanceStart))
   #if($eventInstance)
     #if($calendar)
     ; &lt;label for="calendar"&gt;$escapetool.xml($services.localization.render('MoccaCalendar.calendar'))&lt;/label&gt;
@@ -301,14 +298,22 @@ $doc.display($field)
     : $eventInstance.getDescriptionHtml()
     ; &lt;label for="backgroundColor"&gt;$escapetool.xml($doc.displayPrettyName('backgroundColor', false, false))&lt;/label&gt;
     #set ($backgroundColor = $eventInstance.getBackgroundColor())
-    #set ($isCalendarDefault = ($backgroundColor == $calendarDoc.getValue('color')) )
-    : &lt;div class="moccaevent" style="border-color:${escapetool.html($backgroundColor)}"&gt;&amp;#160;##
-#if($isCalendarDefault)($escapetool.xml($services.localization.render('MoccaCalendar.calendarevent.calendarDefaultColorMessage')))#end&lt;/div&gt;
+    #set ($isCalendarDefault = (($backgroundColor == $calendarDoc.getValue('color')) &amp;&amp; ($doc.getValue('backgroundColor') == '')) )
+    : &lt;div class="moccaevent" style="border-color:${escapetool.html($backgroundColor)}"&gt;
+      &amp;#160;
+      #if($isCalendarDefault)
+        ($escapetool.xml($services.localization.render('MoccaCalendar.calendarevent.color.defaultValue')))
+      #end
+    &lt;/div&gt;
     ; &lt;label for="textColor"&gt;$escapetool.xml($doc.displayPrettyName('textColor', false, false))&lt;/label&gt;
     #set ($textColor = $eventInstance.getTextColor())
-    #set ($isCalendarDefault = ($textColor == $calendarDoc.getValue('textColor')) )
-    : &lt;div class="moccaevent" style="border-color:${escapetool.html($textColor)}"&gt;&amp;#160;##
-#if($isCalendarDefault)($escapetool.xml($services.localization.render('MoccaCalendar.calendarevent.calendarDefaultColorMessage')))#end&lt;/div&gt;
+    #set ($isCalendarDefault = (($textColor == $calendarDoc.getValue('textColor')) &amp;&amp; ($doc.getValue('textColor') == '')) )
+    : &lt;div class="moccaevent" style="border-color:${escapetool.html($textColor)}"&gt;
+      &amp;#160;
+      #if($isCalendarDefault)
+        ($escapetool.xml($services.localization.render('MoccaCalendar.calendarevent.color.defaultValue')))
+      #end
+      &lt;/div&gt;
     ; &lt;label for="recurrent"&gt;$escapetool.xml($doc.displayPrettyName('recurrent', false, false))&lt;/label&gt;
     ## XXX same as allDay, we might need a localized string representation in the eventInstance
     : $doc.display('recurrent')
@@ -340,11 +345,19 @@ $doc.display($field)
       &lt;dd&gt;
         $request.description
       &lt;/dd&gt;
-      &lt;dt&gt;&lt;label for="backgroundColor"&gt;$escapetool.xml($services.localization.render('MoccaCalendar.MoccaCalendarEventClass_backgroundColor'))&lt;/label&gt;&lt;/dt&gt;
+      &lt;dt&gt;
+        &lt;label for="backgroundColor"&gt;
+          $escapetool.xml($services.localization.render('MoccaCalendar.MoccaCalendarEventClass_backgroundColor'))
+        &lt;/label&gt;
+      &lt;/dt&gt;
       &lt;dd&gt;
         $request.backgroundColor
       &lt;/dd&gt;
-      &lt;dt&gt;&lt;label for="textColor"&gt;$escapetool.xml($services.localization.render('MoccaCalendar.MoccaCalendarEventClass_textColor'))&lt;/label&gt;&lt;/dt&gt;
+      &lt;dt&gt;
+        &lt;label for="textColor"&gt;
+          $escapetool.xml($services.localization.render('MoccaCalendar.MoccaCalendarEventClass_textColor'))
+        &lt;/label&gt;
+      &lt;/dt&gt;
       &lt;dd&gt;
         $request.textColor
       &lt;/dd&gt;

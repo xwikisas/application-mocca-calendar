@@ -264,11 +264,9 @@ if (typeof(XWiki) == "undefined" || typeof(XWiki.widgets) == "undefined" || type
   };
 
   function removeColorPickers() {
-    var base = jQuery('.xdialog-content')[0];
-    var colpickers = base.getElementsByClassName('color-picker');
-    for(var picker of colpickers) {
-      jQuery('#' + jQuery(picker).data('colpickId')).remove();
-    }
+    jQuery('#mocca-event-edit-form .color-picker').each(function(index) {
+      jQuery('#' + jQuery(this).data('colpickId')).remove();
+    });
   }
   
   //

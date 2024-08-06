@@ -582,11 +582,11 @@ public class MoccaCalendarScriptService implements ScriptService
         event.setEventDocRef(eventDocRef);
         event.setModifiable(true);
         event.setMovable(!event.isRecurrent());
-        if (event.getTextColor() == null || "" == event.getTextColor()) {
-            event.setTextColor(textColor);
-        }
-        if (event.getBackgroundColor() == null || "" == event.getBackgroundColor()) {
+        if (event.getBackgroundColor() == null || event.getBackgroundColor().isEmpty()) {
             event.setBackgroundColor(backgroundColor);
+        }
+        if (event.getTextColor() == null || event.getTextColor().isEmpty()) {
+            event.setTextColor(textColor);
         }
 
         fillInColorsFromNearestCalendar(event);
@@ -629,10 +629,10 @@ public class MoccaCalendarScriptService implements ScriptService
                 event.setBackgroundColor("");
                 event.setTextColor("");
             } else {
-                if (event.getBackgroundColor().length() == 0) {
+                if (event.getBackgroundColor().isEmpty()) {
                     event.setBackgroundColor(calendarData.getStringValue("color"));
                 }
-                if (event.getTextColor().length() == 0) {
+                if (event.getTextColor().isEmpty()) {
                     event.setTextColor(calendarData.getStringValue("textColor"));
                 }
             }
@@ -951,8 +951,12 @@ public class MoccaCalendarScriptService implements ScriptService
         String actualBackgroundColor = modificationNotice.getStringValue(EventConstants.PROPERTY_BACKGROUNDCOLOR_NAME);
         String actualTextColor = modificationNotice.getStringValue(EventConstants.PROPERTY_TEXTCOLOR_NAME);
 
-        modifiedInstance.setBackgroundColor(actualBackgroundColor);
-        modifiedInstance.setTextColor(actualTextColor);
+        if (actualBackgroundColor != null && !actualBackgroundColor.isEmpty()) {
+            modifiedInstance.setBackgroundColor(actualBackgroundColor);
+        }
+        if (actualTextColor != null && !actualTextColor.isEmpty()) {
+            modifiedInstance.setTextColor(actualTextColor);
+        }
 
         XWikiContext context = xcontextProvider.get();
         String modifiedTitle = modificationNotice.getStringValue(EventConstants.PROPERTY_TITLE_NAME);
