@@ -300,19 +300,19 @@ $doc.display($field)
     #set ($backgroundColor = $eventInstance.getBackgroundColor())
     #set ($isCalendarDefault = (($backgroundColor == $calendarDoc.getValue('color')) &amp;&amp; ($doc.getValue('backgroundColor') == '')) )
     : &lt;div class="moccaevent" style="border-color:${escapetool.html($backgroundColor)}"&gt;
-      &amp;#160;
-      #if($isCalendarDefault)
-        ($escapetool.xml($services.localization.render('MoccaCalendar.calendarevent.color.defaultValue')))
-      #end
-    &lt;/div&gt;
+        &amp;#160;
+        #if($isCalendarDefault)
+          ($escapetool.xml($services.localization.render('MoccaCalendar.calendarevent.color.defaultValue')))
+        #end
+      &lt;/div&gt;
     ; &lt;label for="textColor"&gt;$escapetool.xml($doc.displayPrettyName('textColor', false, false))&lt;/label&gt;
     #set ($textColor = $eventInstance.getTextColor())
     #set ($isCalendarDefault = (($textColor == $calendarDoc.getValue('textColor')) &amp;&amp; ($doc.getValue('textColor') == '')) )
     : &lt;div class="moccaevent" style="border-color:${escapetool.html($textColor)}"&gt;
-      &amp;#160;
-      #if($isCalendarDefault)
-        ($escapetool.xml($services.localization.render('MoccaCalendar.calendarevent.color.defaultValue')))
-      #end
+        &amp;#160;
+        #if($isCalendarDefault)
+          ($escapetool.xml($services.localization.render('MoccaCalendar.calendarevent.color.defaultValue')))
+        #end
       &lt;/div&gt;
     ; &lt;label for="recurrent"&gt;$escapetool.xml($doc.displayPrettyName('recurrent', false, false))&lt;/label&gt;
     ## XXX same as allDay, we might need a localized string representation in the eventInstance
