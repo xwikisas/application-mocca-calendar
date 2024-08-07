@@ -133,7 +133,7 @@ public class MoccaCalendarScriptService implements ScriptService
 
     @Inject
     private WikiDescriptorManager wikiDescriptorManager;
-    
+
     @Inject
     private Logger logger;
 
