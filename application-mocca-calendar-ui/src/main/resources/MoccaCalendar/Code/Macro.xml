@@ -919,7 +919,7 @@ require(['jquery', 'xwiki-meta', 'xwiki-job-runner', 'xwiki-l10n!mocca-calendar-
     new XWiki.MoccaCalendar.MoccaCalendarPopup(calendarPopup.interactionParameters, calendarPopup.helper);
   });
 
-  // Trigger the upload manually when the button is clicked
+  // Trigger the upload manually when the button is clicked.
   $(document).on('click', '#import-calendar-file-button', function(event) {
     var form = $('#import-calendar-file form').get(0);
     if (event) {
@@ -928,11 +928,11 @@ require(['jquery', 'xwiki-meta', 'xwiki-job-runner', 'xwiki-l10n!mocca-calendar-
     startUploading(form);
   });
 
-  // Start uploading this file, creating a new XHR object with the file data.
+  // Start uploading this file by creating a new XHR object with the file data.
   var startUploading = function (form) {
     var formData = new FormData(form);
-    var select = form.down("#import-calendar-parent");
-    var input = form.down("#import-ical-file-input");
+    var select = form.down('#import-calendar-parent');
+    var input = form.down('#import-ical-file-input');
     if (input.files[0].size &lt; input.dataset.maxFileSize) {
       var params = {};
       params[select.name] = select.value;

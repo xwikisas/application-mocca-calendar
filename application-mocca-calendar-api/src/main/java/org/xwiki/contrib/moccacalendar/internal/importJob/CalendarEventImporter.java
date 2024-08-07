@@ -48,7 +48,8 @@ import com.xpn.xwiki.doc.XWikiDocument;
 import com.xpn.xwiki.objects.BaseObject;
 
 /**
- * Helper class for processing an imported event.
+ * Helper class for processing a {@link CalendarEvent} and importing it in XWiki as a Mocca Calendar Event, by creating
+ * needed calendar objects.
  *
  * @version $Id$
  * @since 2.14
@@ -77,17 +78,15 @@ public class CalendarEventImporter
      * @param component contains the data used to populate the objects.
      * @throws XWikiException if there are any issues when creating the {@link BaseObject} for the given document.
      */
-    public void createCalendarObjects(XWikiDocument eventDoc, CalendarEvent component) throws XWikiException
+    public void importCalendarEvent(XWikiDocument eventDoc, CalendarEvent component) throws XWikiException
     {
         XWikiContext wikiContext = wikiContextProvider.get();
         DocumentReference eventClassRef =
             documentReferenceResolver.resolve(EventConstants.MOCCA_CALENDAR_EVENT_CLASS_NAME);
         BaseObject eventObj = eventDoc.newXObject(eventClassRef, wikiContext);
 
-        addConvertedPropertyToObject(component.getDescription(), eventObj, Syntax.XWIKI_2_1.toIdString(),
-            EventConstants.PROPERTY_DESCRIPTION_NAME);
-        addConvertedPropertyToObject(component.getTitle(), eventObj, Syntax.XWIKI_2_1.toIdString(),
-            EventConstants.PROPERTY_TITLE_NAME);
+        addConvertedPropertyToObject(component.getDescription(), eventObj, EventConstants.PROPERTY_DESCRIPTION_NAME);
+        addConvertedPropertyToObject(component.getTitle(), eventObj, EventConstants.PROPERTY_TITLE_NAME);
 
         int allDay = component.isAllDay() ? 1 : 0;
         eventObj.set(EventConstants.PROPERTY_ALLDAY_NAME, allDay, wikiContext);
@@ -103,7 +102,7 @@ public class CalendarEventImporter
         int recurrenceValue = component.isRecurrent();
         eventObj.set(EventConstants.PROPERTY_RECURRENT_NAME, recurrenceValue, wikiContext);
         if (recurrenceValue == 1) {
-            processRecurrence(eventDoc, component);
+            setRecurrence(eventDoc, component);
         }
     }
 
@@ -139,15 +138,17 @@ public class CalendarEventImporter
         return eventDoc;
     }
 
-    private void addConvertedPropertyToObject(String content, BaseObject eventObj, String syntax, String property)
+    private void addConvertedPropertyToObject(String htmlContent, BaseObject eventObj, String property)
     {
-        String cleanContent = Jsoup.clean(content, Safelist.basic());
-        String convertedContent = htmlConverter.fromHTML(cleanContent, syntax);
+        // Sanitize the given HTML content and convert it to XWiki syntax prior to adding it to the given object field.
+        // This is done in order to offer the user a less technical way to edit the content.
+        String cleanHTMLContent = Jsoup.clean(htmlContent, Safelist.basic());
+        String convertedContent = htmlConverter.fromHTML(cleanHTMLContent, Syntax.XWIKI_2_1.toIdString());
 
         eventObj.set(property, convertedContent, wikiContextProvider.get());
     }
 
-    private void processRecurrence(XWikiDocument eventDoc, CalendarEvent component) throws XWikiException
+    private void setRecurrence(XWikiDocument eventDoc, CalendarEvent component) throws XWikiException
     {
         // Creates the MoccaCalendarEventRecurrencyClass object and populates it with the fields from the CalendarEvent.
         XWikiContext wikiContext = wikiContextProvider.get();
@@ -172,10 +173,10 @@ public class CalendarEventImporter
                 wikiContext);
             eventModObj.set(EventConstants.PROPERTY_ENDDATE_NAME, eventModification.getModifiedEndDate(), wikiContext);
             addConvertedPropertyToObject(eventModification.getModifiedTitle(), eventModObj,
-                Syntax.XWIKI_2_1.toIdString(), EventConstants.PROPERTY_TITLE_NAME);
+                EventConstants.PROPERTY_TITLE_NAME);
 
             addConvertedPropertyToObject(eventModification.getModifiedDescription(), eventModObj,
-                Syntax.XWIKI_2_1.toIdString(), EventConstants.PROPERTY_DESCRIPTION_NAME);
+                EventConstants.PROPERTY_DESCRIPTION_NAME);
         }
     }
 

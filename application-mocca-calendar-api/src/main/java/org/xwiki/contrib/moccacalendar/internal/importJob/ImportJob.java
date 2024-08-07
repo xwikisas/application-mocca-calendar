@@ -107,7 +107,7 @@ public class ImportJob extends AbstractJob<ImportJobRequest, ImportJobStatus> im
                 XWikiDocument eventDoc =
                     calendarEventImporter.getUniqueEventName(calendarEvent.getTitle().trim(), request.getParentRef(),
                         eventDocuments);
-                calendarEventImporter.createCalendarObjects(eventDoc, calendarEvent);
+                calendarEventImporter.importCalendarEvent(eventDoc, calendarEvent);
                 eventDocuments.add(eventDoc);
 
                 progressManager.endStep(this);
