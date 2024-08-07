@@ -59,6 +59,7 @@ MoccaCalendar.calendarevent.backlink=Back to calendar &amp;#171;{0}&amp;#187;
 MoccaCalendar.calendarevent.confirmDelete=Do you really want to delete the event {0} ?
 MoccaCalendar.calendarevent.view=Event
 MoccaCalendar.calendarevent.confirmDelete.allEventsButton=All Instances
+MoccaCalendar.calendarevent.color.defaultValue=Calendar Default
 MoccaCalendar.generic.errormessage=Internal Server Error
 
 # Class fields
@@ -113,6 +114,8 @@ MoccaCalendar.MoccaCalendarEventClass_title=Title
 MoccaCalendar.MoccaCalendarEventClass_startDate=Start date
 MoccaCalendar.MoccaCalendarEventClass_endDate=End date
 MoccaCalendar.MoccaCalendarEventClass_description=Description
+MoccaCalendar.MoccaCalendarEventClass_backgroundColor=Background color
+MoccaCalendar.MoccaCalendarEventClass_textColor=Text color
 MoccaCalendar.MoccaCalendarEventClass_allDay=All day
 MoccaCalendar.MoccaCalendarEventClass_recurrent=Recurrent
 
@@ -143,6 +146,8 @@ MoccaCalendar.Code.MoccaCalendarEventModificationClass_title=Modified title
 MoccaCalendar.Code.MoccaCalendarEventModificationClass_startDate=Modified start date
 MoccaCalendar.Code.MoccaCalendarEventModificationClass_endDate=Modified end date
 MoccaCalendar.Code.MoccaCalendarEventModificationClass_description=Modified description
+MoccaCalendar.Code.MoccaCalendarEventModificationClass_backgroundColor=Modified background color
+MoccaCalendar.Code.MoccaCalendarEventModificationClass_textColor=Modified text color
 
 # the modification switch
 moccacalendarevent.editswitch.label=Edit:

@@ -91,6 +91,8 @@ MoccaCalendar.MoccaCalendarEventClass_title=Título
 MoccaCalendar.MoccaCalendarEventClass_startDate=Data de início
 MoccaCalendar.MoccaCalendarEventClass_endDate=Data final
 MoccaCalendar.MoccaCalendarEventClass_description=Descrição
+MoccaCalendar.MoccaCalendarEventClass_backgroundColor=Cor de fundo
+MoccaCalendar.MoccaCalendarEventClass_textColor=Cor do texto
 MoccaCalendar.MoccaCalendarEventClass_allDay=Dia inteiro
 ### Missing: MoccaCalendar.MoccaCalendarEventClass_recurrent=Recurrent
 

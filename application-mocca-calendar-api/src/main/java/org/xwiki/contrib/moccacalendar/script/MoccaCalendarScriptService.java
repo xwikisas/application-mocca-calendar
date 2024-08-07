@@ -559,6 +559,8 @@ public class MoccaCalendarScriptService implements ScriptService
 
         boolean isAllDay = eventData.getIntValue(EventConstants.PROPERTY_ALLDAY_NAME) == 1;
         event.setAllDay(isAllDay);
+        String textColor = eventData.getStringValue(EventConstants.PROPERTY_TEXTCOLOR_NAME);
+        String backgroundColor = eventData.getStringValue(EventConstants.PROPERTY_BACKGROUNDCOLOR_NAME);
 
         DateTime endDateExclusive = event.getEndDate();
         if (isAllDay) {
@@ -580,12 +582,18 @@ public class MoccaCalendarScriptService implements ScriptService
         event.setEventDocRef(eventDocRef);
         event.setModifiable(true);
         event.setMovable(!event.isRecurrent());
+        if (event.getBackgroundColor() == null || event.getBackgroundColor().isEmpty()) {
+            event.setBackgroundColor(backgroundColor);
+        }
+        if (event.getTextColor() == null || event.getTextColor().isEmpty()) {
+            event.setTextColor(textColor);
+        }
 
         fillInColorsFromNearestCalendar(event);
     }
 
     /**
-     * Fill in the color and text color values from the "corresponding" calendar".
+     * Fill in the color and text color values from the "corresponding" calendar.
      *
      * The corresponding calendar page should be the default page of the parent space. this is the space of the page if the
      * event page is terminal, and the parent of the events page space, if the page is non-terminal
@@ -618,12 +626,15 @@ public class MoccaCalendarScriptService implements ScriptService
 
             if (calendarData == null) {
                 // some arbitrary defaults
-                event.setBackgroundColor("#888");
-                // text color can be missing
+                event.setBackgroundColor("");
                 event.setTextColor("");
             } else {
-                event.setTextColor(calendarData.getStringValue("textColor"));
-                event.setBackgroundColor(calendarData.getStringValue("color"));
+                if (event.getBackgroundColor().isEmpty()) {
+                    event.setBackgroundColor(calendarData.getStringValue("color"));
+                }
+                if (event.getTextColor().isEmpty()) {
+                    event.setTextColor(calendarData.getStringValue("textColor"));
+                }
             }
         } catch (XWikiException xe) {
             logger.warn("could not calculate colors for event", xe);
@@ -936,6 +947,16 @@ public class MoccaCalendarScriptService implements ScriptService
         modifiedInstance.setStartDate(new DateTime(actualStartDate.getTime()));
         modifiedInstance.setOriginalStartDate(new DateTime(originalStartDate.getTime()));
         modifiedInstance.setEndDate(new DateTime(actualEndDate.getTime()));
+
+        String actualBackgroundColor = modificationNotice.getStringValue(EventConstants.PROPERTY_BACKGROUNDCOLOR_NAME);
+        String actualTextColor = modificationNotice.getStringValue(EventConstants.PROPERTY_TEXTCOLOR_NAME);
+
+        if (actualBackgroundColor != null && !actualBackgroundColor.isEmpty()) {
+            modifiedInstance.setBackgroundColor(actualBackgroundColor);
+        }
+        if (actualTextColor != null && !actualTextColor.isEmpty()) {
+            modifiedInstance.setTextColor(actualTextColor);
+        }
 
         XWikiContext context = xcontextProvider.get();
         String modifiedTitle = modificationNotice.getStringValue(EventConstants.PROPERTY_TITLE_NAME);
