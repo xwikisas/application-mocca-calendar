@@ -35,7 +35,7 @@ public final class EventConstants
     public static final String MOCCA_CALENDAR_EVENT_CLASS_NAME = "MoccaCalendar.MoccaCalendarEventClass";
 
     /** the class name for event recurrency information. */
-    public static final String MOCCA_CALENDAR_EVENT_RECURRENCY_CLASS_NAME 
+    public static final String MOCCA_CALENDAR_EVENT_RECURRENCY_CLASS_NAME
         = "MoccaCalendar.Code.MoccaCalendarEventRecurrencyClass";
 
     /** the class name for exceptions when a recurrent event instance is skipped. */
@@ -66,6 +66,8 @@ public final class EventConstants
     public static final String PROPERTY_FIRSTINSTANCE_NAME = "firstInstance";
     /** the name of the last instance date property for event recurrency objects. */
     public static final String PROPERTY_LASTINSTANCE_NAME = "lastInstance";
+    /** the name of the frequency property for event recurrency objects. */
+    public static final String PROPERTY_FREQUENCY_NAME = "frequency";
     /** the name of the start date property for event deletion objects. */
     public static final String PROPERTY_STARTDATE_OF_DELETED_NAME = "eventOrigStartDate";
     /** the name of the original start date property for event modification objects. */

@@ -55,12 +55,26 @@ MoccaCalendar.calendar.noevent=This page does not contain an event.
 
 MoccaCalendar.calendarevent.viewall=All events
 MoccaCalendar.calendarevent.create=Create new event
+MoccaCalendar.calendarevent.import=Import .ics file
+MoccaCalendar.calendarevent.import.title=Import the events from a calendar using an .ics file
 MoccaCalendar.calendarevent.backlink=Back to calendar &amp;#171;{0}&amp;#187;
 MoccaCalendar.calendarevent.confirmDelete=Do you really want to delete the event {0} ?
 MoccaCalendar.calendarevent.view=Event
 MoccaCalendar.calendarevent.confirmDelete.allEventsButton=All Instances
 MoccaCalendar.calendarevent.color.defaultValue=Calendar Default
 MoccaCalendar.generic.errormessage=Internal Server Error
+
+# Import ical file
+MoccaCalendar.import.modal.title=Import calendar
+MoccaCalendar.import.modal.file.label=.ics file to be imported
+MoccaCalendar.import.modal.button.start=Begin import
+MoccaCalendar.import.notification.inprogress=Calendar file import in progress...
+MoccaCalendar.import.notification.done=Calendar successfully imported!
+MoccaCalendar.import.notification.error=There was an error while importing the calendar data. Please try again or consult the logs!
+MoccaCalendar.import.notification.filetoolarge=The file size is too large
+MoccaCalendar.import.generated.description.attendee=Attendee: {0}
+MoccaCalendar.import.generated.description.location=Location: {0}
+MoccaCalendar.import.generated.description.organizer=Organizer: {0}
 
 # Class fields
 MoccaCalendar.MoccaCalendarClass_title=Title

@@ -61,6 +61,20 @@
       <groupId>javax.servlet</groupId>
       <artifactId>javax.servlet-api</artifactId>
     </dependency>
+    <dependency>
+      <groupId>org.xwiki.contrib</groupId>
+      <artifactId>macro-fullcalendar-api</artifactId>
+      <version>2.4.0</version>
+    </dependency>
+    <dependency>
+      <groupId>org.xwiki.platform</groupId>
+      <artifactId>xwiki-platform-wysiwyg-api</artifactId>
+      <version>${platform.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>org.jsoup</groupId>
+      <artifactId>jsoup</artifactId>
+    </dependency>
     <!-- https://mvnrepository.com/artifact/org.webjars.npm/dompurify -->
     <dependency>
       <groupId>org.webjars.npm</groupId>
@@ -75,6 +89,24 @@
       <artifactId>xwiki-commons-tool-test-component</artifactId>
       <version>${commons.version}</version>
       <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.xwiki.platform</groupId>
+      <artifactId>xwiki-platform-job-api</artifactId>
+      <version>${platform.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>org.xwiki.platform</groupId>
+      <artifactId>xwiki-platform-rest-server</artifactId>
+      <version>${platform.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>javax.servlet</groupId>
+      <artifactId>javax.servlet-api</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.mnode.ical4j</groupId>
+      <artifactId>ical4j</artifactId>
     </dependency>
   </dependencies>
   <build>
