@@ -266,6 +266,12 @@ if (typeof(XWiki) == "undefined" || typeof(XWiki.widgets) == "undefined" || type
     document.cookie = cookieName + value + "; path=/";
   };
 
+  function removeColorPickers() {
+    jQuery('#mocca-event-edit-form .color-picker').each(function(index) {
+      jQuery('#' + jQuery(this).data('colpickId')).remove();
+    });
+  }
+  
   //
   // the dialog to show / edit events
   //
@@ -292,6 +298,7 @@ if (typeof(XWiki) == "undefined" || typeof(XWiki.widgets) == "undefined" || type
           title : this.interactionParameters.editMode ? "$escapetool.javascript($services.localization.render('MoccaCalendar.calendarevent.create'))" : "$escapetool.javascript($services.localization.render('MoccaCalendar.calendarevent.view'))",
           removeOnClose : true,
           onClose : function() {
+            removeColorPickers();
             document.stopObserving('xwiki:moccacalendar:editmode');
             document.stopObserving('xwiki:moccacalendar:instancesaved');
           }
@@ -332,6 +339,7 @@ if (typeof(XWiki) == "undefined" || typeof(XWiki.widgets) == "undefined" || type
       // and we only listen for the results to close the dialog
       document.observe('xwiki:moccacalendar:instancesaved', function(event) {
         this.savedBox.show();
+        removeColorPickers();
         this.closeDialog();
         this.helper.calendar.fullCalendar('refetchEvents');
       }.bind(this));
@@ -433,6 +441,7 @@ if (typeof(XWiki) == "undefined" || typeof(XWiki.widgets) == "undefined" || type
           this.saving = false;
           this.savingBox.hide();
           this.savedBox.show();
+          removeColorPickers();
           this.closeDialog();
           this.helper.calendar.fullCalendar('refetchEvents');
         }.bind(this),
@@ -609,6 +618,9 @@ if (typeof(XWiki) == "undefined" || typeof(XWiki.widgets) == "undefined" || type
         script.remove();
       });
       content.insert('&lt;div id="formcontent"&gt;&lt;div id="forminnercontent"&gt;' + container.innerHTML + '&lt;/div&gt;&lt;/div&gt;');
+
+      var parentModalPopup = jQuery('.xdialog-box-moccacal-modal-popup').toArray();
+      document.fire('xwiki:dom:updated', {elements: parentModalPopup});
     },
     handleDatetimeFieldChange : function(event, element) {
       if (this.saving) { return; }

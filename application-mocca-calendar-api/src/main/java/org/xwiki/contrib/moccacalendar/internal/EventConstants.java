@@ -56,6 +56,10 @@ public final class EventConstants
     public static final String PROPERTY_TITLE_NAME = "title";
     /** the name of the description property for event objects. */
     public static final String PROPERTY_DESCRIPTION_NAME = "description";
+    /** the name of the background color property for event objects. */
+    public static final String PROPERTY_BACKGROUNDCOLOR_NAME = "backgroundColor";
+    /** the name of the text color property for event objects. */
+    public static final String PROPERTY_TEXTCOLOR_NAME = "textColor";
     /** the name of the recurrency flag for event objects. */
     public static final String PROPERTY_RECURRENT_NAME = "recurrent";
     /** the name of the first instance date property for event recurrency objects. */

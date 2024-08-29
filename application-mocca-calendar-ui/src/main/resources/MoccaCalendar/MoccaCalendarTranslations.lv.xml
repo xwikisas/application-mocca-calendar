@@ -91,6 +91,8 @@ MoccaCalendar.MoccaCalendarEventClass_title=Virsraksts
 MoccaCalendar.MoccaCalendarEventClass_startDate=Sākuma datums
 MoccaCalendar.MoccaCalendarEventClass_endDate=Beigu datums
 MoccaCalendar.MoccaCalendarEventClass_description=Apraksts
+MoccaCalendar.MoccaCalendarEventClass_backgroundColor=Fona krāsa
+MoccaCalendar.MoccaCalendarEventClass_textColor=Teksta krāsa
 MoccaCalendar.MoccaCalendarEventClass_allDay=Visa diena
 ### Missing: MoccaCalendar.MoccaCalendarEventClass_recurrent=Recurrent
 

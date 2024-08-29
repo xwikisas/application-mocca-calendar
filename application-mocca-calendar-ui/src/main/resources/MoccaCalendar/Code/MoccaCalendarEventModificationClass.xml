@@ -46,6 +46,19 @@
     <defaultWeb/>
     <nameField/>
     <validationScript/>
+    <backgroundColor>
+      <customDisplay/>
+      <disabled>0</disabled>
+      <name>backgroundColor</name>
+      <number>6</number>
+      <picker>1</picker>
+      <prettyName>backgroundColor</prettyName>
+      <size>30</size>
+      <unmodifiable>0</unmodifiable>
+      <validationMessage/>
+      <validationRegExp/>
+      <classType>com.xpn.xwiki.objects.classes.StringClass</classType>
+    </backgroundColor>
     <description>
       <contenttype>---</contenttype>
       <customDisplay/>
@@ -107,6 +120,19 @@
       <validationRegExp/>
       <classType>com.xpn.xwiki.objects.classes.DateClass</classType>
     </startDate>
+    <textColor>
+      <customDisplay/>
+      <disabled>0</disabled>
+      <name>textColor</name>
+      <number>7</number>
+      <picker>1</picker>
+      <prettyName>textColor</prettyName>
+      <size>30</size>
+      <unmodifiable>0</unmodifiable>
+      <validationMessage/>
+      <validationRegExp/>
+      <classType>com.xpn.xwiki.objects.classes.StringClass</classType>
+    </textColor>
     <title>
       <customDisplay/>
       <disabled>0</disabled>

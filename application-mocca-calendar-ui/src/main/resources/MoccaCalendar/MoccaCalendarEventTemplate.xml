@@ -141,6 +141,15 @@
         <validationRegExp/>
         <classType>com.xpn.xwiki.objects.classes.BooleanClass</classType>
       </allDay>
+      <backgroundColor>
+        <disabled>0</disabled>
+        <name>backgroundColor</name>
+        <number>7</number>
+        <prettyName>backgroundColor</prettyName>
+        <size>30</size>
+        <unmodifiable>0</unmodifiable>
+        <classType>com.xpn.xwiki.objects.classes.StringClass</classType>
+      </backgroundColor>
       <description>
         <contenttype>---</contenttype>
         <customDisplay/>
@@ -201,6 +210,15 @@
         <validationRegExp/>
         <classType>com.xpn.xwiki.objects.classes.DateClass</classType>
       </startDate>
+      <textColor>
+        <disabled>0</disabled>
+        <name>textColor</name>
+        <number>8</number>
+        <prettyName>textColor</prettyName>
+        <size>30</size>
+        <unmodifiable>0</unmodifiable>
+        <classType>com.xpn.xwiki.objects.classes.StringClass</classType>
+      </textColor>
       <title>
         <customDisplay>{{include reference="AppWithinMinutes.Title"/}}</customDisplay>
         <disabled>0</disabled>
@@ -218,6 +236,9 @@
       <allDay>0</allDay>
     </property>
     <property>
+      <backgroundColor/>
+    </property>
+    <property>
       <description/>
     </property>
     <property>
@@ -228,6 +249,9 @@
     </property>
     <property>
       <startDate/>
+    </property>
+    <property>
+      <textColor/>
     </property>
   </object>
 </xwikidoc>
