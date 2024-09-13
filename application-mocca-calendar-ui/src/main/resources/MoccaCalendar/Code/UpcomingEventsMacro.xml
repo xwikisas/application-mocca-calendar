@@ -403,7 +403,7 @@
 #else
   #set ($discard = $wikiList.add($xcontext.wiki))
 #end
-#set ($events = $services.moccacalendar.queryEvents($startDate.toDate(), $endDate.toDate(), $wikiList, true))
+#set ($events = $services.moccacalendar.queryEvents($startDate.toDate(), $endDate.toDate(), $wikiList, 1))
 (% class="moccacal-event-list" %)(((
   #foreach ($event in $events)
     #if ($wikimacro.parameters.limit &gt; 0 &amp;&amp; $foreach.count &gt; $wikimacro.parameters.limit)
