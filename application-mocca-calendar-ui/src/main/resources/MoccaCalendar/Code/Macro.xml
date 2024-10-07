@@ -986,12 +986,15 @@ require(['jquery', 'xwiki-meta', 'xwiki-job-runner', 'xwiki-l10n!mocca-calendar-
           }
         };
       }
-    }).run(targetURL, data)).then(() =&gt; {
-      document.dispatchEvent(new Event('calendarImportCompleted'));
-      notification.replace(new XWiki.widgets.Notification(l10n.get('done'),'done'));
+    }).run(targetURL, data)).then((response) =&gt; {
+      if (response.error !== null) {
+        throw new Error(response.error.message);
+      } else {
+        document.dispatchEvent(new Event('calendarImportCompleted'));
+        notification.replace(new XWiki.widgets.Notification(l10n.get('done'),'done'));
+      }
     }).catch((reason) =&gt; {
-      notification.replace(new
-        XWiki.widgets.Notification(l10n.get('error'),'error'));
+      notification.replace(new XWiki.widgets.Notification(l10n.get('error'),'error'));
       return Promise.reject(reason);
     }).finally(() =&gt; {
       $('#import-calendar-file-button').prop('disabled', false);
