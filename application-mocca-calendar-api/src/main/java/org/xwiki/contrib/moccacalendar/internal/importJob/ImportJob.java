@@ -26,6 +26,7 @@ import javax.inject.Inject;
 import javax.inject.Named;
 import javax.inject.Provider;
 
+import org.apache.commons.lang.exception.ExceptionUtils;
 import org.xwiki.component.annotation.Component;
 import org.xwiki.contrib.moccacalendar.importJob.ImportJobRequest;
 import org.xwiki.contrib.moccacalendar.importJob.ImportJobStatus;
@@ -103,10 +104,12 @@ public class ImportJob extends AbstractJob<ImportJobRequest, ImportJobStatus> im
                     progressManager.endStep(this);
                     break;
                 }
-
+                String eventName = calendarEvent.getTitle().trim();
+                if (eventName.isEmpty()) {
+                    continue;
+                }
                 XWikiDocument eventDoc =
-                    calendarEventImporter.getUniqueEventName(calendarEvent.getTitle().trim(), request.getParentRef(),
-                        eventDocuments);
+                    calendarEventImporter.getUniqueEventName(eventName, request.getParentRef(), eventDocuments);
                 calendarEventImporter.importCalendarEvent(eventDoc, calendarEvent);
                 eventDocuments.add(eventDoc);
 
@@ -115,6 +118,7 @@ public class ImportJob extends AbstractJob<ImportJobRequest, ImportJobStatus> im
             }
             batchSave(eventDocuments);
         } catch (Exception e) {
+            logger.warn("Import .ics file job failed. Root cause is: [{}]", ExceptionUtils.getRootCauseMessage(e));
             throw new RuntimeException(e);
         } finally {
             this.progressManager.popLevelProgress(this);

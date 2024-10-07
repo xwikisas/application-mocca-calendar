@@ -42,6 +42,7 @@
   #set ($importJobStatusJSON = {
     'id': $importJobStatus.request.id,
     'state': $importJobStatus.state,
+    'error': $importJobStatus.error,
     'progress': {
       'offset': $importJobStatus.progress.offset
     }
