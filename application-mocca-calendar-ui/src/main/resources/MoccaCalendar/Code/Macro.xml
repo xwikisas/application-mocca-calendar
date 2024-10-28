@@ -1807,7 +1807,7 @@ require(['xwiki-meta', 'jquery', 'moment','purify', 'gcal', 'moccaCalendar'], fu
         const params = {
           title: purify.sanitize(calEvent.title),
           start: calEvent.start.format(dateFormat),
-          end: calEvent.end.format(dateFormat),
+          end: calEvent.end ? calEvent.end.format(dateFormat) : null,
           allDay: calEvent.allDay ? "$escapetool.xml($services.localization.render('moccacalendar.subscribedevent.allday.yes'))" :
                                     "$escapetool.xml($services.localization.render('moccacalendar.subscribedevent.allday.no'))",
           description: purify.sanitize(calEvent.description),
