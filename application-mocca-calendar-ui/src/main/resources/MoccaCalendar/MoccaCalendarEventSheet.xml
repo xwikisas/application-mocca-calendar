@@ -351,7 +351,9 @@ $doc.display($field)
         &lt;/label&gt;
       &lt;/dt&gt;
       &lt;dd&gt;
-        $request.backgroundColor
+        &lt;div class="moccaevent" style="border-color:${escapetool.html($request.backgroundColor)}"&gt;
+        &amp;#160;
+        &lt;/div&gt;
       &lt;/dd&gt;
       &lt;dt&gt;
         &lt;label for="textColor"&gt;
@@ -359,7 +361,9 @@ $doc.display($field)
         &lt;/label&gt;
       &lt;/dt&gt;
       &lt;dd&gt;
-        $request.textColor
+        &lt;div class="moccaevent" style="border-color:${escapetool.html($request.textColor)}"&gt;
+        &amp;#160;
+        &lt;/div&gt;
       &lt;/dd&gt;
     &lt;/dl&gt;
     #end

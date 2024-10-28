@@ -1811,6 +1811,8 @@ require(['xwiki-meta', 'jquery', 'moment','purify', 'gcal', 'moccaCalendar'], fu
           allDay: calEvent.allDay ? "$escapetool.xml($services.localization.render('moccacalendar.subscribedevent.allday.yes'))" :
                                     "$escapetool.xml($services.localization.render('moccacalendar.subscribedevent.allday.no'))",
           description: purify.sanitize(calEvent.description),
+          backgroundColor: calEvent.source.backgroundColor,
+          textColor: calEvent.source.textColor,
           readOnly: 'true'
         };
         const queryString = jQuery.param(params);
