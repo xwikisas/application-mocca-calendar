@@ -32,10 +32,10 @@ import org.xwiki.test.docker.junit5.UITest;
 @UITest(properties = {
     // XWiki needs the mailsender plugin JAR to be present before it starts since it's not an extension and it
     // cannot be provisioned after XWiki is started!
-    "org.xwiki.platform:xwiki-platform-mailsender:13.10",
+    "org.xwiki.platform:xwiki-platform-mailsender:14.10",
     // MailSender plugin uses MailSenderConfiguration from xwiki-platform-mail-api so we need to provide an
     // implementation for it.
-    "org.xwiki.platform:xwiki-platform-mail-send-default:13.10" }, resolveExtraJARs = true)
+    "org.xwiki.platform:xwiki-platform-mail-send-default:14.10" }, resolveExtraJARs = true)
 class AllITs
 {
     @Nested

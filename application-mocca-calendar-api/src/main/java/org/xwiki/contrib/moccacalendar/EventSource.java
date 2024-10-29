@@ -44,7 +44,7 @@ public interface EventSource
     /**
      * Check if the source is available in the given context.
      * To get the context, use a context provider.
-     * @return true iff the source is available to create events
+     * @return true if the source is available to create events
      */
     default boolean isAvailable()
     {
