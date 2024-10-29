@@ -29,6 +29,7 @@ import javax.inject.Named;
 import javax.inject.Provider;
 import javax.inject.Singleton;
 
+import org.apache.commons.lang.exception.ExceptionUtils;
 import org.joda.time.DateTime;
 import org.slf4j.Logger;
 import org.xwiki.component.annotation.Component;
@@ -87,11 +88,18 @@ public class MeetingEventSource implements EventSource
     public boolean isAvailable()
     {
         XWikiContext xcontext = xcontextProvider.get();
-        DocumentReference meetingClassReference = new DocumentReference(xcontext.getWikiId(),
-            Arrays.asList("Meeting", "Code"), "MeetingClass");
+        DocumentReference meetingClassReference =
+            new DocumentReference(xcontext.getWikiId(), Arrays.asList("Meeting", "Code"), "MeetingClass");
         logger.debug("check if [{}] exists in current wiki [{}]",
             compactWikiSerializer.serialize(meetingClassReference), xcontext.getWikiId());
-        return xcontext.getWiki().exists(meetingClassReference, xcontext);
+        try {
+            return xcontext.getWiki().exists(meetingClassReference, xcontext);
+        } catch (XWikiException e) {
+            logger.error("There was an error while checking if [{}] exists in wiki [{}]. Root cause is: [{}]",
+                compactWikiSerializer.serialize(meetingClassReference), xcontext.getWikiId(),
+                ExceptionUtils.getRootCauseMessage(e));
+            return false;
+        }
     }
 
     @Override
@@ -125,8 +133,8 @@ public class MeetingEventSource implements EventSource
                     new DocumentReference(getConfigurationClass(), new WikiReference(context.getWikiId())));
 
                 if (config != null) {
-                    String sourceDocName = config
-                        .getStringValue(MeetingsSourceConfigurationClassInitializer.MEETINGS_PAGE_FIELD_NAME);
+                    String sourceDocName =
+                        config.getStringValue(MeetingsSourceConfigurationClassInitializer.MEETINGS_PAGE_FIELD_NAME);
                     logger.debug("we found source doc [{}] for calenderdoc [{}]", sourceDocName, parentRef);
                     sourceDoc = stringDocRefResolver.resolve(sourceDocName);
                 } else {
