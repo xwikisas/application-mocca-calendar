@@ -345,22 +345,6 @@ $doc.display($field)
       &lt;dd&gt;
         $request.description
       &lt;/dd&gt;
-      &lt;dt&gt;
-        &lt;label for="backgroundColor"&gt;
-          $escapetool.xml($services.localization.render('MoccaCalendar.MoccaCalendarEventClass_backgroundColor'))
-        &lt;/label&gt;
-      &lt;/dt&gt;
-      &lt;dd&gt;
-        $request.backgroundColor
-      &lt;/dd&gt;
-      &lt;dt&gt;
-        &lt;label for="textColor"&gt;
-          $escapetool.xml($services.localization.render('MoccaCalendar.MoccaCalendarEventClass_textColor'))
-        &lt;/label&gt;
-      &lt;/dt&gt;
-      &lt;dd&gt;
-        $request.textColor
-      &lt;/dd&gt;
     &lt;/dl&gt;
     #end
   {{/html}}
