@@ -3,7 +3,7 @@
 A calendar application for XWiki
 
 * Project Lead: N/A
-* [Documentation](https://store.xwiki.com/xwiki/bin/view/Extension/MoccaCalendarApplication)
+* [Documentation](https://store.xwiki.com/xwiki/bin/view/Extension/CalendarApplication)
 * [Development Practices](http://dev.xwiki.org)
 * Minimal XWiki version supported: XWiki 13.10
 * Translations N/A
