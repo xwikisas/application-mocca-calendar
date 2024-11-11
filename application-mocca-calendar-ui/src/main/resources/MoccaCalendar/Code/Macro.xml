@@ -1938,10 +1938,7 @@ Mocca Calendar Macro
       <contentType>No content</contentType>
     </property>
     <property>
-      <defaultCategories/>
-    </property>
-    <property>
-      <defaultCategory>Content</defaultCategory>
+      <defaultCategories>Content</defaultCategories>
     </property>
     <property>
       <description>Displays a Calendar</description>
