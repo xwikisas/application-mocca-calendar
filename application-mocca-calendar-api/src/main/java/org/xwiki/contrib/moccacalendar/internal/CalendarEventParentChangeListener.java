@@ -118,14 +118,13 @@ public class CalendarEventParentChangeListener implements EventListener
         //
         // otherwise calculate new location and rename the document to it
         //
-        DocumentReference targetReference = newDocumentLocation(doc, context);
         try {
+            DocumentReference targetReference = newDocumentLocation(doc, context);
             doc.rename(targetReference, context);
             logger.debug("renamed document [{}] to [{}]", doc.getOriginalDocument().getDocumentReference(),
                 doc.getDocumentReference());
         } catch (XWikiException e) {
-            logger.warn("could not move document [{}] to its new parent [{}]", doc.getDocumentReference(),
-                targetReference, e);
+            logger.warn("could not move document [{}] to its new parent.", doc.getDocumentReference(), e);
         }
     }
 
@@ -155,6 +154,7 @@ public class CalendarEventParentChangeListener implements EventListener
     }
 
     private DocumentReference newDocumentLocation(XWikiDocument eventDocument, XWikiContext context)
+        throws XWikiException
     {
         DocumentReference docRef = eventDocument.getDocumentReference();
         DocumentReference parentRef = eventDocument.getParentReference();
@@ -182,7 +182,7 @@ public class CalendarEventParentChangeListener implements EventListener
     }
 
     private DocumentReference getUnusedDocument(DocumentReference docRef, SpaceReference targetSpaceRef,
-        XWikiContext context)
+        XWikiContext context) throws XWikiException
     {
         String origDocName = docRef.getName();
         DocumentReference targetDocReference = new DocumentReference(origDocName, targetSpaceRef);
@@ -198,8 +198,8 @@ public class CalendarEventParentChangeListener implements EventListener
         return targetDocReference;
     }
 
-    private DocumentReference getDocumentWithUnusedSpace(DocumentReference docRef,
-        SpaceReference targetParentSpace, XWikiContext context)
+    private DocumentReference getDocumentWithUnusedSpace(DocumentReference docRef, SpaceReference targetParentSpace,
+        XWikiContext context) throws XWikiException
     {
         String origDocSpaceName = docRef.getLastSpaceReference().getName();
         SpaceReference targetDocSpace = new SpaceReference(origDocSpaceName, targetParentSpace);

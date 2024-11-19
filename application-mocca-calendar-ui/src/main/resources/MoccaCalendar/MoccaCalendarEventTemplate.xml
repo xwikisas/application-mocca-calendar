@@ -20,7 +20,7 @@
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
 -->
 
-<xwikidoc version="1.4" reference="MoccaCalendar.MoccaCalendarEventTemplate" locale="">
+<xwikidoc version="1.5" reference="MoccaCalendar.MoccaCalendarEventTemplate" locale="">
   <web>MoccaCalendar</web>
   <name>MoccaCalendarEventTemplate</name>
   <language/>
@@ -53,7 +53,7 @@
       <validationScript/>
       <firstInstance>
         <customDisplay/>
-        <dateFormat>dd.MM.yyyy HH:mm</dateFormat>
+        <dateFormat>yyyy/MM/dd HH:mm</dateFormat>
         <disabled>0</disabled>
         <emptyIsToday>0</emptyIsToday>
         <name>firstInstance</name>
@@ -89,7 +89,7 @@
       </frequency>
       <lastInstance>
         <customDisplay/>
-        <dateFormat>dd.MM.yyyy HH:mm</dateFormat>
+        <dateFormat>yyyy/MM/dd HH:mm</dateFormat>
         <disabled>0</disabled>
         <emptyIsToday>0</emptyIsToday>
         <name>lastInstance</name>
