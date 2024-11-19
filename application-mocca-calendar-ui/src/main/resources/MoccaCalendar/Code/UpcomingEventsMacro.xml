@@ -466,7 +466,9 @@
       <contentType>No content</contentType>
     </property>
     <property>
-      <defaultCategories>Content</defaultCategories>
+      <defaultCategories>
+        <value>Content</value>
+      </defaultCategories>
     </property>
     <property>
       <description>Displays upcoming calendar events</description>
