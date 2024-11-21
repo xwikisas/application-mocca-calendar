@@ -141,7 +141,13 @@ or
       <cache>long</cache>
     </property>
     <property>
-      <code>define('moccaCalendar', ['jquery', 'fullcalendar', 'moment'], function(jQuery, fullCalendar, moment) {
+      <code>require.config({
+  paths: {
+    purify: "$services.webjars.url('org.webjars.npm:dompurify', 'dist/purify.js')"
+  },
+});
+
+define('moccaCalendar', ['jquery', 'fullcalendar', 'moment', 'purify'], function(jQuery, fullCalendar, moment, purify) {
 
 // Make sure the XWiki 'namespace' and the ModalPopup class exist.
 if (typeof(XWiki) == "undefined" || typeof(XWiki.widgets) == "undefined" || typeof(XWiki.widgets.ModalPopup) == "undefined") {
@@ -436,6 +442,7 @@ if (typeof(XWiki) == "undefined" || typeof(XWiki.widgets) == "undefined" || type
       } else {
         saveUrl = this.interactionParameters.event.saveUrl;
       }
+      this.content.title.value = purify.sanitize(this.content.title.value)
       this.content.writeAttribute('action', saveUrl + '&amp;xpage=plain&amp;ajax=true');
       this.content.request({
         onSuccess: function() {

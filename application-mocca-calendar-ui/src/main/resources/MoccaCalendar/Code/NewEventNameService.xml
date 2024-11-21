@@ -41,7 +41,7 @@
   $response.setContentType('application/json')
 #end
 #if($xcontext.action == 'get')
-  #set($eventName = "$!{request.newEvent}")
+  #set($eventName = "$!{escapetool.xml($request.newEvent)}")
   #if($eventName == "")
     #set($eventName = "event")
   #end

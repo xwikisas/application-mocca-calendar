@@ -175,8 +175,13 @@ $doc.display($field)
     #end
     &lt;/select&gt;
 
-    ; &lt;label for="${editPrefix}_title"&gt;$escapetool.xml($doc.displayPrettyName('title', false, false))&lt;span class="xRequired"&gt;&lt;/span&gt;&lt;/label&gt;
-    : $doc.display('title')#showvalidationmessage("val_title_already_exists") &lt;span class="val_title_notempty xErrorMsg" style="display:none;"&gt;$escapetool.xml($services.localization.render('val_title_notempty'))&lt;/span&gt; &lt;span class="val_title_notvalid xErrorMsg" style="display:none;"&gt;$escapetool.xml($services.localization.render('val_title_notvalid'))&lt;/span&gt;
+    ; &lt;label for="${editPrefix}_title"&gt;$escapetool.xml($doc.displayPrettyName('title', false, false))
+        &lt;span class="xRequired"&gt;&lt;/span&gt;&lt;/label&gt;
+    : &lt;input type="text" name="title" value="${escapetool.xml($doc.getDisplayTitle())}" /&gt;#showvalidationmessage("val_title_already_exists")
+      &lt;span class="val_title_notempty xErrorMsg" style="display:none;"&gt;
+        $escapetool.xml($services.localization.render('val_title_notempty'))&lt;/span&gt;
+      &lt;span class="val_title_notvalid xErrorMsg" style="display:none;"&gt;
+        $escapetool.xml($services.localization.render('val_title_notvalid'))&lt;/span&gt;
 
     ; &lt;label for="${editPrefix}_startDate"&gt;$escapetool.xml($doc.displayPrettyName('startDate', false, false))&lt;span class="xRequired"&gt;&lt;/span&gt;&lt;/label&gt;
     : #displayDate('startDate')#showvalidationmessage("val_startDateMissing")#showvalidationmessage("val_startDateNotDate")
@@ -286,7 +291,7 @@ $doc.display($field)
     : [[$calendarDoc.getDisplayTitle()&gt;&gt;$calendarDoc.fullName]]
     #end
     ; &lt;label&gt;$escapetool.xml($doc.displayPrettyName('title', false, false))&lt;/label&gt;
-    : $eventInstance.getTitle()
+    : $escapetool.xml($eventInstance.getTitle())
     ; &lt;label for="startDate"&gt;$escapetool.xml($doc.displayPrettyName('startDate', false, false))&lt;/label&gt;
     : #getDateFormat('startDate' $eventInstance.isAllDay() $format) $xwiki.jodatime.getDateTimeFormatterForPattern($format).print($eventInstance.getStartDate())
     ; &lt;label for="endDate"&gt;$escapetool.xml($doc.displayPrettyName('endDate', false, false))&lt;/label&gt;
