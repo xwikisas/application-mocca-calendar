@@ -1625,22 +1625,29 @@ $xwiki.ssx.use("MoccaCalendar.Code.Macro")
           #set ($escapedCalendarSpace = $escapetool.xml($doc.getSpace()))
           #set ($escapedCalendarName = $escapetool.xml($doc.getDocumentReference().getName()))
           #set ($actionURL = "$request.getContextPath()/rest/moccacalendar/import")
+          #set ($xwikiCalendarDoc = $xwiki.getDocument($calendarDoc))
+          #set ($calendarObject = $xwikiCalendarDoc.getObject('MoccaCalendar.MoccaCalendarClass'))
           &lt;form class="xform" action="$actionURL" method="post"&gt;
             &lt;div class="import-form"&gt;
-              &lt;label for="import-calendar-parent"&gt;
-                $escapetool.xml($services.localization.render('MoccaCalendar.calendar'))&lt;/label&gt;
-              &lt;select id="import-calendar-parent" name="parentCalendar"&gt;
-                #foreach ($item in $services.moccacalendar.getAllCalendars()) ## TODO: add filter here, see MOCCACAL-76
-                  #set ($itemdoc = $xwiki.getDocument($item))
-                  #if ($!{itemdoc} &amp;&amp; ${itemdoc.hasAccessLevel("edit")})
-                    #set ($selected="")
-                    #if ($itemdoc.getId() == $doc.getId())
-                      #set ($selected=" selected='selected'")
+              #if ($calendarObject || $xwikiCalendarDoc.getFullName() == 'MoccaCalendar.Events')
+                &lt;label for="import-calendar-parent"&gt;
+                  $escapetool.xml($services.localization.render('MoccaCalendar.calendar'))&lt;/label&gt;
+                &lt;select id="import-calendar-parent" name="parentCalendar"&gt;
+                  #foreach ($item in $services.moccacalendar.getAllCalendars()) ## TODO: add filter here, see MOCCACAL-76
+                    #set ($itemdoc = $xwiki.getDocument($item))
+                    #if ($!{itemdoc} &amp;&amp; ${itemdoc.hasAccessLevel("edit")})
+                      #set ($selected="")
+                      #if ($itemdoc.getId() == $doc.getId())
+                        #set ($selected=" selected='selected'")
+                      #end
+                      &lt;option value="$escapetool.html($itemdoc.getFullName())"$selected&gt;
+                        $itemdoc.getDisplayTitle()&lt;/option&gt;
                     #end
-                    &lt;option value="$escapetool.html($itemdoc.getFullName())"$selected&gt;
-                      $itemdoc.getDisplayTitle()&lt;/option&gt;
                   #end
-                #end
+                &lt;/select&gt;
+              #end
+              &lt;select id="import-calendar-parent" name="parentCalendar" hidden&gt;
+                &lt;option value="$calendarDoc" selected&gt;$calendarDoc.getDisplayTitle()&lt;/option&gt;
               &lt;/select&gt;
               &lt;label for="import-ical-file-input"&gt;$escapetool.xml($services.localization.render(
                 'MoccaCalendar.import.modal.file.label'))&lt;/label&gt;
