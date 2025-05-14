@@ -948,6 +948,32 @@ require(['jquery', 'xwiki-meta', 'xwiki-job-runner', 'xwiki-l10n!mocca-calendar-
     startUploading(form);
   });
 
+  $(document).on('click', '#add-calendar-object', function(event) {
+    event.preventDefault();
+    const addObjectButton = $('#add-calendar-object');
+    const target = addObjectButton.data('target');
+    // To be adapted to the standard XWiki rest endpoint for object creation after
+    // XWIKI-20704: NullPointerException (NPE) when accessing objects with ComputedField properties from REST is fixed.
+    var documentReference = XWiki.Model.resolve('MoccaCalendar.Code.MoccaCalendarObjectCreator',
+      XWiki.EntityType.DOCUMENT);
+    var targetUrl = new XWiki.Document(documentReference).getURL();
+    var params = {
+      'documentRef': target
+    };
+    $.ajax({
+      url: targetUrl,
+      type: 'POST',
+      data: params,
+      success: function (response) {
+        window.location.reload();
+      },
+      error: function (xhr, status, error) {
+        console.error("Failed to add the MoccaCalendarClass object", error);
+        alert("An error occurred while trying to add the class object.");
+      }
+    });
+  });
+
   // Start uploading this file by creating a new XHR object with the file data.
   var startUploading = function (form) {
     var formData = new FormData(form);
@@ -1666,6 +1692,11 @@ $xwiki.ssx.use("MoccaCalendar.Code.Macro")
     &lt;/div&gt;
   &lt;/div&gt;
 #end
+#macro (addCalendarObject $docRef)
+  #info($escapetool.xml($services.localization.render('rendering.macro.moccacalendar.addObject.description')))
+  &lt;input type="button" class="btn btn-primary" id="add-calendar-object" data-target="$docRef"
+    value="$escapetool.xml($services.localization.render('rendering.macro.moccacalendar.addObject.button'))"&gt;
+#end
 {{/velocity}}
 
 {{velocity}}
@@ -1731,6 +1762,11 @@ $xwiki.ssx.use("MoccaCalendar.Code.Macro")
 #if($xcontext.action=='view'){{html clean="false" wiki="false"}}
 #if($canCreateEvents)
 ## create event link
+#set ($xwikiCalendarDoc = $xwiki.getDocument($calendarDoc))
+#set ($calendarObject = $xwikiCalendarDoc.getObject('MoccaCalendar.MoccaCalendarClass'))
+#if ($filter == 'page' &amp;&amp; !$calendarObject)
+  #addCalendarObject($calendarDoc)
+#end
 &lt;div class="calendar-buttons"&gt;
 &lt;span class="buttonwrapper"&gt;
 &lt;button data-toggle="modal" data-target="#import-calendar-file"
