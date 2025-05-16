@@ -889,20 +889,21 @@ if (typeof(XWiki) == "undefined" || typeof(XWiki.widgets) == "undefined" || type
 
 });
 
-define('mocca-calendar-import-notification', {
-  prefix: 'MoccaCalendar.import.notification.',
+define('mocca-calendar-notification', {
+  prefix: 'MoccaCalendar.notification.',
   keys: [
-    'inprogress',
-    'done',
-    'error',
-    'filetoolarge'
+    'import.inprogress',
+    'import.done',
+    'import.error',
+    'import.filetoolarge',
+    'addObject.error'
   ]
 });
 
 /**
  * Delete event and calendar import actions.
  */
-require(['jquery', 'xwiki-meta', 'xwiki-job-runner', 'xwiki-l10n!mocca-calendar-import-notification'],
+require(['jquery', 'xwiki-meta', 'xwiki-job-runner', 'xwiki-l10n!mocca-calendar-notification'],
   function($, xwikiMeta, JobRunner, l10n) {
   /**
   * Events triggered before deleteEvents modal is shown: save the button that triggers
@@ -948,7 +949,7 @@ require(['jquery', 'xwiki-meta', 'xwiki-job-runner', 'xwiki-l10n!mocca-calendar-
     startUploading(form);
   });
 
-  $(document).on('click', '#add-calendar-object', function(event) {
+  $(document).on('click', '.box.infomessage &gt; p &gt; span &gt; a', function(event) {
     event.preventDefault();
     const addObjectButton = $('#add-calendar-object');
     const target = addObjectButton.data('target');
@@ -968,8 +969,8 @@ require(['jquery', 'xwiki-meta', 'xwiki-job-runner', 'xwiki-l10n!mocca-calendar-
         window.location.reload();
       },
       error: function (xhr, status, error) {
-        console.error("Failed to add the MoccaCalendarClass object", error);
-        alert("An error occurred while trying to add the class object.");
+        console.error('Failed to add the MoccaCalendarClass object', error);
+        var notification = new XWiki.widgets.Notification(l10n.get('addObject.error'), 'error');
       }
     });
   });
@@ -989,7 +990,7 @@ require(['jquery', 'xwiki-meta', 'xwiki-job-runner', 'xwiki-l10n!mocca-calendar-
       request.send(formData);
       checkImportJob(select.value);
     } else {
-      var notification = new XWiki.widgets.Notification(l10n.get('filetoolarge'), 'error');
+      var notification = new XWiki.widgets.Notification(l10n.get('import.filetoolarge'), 'error');
     }
   }
 
@@ -1006,7 +1007,7 @@ require(['jquery', 'xwiki-meta', 'xwiki-job-runner', 'xwiki-l10n!mocca-calendar-
       {name: 'data', value: 'jobStatus'},
       {name: 'form_token', value: xwikiMeta.form_token}
     );
-    var notification = new XWiki.widgets.Notification(l10n.get('inprogress'), 'inprogress');
+    var notification = new XWiki.widgets.Notification(l10n.get('import.inprogress'), 'inprogress');
     $('#import-calendar-file-button').prop('disabled', true);
     return Promise.resolve(new JobRunner({
       createStatusRequest: function(jobId) {
@@ -1025,10 +1026,10 @@ require(['jquery', 'xwiki-meta', 'xwiki-job-runner', 'xwiki-l10n!mocca-calendar-
         throw new Error(response.error.message);
       } else {
         document.dispatchEvent(new Event('calendarImportCompleted'));
-        notification.replace(new XWiki.widgets.Notification(l10n.get('done'),'done'));
+        notification.replace(new XWiki.widgets.Notification(l10n.get('import.done'),'done'));
       }
     }).catch((reason) =&gt; {
-      notification.replace(new XWiki.widgets.Notification(l10n.get('error'),'error'));
+      notification.replace(new XWiki.widgets.Notification(l10n.get('import.error'),'error'));
       return Promise.reject(reason);
     }).finally(() =&gt; {
       $('#import-calendar-file-button').prop('disabled', false);
@@ -1693,9 +1694,14 @@ $xwiki.ssx.use("MoccaCalendar.Code.Macro")
   &lt;/div&gt;
 #end
 #macro (addCalendarObject $docRef)
-  #info($escapetool.xml($services.localization.render('rendering.macro.moccacalendar.addObject.description')))
-  &lt;input type="button" class="btn btn-primary" id="add-calendar-object" data-target="$docRef"
-    value="$escapetool.xml($services.localization.render('rendering.macro.moccacalendar.addObject.button'))"&gt;
+  {{html clean=false wiki=true}}
+    &lt;input type="hidden" id="add-calendar-object" data-target="$docRef"&gt;
+
+    {{info}}
+      $escapetool.xml($services.localization.render('rendering.macro.moccacalendar.addObject.description'))
+      [[**$escapetool.xml($services.localization.render('rendering.macro.moccacalendar.addObject.button'))**&gt;&gt;$docRef]]
+    {{/info}}
+  {{/html}}
 #end
 {{/velocity}}
 
@@ -1759,14 +1765,15 @@ $xwiki.ssx.use("MoccaCalendar.Code.Macro")
 #if (!$services.licensing.licensor.hasLicensureForEntity($mainReference))
   {{missingLicenseMessage extensionName="moccacalendar.extension.name"/}}
 #else
-#if($xcontext.action=='view'){{html clean="false" wiki="false"}}
-#if($canCreateEvents)
-## create event link
+#if($xcontext.action=='view')
 #set ($xwikiCalendarDoc = $xwiki.getDocument($calendarDoc))
 #set ($calendarObject = $xwikiCalendarDoc.getObject('MoccaCalendar.MoccaCalendarClass'))
 #if ($filter == 'page' &amp;&amp; !$calendarObject)
   #addCalendarObject($calendarDoc)
 #end
+{{html clean="false" wiki="false"}}
+#if($canCreateEvents)
+## create event link
 &lt;div class="calendar-buttons"&gt;
 &lt;span class="buttonwrapper"&gt;
 &lt;button data-toggle="modal" data-target="#import-calendar-file"
