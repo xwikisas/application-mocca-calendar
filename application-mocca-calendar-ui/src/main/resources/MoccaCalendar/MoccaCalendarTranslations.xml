@@ -68,13 +68,16 @@ MoccaCalendar.generic.errormessage=Internal Server Error
 MoccaCalendar.import.modal.title=Import calendar
 MoccaCalendar.import.modal.file.label=.ics file to be imported
 MoccaCalendar.import.modal.button.start=Begin import
-MoccaCalendar.import.notification.inprogress=Calendar file import in progress...
-MoccaCalendar.import.notification.done=Calendar successfully imported!
-MoccaCalendar.import.notification.error=There was an error while importing the calendar data. Please try again or consult the logs!
-MoccaCalendar.import.notification.filetoolarge=The file size is too large
 MoccaCalendar.import.generated.description.attendee=Attendee: {0}
 MoccaCalendar.import.generated.description.location=Location: {0}
 MoccaCalendar.import.generated.description.organizer=Organizer: {0}
+
+# Notifications
+MoccaCalendar.notification.import.inprogress=Calendar file import in progress...
+MoccaCalendar.notification.import.done=Calendar successfully imported!
+MoccaCalendar.notification.import.error=There was an error while importing the calendar data. Please try again or consult the logs!
+MoccaCalendar.notification.import.filetoolarge=The file size is too large
+MoccaCalendar.notification.addObject.error=An error occurred while trying to add the class object.
 
 # Class fields
 MoccaCalendar.MoccaCalendarClass_title=Title
@@ -225,6 +228,8 @@ moccacalendar.sheets.generic.noevent=This page cannot be displayed in the calend
 moccacalendar.sources.config.label=Configure events from source \u00AB{0}\u00BB
 
 ## Calendar macro
+rendering.macro.moccacalendar.addObject.description=This action will transform the current calendar macro in a dedicated Calendar page. This will allow further customizations of color schemes and you will find it in the Calendar overview. Note that any other content on this page will be added in the calendar description. The action is irreversible!
+rendering.macro.moccacalendar.addObject.button=Add calendar class
 rendering.macro.moccacalendar.name=Mocca Calendar
 rendering.macro.moccacalendar.description=Displays a Calendar
 rendering.macro.moccacalendar.parameter.filter.name=Show events from ...
