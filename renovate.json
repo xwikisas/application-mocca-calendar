@@ -4,8 +4,6 @@
 
   "ignoreDeps": ["org.eclipse.m2e:lifecycle-mapping"],
 
-  "forkProcessing": "enabled",
-
   "packageRules": [
     {
       "matchDatasources": ["maven"],
