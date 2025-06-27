@@ -61,7 +61,7 @@ public abstract class AbstractRecurrentEventGenerator implements RecurrentEventG
      * E.g. in case of weekly events increment it by one week.
      * @param cal the calendar to increment; should never be null
      */
-    protected abstract void incrementCalendarByOnePeriod(Calendar cal);
+    protected abstract void incrementCalendarByOnePeriod(Calendar cal, int... pos);
     
     /**
      * generate a list of event instances for the given date range
@@ -117,7 +117,7 @@ public abstract class AbstractRecurrentEventGenerator implements RecurrentEventG
 
     // separate helper method to actually create the events
     // to keep checkstyle from complaining
-    private List<EventInstance> createEventInstances(final XWikiDocument event, final Date startDate,
+    protected List<EventInstance> createEventInstances(final XWikiDocument event, final Date startDate,
         final long duration, final Date dateFrom, final Date dateTo)
     {
         Calendar cal = Calendar.getInstance();

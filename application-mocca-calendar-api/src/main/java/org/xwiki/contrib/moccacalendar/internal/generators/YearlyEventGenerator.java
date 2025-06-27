@@ -40,7 +40,7 @@ public class YearlyEventGenerator extends AbstractRecurrentEventGenerator
     /**
      * increment the calendar by one year.
      */
-    protected void incrementCalendarByOnePeriod(Calendar cal)
+    protected void incrementCalendarByOnePeriod(Calendar cal, int... pos)
     {
         cal.add(Calendar.YEAR, 1);
     }

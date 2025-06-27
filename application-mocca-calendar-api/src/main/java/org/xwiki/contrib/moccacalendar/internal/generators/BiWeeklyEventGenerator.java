@@ -40,7 +40,7 @@ public class BiWeeklyEventGenerator extends AbstractRecurrentEventGenerator
     /**
      * increment the calendar by two weeks.
      */
-    protected void incrementCalendarByOnePeriod(Calendar cal)
+    protected void incrementCalendarByOnePeriod(Calendar cal, int... pos)
     {
         cal.add(Calendar.WEEK_OF_YEAR, 2);
     }

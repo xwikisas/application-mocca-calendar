@@ -41,7 +41,7 @@ public class WorkDaysEventGenerator extends AbstractRecurrentEventGenerator
      * increment the calendar by one day, skipping weekends.
      * TODO: configure which days are weekdays
      */
-    protected void incrementCalendarByOnePeriod(Calendar cal)
+    protected void incrementCalendarByOnePeriod(Calendar cal, int... pos)
     {
         do {
             cal.add(Calendar.DAY_OF_YEAR, 1);

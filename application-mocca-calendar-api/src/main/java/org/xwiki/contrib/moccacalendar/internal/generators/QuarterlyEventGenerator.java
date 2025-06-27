@@ -40,7 +40,7 @@ public class QuarterlyEventGenerator extends AbstractRecurrentEventGenerator
     /**
      * increment the calendar by three months.
      */
-    protected void incrementCalendarByOnePeriod(Calendar cal)
+    protected void incrementCalendarByOnePeriod(Calendar cal, int... pos)
     {
         cal.add(Calendar.MONTH, 3);
     }
