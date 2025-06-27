@@ -41,7 +41,7 @@ public class MonthlyEventGenerator extends AbstractRecurrentEventGenerator
     /**
      * increment the calendar by one month.
      */
-    protected void incrementCalendarByOnePeriod(Calendar cal)
+    protected void incrementCalendarByOnePeriod(Calendar cal, int... pos)
     {
         cal.add(Calendar.MONTH, 1);
     }
