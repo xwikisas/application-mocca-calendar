@@ -46,6 +46,31 @@
     <defaultWeb/>
     <nameField/>
     <validationScript/>
+    <days>
+      <cache>0</cache>
+      <customDisplay/>
+      <defaultValue/>
+      <disabled>0</disabled>
+      <displayType>checkbox</displayType>
+      <freeText/>
+      <hint/>
+      <largeStorage>0</largeStorage>
+      <multiSelect>1</multiSelect>
+      <name>days</name>
+      <number>4</number>
+      <picker>0</picker>
+      <prettyName>days</prettyName>
+      <relationalStorage>0</relationalStorage>
+      <separator> </separator>
+      <separators>|, </separators>
+      <size>1</size>
+      <sort/>
+      <unmodifiable>0</unmodifiable>
+      <validationMessage/>
+      <validationRegExp/>
+      <values>1|2|3|4|5|6|7</values>
+      <classType>com.xpn.xwiki.objects.classes.StaticListClass</classType>
+    </days>
     <firstInstance>
       <customDisplay/>
       <dateFormat>yyyy/MM/dd HH:mm</dateFormat>
@@ -79,7 +104,7 @@
       <unmodifiable>0</unmodifiable>
       <validationMessage/>
       <validationRegExp/>
-      <values>daily|workdays|weekly|biweekly|monthly|quarterly|yearly</values>
+      <values>daily|workdays|weekly|biweekly|monthly|quarterly|yearly|customWeekly</values>
       <classType>com.xpn.xwiki.objects.classes.StaticListClass</classType>
     </frequency>
     <lastInstance>
