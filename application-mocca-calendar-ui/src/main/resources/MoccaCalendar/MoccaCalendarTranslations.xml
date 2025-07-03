@@ -275,6 +275,7 @@ admin.moccacalendar.sources.empty=There are no calendar event sources to configu
 admin.moccacalendar.sources.active.label=Show events from source \u00AB{0}\u00BB:
 
 # Recurrent event
+moccacalendar.recurrent.frequency.hint=The frequency is in correlation with the selected start date.
 moccacalendar.recurrent.weekday.0=Sunday
 moccacalendar.recurrent.weekday.1=Monday
 moccacalendar.recurrent.weekday.2=Tuesday
