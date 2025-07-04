@@ -106,7 +106,7 @@
     <dependency>
       <groupId>org.xwiki.contrib</groupId>
       <artifactId>macro-fullcalendar-ui</artifactId>
-      <version>2.4.4</version>
+      <version>2.4.5</version>
       <type>xar</type>
     </dependency>
     <!-- Replaces transitive dependency on com.sun.mail:javax.mail from ical4j (macro-fullcalendar-ui) -->
