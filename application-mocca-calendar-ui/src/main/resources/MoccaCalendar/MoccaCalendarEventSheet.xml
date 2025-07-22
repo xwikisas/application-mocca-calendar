@@ -491,7 +491,12 @@ require(['jquery', 'xwiki-l10n!mocca-calendar-recurrent'], function($, l10n) {
     const weekdayIndex = date.getDay();
     const firstOfMonth = new Date(year, month, 1);
     const firstWeekdayIndex = firstOfMonth.getDay();
+
+    // Calculate the days from the first of the month to the first occurrence of the same weekday as the given date.
     const offset = (7 + weekdayIndex - firstWeekdayIndex) % 7;
+
+    // Calculate how many full weeks have passed since the first occurrence of this weekday. We add 1 to set the
+    // right occurrence.
     const occurrence = Math.floor((day - 1 - offset) / 7) + 1;
     const weekday = l10n.get(`weekday.${weekdayIndex}`);
     const ordinal = l10n.get(`ordinal.${occurrence}`);
