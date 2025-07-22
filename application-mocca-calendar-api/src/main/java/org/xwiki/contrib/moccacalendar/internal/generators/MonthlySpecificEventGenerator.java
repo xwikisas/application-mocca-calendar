@@ -45,23 +45,23 @@ import com.xpn.xwiki.doc.XWikiDocument;
 public class MonthlySpecificEventGenerator extends AbstractRecurrentEventGenerator
 {
     /**
-     * increment the calendar by one month, to a specific day.
+     * Increment the calendar by one month, to a specific day.
      */
-    protected void incrementCalendarByOnePeriod(Calendar cal, int... pos)
+    protected void incrementCalendarByOnePeriod(Calendar cal, int... occurrence)
     {
         int originalDayOfWeek = cal.get(Calendar.DAY_OF_WEEK);
 
         cal.set(Calendar.DAY_OF_MONTH, 1);
         cal.add(Calendar.MONTH, 1);
-        int newMonth = cal.get(Calendar.MONTH);
+        int nextMonth = cal.get(Calendar.MONTH);
 
         int weekdayCount = 0;
         int lastOccurrenceDay = 1;
-        while (cal.get(Calendar.MONTH) == newMonth) {
+        while (cal.get(Calendar.MONTH) == nextMonth) {
             if (cal.get(Calendar.DAY_OF_WEEK) == originalDayOfWeek) {
                 lastOccurrenceDay = cal.get(Calendar.DAY_OF_MONTH);
                 weekdayCount++;
-                if (weekdayCount == pos[0]) {
+                if (weekdayCount == occurrence[0]) {
                     return;
                 }
             }
@@ -78,9 +78,9 @@ public class MonthlySpecificEventGenerator extends AbstractRecurrentEventGenerat
     {
         Calendar cal = Calendar.getInstance();
         cal.setTime(startDate);
-        int position = getPosition(cal);
+        int occurrence = getOccurrence(cal);
         while (cal.getTimeInMillis() + duration < dateFrom.getTime()) {
-            incrementCalendarByOnePeriod(cal, position);
+            incrementCalendarByOnePeriod(cal, occurrence);
         }
         List<EventInstance> eventInstances = new ArrayList<>();
         while (cal.getTime().compareTo(dateTo) <= 0) {
@@ -94,13 +94,19 @@ public class MonthlySpecificEventGenerator extends AbstractRecurrentEventGenerat
                 break;
             }
 
-            incrementCalendarByOnePeriod(cal, position);
+            incrementCalendarByOnePeriod(cal, occurrence);
         }
 
         return eventInstances;
     }
 
-    private int getPosition(Calendar cal)
+    /**
+     * Calculates the occurrence index of the day of the week for the date set in calendar.
+     *
+     * @param cal the {@link Calendar} instance representing the target date
+     * @return the number of times the day of the week set in calendar occurred in the month
+     */
+    private int getOccurrence(Calendar cal)
     {
         int originalDayOfWeek = cal.get(Calendar.DAY_OF_WEEK);
         int originalDay = cal.get(Calendar.DAY_OF_MONTH);

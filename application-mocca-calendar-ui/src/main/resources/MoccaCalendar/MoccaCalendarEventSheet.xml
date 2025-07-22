@@ -220,6 +220,7 @@ $doc.display($field)
   (% id="recurrentFields" #if(!$isRecurrent)style="display:none" #{end}%)
   (((
     ; &lt;label for="${eventRecurrentClass}_0_frequency"&gt;$escapetool.xml($doc.displayPrettyName('frequency', false, false))&lt;/label&gt;
+    : &lt;span class="xHint"&gt;$escapetool.xml($services.localization.render('moccacalendar.recurrent.frequency.hint'))&lt;/span&gt;
     : $doc.display('frequency')
     (% id="recurrentDays" #if($doc.getValue('frequency') != 'customWeekly')style="display:none" #{end}%)
     (((
@@ -492,15 +493,17 @@ require(['jquery', 'xwiki-l10n!mocca-calendar-recurrent'], function($, l10n) {
     const month = date.getMonth();
     const day = date.getDate();
     const weekdayIndex = date.getDay();
-    let occurrence = 0;
-    for (let i = 1; i &lt;= day; i++) {
-      const temp = new Date(year, month, i);
-      if (temp.getDay() === weekdayIndex) {
-        occurrence++;
-      }
-    }
+    const firstOfMonth = new Date(year, month, 1);
+    const firstWeekdayIndex = firstOfMonth.getDay();
+
+    // Calculate the days from the first of the month to the first occurrence of the same weekday as the given date.
+    const offset = (7 + weekdayIndex - firstWeekdayIndex) % 7;
+
+    // Calculate how many full weeks have passed since the first occurrence of this weekday. We add 1 to set the
+    // right occurrence.
+    const occurrence = Math.floor((day - 1 - offset) / 7) + 1;
     const weekday = l10n.get(`weekday.${weekdayIndex}`);
-    var ordinal = l10n.get(`ordinal.${occurrence}`);
+    const ordinal = l10n.get(`ordinal.${occurrence}`);
     return l10n.get('monthlyspecific.message', ordinal, weekday);
   }
 
@@ -566,40 +569,40 @@ require(['jquery', 'xwiki-l10n!mocca-calendar-recurrent'], function($, l10n) {
 
   $(document).on('change', '#MoccaCalendar\\.Code\\.MoccaCalendarEventRecurrencyClass_0_frequency', function () {
     const selectedVal = $(this).val();
-    const $recurrencyDaysArea = $('#recurrentDays');
+    const $recurrenceDaysArea = $('#recurrentDays');
     if (selectedVal === 'customWeekly') {
-      $recurrencyDaysArea.show();
+      $recurrenceDaysArea.show();
     } else {
-      $recurrencyDaysArea.hide();
+      $recurrenceDaysArea.hide();
     }
   });
 
   function attachEvents() {
-    const $cp = $('#calendarParent');
+    const $calendarParent = $('#calendarParent');
     const $docParent = $('#xwikidocparentinput');
-    if ($cp.length &gt; 0 &amp;&amp; $docParent.length &gt; 0) {
-      $cp.on('change', function () {
-        $docParent.val($cp.val());
+    if ($calendarParent.length &gt; 0 &amp;&amp; $docParent.length &gt; 0) {
+      $calendarParent.on('change', function () {
+        $docParent.val($calendarParent.val());
         $docParent.trigger('xwiki:suggest:selected');
       });
     }
-    const $rc = $('#MoccaCalendar\\.MoccaCalendarEventClass_0_recurrent');
-    const $recurrencyArea = $('#recurrentFields');
-    const $recurrencyField = $('#MoccaCalendar\\.Code\\.MoccaCalendarEventRecurrencyClass_0_frequency');
-    if ($rc.length &gt; 0) {
+    const $recurrence = $('#MoccaCalendar\\.MoccaCalendarEventClass_0_recurrent');
+    const $recurrenceArea = $('#recurrentFields');
+    const $recurrenceField = $('#MoccaCalendar\\.Code\\.MoccaCalendarEventRecurrencyClass_0_frequency');
+    if ($recurrence.length &gt; 0) {
       initializeRecFreq();
       replaceDayNumbersWithNames();
-      $rc.on('change', function () {
-        const isChecked = $rc.prop('checked');
+      $recurrence.on('change', function () {
+        const isChecked = $recurrence.prop('checked');
         if (isChecked) {
-          $recurrencyArea.show();
+          $recurrenceArea.show();
         } else {
-          $recurrencyArea.hide();
+          $recurrenceArea.hide();
         }
       });
     } else {
-      if ($recurrencyField.length &gt; 0) {
-        $recurrencyField.prop('disabled', true);
+      if ($recurrenceField.length &gt; 0) {
+        $recurrenceField.prop('disabled', true);
       }
     }
   }
