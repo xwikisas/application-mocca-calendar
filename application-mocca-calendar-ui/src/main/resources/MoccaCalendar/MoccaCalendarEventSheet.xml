@@ -220,6 +220,7 @@ $doc.display($field)
   (% id="recurrentFields" #if(!$isRecurrent)style="display:none" #{end}%)
   (((
     ; &lt;label for="${eventRecurrentClass}_0_frequency"&gt;$escapetool.xml($doc.displayPrettyName('frequency', false, false))&lt;/label&gt;
+    : &lt;span class="xHint"&gt;$escapetool.xml($services.localization.render('moccacalendar.recurrent.frequency.hint'))&lt;/span&gt;
     : $doc.display('frequency')
     ; &lt;label for="${eventRecurrentClass}_0_firstInstance"&gt;$escapetool.xml($doc.displayPrettyName('firstInstance', false, false))&lt;/label&gt;
     : $doc.display('firstInstance')#showvalidationmessage("moccacalendar.updates.firstInstance.notDate")
@@ -461,33 +462,117 @@ $doc.display($field)
       <cache>long</cache>
     </property>
     <property>
-      <code>document.observe("xwiki:dom:loaded", function() {
+      <code>define('mocca-calendar-recurrent', {
+  prefix: 'moccacalendar.recurrent.',
+  keys: [
+    'weekday.1',
+    'weekday.2',
+    'weekday.3',
+    'weekday.4',
+    'weekday.5',
+    'weekday.6',
+    'weekday.0',
+    'ordinal.1',
+    'ordinal.2',
+    'ordinal.3',
+    'ordinal.4',
+    'ordinal.5',
+    'ordinal.last',
+    'monthlyspecific.message'
+  ]
+});
 
-  var attachEvents = function() {
-    var cp = $('calendarParent');
-    if (cp) cp.observe("change", function() {
-      $('xwikidocparentinput').setValue( $F('calendarParent'));
-      Event.fire($('xwikidocparentinput'), 'xwiki:suggest:selected');
-    })
-    var rc = $('MoccaCalendar.MoccaCalendarEventClass_0_recurrent');
-    var recurrencyArea = $('recurrentFields')
-    var recurrencyField = $('MoccaCalendar.Code.MoccaCalendarEventRecurrencyClass_0_frequency')
-    if (rc) {
-      rc.observe('change', function() {
-        var value = $F('MoccaCalendar.MoccaCalendarEventClass_0_recurrent');
-        if (value) {
-          if (recurrencyArea) recurrencyArea.show()
-        } else {
-          if (recurrencyArea) recurrencyArea.hide()
-        }
-      })
+require(['jquery', 'xwiki-l10n!mocca-calendar-recurrent'], function($, l10n) {
+  var getNthWeekday = function (dateString) {
+    const date = new Date(dateString);
+    const year = date.getFullYear();
+    const month = date.getMonth();
+    const day = date.getDate();
+    const weekdayIndex = date.getDay();
+    const firstOfMonth = new Date(year, month, 1);
+    const firstWeekdayIndex = firstOfMonth.getDay();
+
+    // Calculate the days from the first of the month to the first occurrence of the same weekday as the given date.
+    const offset = (7 + weekdayIndex - firstWeekdayIndex) % 7;
+
+    // Calculate how many full weeks have passed since the first occurrence of this weekday. We add 1 to set the
+    // right occurrence.
+    const occurrence = Math.floor((day - 1 - offset) / 7) + 1;
+    const weekday = l10n.get(`weekday.${weekdayIndex}`);
+    const ordinal = l10n.get(`ordinal.${occurrence}`);
+    return l10n.get('monthlyspecific.message', ordinal, weekday);
+  }
+
+  var updateRecurrentFrequency = function(dateValue) {
+    const weekdayText = getNthWeekday(dateValue);
+    const $select = $('#MoccaCalendar\\.Code\\.MoccaCalendarEventRecurrencyClass_0_frequency');
+    const $existingOption = $select.find('option[value="monthlySpecific"]');
+    if ($existingOption.length &gt; 0) {
+      $existingOption.text(weekdayText).attr('label', weekdayText);
     } else {
-      if(recurrencyField) recurrencyField.writeAttribute('disabled','disabled')
+      $('&lt;option&gt;', {
+        value: 'monthlySpecific',
+        text: weekdayText
+      }).insertAfter($select.find('option[value="monthly"]'));
     }
   }
 
-  document.observe('xwiki:moccacalendar:editloaded', attachEvents)
-  attachEvents()
+  var initializeRecFreq = function() {
+    const $startDate = $('#MoccaCalendar\\.MoccaCalendarEventClass_0_startDate');
+    if ($startDate.length &gt; 0) {
+      const val = $startDate.val();
+      const recurrent = $('#MoccaCalendar\\.MoccaCalendarEventClass_0_recurrent');
+      if (val &amp;&amp; recurrent.length &gt; 0) {
+        updateRecurrentFrequency(val);
+      }
+    }
+  };
+
+  var lastValue = null;
+
+  $(document).on('blur', '#MoccaCalendar\\.MoccaCalendarEventClass_0_startDate', function () {
+    const currentValue = this.value;
+    if (currentValue &amp;&amp; currentValue !== lastValue) {
+      lastValue = currentValue;
+      updateRecurrentFrequency(currentValue);
+    }
+  });
+
+  function attachEvents() {
+    const $calendarParent = $('#calendarParent');
+    const $docParent = $('#xwikidocparentinput');
+    if ($calendarParent.length &gt; 0 &amp;&amp; $docParent.length &gt; 0) {
+      $calendarParent.on('change', function () {
+        $docParent.val($calendarParent.val());
+        $docParent.trigger('xwiki:suggest:selected');
+      });
+    }
+    const $recurrence = $('#MoccaCalendar\\.MoccaCalendarEventClass_0_recurrent');
+    const $recurrenceArea = $('#recurrentFields');
+    const $recurrenceField = $('#MoccaCalendar\\.Code\\.MoccaCalendarEventRecurrencyClass_0_frequency');
+    if ($recurrence.length &gt; 0) {
+      initializeRecFreq();
+      $recurrence.on('change', function () {
+        const isChecked = $recurrence.prop('checked');
+        if (isChecked) {
+          $recurrenceArea.show();
+        } else {
+          $recurrenceArea.hide();
+        }
+      });
+    } else {
+      if ($recurrenceField.length &gt; 0) {
+        $recurrenceField.prop('disabled', true);
+      }
+    }
+  }
+
+  if (window.XWiki &amp;&amp; XWiki.domIsLoaded) {
+    document.observe('xwiki:moccacalendar:editloaded', attachEvents);
+    attachEvents();
+  } else {
+    document.observe('xwiki:dom:loaded', attachEvents);
+  }
 });</code>
     </property>
     <property>

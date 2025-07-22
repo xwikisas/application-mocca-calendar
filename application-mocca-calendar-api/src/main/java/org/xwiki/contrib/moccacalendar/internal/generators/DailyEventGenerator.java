@@ -40,7 +40,7 @@ public class DailyEventGenerator extends AbstractRecurrentEventGenerator
     /**
      * increment the calendar by one day.
      */
-    protected void incrementCalendarByOnePeriod(Calendar cal)
+    protected void incrementCalendarByOnePeriod(Calendar cal, int... pos)
     {
         cal.add(Calendar.DAY_OF_YEAR, 1);
     }

@@ -40,7 +40,7 @@ public class WeeklyEventGenerator extends AbstractRecurrentEventGenerator
     /**
      * increment the calendar by one week.
      */
-    protected void incrementCalendarByOnePeriod(Calendar cal)
+    protected void incrementCalendarByOnePeriod(Calendar cal, int... pos)
     {
         cal.add(Calendar.WEEK_OF_YEAR, 1);
     }

@@ -272,7 +272,23 @@ moccacalendar.panel.upcomingEvents.header=Upcoming Events
 admin.moccacalendar.sources.section=Calendar
 admin.moccacalendar.sources.header=Enable Calendar Event Sources
 admin.moccacalendar.sources.empty=There are no calendar event sources to configure.
-admin.moccacalendar.sources.active.label=Show events from source \u00AB{0}\u00BB:</content>
+admin.moccacalendar.sources.active.label=Show events from source \u00AB{0}\u00BB:
+
+# Recurrent event
+moccacalendar.recurrent.frequency.hint=The frequency is in correlation with the selected start date.
+moccacalendar.recurrent.weekday.0=Sunday
+moccacalendar.recurrent.weekday.1=Monday
+moccacalendar.recurrent.weekday.2=Tuesday
+moccacalendar.recurrent.weekday.3=Wednesday
+moccacalendar.recurrent.weekday.4=Thursday
+moccacalendar.recurrent.weekday.5=Friday
+moccacalendar.recurrent.weekday.6=Saturday
+moccacalendar.recurrent.ordinal.1=1st
+moccacalendar.recurrent.ordinal.2=2nd
+moccacalendar.recurrent.ordinal.3=3rd
+moccacalendar.recurrent.ordinal.4=4th
+moccacalendar.recurrent.ordinal.5=5th
+moccacalendar.recurrent.monthlyspecific.message=Every {0} {1} of the month</content>
   <object>
     <name>MoccaCalendar.MoccaCalendarTranslations</name>
     <number>0</number>
