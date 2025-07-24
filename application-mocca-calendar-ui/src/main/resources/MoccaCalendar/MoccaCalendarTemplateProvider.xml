@@ -256,15 +256,13 @@
       <name>templateProvider.calendar.name</name>
     </property>
     <property>
-      <spaces>
-        <value>MoccaCalendar</value>
-      </spaces>
+      <spaces/>
     </property>
     <property>
       <template>MoccaCalendar.MoccaCalendarTemplate</template>
     </property>
     <property>
-      <terminal/>
+      <terminal>0</terminal>
     </property>
     <property>
       <visibilityRestrictions/>
