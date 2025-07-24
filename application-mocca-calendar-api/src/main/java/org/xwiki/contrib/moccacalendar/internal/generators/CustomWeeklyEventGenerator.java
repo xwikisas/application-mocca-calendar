@@ -68,6 +68,7 @@ public class CustomWeeklyEventGenerator extends AbstractRecurrentEventGenerator
             rawDays.stream().map(Object::toString).map(Integer::parseInt).sorted().collect(Collectors.toList());
         List<EventInstance> eventInstances = new ArrayList<>();
         while (cal.getTime().compareTo(dateTo) <= 0) {
+            // We go over each day requested by the recurrence and check if it is in the given date interval
             for (int day : days) {
                 cal.set(Calendar.DAY_OF_WEEK, day);
                 long recurrenceTime = cal.getTimeInMillis();
@@ -81,6 +82,8 @@ public class CustomWeeklyEventGenerator extends AbstractRecurrentEventGenerator
             if (eventInstances.size() >= MAX_INSTANCES) {
                 break;
             }
+            // Reset the day of the week to the first day so that we do not accidentally skip recurrent event by
+            // incrementing over the 'dateTo' limit
             cal.set(Calendar.DAY_OF_WEEK, 1);
             incrementCalendarByOnePeriod(cal);
         }

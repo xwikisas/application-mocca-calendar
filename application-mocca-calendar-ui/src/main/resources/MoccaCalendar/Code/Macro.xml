@@ -1153,9 +1153,7 @@ require(['jquery', 'xwiki-meta', 'xwiki-job-runner', 'xwiki-l10n!mocca-calendar-
       <cache>default</cache>
     </property>
     <property>
-      <code>#template('colorThemeInit.vm')
-
-/* events */
+      <code>/* events */
 div.calendar_date_select {
   z-index: 1010;
 }
@@ -1263,15 +1261,16 @@ div.calendar-buttons span.buttonwrapper {
   flex-wrap: wrap;
   gap: 0.3rem;
   margin-top: 1rem;
+  justify-content: center;
 }
 
 #recurrentDays .xwiki-form-listclass {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  padding: 0.6rem 1.2rem;
-  background-color: $theme.buttonSecondaryBackgroundColor;
-  color: $theme.buttonSecondaryTextColor;
+  padding: 0.8rem 1.1rem;
+  background-color: @btn-default-bg;
+  color: @btn-default-color;
   border-radius: 6px;
   cursor: pointer;
   user-select: none;
@@ -1286,18 +1285,18 @@ div.calendar-buttons span.buttonwrapper {
 }
 
 #recurrentDays .xwiki-form-listclass:has(input[type="checkbox"]:checked) {
-  background-color: $theme.buttonPrimaryBackgroundColor;
-  color: $theme.buttonPrimaryTextColor;
+  background-color: @btn-primary-bg;
+  color: @btn-primary-color;
 }</code>
     </property>
     <property>
-      <contentType>CSS</contentType>
+      <contentType>LESS</contentType>
     </property>
     <property>
       <name/>
     </property>
     <property>
-      <parse>1</parse>
+      <parse>0</parse>
     </property>
     <property>
       <use>onDemand</use>
