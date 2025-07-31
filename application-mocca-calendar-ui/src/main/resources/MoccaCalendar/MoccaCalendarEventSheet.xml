@@ -222,6 +222,10 @@ $doc.display($field)
     ; &lt;label for="${eventRecurrentClass}_0_frequency"&gt;$escapetool.xml($doc.displayPrettyName('frequency', false, false))&lt;/label&gt;
     : &lt;span class="xHint"&gt;$escapetool.xml($services.localization.render('moccacalendar.recurrent.frequency.hint'))&lt;/span&gt;
     : $doc.display('frequency')
+    (% id="recurrentDays" #if($doc.getValue('frequency') != 'customWeekly')style="display:none" #{end}%)
+    (((
+    : $doc.display('days')
+    )))
     ; &lt;label for="${eventRecurrentClass}_0_firstInstance"&gt;$escapetool.xml($doc.displayPrettyName('firstInstance', false, false))&lt;/label&gt;
     : $doc.display('firstInstance')#showvalidationmessage("moccacalendar.updates.firstInstance.notDate")
 
@@ -538,6 +542,41 @@ require(['jquery', 'xwiki-l10n!mocca-calendar-recurrent'], function($, l10n) {
     }
   });
 
+  const dayMap = [
+    { name: 'weekday.0', value: 1 },
+    { name: 'weekday.1', value: 2 },
+    { name: 'weekday.2', value: 3 },
+    { name: 'weekday.3', value: 4 },
+    { name: 'weekday.4', value: 5 },
+    { name: 'weekday.5', value: 6 },
+    { name: 'weekday.6', value: 7 },
+  ];
+
+  function replaceDayNumbersWithNames() {
+    $('#recurrentDays label.xwiki-form-listclass').each(function () {
+      const $input = $(this).find('input[type="checkbox"]');
+      const value = parseInt($input.val(), 10);
+      var day = dayMap.find(d =&gt; d.value === value);
+      const dayTranslation = l10n.get(day.name);
+      if (dayTranslation) {
+        $(this).contents().filter(function () {
+          return this.nodeType === Node.TEXT_NODE;
+        }).remove();
+        $(this).append(document.createTextNode(dayTranslation));
+      }
+    });
+  }
+
+  $(document).on('change', '#MoccaCalendar\\.Code\\.MoccaCalendarEventRecurrencyClass_0_frequency', function () {
+    const selectedVal = $(this).val();
+    const $recurrenceDaysArea = $('#recurrentDays');
+    if (selectedVal === 'customWeekly') {
+      $recurrenceDaysArea.show();
+    } else {
+      $recurrenceDaysArea.hide();
+    }
+  });
+
   function attachEvents() {
     const $calendarParent = $('#calendarParent');
     const $docParent = $('#xwikidocparentinput');
@@ -552,6 +591,7 @@ require(['jquery', 'xwiki-l10n!mocca-calendar-recurrent'], function($, l10n) {
     const $recurrenceField = $('#MoccaCalendar\\.Code\\.MoccaCalendarEventRecurrencyClass_0_frequency');
     if ($recurrence.length &gt; 0) {
       initializeRecFreq();
+      replaceDayNumbersWithNames();
       $recurrence.on('change', function () {
         const isChecked = $recurrence.prop('checked');
         if (isChecked) {

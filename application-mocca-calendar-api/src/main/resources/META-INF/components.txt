@@ -6,6 +6,7 @@ org.xwiki.contrib.moccacalendar.internal.DefaultSourceConfigurationClassInitiali
 org.xwiki.contrib.moccacalendar.internal.generators.DailyEventGenerator
 org.xwiki.contrib.moccacalendar.internal.generators.WorkDaysEventGenerator
 org.xwiki.contrib.moccacalendar.internal.generators.WeeklyEventGenerator
+org.xwiki.contrib.moccacalendar.internal.generators.CustomWeeklyEventGenerator
 org.xwiki.contrib.moccacalendar.internal.generators.BiWeeklyEventGenerator
 org.xwiki.contrib.moccacalendar.internal.generators.MonthlyEventGenerator
 org.xwiki.contrib.moccacalendar.internal.generators.MonthlySpecificEventGenerator
