@@ -301,7 +301,7 @@ if (typeof(XWiki) == "undefined" || typeof(XWiki.widgets) == "undefined" || type
         },
         {
           verticalPosition: "top",
-          backgroundColor: "$theme.pageHeaderBackgroundColor",
+          backgroundColor: "$theme.pageBackgroundColor",
           title : this.interactionParameters.editMode ? "$escapetool.javascript($services.localization.render('MoccaCalendar.calendarevent.create'))" : "$escapetool.javascript($services.localization.render('MoccaCalendar.calendarevent.view'))",
           removeOnClose : true,
           onClose : function() {
