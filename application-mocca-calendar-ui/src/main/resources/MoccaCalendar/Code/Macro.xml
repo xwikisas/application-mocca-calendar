@@ -1707,7 +1707,7 @@ $xwiki.ssx.use("MoccaCalendar.Code.Macro")
                 &lt;/select&gt;
               #end
               &lt;select id="import-calendar-parent" name="parentCalendar" hidden&gt;
-                &lt;option value="$calendarDoc" selected&gt;$calendarDoc.getDisplayTitle()&lt;/option&gt;
+                &lt;option value="$escapetool.xml($calendarDoc)" selected&gt;&lt;/option&gt;
               &lt;/select&gt;
               &lt;label for="import-ical-file-input"&gt;$escapetool.xml($services.localization.render(
                 'MoccaCalendar.import.modal.file.label'))&lt;/label&gt;
