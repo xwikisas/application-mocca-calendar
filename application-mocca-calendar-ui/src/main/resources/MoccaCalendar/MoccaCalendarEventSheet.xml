@@ -481,7 +481,6 @@ $doc.display($field)
     'ordinal.3',
     'ordinal.4',
     'ordinal.5',
-    'ordinal.last',
     'monthlyspecific.message'
   ]
 });

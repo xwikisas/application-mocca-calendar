@@ -1258,10 +1258,9 @@ div.calendar-buttons span.buttonwrapper {
 
 #recurrentDays dd {
   display: flex;
-  flex-wrap: wrap;
   gap: 0.3rem;
   margin-top: 1rem;
-  justify-content: center;
+  justify-content: space-between;
 }
 
 #recurrentDays .xwiki-form-listclass {
