@@ -559,8 +559,8 @@ public class MoccaCalendarScriptService implements ScriptService
 
         boolean isAllDay = eventData.getIntValue(EventConstants.PROPERTY_ALLDAY_NAME) == 1;
         event.setAllDay(isAllDay);
-        String textColor = eventData.getStringValue(EventConstants.PROPERTY_TEXTCOLOR_NAME);
-        String backgroundColor = eventData.getStringValue(EventConstants.PROPERTY_BACKGROUNDCOLOR_NAME);
+        String textColor = eventData.displayView(EventConstants.PROPERTY_TEXTCOLOR_NAME, context);
+        String backgroundColor = eventData.displayView(EventConstants.PROPERTY_BACKGROUNDCOLOR_NAME, context);
 
         DateTime endDateExclusive = event.getEndDate();
         if (isAllDay) {

@@ -312,7 +312,7 @@ $doc.display($field)
     ; &lt;label for="backgroundColor"&gt;$escapetool.xml($doc.displayPrettyName('backgroundColor', false, false))&lt;/label&gt;
     #set ($backgroundColor = $eventInstance.getBackgroundColor())
     #set ($isCalendarDefault = (($backgroundColor == $calendarDoc.getValue('color')) &amp;&amp; ($doc.getValue('backgroundColor') == '')) )
-    : &lt;div class="moccaevent" style="border-color:${escapetool.css($backgroundColor)}"&gt;
+    : &lt;div class="moccaevent" style="border-color:${escapetool.html($backgroundColor)}"&gt;
         &amp;#160;
         #if($isCalendarDefault)
           ($escapetool.xml($services.localization.render('MoccaCalendar.calendarevent.color.defaultValue')))
@@ -321,7 +321,7 @@ $doc.display($field)
     ; &lt;label for="textColor"&gt;$escapetool.xml($doc.displayPrettyName('textColor', false, false))&lt;/label&gt;
     #set ($textColor = $eventInstance.getTextColor())
     #set ($isCalendarDefault = (($textColor == $calendarDoc.getValue('textColor')) &amp;&amp; ($doc.getValue('textColor') == '')) )
-    : &lt;div class="moccaevent" style="border-color:${escapetool.css($textColor)}"&gt;
+    : &lt;div class="moccaevent" style="border-color:${escapetool.html($textColor)}"&gt;
         &amp;#160;
         #if($isCalendarDefault)
           ($escapetool.xml($services.localization.render('MoccaCalendar.calendarevent.color.defaultValue')))
