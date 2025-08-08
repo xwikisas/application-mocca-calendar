@@ -1182,6 +1182,9 @@ div.xdialog-box-moccacal-modal-popup .btn-group .btn + .btn {
 }
 .xdialog-box-moccacal-modal-popup {
   width: 600px;
+  top: 3vh !important;
+  bottom: 3vh !important;
+  max-height: 94vh;
 }
 
 /* Make sure the date time picker is shown on top of the event modal. */
