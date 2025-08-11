@@ -959,7 +959,7 @@ public class MoccaCalendarScriptService implements ScriptService
             modifiedInstance.setTextColor(actualTextColor);
         }
 
-        String modifiedTitle = modificationNotice.getStringValue(EventConstants.PROPERTY_TITLE_NAME);
+        String modifiedTitle = modificationNotice.displayView(EventConstants.PROPERTY_TITLE_NAME, context);
         if (modifiedTitle != null && !"".equals(modifiedTitle.trim())) {
             modifiedInstance.setTitle(eventDoc.getRenderedContent(modifiedTitle,
                 eventDoc.getSyntax().toIdString(), Syntax.PLAIN_1_0.toIdString(), context));
