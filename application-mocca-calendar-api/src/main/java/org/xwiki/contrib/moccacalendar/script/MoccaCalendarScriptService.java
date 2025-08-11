@@ -630,10 +630,10 @@ public class MoccaCalendarScriptService implements ScriptService
                 event.setTextColor("");
             } else {
                 if (event.getBackgroundColor().isEmpty()) {
-                    event.setBackgroundColor(calendarData.getStringValue("color"));
+                    event.setBackgroundColor(calendarData.displayView("color", context));
                 }
                 if (event.getTextColor().isEmpty()) {
-                    event.setTextColor(calendarData.getStringValue("textColor"));
+                    event.setTextColor(calendarData.displayView("textColor", context));
                 }
             }
         } catch (XWikiException xe) {
@@ -695,9 +695,7 @@ public class MoccaCalendarScriptService implements ScriptService
                 : eventData.getDateValue(EventConstants.PROPERTY_STARTDATE_NAME);
             modificationData.setDateValue(EventConstants.PROPERTY_STARTDATE_NAME, defaultStartDate);
 
-            final Date baseStartDate = eventData.getDateValue(EventConstants.PROPERTY_STARTDATE_NAME);
-            final Date baseEndDate = Utils.fetchOrGuessEndDate(eventData);
-            final long baseDuration = baseEndDate.getTime() - baseStartDate.getTime();
+            final long baseDuration = getBaseDuration(eventData);
 
             Date defaultEndDate = new Date(defaultStartDate.getTime() + baseDuration);
             modificationData.setDateValue(EventConstants.PROPERTY_ENDDATE_NAME, defaultEndDate);
@@ -751,9 +749,9 @@ public class MoccaCalendarScriptService implements ScriptService
         final XWikiDocument xwikiEventDoc = eventDoc.getDocument();
         final BaseObject eventData = xwikiEventDoc
             .getXObject(stringDocRefResolver.resolve(EventConstants.MOCCA_CALENDAR_EVENT_CLASS_NAME));
-        EventInstance event = null;
+        EventInstance event = new EventInstance();
         if (eventData == null) {
-            return event;
+            return null;
         }
 
         int objIndex;
@@ -771,13 +769,16 @@ public class MoccaCalendarScriptService implements ScriptService
             modificationData = xwikiEventDoc.getXObject(
                 stringDocRefResolver.resolve(EventConstants.MOCCA_CALENDAR_EVENT_MODIFICATION_CLASS_NAME),
                 objIndex);
-        } else {
-            // we create a dummy which always returns null for all properties
-            modificationData = new BaseObject();
         }
-        event = createModifiedEventData(xwikiEventDoc, eventData, modificationData, originalEventStartDate,
-            null, null);
-
+        if (modificationData != null) {
+            event = createModifiedEventData(xwikiEventDoc, eventData, modificationData, originalEventStartDate,
+                null, null);
+        } else {
+            long baseDuration = getBaseDuration(eventData);
+            event.setStartDate(new DateTime(originalEventStartDate.getTime()));
+            event.setOriginalStartDate(new DateTime(originalEventStartDate.getTime()));
+            event.setEndDate(new DateTime(originalEventStartDate.getTime() + baseDuration));
+        }
         try {
             completeEventData(event, xwikiEventDoc, eventData);
         } catch (XWikiException xe) {
@@ -902,9 +903,7 @@ public class MoccaCalendarScriptService implements ScriptService
     private EventInstance createModifiedEventData(XWikiDocument eventDoc, BaseObject eventData,
         BaseObject modificationNotice, Date originalStartDate, Date dateFrom, Date dateTo)
     {
-        final Date baseStartDate = eventData.getDateValue(EventConstants.PROPERTY_STARTDATE_NAME);
-        final Date baseEndDate = Utils.fetchOrGuessEndDate(eventData);
-        final long baseDuration = baseEndDate.getTime() - baseStartDate.getTime();
+        final long baseDuration = getBaseDuration(eventData);
 
         // now get both the original start / end date
         // and the modified start / end date, and add a rudimentary event instance to result,
@@ -947,9 +946,11 @@ public class MoccaCalendarScriptService implements ScriptService
         modifiedInstance.setStartDate(new DateTime(actualStartDate.getTime()));
         modifiedInstance.setOriginalStartDate(new DateTime(originalStartDate.getTime()));
         modifiedInstance.setEndDate(new DateTime(actualEndDate.getTime()));
+        XWikiContext context = xcontextProvider.get();
 
-        String actualBackgroundColor = modificationNotice.getStringValue(EventConstants.PROPERTY_BACKGROUNDCOLOR_NAME);
-        String actualTextColor = modificationNotice.getStringValue(EventConstants.PROPERTY_TEXTCOLOR_NAME);
+        String actualBackgroundColor = modificationNotice.displayView(EventConstants.PROPERTY_BACKGROUNDCOLOR_NAME,
+            context);
+        String actualTextColor = modificationNotice.displayView(EventConstants.PROPERTY_TEXTCOLOR_NAME, context);
 
         if (actualBackgroundColor != null && !actualBackgroundColor.isEmpty()) {
             modifiedInstance.setBackgroundColor(actualBackgroundColor);
@@ -958,7 +959,6 @@ public class MoccaCalendarScriptService implements ScriptService
             modifiedInstance.setTextColor(actualTextColor);
         }
 
-        XWikiContext context = xcontextProvider.get();
         String modifiedTitle = modificationNotice.getStringValue(EventConstants.PROPERTY_TITLE_NAME);
         if (modifiedTitle != null && !"".equals(modifiedTitle.trim())) {
             modifiedInstance.setTitle(eventDoc.getRenderedContent(modifiedTitle,
@@ -974,4 +974,10 @@ public class MoccaCalendarScriptService implements ScriptService
         return modifiedInstance;
     }
 
+    private long getBaseDuration(BaseObject eventData)
+    {
+        Date baseStartDate = eventData.getDateValue(EventConstants.PROPERTY_STARTDATE_NAME);
+        Date baseEndDate = Utils.fetchOrGuessEndDate(eventData);
+        return baseEndDate.getTime() - baseStartDate.getTime();
+    }
 }
