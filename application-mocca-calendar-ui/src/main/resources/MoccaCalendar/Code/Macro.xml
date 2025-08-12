@@ -159,8 +159,6 @@ if (typeof(XWiki) == "undefined" || typeof(XWiki.widgets) == "undefined" || type
     XWiki.MoccaCalendar = {};
   }
 
-#template('colorThemeInit.vm')
-
   XWiki.MoccaCalendar.Helper = Class.create({
   initialize: function(calendar, dateFormat, jsonServiceUrl, createEventBaseUrl, updateEventUrl, newPageNameUrl, dateCheckUrl, deleteEventInstanceUrl, newPageParams, formToken) {
     this.calendar = calendar;
@@ -301,7 +299,6 @@ if (typeof(XWiki) == "undefined" || typeof(XWiki.widgets) == "undefined" || type
         },
         {
           verticalPosition: "top",
-          backgroundColor: "$theme.pageBackgroundColor",
           title : this.interactionParameters.editMode ? "$escapetool.javascript($services.localization.render('MoccaCalendar.calendarevent.create'))" : "$escapetool.javascript($services.localization.render('MoccaCalendar.calendarevent.view'))",
           removeOnClose : true,
           onClose : function() {
@@ -1181,6 +1178,8 @@ div.xdialog-box-moccacal-modal-popup .btn-group .btn + .btn {
    margin-top: 0.6em;
 }
 .xdialog-box-moccacal-modal-popup {
+  background-color: @modal-content-bg;
+  border-color: @modal-content-border-color;
   width: 600px;
   top: 3vh !important;
   bottom: 3vh !important;
@@ -1520,14 +1519,21 @@ div.calendar-buttons span.buttonwrapper {
     </property>
     <property>
       <code>{{velocity output="false"}}
+#set ($parameterMap = {})
+#if ($themeDoc)
+  ## If a theme doc is found, we add the theme to the ssx requests to make sure that the cache is properly updated.
+  ## This code can be removed when the following platform issue is fixed:
+  ## XWIKI-18668: The changes on the color theme are not taken into account for various ss*x resources
+  #set ($discard = $parameterMap.put('colorTheme', $themeDocFullName))
+#end
 $xwiki.jsx.use("Calendar.FullCalendar", {'defer': false, 'minify': false})
 $xwiki.jsx.use("MoccaCalendar.Code.Macro", {'defer': false, 'v' : '2.7'})
 $xwiki.jsx.use("MoccaCalendar.Code.DatePickerExtension", {'defer': false})
 $xwiki.jsx.use("MoccaCalendar.MoccaCalendarEventSheet")
 $xwiki.jsx.use("MoccaCalendar.Code.MoccaCalendarEventModificationClass")
 #dateTimePicker_import()
-$xwiki.ssx.use("Calendar.FullCalendar")
-$xwiki.ssx.use("MoccaCalendar.Code.Macro")
+$xwiki.ssx.use("Calendar.FullCalendar", $parameterMap)
+$xwiki.ssx.use("MoccaCalendar.Code.Macro", $parameterMap)
 #set($calcounter = $request.getAttribute('MoccaCalendar.Code.Macro:counter'))
 #if(!$calcounter) #set($calcounter = 0) #else #set($calcounter = $calcounter + 1) #end
 #set($discard = $request.setAttribute('MoccaCalendar.Code.Macro:counter', $calcounter))
