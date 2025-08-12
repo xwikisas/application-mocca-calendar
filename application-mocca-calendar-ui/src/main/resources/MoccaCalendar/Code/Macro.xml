@@ -949,7 +949,7 @@ require(['jquery', 'xwiki-meta', 'xwiki-job-runner', 'xwiki-l10n!mocca-calendar-
     startUploading(form);
   });
 
-  $(document).on('click', '.box.infomessage &gt; p &gt; span &gt; a', function(event) {
+  $(document).on('click', '.add-calendar-object-container a', function(event) {
     event.preventDefault();
     const addObjectButton = $('#add-calendar-object');
     const target = addObjectButton.data('target');
@@ -1732,7 +1732,7 @@ $xwiki.ssx.use("MoccaCalendar.Code.Macro")
   {{html clean=false wiki=true}}
     &lt;input type="hidden" id="add-calendar-object" data-target="$docRef"&gt;
 
-    {{info}}
+    {{info cssClass="add-calendar-object-container"}}
       $escapetool.xml($services.localization.render('rendering.macro.moccacalendar.addObject.description'))
       [[**$escapetool.xml($services.localization.render('rendering.macro.moccacalendar.addObject.button'))**&gt;&gt;$docRef]]
     {{/info}}
