@@ -169,7 +169,7 @@ $doc.display($field)
     #set ($calendarParentOptions = $NULL)
   #end
   #if($calendarParentOptions)
-    ; &lt;label for="calendarParent"&gt;$escapetool.xml($services.localization.render('MoccaCalendar.calendar')) bababooey&lt;/label&gt;
+    ; &lt;label for="calendarParent"&gt;$escapetool.xml($services.localization.render('MoccaCalendar.calendar'))&lt;/label&gt;
     : &lt;select id="calendarParent" name="$parentParamName"&gt;
     #foreach ($item in $calendarParentOptions) ## TODO: add filter here, see MOCCACAL-76
       #set($itemdoc = $xwiki.getDocument($item))
