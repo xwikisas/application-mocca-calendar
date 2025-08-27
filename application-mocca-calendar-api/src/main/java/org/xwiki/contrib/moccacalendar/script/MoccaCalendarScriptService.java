@@ -118,6 +118,10 @@ public class MoccaCalendarScriptService implements ScriptService
     private QueryFilter hidden;
 
     @Inject
+    @Named("currentlanguage")
+    private QueryFilter currentlanguageFilter;
+
+    @Inject
     @Named("document")
     private QueryFilter documentFilter;
 
@@ -150,9 +154,8 @@ public class MoccaCalendarScriptService implements ScriptService
         List<DocumentReference> calenderRefs = Collections.emptyList();
 
         try {
-            Query query =
-                queryManager.createQuery(CALENDAR_BASE_QUERY + CALENDAR_ORDER_QUERY_CLAUSE, Query.HQL).addFilter(hidden)
-                    .addFilter(documentFilter).addFilter(viewableFilter);
+            Query query = queryManager.createQuery(CALENDAR_BASE_QUERY + CALENDAR_ORDER_QUERY_CLAUSE, Query.HQL)
+                .addFilter(hidden).addFilter(currentlanguageFilter).addFilter(documentFilter).addFilter(viewableFilter);
             calenderRefs = query.execute();
         } catch (QueryException qe) {
             logger.error("error while fetching calendars", qe);
@@ -174,7 +177,7 @@ public class MoccaCalendarScriptService implements ScriptService
             Query query = queryManager.createQuery(
                     CALENDAR_BASE_QUERY + " and doc.space LIKE :space escape '!' " + CALENDAR_ORDER_QUERY_CLAUSE,
                     Query.HQL)
-                .addFilter(hidden).addFilter(documentFilter).addFilter(viewableFilter)
+                .addFilter(hidden).addFilter(currentlanguageFilter).addFilter(documentFilter).addFilter(viewableFilter)
                 .setWiki(spaceRef.getWikiReference().getName());
             // Code duplicated from EventQuery.addLocationFilter() so the behavior is consistent.
             String spaceRefStr = compactWikiSerializer.serialize(spaceRef.getLastSpaceReference());
