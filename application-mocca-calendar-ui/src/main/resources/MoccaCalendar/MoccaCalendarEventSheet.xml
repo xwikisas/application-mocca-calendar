@@ -162,16 +162,16 @@ $doc.display($field)
   #end
   #set ($calendarParentFilter = $request.getParameter('calendarParentFilter'))
   #if ($calendarParentFilter == 'wiki')
-    #set ($calendarParentOptions = $services.moccacalendar.getAllCalendars())
+    #set ($calendarReferences = $services.moccacalendar.getAllCalendars())
   #elseif ($calendarParentFilter == 'space')
-    #set ($calendarParentOptions = $services.moccacalendar.getAllCalendarsInSpace($calendarDoc))
+    #set ($calendarReferences = $services.moccacalendar.getAllCalendarsInSpace($calendarDoc))
   #else
-    #set ($calendarParentOptions = $NULL)
+    #set ($calendarReferences = '')
   #end
-  #if($calendarParentOptions)
+  #if ($calendarReferences != '')
     ; &lt;label for="calendarParent"&gt;$escapetool.xml($services.localization.render('MoccaCalendar.calendar'))&lt;/label&gt;
     : &lt;select id="calendarParent" name="$parentParamName"&gt;
-    #foreach ($item in $calendarParentOptions) ## TODO: add filter here, see MOCCACAL-76
+    #foreach ($item in $calendarReferences) ## TODO: add filter here, see MOCCACAL-76
       #set($itemdoc = $xwiki.getDocument($item))
       #if($!{itemdoc} &amp;&amp; ${itemdoc.hasAccessLevel("edit")})
         #set($selected="")

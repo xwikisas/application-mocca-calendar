@@ -84,9 +84,13 @@ import com.xpn.xwiki.objects.BaseObject;
 @Component
 public class MoccaCalendarScriptService implements ScriptService
 {
-    private static final String CALENDAR_BASE_QUERY =
-        ", BaseObject as obj where doc.fullName=obj.name and doc.name!='MoccaCalendarTemplate' and obj.className='"
-            + EventConstants.MOCCA_CALENDAR_CLASS_NAME + "'";
+    private static final String CALENDAR_BASE_QUERY = ", BaseObject as obj"
+        + " where doc.fullName=obj.name and doc.name!='MoccaCalendarTemplate'" + " and obj.className='"
+        + EventConstants.MOCCA_CALENDAR_CLASS_NAME + "' order by doc.title, doc.name";
+
+    private static final String CALENDAR_SPACE_QUERY = ", BaseObject as obj"
+        + " where doc.fullName=obj.name and doc.name!='MoccaCalendarTemplate' and doc.space LIKE :space escape '!'"
+        + " and obj.className='" + EventConstants.MOCCA_CALENDAR_CLASS_NAME + "' order by doc.title, doc.name";
 
     private static final String CALENDAR_ORDER_QUERY_CLAUSE = " order by doc.title, doc.name";
 
@@ -154,7 +158,7 @@ public class MoccaCalendarScriptService implements ScriptService
         List<DocumentReference> calenderRefs = Collections.emptyList();
 
         try {
-            Query query = queryManager.createQuery(CALENDAR_BASE_QUERY + CALENDAR_ORDER_QUERY_CLAUSE, Query.HQL)
+            Query query = queryManager.createQuery(CALENDAR_BASE_QUERY, Query.HQL)
                 .addFilter(hidden).addFilter(currentlanguageFilter).addFilter(documentFilter).addFilter(viewableFilter);
             calenderRefs = query.execute();
         } catch (QueryException qe) {
@@ -174,12 +178,11 @@ public class MoccaCalendarScriptService implements ScriptService
         List<DocumentReference> calenderRefs = Collections.emptyList();
         DocumentReference spaceRef = stringDocRefResolver.resolve(spaceName);
         try {
-            Query query = queryManager.createQuery(
-                    CALENDAR_BASE_QUERY + " and doc.space LIKE :space escape '!' " + CALENDAR_ORDER_QUERY_CLAUSE,
-                    Query.HQL)
+            Query query = queryManager.createQuery(CALENDAR_SPACE_QUERY, Query.HQL)
                 .addFilter(hidden).addFilter(currentlanguageFilter).addFilter(documentFilter).addFilter(viewableFilter)
                 .setWiki(spaceRef.getWikiReference().getName());
-            // Code duplicated from EventQuery.addLocationFilter() so the behavior is consistent.
+            /** Code duplicated from {@link EventQuery#addLocationFilter(String, DocumentReference)} so the behavior
+             * is consistent.*/
             String spaceRefStr = compactWikiSerializer.serialize(spaceRef.getLastSpaceReference());
             String spaceLikeStr = spaceRefStr.replaceAll("([%_!])", "!$1").concat(".%");
             query.bindValue("space", spaceLikeStr);

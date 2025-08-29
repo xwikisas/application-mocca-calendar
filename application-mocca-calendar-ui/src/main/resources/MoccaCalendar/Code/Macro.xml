@@ -1698,17 +1698,17 @@ $xwiki.ssx.use("MoccaCalendar.Code.Macro", $parameterMap)
           &lt;form class="xform" action="$actionURL" method="post"&gt;
             &lt;div class="import-form"&gt;
               #if ($filter == 'wiki')
-                #set ($calendarParentOptions = $services.moccacalendar.getAllCalendars())
+                #set ($calendarReferences = $services.moccacalendar.getAllCalendars())
               #elseif ($filter == 'space')
-                #set ($calendarParentOptions = $services.moccacalendar.getAllCalendarsInSpace($calendarDoc))
+                #set ($calendarReferences = $services.moccacalendar.getAllCalendarsInSpace($calendarDoc))
               #else
-                #set ($calendarParentOptions = $NULL)
+                #set ($calendarReferences = '')
               #end
-              #if ($calendarParentOptions)
+              #if ($calendarReferences != '')
                 &lt;label for="import-calendar-parent"&gt;
                   $escapetool.xml($services.localization.render('MoccaCalendar.calendar'))&lt;/label&gt;
                 &lt;select id="import-calendar-parent" name="parentCalendar"&gt;
-                  #foreach ($item in $calendarParentOptions) ## TODO: add filter here, see MOCCACAL-76
+                  #foreach ($item in $calendarReferences) ## TODO: add filter here, see MOCCACAL-76
                     #set ($itemdoc = $xwiki.getDocument($item))
                     #if ($!{itemdoc} &amp;&amp; ${itemdoc.hasAccessLevel("edit")})
                       #set ($selected="")
