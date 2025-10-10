@@ -171,7 +171,7 @@ $doc.display($field)
   #if ($calendarReferences != '')
     ; &lt;label for="calendarParent"&gt;$escapetool.xml($services.localization.render('MoccaCalendar.calendar'))&lt;/label&gt;
     : &lt;select id="calendarParent" name="$parentParamName"&gt;
-    #foreach ($item in $calendarReferences) ## TODO: add filter here, see MOCCACAL-76
+    #foreach ($item in $calendarReferences)
       #set($itemdoc = $xwiki.getDocument($item))
       #if($!{itemdoc} &amp;&amp; ${itemdoc.hasAccessLevel("edit")})
         #set($selected="")

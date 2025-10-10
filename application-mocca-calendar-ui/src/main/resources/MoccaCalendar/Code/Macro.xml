@@ -937,15 +937,6 @@ require(['jquery', 'xwiki-meta', 'xwiki-job-runner', 'xwiki-l10n!mocca-calendar-
     new XWiki.MoccaCalendar.MoccaCalendarPopup(calendarPopup.interactionParameters, calendarPopup.helper);
   });
 
-  // Trigger the upload manually when the button is clicked.
-  $(document).on('click', '#import-calendar-file-button', function(event) {
-    var form = $('#import-calendar-file form').get(0);
-    if (event) {
-      event.preventDefault();
-    }
-    startUploading(form);
-  });
-
   $(document).on('click', '.add-calendar-object-container a', function(event) {
     event.preventDefault();
     const addObjectButton = $('#add-calendar-object');
@@ -972,24 +963,38 @@ require(['jquery', 'xwiki-meta', 'xwiki-job-runner', 'xwiki-l10n!mocca-calendar-
     });
   });
 
+  // Trigger the upload manually when the button is clicked.
+  $(document).on('click', '.import-calendar-file-button', function(event) {
+    event.preventDefault();
+    var calId = $(event.target).data('calid');
+    var form = $(`#import-calendar-file-${calId} form`).get(0);
+    startUploading(form, calId);
+  });
+
   // Start uploading this file by creating a new XHR object with the file data.
   var startUploading = function (form) {
-    var formData = new FormData(form);
-    var select = form.down('#import-calendar-parent');
-    var input = form.down('#import-ical-file-input');
-    if (input.files[0].size &lt; input.dataset.maxFileSize) {
+    var input = form.down(`#import-ical-file-input-${calId}`);
+    var inputFile = input.files[0];
+    if (inputFile &amp;&amp; inputFile.size &lt; input.dataset.maxFileSize) {
+      var select = form.down(`#import-calendar-parent-${calId}`);
       var params = {};
       params[select.name] = select.value;
-      formData.action = form.action + "?" + $.param(params);
+      let action = form.action + "?" + $.param(params);
       // Create XMLHttpRequest object and POST the data
-      var request = this.request = new XMLHttpRequest();
-      request.open('POST', formData.action);
-      request.send(formData);
-      checkImportJob(select.value);
+      var request = new XMLHttpRequest();
+      request.open('POST', action);
+      request.onload = function () {
+        if (request.status === 202 || request.status === 302) {
+          checkImportJob(select.value);
+        } else {
+          new XWiki.widgets.Notification(l10n.get('import.error'),'error');
+        }
+      };
+      request.send(inputFile);
     } else {
       var notification = new XWiki.widgets.Notification(l10n.get('import.filetoolarge'), 'error');
     }
-  }
+  };
 
   const checkImportJob = function(selectedCalendar) {
     let documentReference = XWiki.Model.resolve('MoccaCalendar.Code.ImportJobResource', XWiki.EntityType.DOCUMENT);
@@ -1005,7 +1010,7 @@ require(['jquery', 'xwiki-meta', 'xwiki-job-runner', 'xwiki-l10n!mocca-calendar-
       {name: 'form_token', value: xwikiMeta.form_token}
     );
     var notification = new XWiki.widgets.Notification(l10n.get('import.inprogress'), 'inprogress');
-    $('#import-calendar-file-button').prop('disabled', true);
+    $('.import-calendar-file-button').prop('disabled', true);
     return Promise.resolve(new JobRunner({
       createStatusRequest: function(jobId) {
         return {
@@ -1029,7 +1034,7 @@ require(['jquery', 'xwiki-meta', 'xwiki-job-runner', 'xwiki-l10n!mocca-calendar-
       notification.replace(new XWiki.widgets.Notification(l10n.get('import.error'),'error'));
       return Promise.reject(reason);
     }).finally(() =&gt; {
-      $('#import-calendar-file-button').prop('disabled', false);
+      $('.import-calendar-file-button').prop('disabled', false);
     });
   };
 });</code>
@@ -1247,13 +1252,13 @@ div.calendar-buttons span.buttonwrapper {
 }
 
 .import-form select,
-.import-form #import-ical-file-input {
+.import-form input {
   width: 100%;
   margin-bottom: 1.6em;
   border-radius: 0.4em;
 }
 
-.import-form #import-ical-file-input {
+.import-form input {
   padding: 0.6em 1em;
   border: 1px solid #ccc;
 }
@@ -1695,7 +1700,7 @@ $xwiki.ssx.use("MoccaCalendar.Code.Macro", $parameterMap)
           #set ($actionURL = "$request.getContextPath()/rest/moccacalendar/import")
           #set ($xwikiCalendarDoc = $xwiki.getDocument($calendarDoc))
           #set ($calendarObject = $xwikiCalendarDoc.getObject('MoccaCalendar.MoccaCalendarClass'))
-          &lt;form class="xform" action="$actionURL" method="post"&gt;
+          &lt;form class="xform" action="${actionURL}" method="post"&gt;
             &lt;div class="import-form"&gt;
               #if ($filter == 'wiki')
                 #set ($calendarReferences = $services.moccacalendar.getAllCalendars())
@@ -1705,10 +1710,10 @@ $xwiki.ssx.use("MoccaCalendar.Code.Macro", $parameterMap)
                 #set ($calendarReferences = '')
               #end
               #if ($calendarReferences != '')
-                &lt;label for="import-calendar-parent"&gt;
+                &lt;label for="import-calendar-parent-${calcounter}"&gt;
                   $escapetool.xml($services.localization.render('MoccaCalendar.calendar'))&lt;/label&gt;
-                &lt;select id="import-calendar-parent" name="parentCalendar"&gt;
-                  #foreach ($item in $calendarReferences) ## TODO: add filter here, see MOCCACAL-76
+                &lt;select id="import-calendar-parent-${calcounter}" name="parentCalendar"&gt;
+                  #foreach ($item in $calendarReferences)
                     #set ($itemdoc = $xwiki.getDocument($item))
                     #if ($!{itemdoc} &amp;&amp; ${itemdoc.hasAccessLevel("edit")})
                       #set ($selected="")
@@ -1720,19 +1725,20 @@ $xwiki.ssx.use("MoccaCalendar.Code.Macro", $parameterMap)
                     #end
                   #end
                 &lt;/select&gt;
+              #else
+                &lt;select id="import-calendar-parent-${calcounter}" name="parentCalendar" hidden&gt;
+                  &lt;option value="$escapetool.xml($calendarDoc)" selected&gt;&lt;/option&gt;
+                &lt;/select&gt;
               #end
-              &lt;select id="import-calendar-parent" name="parentCalendar" hidden&gt;
-                &lt;option value="$escapetool.xml($calendarDoc)" selected&gt;&lt;/option&gt;
-              &lt;/select&gt;
-              &lt;label for="import-ical-file-input"&gt;$escapetool.xml($services.localization.render(
+              &lt;label for="import-ical-file-input-${calcounter}"&gt;$escapetool.xml($services.localization.render(
                 'MoccaCalendar.import.modal.file.label'))&lt;/label&gt;
-              &lt;input type="file" id="import-ical-file-input" accept=".ics" name="importedfile"
+              &lt;input type="file" id="import-ical-file-input-${calcounter}" accept=".ics" name="importedfile"
                 data-max-file-size="$!escapetool.xml($xwiki.getSpacePreference('upload_maxsize'))"&gt;
             &lt;/div&gt;
           &lt;/form&gt;
         &lt;/div&gt;
         &lt;div class="modal-footer"&gt;
-          &lt;input type="button" class="btn btn-primary" id="import-calendar-file-button"
+          &lt;input type="button" class="btn btn-primary import-calendar-file-button" data-calId="${calcounter}"
             value="$escapetool.xml($services.localization.render('MoccaCalendar.import.modal.button.start'))"&gt;
           &lt;input type="button" class="btn btn-default"
             value="$escapetool.xml($services.localization.render('cancel'))" data-dismiss="modal"&gt;
