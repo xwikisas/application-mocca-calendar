@@ -87,13 +87,6 @@ public class MoccaCalendarScriptService implements ScriptService
     private static final String CALENDAR_BASE_QUERY = ", BaseObject as obj"
         + " where doc.fullName=obj.name and doc.name!='MoccaCalendarTemplate'" + " and obj.className='"
         + EventConstants.MOCCA_CALENDAR_CLASS_NAME + "' order by doc.title, doc.name";
-
-    private static final String CALENDAR_SPACE_QUERY = ", BaseObject as obj"
-        + " where doc.fullName=obj.name and doc.name!='MoccaCalendarTemplate' and doc.space LIKE :space escape '!'"
-        + " and obj.className='" + EventConstants.MOCCA_CALENDAR_CLASS_NAME + "' order by doc.title, doc.name";
-
-    private static final String CALENDAR_ORDER_QUERY_CLAUSE = " order by doc.title, doc.name";
-
     private static final String MOCCA_CALENDAR_EVENT_TEMPLATE = "MoccaCalendar.MoccaCalendarEventTemplate";
 
     private static final LocalDocumentReference GLOBAL_SETTINGS_PAGE = new LocalDocumentReference(
@@ -120,10 +113,6 @@ public class MoccaCalendarScriptService implements ScriptService
     @Inject
     @Named("hidden")
     private QueryFilter hidden;
-
-    @Inject
-    @Named("currentlanguage")
-    private QueryFilter currentlanguageFilter;
 
     @Inject
     @Named("document")
@@ -158,34 +147,9 @@ public class MoccaCalendarScriptService implements ScriptService
         List<DocumentReference> calenderRefs = Collections.emptyList();
 
         try {
-            Query query = queryManager.createQuery(CALENDAR_BASE_QUERY, Query.HQL)
-                .addFilter(hidden).addFilter(currentlanguageFilter).addFilter(documentFilter).addFilter(viewableFilter);
-            calenderRefs = query.execute();
-        } catch (QueryException qe) {
-            logger.error("error while fetching calendars", qe);
-        }
-
-        return calenderRefs;
-    }
-
-    /**
-     * Get all calendars for a given space.
-     *
-     * @return a list of document references pointing to pages containing calendar objects.
-     */
-    public List<DocumentReference> getAllCalendarsInSpace(String spaceName)
-    {
-        List<DocumentReference> calenderRefs = Collections.emptyList();
-        DocumentReference spaceRef = stringDocRefResolver.resolve(spaceName);
-        try {
-            Query query = queryManager.createQuery(CALENDAR_SPACE_QUERY, Query.HQL)
-                .addFilter(hidden).addFilter(currentlanguageFilter).addFilter(documentFilter).addFilter(viewableFilter)
-                .setWiki(spaceRef.getWikiReference().getName());
-            /** Code duplicated from {@link EventQuery#addLocationFilter(String, DocumentReference)} so the behavior
-             * is consistent.*/
-            String spaceRefStr = compactWikiSerializer.serialize(spaceRef.getLastSpaceReference());
-            String spaceLikeStr = spaceRefStr.replaceAll("([%_!])", "!$1").concat(".%");
-            query.bindValue("space", spaceLikeStr);
+            Query query = queryManager.createQuery(CALENDAR_BASE_QUERY, Query.HQL).addFilter(hidden);
+            query.addFilter(documentFilter);
+            query.addFilter(viewableFilter);
             calenderRefs = query.execute();
         } catch (QueryException qe) {
             logger.error("error while fetching calendars", qe);
