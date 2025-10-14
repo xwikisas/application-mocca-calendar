@@ -964,19 +964,18 @@ require(['jquery', 'xwiki-meta', 'xwiki-job-runner', 'xwiki-l10n!mocca-calendar-
   });
 
   // Trigger the upload manually when the button is clicked.
-  $(document).on('click', '.import-calendar-file-button', function(event) {
+  $(document).on('click', '#import-calendar-file-button', function(event) {
     event.preventDefault();
-    var calId = $(event.target).data('calid');
-    var form = $(`#import-calendar-file-${calId} form`).get(0);
-    startUploading(form, calId);
+    var form = $('#import-calendar-file form').get(0);
+    startUploading(form);
   });
 
   // Start uploading this file by creating a new XHR object with the file data.
-  var startUploading = function (form, calId) {
-    var input = form.down(`#import-ical-file-input-${calId}`);
+  var startUploading = function (form) {
+    var input = form.down('#import-ical-file-input');
     var inputFile = input.files[0];
     if (inputFile &amp;&amp; inputFile.size &lt; input.dataset.maxFileSize) {
-      var select = form.down(`#import-calendar-parent-${calId}`);
+      var select = form.down('#import-calendar-parent');
       var params = {};
       params[select.name] = select.value;
       let action = form.action + "?" + $.param(params);
