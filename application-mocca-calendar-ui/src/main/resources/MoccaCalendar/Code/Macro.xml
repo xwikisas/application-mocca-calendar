@@ -1680,7 +1680,7 @@ $xwiki.ssx.use("MoccaCalendar.Code.Macro", $parameterMap)
 #end
 
 #macro(importCalendarFileModal)
-  &lt;div class="modal fade" id="import-calendar-file-$calcounter" tabindex="-1" role="dialog"&gt;
+  &lt;div class="modal fade" id="import-calendar-file" tabindex="-1" role="dialog"&gt;
     &lt;div class="modal-dialog"&gt;
       &lt;div class="modal-content"&gt;
         &lt;div class="modal-header"&gt;
@@ -1697,18 +1697,11 @@ $xwiki.ssx.use("MoccaCalendar.Code.Macro", $parameterMap)
           #set ($calendarObject = $xwikiCalendarDoc.getObject('MoccaCalendar.MoccaCalendarClass'))
           &lt;form class="xform" action="$actionURL" method="post"&gt;
             &lt;div class="import-form"&gt;
-              #if ($filter == 'wiki')
-                #set ($calendarReferences = $services.moccacalendar.getAllCalendars())
-              #elseif ($filter == 'space')
-                #set ($calendarReferences = $services.moccacalendar.getAllCalendarsInSpace($calendarDoc))
-              #else
-                #set ($calendarReferences = '')
-              #end
-              #if ($calendarReferences != '')
+              #if ($calendarObject || $xwikiCalendarDoc.getFullName() == 'MoccaCalendar.Events')
                 &lt;label for="import-calendar-parent"&gt;
                   $escapetool.xml($services.localization.render('MoccaCalendar.calendar'))&lt;/label&gt;
                 &lt;select id="import-calendar-parent" name="parentCalendar"&gt;
-                  #foreach ($item in $calendarReferences) ## TODO: add filter here, see MOCCACAL-76
+                  #foreach ($item in $services.moccacalendar.getAllCalendars()) ## TODO: add filter here, see MOCCACAL-76
                     #set ($itemdoc = $xwiki.getDocument($item))
                     #if ($!{itemdoc} &amp;&amp; ${itemdoc.hasAccessLevel("edit")})
                       #set ($selected="")
@@ -1824,7 +1817,7 @@ $xwiki.ssx.use("MoccaCalendar.Code.Macro", $parameterMap)
 ## create event link
 &lt;div class="calendar-buttons"&gt;
 &lt;span class="buttonwrapper"&gt;
-&lt;button data-toggle="modal" data-target="#import-calendar-file-$calcounter"
+&lt;button data-toggle="modal" data-target="#import-calendar-file"
   title="$escapetool.xml($services.localization.render('MoccaCalendar.calendarevent.import.title'))"&gt;
   $escapetool.html($services.localization.render('MoccaCalendar.calendarevent.import'))&lt;/button&gt;
 &lt;button class="btn btn-success" id="calendar${calcounter}-btn"&gt;&lt;span class="glyphicon glyphicon-plus"&gt;&lt;/span&gt; $escapetool.html($services.localization.render('MoccaCalendar.calendarevent.create'))&lt;/button&gt;
@@ -2005,7 +1998,7 @@ require(['xwiki-meta', 'jquery', 'moment','purify', 'gcal', 'moccaCalendar'], fu
   });
   jQuery('#calendar${calcounter}-btn').click( function(e) { calendarHelper.showCreateEvent(); e.preventDefault(); });
   // helper to be used in callback above
-#set($newPageParams = "template=MoccaCalendar.MoccaCalendarEventTemplate&amp;parentFROM=${escapetool.url($calendarDoc)}&amp;calendarParentFilter=${escapetool.url($filter)}&amp;form_token=${services.csrf.getToken()}&amp;ocalcaction=create&amp;disabled=$disableCreationEvent")
+#set($newPageParams = "template=MoccaCalendar.MoccaCalendarEventTemplate&amp;parentFROM=${escapetool.url($calendarDoc)}&amp;form_token=${services.csrf.getToken()}&amp;ocalcaction=create&amp;disabled=$disableCreationEvent")
 #set($randomDocUrl = $xwiki.getURL("randomPage${util.generateRandomString(10)}",'edit',$newPageParams))
 #set($updateUrlParams="?xpage=plain&amp;outputSyntax=plain&amp;calendarDoc=${escapetool.url(${calendarDoc})}&amp;")
   var calendarHelper = new XWiki.MoccaCalendar.Helper(calendar,
@@ -2022,9 +2015,9 @@ require(['xwiki-meta', 'jquery', 'moment','purify', 'gcal', 'moccaCalendar'], fu
   });
 });
 &lt;/script&gt;
-#importCalendarFileModal
 #if($calcounter == 0)
   #showDeleteEventsModal
+  #importCalendarFileModal
 #end
 {{/html}}
 #else ## of #if($xcontext.action=='view')
