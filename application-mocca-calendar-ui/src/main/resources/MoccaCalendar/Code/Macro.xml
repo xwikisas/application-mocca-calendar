@@ -972,7 +972,7 @@ require(['jquery', 'xwiki-meta', 'xwiki-job-runner', 'xwiki-l10n!mocca-calendar-
   });
 
   // Start uploading this file by creating a new XHR object with the file data.
-  var startUploading = function (form) {
+  var startUploading = function (form, calId) {
     var input = form.down(`#import-ical-file-input-${calId}`);
     var inputFile = input.files[0];
     if (inputFile &amp;&amp; inputFile.size &lt; input.dataset.maxFileSize) {
