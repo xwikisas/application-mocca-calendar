@@ -937,15 +937,6 @@ require(['jquery', 'xwiki-meta', 'xwiki-job-runner', 'xwiki-l10n!mocca-calendar-
     new XWiki.MoccaCalendar.MoccaCalendarPopup(calendarPopup.interactionParameters, calendarPopup.helper);
   });
 
-  // Trigger the upload manually when the button is clicked.
-  $(document).on('click', '#import-calendar-file-button', function(event) {
-    var form = $('#import-calendar-file form').get(0);
-    if (event) {
-      event.preventDefault();
-    }
-    startUploading(form);
-  });
-
   $(document).on('click', '.add-calendar-object-container a', function(event) {
     event.preventDefault();
     const addObjectButton = $('#add-calendar-object');
@@ -972,24 +963,37 @@ require(['jquery', 'xwiki-meta', 'xwiki-job-runner', 'xwiki-l10n!mocca-calendar-
     });
   });
 
+  // Trigger the upload manually when the button is clicked.
+  $(document).on('click', '#import-calendar-file-button', function(event) {
+    event.preventDefault();
+    var form = $('#import-calendar-file form').get(0);
+    startUploading(form);
+  });
+
   // Start uploading this file by creating a new XHR object with the file data.
   var startUploading = function (form) {
-    var formData = new FormData(form);
-    var select = form.down('#import-calendar-parent');
     var input = form.down('#import-ical-file-input');
-    if (input.files[0].size &lt; input.dataset.maxFileSize) {
+    var inputFile = input.files[0];
+    if (inputFile &amp;&amp; inputFile.size &lt; input.dataset.maxFileSize) {
+      var select = form.down('#import-calendar-parent');
       var params = {};
       params[select.name] = select.value;
-      formData.action = form.action + "?" + $.param(params);
+      let action = form.action + "?" + $.param(params);
       // Create XMLHttpRequest object and POST the data
-      var request = this.request = new XMLHttpRequest();
-      request.open('POST', formData.action);
-      request.send(formData);
-      checkImportJob(select.value);
+      var request = new XMLHttpRequest();
+      request.open('POST', action);
+      request.onload = function () {
+        if (request.status === 202 || request.status === 302) {
+          checkImportJob(select.value);
+        } else {
+          new XWiki.widgets.Notification(l10n.get('import.error'),'error');
+        }
+      };
+      request.send(inputFile);
     } else {
       var notification = new XWiki.widgets.Notification(l10n.get('import.filetoolarge'), 'error');
     }
-  }
+  };
 
   const checkImportJob = function(selectedCalendar) {
     let documentReference = XWiki.Model.resolve('MoccaCalendar.Code.ImportJobResource', XWiki.EntityType.DOCUMENT);
@@ -1695,7 +1699,7 @@ $xwiki.ssx.use("MoccaCalendar.Code.Macro", $parameterMap)
           #set ($actionURL = "$request.getContextPath()/rest/moccacalendar/import")
           #set ($xwikiCalendarDoc = $xwiki.getDocument($calendarDoc))
           #set ($calendarObject = $xwikiCalendarDoc.getObject('MoccaCalendar.MoccaCalendarClass'))
-          &lt;form class="xform" action="$actionURL" method="post"&gt;
+          &lt;form class="xform" action="${actionURL}" method="post"&gt;
             &lt;div class="import-form"&gt;
               #if ($filter == 'wiki')
                 #set ($calendarReferences = $services.moccacalendar.getAllCalendars())
@@ -1720,10 +1724,11 @@ $xwiki.ssx.use("MoccaCalendar.Code.Macro", $parameterMap)
                     #end
                   #end
                 &lt;/select&gt;
+              #else
+                &lt;select id="import-calendar-parent" name="parentCalendar" hidden&gt;
+                  &lt;option value="$escapetool.xml($calendarDoc)" selected&gt;&lt;/option&gt;
+                &lt;/select&gt;
               #end
-              &lt;select id="import-calendar-parent" name="parentCalendar" hidden&gt;
-                &lt;option value="$escapetool.xml($calendarDoc)" selected&gt;&lt;/option&gt;
-              &lt;/select&gt;
               &lt;label for="import-ical-file-input"&gt;$escapetool.xml($services.localization.render(
                 'MoccaCalendar.import.modal.file.label'))&lt;/label&gt;
               &lt;input type="file" id="import-ical-file-input" accept=".ics" name="importedfile"
