@@ -89,10 +89,8 @@ public class MoccaCalendarScriptService implements ScriptService
         + EventConstants.MOCCA_CALENDAR_CLASS_NAME + "' order by doc.title, doc.name";
 
     private static final String CALENDAR_SPACE_QUERY = ", BaseObject as obj"
-        + " where doc.fullName=obj.name and doc.name!='MoccaCalendarTemplate' and doc.space LIKE :space escape '!'"
+        + " where doc.fullName=obj.name and doc.name!='MoccaCalendarTemplate' and doc.fullName LIKE :space escape '!'"
         + " and obj.className='" + EventConstants.MOCCA_CALENDAR_CLASS_NAME + "' order by doc.title, doc.name";
-
-    private static final String CALENDAR_ORDER_QUERY_CLAUSE = " order by doc.title, doc.name";
 
     private static final String MOCCA_CALENDAR_EVENT_TEMPLATE = "MoccaCalendar.MoccaCalendarEventTemplate";
 
