@@ -164,11 +164,12 @@ $doc.display($field)
   #if ($calendarParentFilter == 'wiki')
     #set ($calendarReferences = $services.moccacalendar.getAllCalendars())
   #elseif ($calendarParentFilter == 'space')
-    #set ($calendarReferences = $services.moccacalendar.getAllCalendarsInSpace($calendarDoc))
+    #set ($calendarReferences = $services.moccacalendar.getAllCalendarsInDocumentSpace($calendarDoc))
   #else
-    #set ($calendarReferences = '')
+    ## Empty because we don't want the calendar picker for the 'page' calendar filter.
+    #set ($calendarReferences = [])
   #end
-  #if ($calendarReferences != '')
+  #if ($calendarReferences.size() > 0)
     ; &lt;label for="calendarParent"&gt;$escapetool.xml($services.localization.render('MoccaCalendar.calendar'))&lt;/label&gt;
     : &lt;select id="calendarParent" name="$parentParamName"&gt;
     #foreach ($item in $calendarReferences)

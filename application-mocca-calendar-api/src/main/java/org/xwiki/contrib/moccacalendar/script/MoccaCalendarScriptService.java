@@ -167,21 +167,21 @@ public class MoccaCalendarScriptService implements ScriptService
     }
 
     /**
-     * Get all calendars for a given space.
+     * Get all calendars that are in the same space as the given document.
      *
+     * @param targetDocumentReference the document relative to which to search for calendars
      * @return a list of document references pointing to pages containing calendar objects.
      */
-    public List<DocumentReference> getAllCalendarsInSpace(String spaceName)
+    public List<DocumentReference> getAllCalendarsInDocumentSpace(DocumentReference targetDocumentReference)
     {
         List<DocumentReference> calenderRefs = Collections.emptyList();
-        DocumentReference spaceRef = stringDocRefResolver.resolve(spaceName);
         try {
             Query query = queryManager.createQuery(CALENDAR_SPACE_QUERY, Query.HQL)
                 .addFilter(hidden).addFilter(currentlanguageFilter).addFilter(documentFilter).addFilter(viewableFilter)
-                .setWiki(spaceRef.getWikiReference().getName());
+                .setWiki(targetDocumentReference.getWikiReference().getName());
             /** Code duplicated from {@link EventQuery#addLocationFilter(String, DocumentReference)} so the behavior
              * is consistent.*/
-            String spaceRefStr = compactWikiSerializer.serialize(spaceRef.getLastSpaceReference());
+            String spaceRefStr = compactWikiSerializer.serialize(targetDocumentReference.getLastSpaceReference());
             String spaceLikeStr = spaceRefStr.replaceAll("([%_!])", "!$1").concat(".%");
             query.bindValue("space", spaceLikeStr);
             calenderRefs = query.execute();
