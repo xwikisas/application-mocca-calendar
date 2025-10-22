@@ -1702,13 +1702,11 @@ $xwiki.ssx.use("MoccaCalendar.Code.Macro", $parameterMap)
           #set ($calendarObject = $xwikiCalendarDoc.getObject('MoccaCalendar.MoccaCalendarClass'))
           &lt;form class="xform" action="${actionURL}" method="post"&gt;
             &lt;div class="import-form"&gt;
+              #set ($calendarReferences = [])
               #if ($filter == 'wiki')
                 #set ($calendarReferences = $services.moccacalendar.getAllCalendars())
               #elseif ($filter == 'space')
                 #set ($calendarReferences = $services.moccacalendar.getAllCalendarsInDocumentSpace($calendarDoc))
-              #else
-                ## Empty because we don't want the calendar picker for the 'page' calendar filter.
-                #set ($calendarReferences = [])
               #end
               #if ($calendarReferences.size() > 0)
                 &lt;label for="import-calendar-parent-${calcounter}"&gt;
