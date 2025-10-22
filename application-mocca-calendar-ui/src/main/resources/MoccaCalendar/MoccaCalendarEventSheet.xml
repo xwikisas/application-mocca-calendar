@@ -165,7 +165,7 @@ $doc.display($field)
   #if ($calendarParentFilter == 'wiki')
     #set ($calendarReferences = $services.moccacalendar.getAllCalendars())
   #elseif ($calendarParentFilter == 'space')
-    #set ($calendarReferences = $services.moccacalendar.getAllCalendarsInDocumentSpace($calendarDoc))
+    #set ($calendarReferences = $services.moccacalendar.getAllCalendarsInDocumentSpace($services.model.resolveDocument($calendarDoc))))
   #end
   #if ($calendarReferences.size() > 0)
     ; &lt;label for="calendarParent"&gt;$escapetool.xml($services.localization.render('MoccaCalendar.calendar'))&lt;/label&gt;
