@@ -1708,7 +1708,7 @@ $xwiki.ssx.use("MoccaCalendar.Code.Macro", $parameterMap)
               #elseif ($filter == 'space')
                 #set ($calendarReferences = $services.moccacalendar.getAllCalendarsInDocumentSpace($services.model.resolveDocument($calendarDoc)))
               #end
-              #if ($calendarReferences.size() > 0)
+              #if ($calendarReferences.size() &gt; 0)
                 &lt;label for="import-calendar-parent-${calcounter}"&gt;
                   $escapetool.xml($services.localization.render('MoccaCalendar.calendar'))&lt;/label&gt;
                 &lt;select id="import-calendar-parent-${calcounter}" name="parentCalendar"&gt;

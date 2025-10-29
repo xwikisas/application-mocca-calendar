@@ -167,7 +167,7 @@ $doc.display($field)
   #elseif ($calendarParentFilter == 'space')
     #set ($calendarReferences = $services.moccacalendar.getAllCalendarsInDocumentSpace($services.model.resolveDocument($calendarDoc)))
   #end
-  #if ($calendarReferences.size() > 0)
+  #if ($calendarReferences.size() &gt; 0)
     ; &lt;label for="calendarParent"&gt;$escapetool.xml($services.localization.render('MoccaCalendar.calendar'))&lt;/label&gt;
     : &lt;select id="calendarParent" name="$parentParamName"&gt;
     #foreach ($item in $calendarReferences)
