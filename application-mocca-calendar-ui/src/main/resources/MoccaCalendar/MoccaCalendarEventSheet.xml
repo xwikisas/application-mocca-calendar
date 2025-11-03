@@ -160,10 +160,17 @@ $doc.display($field)
   &lt;div id="allEventsFields"&gt;
 
   #end
-  #if($calendar || $calendarDoc.getFullName() == 'MoccaCalendar.Events')
+  #set ($calendarParentFilter = $request.getParameter('calendarParentFilter'))
+  #set ($calendarReferences = [])
+  #if ($calendarParentFilter == 'wiki')
+    #set ($calendarReferences = $services.moccacalendar.getAllCalendars())
+  #elseif ($calendarParentFilter == 'space')
+    #set ($calendarReferences = $services.moccacalendar.getAllCalendarsInDocumentSpace($services.model.resolveDocument($calendarDoc)))
+  #end
+  #if ($calendarReferences.size() &gt; 0)
     ; &lt;label for="calendarParent"&gt;$escapetool.xml($services.localization.render('MoccaCalendar.calendar'))&lt;/label&gt;
     : &lt;select id="calendarParent" name="$parentParamName"&gt;
-    #foreach($item in $services.moccacalendar.getAllCalendars()) ## TODO: add filter here, see MOCCACAL-76
+    #foreach ($item in $calendarReferences)
       #set($itemdoc = $xwiki.getDocument($item))
       #if($!{itemdoc} &amp;&amp; ${itemdoc.hasAccessLevel("edit")})
         #set($selected="")
@@ -255,7 +262,7 @@ $doc.display($field)
   &lt;div id="oneEventFields" data-original-format="$dateFormat"&gt;
 
     ; &lt;label for="${editOnePrefix}_title"&gt;$escapetool.xml($doc.displayPrettyName('title', false, false))&lt;span class="xRequired"&gt;&lt;/span&gt;&lt;/label&gt;
-    : $doc.display('title')
+    : &lt;input id="${editOnePrefix}_title" type="text" name="${editOnePrefix}_title" value="${escapetool.html($doc.display('title', 'view'))}" /&gt;
     ; &lt;label for="${editOnePrefix}_startDate"&gt;$escapetool.xml($doc.displayPrettyName('startDate', false, false))&lt;span class="xRequired"&gt;&lt;/span&gt;&lt;/label&gt;
     : #displayDate('startDate')#showvalidationmessage("MoccaCalendar.Code.MoccaCalendarEventModificationClass.validation.startDateMissing")#showvalidationmessage("MoccaCalendar.Code.MoccaCalendarEventModificationClass.validation.startDateNotDate")
     ; &lt;label for="${editOnePrefix}_endDate"&gt;$escapetool.xml($doc.displayPrettyName('endDate', false, false))&lt;/label&gt;
@@ -312,7 +319,7 @@ $doc.display($field)
     ; &lt;label for="backgroundColor"&gt;$escapetool.xml($doc.displayPrettyName('backgroundColor', false, false))&lt;/label&gt;
     #set ($backgroundColor = $eventInstance.getBackgroundColor())
     #set ($isCalendarDefault = (($backgroundColor == $calendarDoc.getValue('color')) &amp;&amp; ($doc.getValue('backgroundColor') == '')) )
-    : &lt;div class="moccaevent" style="border-color:${escapetool.css($backgroundColor)}"&gt;
+    : &lt;div class="moccaevent" style="border-color:${escapetool.html($backgroundColor)}"&gt;
         &amp;#160;
         #if($isCalendarDefault)
           ($escapetool.xml($services.localization.render('MoccaCalendar.calendarevent.color.defaultValue')))
@@ -321,7 +328,7 @@ $doc.display($field)
     ; &lt;label for="textColor"&gt;$escapetool.xml($doc.displayPrettyName('textColor', false, false))&lt;/label&gt;
     #set ($textColor = $eventInstance.getTextColor())
     #set ($isCalendarDefault = (($textColor == $calendarDoc.getValue('textColor')) &amp;&amp; ($doc.getValue('textColor') == '')) )
-    : &lt;div class="moccaevent" style="border-color:${escapetool.css($textColor)}"&gt;
+    : &lt;div class="moccaevent" style="border-color:${escapetool.html($textColor)}"&gt;
         &amp;#160;
         #if($isCalendarDefault)
           ($escapetool.xml($services.localization.render('MoccaCalendar.calendarevent.color.defaultValue')))
@@ -481,7 +488,6 @@ $doc.display($field)
     'ordinal.3',
     'ordinal.4',
     'ordinal.5',
-    'ordinal.last',
     'monthlyspecific.message'
   ]
 });

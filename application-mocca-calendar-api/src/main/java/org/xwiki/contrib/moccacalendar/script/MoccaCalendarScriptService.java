@@ -87,6 +87,11 @@ public class MoccaCalendarScriptService implements ScriptService
     private static final String CALENDAR_BASE_QUERY = ", BaseObject as obj"
         + " where doc.fullName=obj.name and doc.name!='MoccaCalendarTemplate'" + " and obj.className='"
         + EventConstants.MOCCA_CALENDAR_CLASS_NAME + "' order by doc.title, doc.name";
+
+    private static final String CALENDAR_SPACE_QUERY = ", BaseObject as obj"
+        + " where doc.fullName=obj.name and doc.name!='MoccaCalendarTemplate' and doc.fullName LIKE :space escape '!'"
+        + " and obj.className='" + EventConstants.MOCCA_CALENDAR_CLASS_NAME + "' order by doc.title, doc.name";
+
     private static final String MOCCA_CALENDAR_EVENT_TEMPLATE = "MoccaCalendar.MoccaCalendarEventTemplate";
 
     private static final LocalDocumentReference GLOBAL_SETTINGS_PAGE = new LocalDocumentReference(
@@ -113,6 +118,10 @@ public class MoccaCalendarScriptService implements ScriptService
     @Inject
     @Named("hidden")
     private QueryFilter hidden;
+
+    @Inject
+    @Named("currentlanguage")
+    private QueryFilter currentlanguageFilter;
 
     @Inject
     @Named("document")
@@ -147,9 +156,34 @@ public class MoccaCalendarScriptService implements ScriptService
         List<DocumentReference> calenderRefs = Collections.emptyList();
 
         try {
-            Query query = queryManager.createQuery(CALENDAR_BASE_QUERY, Query.HQL).addFilter(hidden);
-            query.addFilter(documentFilter);
-            query.addFilter(viewableFilter);
+            Query query = queryManager.createQuery(CALENDAR_BASE_QUERY, Query.HQL)
+                .addFilter(hidden).addFilter(currentlanguageFilter).addFilter(documentFilter).addFilter(viewableFilter);
+            calenderRefs = query.execute();
+        } catch (QueryException qe) {
+            logger.error("error while fetching calendars", qe);
+        }
+
+        return calenderRefs;
+    }
+
+    /**
+     * Get all calendars that are in the same space as the given document.
+     *
+     * @param targetDocumentReference the document relative to which to search for calendars
+     * @return a list of document references pointing to pages containing calendar objects.
+     */
+    public List<DocumentReference> getAllCalendarsInDocumentSpace(DocumentReference targetDocumentReference)
+    {
+        List<DocumentReference> calenderRefs = Collections.emptyList();
+        try {
+            Query query = queryManager.createQuery(CALENDAR_SPACE_QUERY, Query.HQL)
+                .addFilter(hidden).addFilter(currentlanguageFilter).addFilter(documentFilter).addFilter(viewableFilter)
+                .setWiki(targetDocumentReference.getWikiReference().getName());
+            /** Code duplicated from {@link EventQuery#addLocationFilter(String, DocumentReference)} so the behavior
+             * is consistent.*/
+            String spaceRefStr = compactWikiSerializer.serialize(targetDocumentReference.getLastSpaceReference());
+            String spaceLikeStr = spaceRefStr.replaceAll("([%_!])", "!$1").concat(".%");
+            query.bindValue("space", spaceLikeStr);
             calenderRefs = query.execute();
         } catch (QueryException qe) {
             logger.error("error while fetching calendars", qe);
@@ -307,7 +341,7 @@ public class MoccaCalendarScriptService implements ScriptService
                 parentRef, sortAscending);
             if (meetingEvents != null) {
                 for (EventInstance meeting : meetingEvents) {
-                    fillInColorsFromNearestCalendar(meeting);
+                    setEventColors(meeting, null);
                     meeting.setSource(meetings.getKey());
                 }
                 events.addAll(meetingEvents);
@@ -559,8 +593,6 @@ public class MoccaCalendarScriptService implements ScriptService
 
         boolean isAllDay = eventData.getIntValue(EventConstants.PROPERTY_ALLDAY_NAME) == 1;
         event.setAllDay(isAllDay);
-        String textColor = eventData.getStringValue(EventConstants.PROPERTY_TEXTCOLOR_NAME);
-        String backgroundColor = eventData.getStringValue(EventConstants.PROPERTY_BACKGROUNDCOLOR_NAME);
 
         DateTime endDateExclusive = event.getEndDate();
         if (isAllDay) {
@@ -582,35 +614,54 @@ public class MoccaCalendarScriptService implements ScriptService
         event.setEventDocRef(eventDocRef);
         event.setModifiable(true);
         event.setMovable(!event.isRecurrent());
+
+        setEventColors(event, eventData);
+    }
+
+    private void setEventColors(EventInstance event, BaseObject eventData)
+    {
+        String textColor = getSafeObjectProperty(eventData, EventConstants.PROPERTY_TEXTCOLOR_NAME);
+        String backgroundColor = getSafeObjectProperty(eventData, EventConstants.PROPERTY_BACKGROUNDCOLOR_NAME);
+        String calendarTextColor = "";
+        String calendarBackgroundColor = "";
+
+        if (textColor.isEmpty() || backgroundColor.isEmpty()) {
+            BaseObject calendarData = getNearestCalendarData(event);
+            calendarTextColor = getSafeObjectProperty(calendarData, "textColor");
+            calendarBackgroundColor = getSafeObjectProperty(calendarData, "color");
+        }
         if (event.getBackgroundColor() == null || event.getBackgroundColor().isEmpty()) {
+            backgroundColor = backgroundColor.isEmpty() ? calendarBackgroundColor : backgroundColor;
             event.setBackgroundColor(backgroundColor);
         }
         if (event.getTextColor() == null || event.getTextColor().isEmpty()) {
+            textColor = textColor.isEmpty() ? calendarTextColor : textColor;
             event.setTextColor(textColor);
         }
+    }
 
-        fillInColorsFromNearestCalendar(event);
+    private String getSafeObjectProperty(BaseObject data, String property)
+    {
+        return data != null ? data.displayView(property, xcontextProvider.get()) : "";
     }
 
     /**
      * Fill in the color and text color values from the "corresponding" calendar.
-     *
-     * The corresponding calendar page should be the default page of the parent space. this is the space of the page if the
-     * event page is terminal, and the parent of the events page space, if the page is non-terminal
+     * The corresponding calendar page should be the default page of the parent space. this is the space of the page
+     * if the event page is terminal, and the parent of the events page space, if the page is non-terminal.
      */
-    private void fillInColorsFromNearestCalendar(EventInstance event)
+    private BaseObject getNearestCalendarData(EventInstance event)
     {
+        BaseObject calendarData = null;
         try {
             final DocumentReference eventDocRef = event.getEventDocRef();
             final XWikiContext context = xcontextProvider.get();
             final String defaultPageName = defaultEntityReferenceProvider
                 .getDefaultReference(EntityType.DOCUMENT).getName();
-
-            BaseObject calendarData = null;
             SpaceReference parentSpaceRef = null;
             if (defaultPageName.equals(eventDocRef.getName())) {
                 EntityReference parentRef = eventDocRef.getLastSpaceReference().getParent();
-                if ((parentRef != null) && (parentRef instanceof SpaceReference)) {
+                if (parentRef instanceof SpaceReference) {
                     parentSpaceRef = (SpaceReference) parentRef;
                 }
             } else {
@@ -623,22 +674,10 @@ public class MoccaCalendarScriptService implements ScriptService
                 calendarData = calendarDoc
                     .getXObject(calendarDoc.resolveClassReference(EventConstants.MOCCA_CALENDAR_CLASS_NAME));
             }
-
-            if (calendarData == null) {
-                // some arbitrary defaults
-                event.setBackgroundColor("");
-                event.setTextColor("");
-            } else {
-                if (event.getBackgroundColor().isEmpty()) {
-                    event.setBackgroundColor(calendarData.getStringValue("color"));
-                }
-                if (event.getTextColor().isEmpty()) {
-                    event.setTextColor(calendarData.getStringValue("textColor"));
-                }
-            }
         } catch (XWikiException xe) {
-            logger.warn("could not calculate colors for event", xe);
+            logger.warn("could not retrieve calendar data", xe);
         }
+        return calendarData;
     }
 
     /**
@@ -695,9 +734,7 @@ public class MoccaCalendarScriptService implements ScriptService
                 : eventData.getDateValue(EventConstants.PROPERTY_STARTDATE_NAME);
             modificationData.setDateValue(EventConstants.PROPERTY_STARTDATE_NAME, defaultStartDate);
 
-            final Date baseStartDate = eventData.getDateValue(EventConstants.PROPERTY_STARTDATE_NAME);
-            final Date baseEndDate = Utils.fetchOrGuessEndDate(eventData);
-            final long baseDuration = baseEndDate.getTime() - baseStartDate.getTime();
+            final long baseDuration = getBaseDuration(eventData);
 
             Date defaultEndDate = new Date(defaultStartDate.getTime() + baseDuration);
             modificationData.setDateValue(EventConstants.PROPERTY_ENDDATE_NAME, defaultEndDate);
@@ -751,9 +788,9 @@ public class MoccaCalendarScriptService implements ScriptService
         final XWikiDocument xwikiEventDoc = eventDoc.getDocument();
         final BaseObject eventData = xwikiEventDoc
             .getXObject(stringDocRefResolver.resolve(EventConstants.MOCCA_CALENDAR_EVENT_CLASS_NAME));
-        EventInstance event = null;
+        EventInstance event = new EventInstance();
         if (eventData == null) {
-            return event;
+            return null;
         }
 
         int objIndex;
@@ -771,13 +808,16 @@ public class MoccaCalendarScriptService implements ScriptService
             modificationData = xwikiEventDoc.getXObject(
                 stringDocRefResolver.resolve(EventConstants.MOCCA_CALENDAR_EVENT_MODIFICATION_CLASS_NAME),
                 objIndex);
-        } else {
-            // we create a dummy which always returns null for all properties
-            modificationData = new BaseObject();
         }
-        event = createModifiedEventData(xwikiEventDoc, eventData, modificationData, originalEventStartDate,
-            null, null);
-
+        if (modificationData != null) {
+            event = createModifiedEventData(xwikiEventDoc, eventData, modificationData, originalEventStartDate,
+                null, null);
+        } else {
+            long baseDuration = getBaseDuration(eventData);
+            event.setStartDate(new DateTime(originalEventStartDate.getTime()));
+            event.setOriginalStartDate(new DateTime(originalEventStartDate.getTime()));
+            event.setEndDate(new DateTime(originalEventStartDate.getTime() + baseDuration));
+        }
         try {
             completeEventData(event, xwikiEventDoc, eventData);
         } catch (XWikiException xe) {
@@ -902,9 +942,7 @@ public class MoccaCalendarScriptService implements ScriptService
     private EventInstance createModifiedEventData(XWikiDocument eventDoc, BaseObject eventData,
         BaseObject modificationNotice, Date originalStartDate, Date dateFrom, Date dateTo)
     {
-        final Date baseStartDate = eventData.getDateValue(EventConstants.PROPERTY_STARTDATE_NAME);
-        final Date baseEndDate = Utils.fetchOrGuessEndDate(eventData);
-        final long baseDuration = baseEndDate.getTime() - baseStartDate.getTime();
+        final long baseDuration = getBaseDuration(eventData);
 
         // now get both the original start / end date
         // and the modified start / end date, and add a rudimentary event instance to result,
@@ -947,9 +985,11 @@ public class MoccaCalendarScriptService implements ScriptService
         modifiedInstance.setStartDate(new DateTime(actualStartDate.getTime()));
         modifiedInstance.setOriginalStartDate(new DateTime(originalStartDate.getTime()));
         modifiedInstance.setEndDate(new DateTime(actualEndDate.getTime()));
+        XWikiContext context = xcontextProvider.get();
 
-        String actualBackgroundColor = modificationNotice.getStringValue(EventConstants.PROPERTY_BACKGROUNDCOLOR_NAME);
-        String actualTextColor = modificationNotice.getStringValue(EventConstants.PROPERTY_TEXTCOLOR_NAME);
+        String actualBackgroundColor = modificationNotice.displayView(EventConstants.PROPERTY_BACKGROUNDCOLOR_NAME,
+            context);
+        String actualTextColor = modificationNotice.displayView(EventConstants.PROPERTY_TEXTCOLOR_NAME, context);
 
         if (actualBackgroundColor != null && !actualBackgroundColor.isEmpty()) {
             modifiedInstance.setBackgroundColor(actualBackgroundColor);
@@ -958,8 +998,7 @@ public class MoccaCalendarScriptService implements ScriptService
             modifiedInstance.setTextColor(actualTextColor);
         }
 
-        XWikiContext context = xcontextProvider.get();
-        String modifiedTitle = modificationNotice.getStringValue(EventConstants.PROPERTY_TITLE_NAME);
+        String modifiedTitle = modificationNotice.displayView(EventConstants.PROPERTY_TITLE_NAME, context);
         if (modifiedTitle != null && !"".equals(modifiedTitle.trim())) {
             modifiedInstance.setTitle(eventDoc.getRenderedContent(modifiedTitle,
                 eventDoc.getSyntax().toIdString(), Syntax.PLAIN_1_0.toIdString(), context));
@@ -974,4 +1013,10 @@ public class MoccaCalendarScriptService implements ScriptService
         return modifiedInstance;
     }
 
+    private long getBaseDuration(BaseObject eventData)
+    {
+        Date baseStartDate = eventData.getDateValue(EventConstants.PROPERTY_STARTDATE_NAME);
+        Date baseEndDate = Utils.fetchOrGuessEndDate(eventData);
+        return baseEndDate.getTime() - baseStartDate.getTime();
+    }
 }

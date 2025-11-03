@@ -159,8 +159,6 @@ if (typeof(XWiki) == "undefined" || typeof(XWiki.widgets) == "undefined" || type
     XWiki.MoccaCalendar = {};
   }
 
-#template('colorThemeInit.vm')
-
   XWiki.MoccaCalendar.Helper = Class.create({
   initialize: function(calendar, dateFormat, jsonServiceUrl, createEventBaseUrl, updateEventUrl, newPageNameUrl, dateCheckUrl, deleteEventInstanceUrl, newPageParams, formToken) {
     this.calendar = calendar;
@@ -301,7 +299,6 @@ if (typeof(XWiki) == "undefined" || typeof(XWiki.widgets) == "undefined" || type
         },
         {
           verticalPosition: "top",
-          backgroundColor: "$theme.pageBackgroundColor",
           title : this.interactionParameters.editMode ? "$escapetool.javascript($services.localization.render('MoccaCalendar.calendarevent.create'))" : "$escapetool.javascript($services.localization.render('MoccaCalendar.calendarevent.view'))",
           removeOnClose : true,
           onClose : function() {
@@ -444,6 +441,12 @@ if (typeof(XWiki) == "undefined" || typeof(XWiki.widgets) == "undefined" || type
       }
       this.content.title.value = purify.sanitize(this.content.title.value)
       this.content.writeAttribute('action', saveUrl + '&amp;xpage=plain&amp;ajax=true');
+      this.content.querySelectorAll('input.datetime').forEach(dateInput =&gt; {
+        // Convert the date fields from the displayed format to the one accepted by the backend.
+        const dateObj = moment(dateInput.value, moment().toMomentFormatString(dateInput.getAttribute('data-format')));
+        const calendarEventObjectDateFormat = moment().toMomentFormatString(this.helper.dateFormat);
+        dateInput.value = dateObj.isValid() ? dateObj.format(calendarEventObjectDateFormat) : "";
+      });
       this.content.request({
         onSuccess: function() {
           this.saving = false;
@@ -940,16 +943,7 @@ require(['jquery', 'xwiki-meta', 'xwiki-job-runner', 'xwiki-l10n!mocca-calendar-
     new XWiki.MoccaCalendar.MoccaCalendarPopup(calendarPopup.interactionParameters, calendarPopup.helper);
   });
 
-  // Trigger the upload manually when the button is clicked.
-  $(document).on('click', '#import-calendar-file-button', function(event) {
-    var form = $('#import-calendar-file form').get(0);
-    if (event) {
-      event.preventDefault();
-    }
-    startUploading(form);
-  });
-
-  $(document).on('click', '.box.infomessage &gt; p &gt; span &gt; a', function(event) {
+  $(document).on('click', '.add-calendar-object-container a', function(event) {
     event.preventDefault();
     const addObjectButton = $('#add-calendar-object');
     const target = addObjectButton.data('target');
@@ -975,24 +969,38 @@ require(['jquery', 'xwiki-meta', 'xwiki-job-runner', 'xwiki-l10n!mocca-calendar-
     });
   });
 
+  // Trigger the upload manually when the button is clicked.
+  $(document).on('click', '.import-calendar-file-button', function(event) {
+    event.preventDefault();
+    var calId = $(event.target).data('calid');
+    var form = $(`#import-calendar-file-${calId} form`).get(0);
+    startUploading(form, calId);
+  });
+
   // Start uploading this file by creating a new XHR object with the file data.
-  var startUploading = function (form) {
-    var formData = new FormData(form);
-    var select = form.down('#import-calendar-parent');
-    var input = form.down('#import-ical-file-input');
-    if (input.files[0].size &lt; input.dataset.maxFileSize) {
+  var startUploading = function (form, calId) {
+    var input = form.down(`#import-ical-file-input-${calId}`);
+    var inputFile = input.files[0];
+    if (inputFile &amp;&amp; inputFile.size &lt; input.dataset.maxFileSize) {
+      var select = form.down(`#import-calendar-parent-${calId}`);
       var params = {};
       params[select.name] = select.value;
-      formData.action = form.action + "?" + $.param(params);
+      let action = form.action + "?" + $.param(params);
       // Create XMLHttpRequest object and POST the data
-      var request = this.request = new XMLHttpRequest();
-      request.open('POST', formData.action);
-      request.send(formData);
-      checkImportJob(select.value);
+      var request = new XMLHttpRequest();
+      request.open('POST', action);
+      request.onload = function () {
+        if (request.status === 202 || request.status === 302) {
+          checkImportJob(select.value);
+        } else {
+          new XWiki.widgets.Notification(l10n.get('import.error'),'error');
+        }
+      };
+      request.send(inputFile);
     } else {
       var notification = new XWiki.widgets.Notification(l10n.get('import.filetoolarge'), 'error');
     }
-  }
+  };
 
   const checkImportJob = function(selectedCalendar) {
     let documentReference = XWiki.Model.resolve('MoccaCalendar.Code.ImportJobResource', XWiki.EntityType.DOCUMENT);
@@ -1008,7 +1016,7 @@ require(['jquery', 'xwiki-meta', 'xwiki-job-runner', 'xwiki-l10n!mocca-calendar-
       {name: 'form_token', value: xwikiMeta.form_token}
     );
     var notification = new XWiki.widgets.Notification(l10n.get('import.inprogress'), 'inprogress');
-    $('#import-calendar-file-button').prop('disabled', true);
+    $('.import-calendar-file-button').prop('disabled', true);
     return Promise.resolve(new JobRunner({
       createStatusRequest: function(jobId) {
         return {
@@ -1032,7 +1040,7 @@ require(['jquery', 'xwiki-meta', 'xwiki-job-runner', 'xwiki-l10n!mocca-calendar-
       notification.replace(new XWiki.widgets.Notification(l10n.get('import.error'),'error'));
       return Promise.reject(reason);
     }).finally(() =&gt; {
-      $('#import-calendar-file-button').prop('disabled', false);
+      $('.import-calendar-file-button').prop('disabled', false);
     });
   };
 });</code>
@@ -1181,7 +1189,12 @@ div.xdialog-box-moccacal-modal-popup .btn-group .btn + .btn {
    margin-top: 0.6em;
 }
 .xdialog-box-moccacal-modal-popup {
+  background-color: @modal-content-bg;
+  border-color: @modal-content-border-color;
   width: 600px;
+  top: 3vh !important;
+  bottom: 3vh !important;
+  max-height: 94vh;
 }
 
 /* Make sure the date time picker is shown on top of the event modal. */
@@ -1245,23 +1258,22 @@ div.calendar-buttons span.buttonwrapper {
 }
 
 .import-form select,
-.import-form #import-ical-file-input {
+.import-form input {
   width: 100%;
   margin-bottom: 1.6em;
   border-radius: 0.4em;
 }
 
-.import-form #import-ical-file-input {
+.import-form input {
   padding: 0.6em 1em;
   border: 1px solid #ccc;
 }
 
 #recurrentDays dd {
   display: flex;
-  flex-wrap: wrap;
   gap: 0.3rem;
   margin-top: 1rem;
-  justify-content: center;
+  justify-content: space-between;
 }
 
 #recurrentDays .xwiki-form-listclass {
@@ -1518,14 +1530,21 @@ div.calendar-buttons span.buttonwrapper {
     </property>
     <property>
       <code>{{velocity output="false"}}
+#set ($parameterMap = {})
+#if ($themeDoc)
+  ## If a theme doc is found, we add the theme to the ssx requests to make sure that the cache is properly updated.
+  ## This code can be removed when the following platform issue is fixed:
+  ## XWIKI-18668: The changes on the color theme are not taken into account for various ss*x resources
+  #set ($discard = $parameterMap.put('colorTheme', $themeDocFullName))
+#end
 $xwiki.jsx.use("Calendar.FullCalendar", {'defer': false, 'minify': false})
 $xwiki.jsx.use("MoccaCalendar.Code.Macro", {'defer': false, 'v' : '2.7'})
 $xwiki.jsx.use("MoccaCalendar.Code.DatePickerExtension", {'defer': false})
 $xwiki.jsx.use("MoccaCalendar.MoccaCalendarEventSheet")
 $xwiki.jsx.use("MoccaCalendar.Code.MoccaCalendarEventModificationClass")
 #dateTimePicker_import()
-$xwiki.ssx.use("Calendar.FullCalendar")
-$xwiki.ssx.use("MoccaCalendar.Code.Macro")
+$xwiki.ssx.use("Calendar.FullCalendar", $parameterMap)
+$xwiki.ssx.use("MoccaCalendar.Code.Macro", $parameterMap)
 #set($calcounter = $request.getAttribute('MoccaCalendar.Code.Macro:counter'))
 #if(!$calcounter) #set($calcounter = 0) #else #set($calcounter = $calcounter + 1) #end
 #set($discard = $request.setAttribute('MoccaCalendar.Code.Macro:counter', $calcounter))
@@ -1672,7 +1691,7 @@ $xwiki.ssx.use("MoccaCalendar.Code.Macro")
 #end
 
 #macro(importCalendarFileModal)
-  &lt;div class="modal fade" id="import-calendar-file" tabindex="-1" role="dialog"&gt;
+  &lt;div class="modal fade" id="import-calendar-file-$calcounter" tabindex="-1" role="dialog"&gt;
     &lt;div class="modal-dialog"&gt;
       &lt;div class="modal-content"&gt;
         &lt;div class="modal-header"&gt;
@@ -1687,13 +1706,19 @@ $xwiki.ssx.use("MoccaCalendar.Code.Macro")
           #set ($actionURL = "$request.getContextPath()/rest/moccacalendar/import")
           #set ($xwikiCalendarDoc = $xwiki.getDocument($calendarDoc))
           #set ($calendarObject = $xwikiCalendarDoc.getObject('MoccaCalendar.MoccaCalendarClass'))
-          &lt;form class="xform" action="$actionURL" method="post"&gt;
+          &lt;form class="xform" action="${actionURL}" method="post"&gt;
             &lt;div class="import-form"&gt;
-              #if ($calendarObject || $xwikiCalendarDoc.getFullName() == 'MoccaCalendar.Events')
-                &lt;label for="import-calendar-parent"&gt;
+              #set ($calendarReferences = [])
+              #if ($filter == 'wiki')
+                #set ($calendarReferences = $services.moccacalendar.getAllCalendars())
+              #elseif ($filter == 'space')
+                #set ($calendarReferences = $services.moccacalendar.getAllCalendarsInDocumentSpace($services.model.resolveDocument($calendarDoc)))
+              #end
+              #if ($calendarReferences.size() &gt; 0)
+                &lt;label for="import-calendar-parent-${calcounter}"&gt;
                   $escapetool.xml($services.localization.render('MoccaCalendar.calendar'))&lt;/label&gt;
-                &lt;select id="import-calendar-parent" name="parentCalendar"&gt;
-                  #foreach ($item in $services.moccacalendar.getAllCalendars()) ## TODO: add filter here, see MOCCACAL-76
+                &lt;select id="import-calendar-parent-${calcounter}" name="parentCalendar"&gt;
+                  #foreach ($item in $calendarReferences)
                     #set ($itemdoc = $xwiki.getDocument($item))
                     #if ($!{itemdoc} &amp;&amp; ${itemdoc.hasAccessLevel("edit")})
                       #set ($selected="")
@@ -1705,19 +1730,20 @@ $xwiki.ssx.use("MoccaCalendar.Code.Macro")
                     #end
                   #end
                 &lt;/select&gt;
+              #else
+                &lt;select id="import-calendar-parent-${calcounter}" name="parentCalendar" hidden&gt;
+                  &lt;option value="$escapetool.xml($calendarDoc)" selected&gt;&lt;/option&gt;
+                &lt;/select&gt;
               #end
-              &lt;select id="import-calendar-parent" name="parentCalendar" hidden&gt;
-                &lt;option value="$calendarDoc" selected&gt;$calendarDoc.getDisplayTitle()&lt;/option&gt;
-              &lt;/select&gt;
-              &lt;label for="import-ical-file-input"&gt;$escapetool.xml($services.localization.render(
+              &lt;label for="import-ical-file-input-${calcounter}"&gt;$escapetool.xml($services.localization.render(
                 'MoccaCalendar.import.modal.file.label'))&lt;/label&gt;
-              &lt;input type="file" id="import-ical-file-input" accept=".ics" name="importedfile"
+              &lt;input type="file" id="import-ical-file-input-${calcounter}" accept=".ics" name="importedfile"
                 data-max-file-size="$!escapetool.xml($xwiki.getSpacePreference('upload_maxsize'))"&gt;
             &lt;/div&gt;
           &lt;/form&gt;
         &lt;/div&gt;
         &lt;div class="modal-footer"&gt;
-          &lt;input type="button" class="btn btn-primary" id="import-calendar-file-button"
+          &lt;input type="button" class="btn btn-primary import-calendar-file-button" data-calid="${calcounter}"
             value="$escapetool.xml($services.localization.render('MoccaCalendar.import.modal.button.start'))"&gt;
           &lt;input type="button" class="btn btn-default"
             value="$escapetool.xml($services.localization.render('cancel'))" data-dismiss="modal"&gt;
@@ -1730,7 +1756,7 @@ $xwiki.ssx.use("MoccaCalendar.Code.Macro")
   {{html clean=false wiki=true}}
     &lt;input type="hidden" id="add-calendar-object" data-target="$docRef"&gt;
 
-    {{info}}
+    {{info cssClass="add-calendar-object-container"}}
       $escapetool.xml($services.localization.render('rendering.macro.moccacalendar.addObject.description'))
       [[**$escapetool.xml($services.localization.render('rendering.macro.moccacalendar.addObject.button'))**&gt;&gt;$docRef]]
     {{/info}}
@@ -1809,7 +1835,7 @@ $xwiki.ssx.use("MoccaCalendar.Code.Macro")
 ## create event link
 &lt;div class="calendar-buttons"&gt;
 &lt;span class="buttonwrapper"&gt;
-&lt;button data-toggle="modal" data-target="#import-calendar-file"
+&lt;button data-toggle="modal" data-target="#import-calendar-file-$calcounter"
   title="$escapetool.xml($services.localization.render('MoccaCalendar.calendarevent.import.title'))"&gt;
   $escapetool.html($services.localization.render('MoccaCalendar.calendarevent.import'))&lt;/button&gt;
 &lt;button class="btn btn-success" id="calendar${calcounter}-btn"&gt;&lt;span class="glyphicon glyphicon-plus"&gt;&lt;/span&gt; $escapetool.html($services.localization.render('MoccaCalendar.calendarevent.create'))&lt;/button&gt;
@@ -1990,7 +2016,7 @@ require(['xwiki-meta', 'jquery', 'moment','purify', 'gcal', 'moccaCalendar'], fu
   });
   jQuery('#calendar${calcounter}-btn').click( function(e) { calendarHelper.showCreateEvent(); e.preventDefault(); });
   // helper to be used in callback above
-#set($newPageParams = "template=MoccaCalendar.MoccaCalendarEventTemplate&amp;parentFROM=${escapetool.url($calendarDoc)}&amp;form_token=${services.csrf.getToken()}&amp;ocalcaction=create&amp;disabled=$disableCreationEvent")
+#set($newPageParams = "template=MoccaCalendar.MoccaCalendarEventTemplate&amp;parentFROM=${escapetool.url($calendarDoc)}&amp;calendarParentFilter=${escapetool.url($filter)}&amp;form_token=${services.csrf.getToken()}&amp;ocalcaction=create&amp;disabled=$disableCreationEvent")
 #set($randomDocUrl = $xwiki.getURL("randomPage${util.generateRandomString(10)}",'edit',$newPageParams))
 #set($updateUrlParams="?xpage=plain&amp;outputSyntax=plain&amp;calendarDoc=${escapetool.url(${calendarDoc})}&amp;")
   var calendarHelper = new XWiki.MoccaCalendar.Helper(calendar,
@@ -2007,9 +2033,9 @@ require(['xwiki-meta', 'jquery', 'moment','purify', 'gcal', 'moccaCalendar'], fu
   });
 });
 &lt;/script&gt;
+#importCalendarFileModal
 #if($calcounter == 0)
   #showDeleteEventsModal
-  #importCalendarFileModal
 #end
 {{/html}}
 #else ## of #if($xcontext.action=='view')
