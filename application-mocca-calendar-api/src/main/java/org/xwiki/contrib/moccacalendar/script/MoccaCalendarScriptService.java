@@ -341,7 +341,7 @@ public class MoccaCalendarScriptService implements ScriptService
                 parentRef, sortAscending);
             if (meetingEvents != null) {
                 for (EventInstance meeting : meetingEvents) {
-                    fillInColorsFromNearestCalendar(meeting);
+                    setEventColors(meeting, null);
                     meeting.setSource(meetings.getKey());
                 }
                 events.addAll(meetingEvents);
@@ -593,8 +593,6 @@ public class MoccaCalendarScriptService implements ScriptService
 
         boolean isAllDay = eventData.getIntValue(EventConstants.PROPERTY_ALLDAY_NAME) == 1;
         event.setAllDay(isAllDay);
-        String textColor = eventData.displayView(EventConstants.PROPERTY_TEXTCOLOR_NAME, context);
-        String backgroundColor = eventData.displayView(EventConstants.PROPERTY_BACKGROUNDCOLOR_NAME, context);
 
         DateTime endDateExclusive = event.getEndDate();
         if (isAllDay) {
@@ -616,35 +614,54 @@ public class MoccaCalendarScriptService implements ScriptService
         event.setEventDocRef(eventDocRef);
         event.setModifiable(true);
         event.setMovable(!event.isRecurrent());
+
+        setEventColors(event, eventData);
+    }
+
+    private void setEventColors(EventInstance event, BaseObject eventData)
+    {
+        String textColor = getSafeObjectProperty(eventData, EventConstants.PROPERTY_TEXTCOLOR_NAME);
+        String backgroundColor = getSafeObjectProperty(eventData, EventConstants.PROPERTY_BACKGROUNDCOLOR_NAME);
+        String calendarTextColor = "";
+        String calendarBackgroundColor = "";
+
+        if (textColor.isEmpty() || backgroundColor.isEmpty()) {
+            BaseObject calendarData = getNearestCalendarData(event);
+            calendarTextColor = getSafeObjectProperty(calendarData, "textColor");
+            calendarBackgroundColor = getSafeObjectProperty(calendarData, "color");
+        }
         if (event.getBackgroundColor() == null || event.getBackgroundColor().isEmpty()) {
+            backgroundColor = backgroundColor.isEmpty() ? calendarBackgroundColor : backgroundColor;
             event.setBackgroundColor(backgroundColor);
         }
         if (event.getTextColor() == null || event.getTextColor().isEmpty()) {
+            textColor = textColor.isEmpty() ? calendarTextColor : textColor;
             event.setTextColor(textColor);
         }
+    }
 
-        fillInColorsFromNearestCalendar(event);
+    private String getSafeObjectProperty(BaseObject data, String property)
+    {
+        return data != null ? data.displayView(property, xcontextProvider.get()) : "";
     }
 
     /**
      * Fill in the color and text color values from the "corresponding" calendar.
-     *
-     * The corresponding calendar page should be the default page of the parent space. this is the space of the page if the
-     * event page is terminal, and the parent of the events page space, if the page is non-terminal
+     * The corresponding calendar page should be the default page of the parent space. this is the space of the page
+     * if the event page is terminal, and the parent of the events page space, if the page is non-terminal.
      */
-    private void fillInColorsFromNearestCalendar(EventInstance event)
+    private BaseObject getNearestCalendarData(EventInstance event)
     {
+        BaseObject calendarData = null;
         try {
             final DocumentReference eventDocRef = event.getEventDocRef();
             final XWikiContext context = xcontextProvider.get();
             final String defaultPageName = defaultEntityReferenceProvider
                 .getDefaultReference(EntityType.DOCUMENT).getName();
-
-            BaseObject calendarData = null;
             SpaceReference parentSpaceRef = null;
             if (defaultPageName.equals(eventDocRef.getName())) {
                 EntityReference parentRef = eventDocRef.getLastSpaceReference().getParent();
-                if ((parentRef != null) && (parentRef instanceof SpaceReference)) {
+                if (parentRef instanceof SpaceReference) {
                     parentSpaceRef = (SpaceReference) parentRef;
                 }
             } else {
@@ -657,22 +674,10 @@ public class MoccaCalendarScriptService implements ScriptService
                 calendarData = calendarDoc
                     .getXObject(calendarDoc.resolveClassReference(EventConstants.MOCCA_CALENDAR_CLASS_NAME));
             }
-
-            if (calendarData == null) {
-                // some arbitrary defaults
-                event.setBackgroundColor("");
-                event.setTextColor("");
-            } else {
-                if (event.getBackgroundColor().isEmpty()) {
-                    event.setBackgroundColor(calendarData.displayView("color", context));
-                }
-                if (event.getTextColor().isEmpty()) {
-                    event.setTextColor(calendarData.displayView("textColor", context));
-                }
-            }
         } catch (XWikiException xe) {
-            logger.warn("could not calculate colors for event", xe);
+            logger.warn("could not retrieve calendar data", xe);
         }
+        return calendarData;
     }
 
     /**
