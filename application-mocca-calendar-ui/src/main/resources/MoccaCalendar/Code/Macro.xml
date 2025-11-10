@@ -444,6 +444,11 @@ if (typeof(XWiki) == "undefined" || typeof(XWiki.widgets) == "undefined" || type
       this.content.querySelectorAll('input.datetime').forEach(dateInput =&gt; {
         // Convert the date fields from the displayed format to the one accepted by the backend.
         const dateObj = moment(dateInput.value, moment().toMomentFormatString(dateInput.getAttribute('data-format')));
+        if (dateInput.id == "MoccaCalendar.MoccaCalendarEventClass_0_endDate") {
+          // For the end date, set the hour to 23:59 instead of 00:00.
+          dateObj.hours(23);
+          dateObj.minutes(59);
+        }
         const calendarEventObjectDateFormat = moment().toMomentFormatString(this.helper.dateFormat);
         dateInput.value = dateObj.isValid() ? dateObj.format(calendarEventObjectDateFormat) : "";
       });
