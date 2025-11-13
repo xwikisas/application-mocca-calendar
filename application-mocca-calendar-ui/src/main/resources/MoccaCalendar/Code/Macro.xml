@@ -1737,14 +1737,14 @@ $xwiki.ssx.use("MoccaCalendar.Code.Macro", $parameterMap)
                       #if ($itemdoc.getId() == $doc.getId())
                         #set ($selected=" selected='selected'")
                       #end
-                      &lt;option value="$escapetool.html($itemdoc.getFullName())"$selected&gt;
+                      &lt;option value="$escapetool.xml($services.model.serialize($itemdoc.getDocumentReference(),'default'))"$selected&gt;
                         $itemdoc.getDisplayTitle()&lt;/option&gt;
                     #end
                   #end
                 &lt;/select&gt;
               #else
                 &lt;select id="import-calendar-parent-${calcounter}" name="parentCalendar" hidden&gt;
-                  &lt;option value="$escapetool.xml($calendarDoc)" selected&gt;&lt;/option&gt;
+                  &lt;option value="$escapetool.xml($services.model.serialize($services.model.resolveDocument($calendarDoc),'default'))" selected&gt;&lt;/option&gt;
                 &lt;/select&gt;
               #end
               &lt;label for="import-ical-file-input-${calcounter}"&gt;$escapetool.xml($services.localization.render(
