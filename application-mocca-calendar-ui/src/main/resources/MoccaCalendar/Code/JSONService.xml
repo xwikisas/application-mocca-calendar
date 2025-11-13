@@ -117,7 +117,7 @@
 #end
 ##
 #set($jsondateformat = $xwiki.jodatime.getDateTimeFormatterForPattern("yyyy-MM-dd'T'HH:mm"))
-#set($calDocParam = "calendarDoc=$!{escapetool.url($request.calendarDoc)}")
+#set($calDocParam = "calendarDoc=$!{escapetool.url($request.calendarDoc)}&amp;calendarParentFilter=$!{escapetool.url($request.filter)}&amp;parentFROM=$!{escapetool.url($request.filterDoc)}")
 #set($results = [])
 ##
 #foreach($event in $events)

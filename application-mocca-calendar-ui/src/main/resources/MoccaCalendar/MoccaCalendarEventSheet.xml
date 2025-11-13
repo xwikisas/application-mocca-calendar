@@ -161,11 +161,18 @@ $doc.display($field)
 
   #end
   #set ($calendarParentFilter = $request.getParameter('calendarParentFilter'))
-  #set ($calendarReferences = [])
-  #if ($calendarParentFilter == 'wiki')
-    #set ($calendarReferences = $services.moccacalendar.getAllCalendars())
+  #set ($parentFROM = $!request.getParameter('parentFROM'))
+  #if ($calendarParentFilter == 'page')
+    #set ($calendarReferences = [])
   #elseif ($calendarParentFilter == 'space')
-    #set ($calendarReferences = $services.moccacalendar.getAllCalendarsInDocumentSpace($services.model.resolveDocument($calendarDoc)))
+    #if ("$!parentFROM" == '')
+      ## If editing through the modal, the calendar filter should be relative to that calendar first, and then fallback
+      ## to the actual parent calendar.
+      #set ($parentFROM = $calendarDoc)
+    #end
+    #set ($calendarReferences = $services.moccacalendar.getAllCalendarsInDocumentSpace($services.model.resolveDocument($parentFROM)))
+  #else
+    #set ($calendarReferences = $services.moccacalendar.getAllCalendars())
   #end
   #if ($calendarReferences.size() &gt; 0)
     ; &lt;label for="calendarParent"&gt;$escapetool.xml($services.localization.render('MoccaCalendar.calendar'))&lt;/label&gt;
