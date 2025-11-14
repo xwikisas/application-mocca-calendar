@@ -231,8 +231,8 @@ moccacalendar.sources.config.label=Configure events from source \u00AB{0}\u00BB
 ## Calendar macro
 rendering.macro.moccacalendar.addObject.description=This action will transform the current calendar macro in a dedicated Calendar page. This will allow further customizations of color schemes and you will find it in the Calendar overview. Note that any other content on this page will be added in the calendar description. The action is irreversible!
 rendering.macro.moccacalendar.addObject.button=Add calendar class
-rendering.macro.moccacalendar.name=Mocca Calendar
-rendering.macro.moccacalendar.description=Displays a Calendar
+rendering.macro.moccacalendar.name=Mocca Calendar (Pro)
+rendering.macro.moccacalendar.description=Display a calendar of your choice, from sources such as Google Calendar or ICal.
 rendering.macro.moccacalendar.parameter.filter.name=Show events from ...
 rendering.macro.moccacalendar.parameter.filter.description=Possible values are 'wiki','space' or 'page', where: 'page': only events which are children pages of this page will be included,  'space': only events which are in the space of the calendar doc will be included, 'wiki': all events will be included.
 rendering.macro.moccacalendar.parameter.calendarDoc.name=Calendar page
@@ -261,7 +261,7 @@ rendering.macro.moccacalendar.parameter.iCal.description=The iCalendar URL.
 xwiki.calendar.button.plainList=Agenda
 
 # Upcoming events macro
-rendering.macro.moccacalendar.upcomingEvents.name=Mocca Calendar Upcoming Events
+rendering.macro.moccacalendar.upcomingEvents.name=Mocca Calendar (Pro) Upcoming Events
 rendering.macro.moccacalendar.upcomingEvents.description=Displays upcoming calendar events
 rendering.macro.moccacalendar.upcomingEvents.parameter.limit.name=limit
 rendering.macro.moccacalendar.upcomingEvents.parameter.limit.description=The maximum number of events to list.
