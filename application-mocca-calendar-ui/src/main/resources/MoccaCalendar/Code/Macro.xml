@@ -1766,11 +1766,11 @@ $xwiki.ssx.use("MoccaCalendar.Code.Macro", $parameterMap)
 #end
 #macro (addCalendarObject $docRef)
   {{html clean=false wiki=true}}
-    &lt;input type="hidden" id="add-calendar-object" data-target="$docRef"&gt;
+    &lt;input type="hidden" id="add-calendar-object" data-target="$escapetool.xml($services.rendering.escape($docRef, 'xwiki/2.1'))"&gt;
 
     {{info cssClass="add-calendar-object-container"}}
       $escapetool.xml($services.localization.render('rendering.macro.moccacalendar.addObject.description'))
-      [[**$escapetool.xml($services.localization.render('rendering.macro.moccacalendar.addObject.button'))**&gt;&gt;$docRef]]
+      [[**$escapetool.xml($services.localization.render('rendering.macro.moccacalendar.addObject.button'))**&gt;&gt;$services.rendering.escape($docRef, 'xwiki/2.1')]]
     {{/info}}
   {{/html}}
 #end
