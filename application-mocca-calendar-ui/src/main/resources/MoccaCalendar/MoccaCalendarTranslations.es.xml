@@ -41,21 +41,42 @@ MoccaCalendar.calendar=Calendario
 MoccaCalendar.calendar.title=Vista general del calendario
 MoccaCalendar.calendar.defaultCalendarTitle=Otros eventos
 MoccaCalendar.calendar.viewall=Visión general de todos los calendarios
+### Missing: MoccaCalendar.calendar.viewSubscribed=Subscribed calendars
 MoccaCalendar.calendar.create=Crear un nuevo calendario
+### Missing: MoccaCalendar.calendar.subscribe=Subscribe to a calendar
 MoccaCalendar.calendar.plainlist=Orden del Día
 MoccaCalendar.calendar.plainlist.titlepast=Eventos Pasados
 MoccaCalendar.calendar.plainlist.titleupcoming=Próximos Eventos
 MoccaCalendar.calendar.plainlist.nopastevents=No hay eventos pasados encontrado.
 MoccaCalendar.calendar.plainlist.noupcomingevents=No hay próximos eventos encontrados.
 MoccaCalendar.calendar.firstDayOfWeek=1
-
+### Missing: MoccaCalendar.calendar.readonly=This is a read only calendar and you can not create events for it.
+### Missing: MoccaCalendar.calendar.noevent=This page does not contain an event.
 MoccaCalendar.calendarevent.viewall=Todos los eventos
 MoccaCalendar.calendarevent.create=Crear un evento
+### Missing: MoccaCalendar.calendarevent.import=Import .ics file
+### Missing: MoccaCalendar.calendarevent.import.title=Import the events from a calendar using an .ics file
 MoccaCalendar.calendarevent.backlink=Volver al calendario &amp;#171;{0}&amp;#187;
 MoccaCalendar.calendarevent.confirmDelete=¿Estás seguro de querer borrar el evento {0} ?
 MoccaCalendar.calendarevent.view=Evento
 MoccaCalendar.calendarevent.confirmDelete.allEventsButton=Todas las instancias
+### Missing: MoccaCalendar.calendarevent.color.defaultValue=Calendar Default
 MoccaCalendar.generic.errormessage=Error interno del servidor
+
+# Import ical file
+### Missing: MoccaCalendar.import.modal.title=Import calendar
+### Missing: MoccaCalendar.import.modal.file.label=.ics file to be imported
+### Missing: MoccaCalendar.import.modal.button.start=Begin import
+### Missing: MoccaCalendar.import.generated.description.attendee=Attendee: {0}
+### Missing: MoccaCalendar.import.generated.description.location=Location: {0}
+### Missing: MoccaCalendar.import.generated.description.organizer=Organizer: {0}
+
+# Notifications
+### Missing: MoccaCalendar.notification.import.inprogress=Calendar file import in progress...
+### Missing: MoccaCalendar.notification.import.done=Calendar successfully imported!
+### Missing: MoccaCalendar.notification.import.error=There was an error while importing the calendar data. Please try again or consult the logs!
+### Missing: MoccaCalendar.notification.import.filetoolarge=The file size is too large
+### Missing: MoccaCalendar.notification.addObject.error=An error occurred while trying to add the class object.
 
 # Class fields
 MoccaCalendar.MoccaCalendarClass_title=Título
@@ -65,8 +86,24 @@ MoccaCalendar.MoccaCalendarClass_description=Descripción
 MoccaCalendar.MoccaCalendarClass_content1=Contenido
 MoccaCalendar.MoccaCalendarClass.textColor.unset=(blanco)
 
+# Subscribe class fields
+### Missing: MoccaCalendar.MoccaCalendarSubscribeClass_title=Title
+### Missing: MoccaCalendar.MoccaCalendarSubscribeClass_color=Background color of entries in the calendar view
+### Missing: MoccaCalendar.MoccaCalendarSubscribeClass_textColor=Text color of entries in the calendar view
+### Missing: MoccaCalendar.MoccaCalendarSubscribeClass_description=Description
+### Missing: MoccaCalendar.MoccaCalendarSubscribeClass_content1=Content
+### Missing: MoccaCalendar.MoccaCalendarSubscribeClass_iCal=The iCal of the calendar
+### Missing: MoccaCalendar.MoccaCalendarSubscribeClass_gCal=The gCal of the calendar
+### Missing: MoccaCalendar.MoccaCalendarSubscribeClass_gApiKey=Google API key
+### Missing: MoccaCalendar.MoccaCalendarSubscribeClass_globalDisplay=Display the events inside the global calendar
+
+# Subscribed event localization
+### Missing: moccacalendar.subscribedevent.allday.yes=Yes
+### Missing: moccacalendar.subscribedevent.allday.no=No
+
 # Live table generic keys
 moccacalendar.livetable.doc.title=Calendario
+### Missing: moccacalendar.livetable.doc.subscribed=Subscribed calendar
 moccacalendar.livetable.doc.name=Nombre de la página
 moccacalendar.livetable.doc.space=Espacio
 moccacalendar.livetable.doc.fullname=Nombre completo de la página
@@ -84,6 +121,7 @@ moccacalendar.livetable.emptyvalue=-
 moccacalendar.livetable.title=Título
 moccacalendar.livetable.description=Descripción
 moccacalendar.livetable.content1=Contenido
+### Missing: moccacalendar.extension.name=Calendar Application (Pro)
 
 # Mocca Calendar Events keys
 # Class fields
@@ -96,11 +134,22 @@ MoccaCalendar.MoccaCalendarEventClass_textColor=Color de texto
 MoccaCalendar.MoccaCalendarEventClass_allDay=Todo el día
 MoccaCalendar.MoccaCalendarEventClass_recurrent=Recurrente
 
+# Calendar Source Configuration Class fields
+### Missing: MoccaCalendar.Code.DefaultEventSourceConfigClass.source={0} as Events
+### Missing: MoccaCalendar.Code.DefaultEventSourceConfigClass_active=Active
+### Missing: MoccaCalendar.Code.DefaultEventSourceConfigClass_active.hint=If active, events from this source will be shown in this calendar.
+### Missing: MoccaCalendar.Code.MeetingsSourceConfigClass.source=Meetings as Events
+### Missing: MoccaCalendar.Code.MeetingsSourceConfigClass_active=Active
+### Missing: MoccaCalendar.Code.MeetingsSourceConfigClass_active.hint=If active, meetings will be shown in this calendar.
+### Missing: MoccaCalendar.Code.MeetingsSourceConfigClass_meetings=Meetings location
+### Missing: MoccaCalendar.Code.MeetingsSourceConfigClass_meetings.hint=The location from which meetings are shown.
+
 # modification class fields
 MoccaCalendar.Code.MoccaCalendarEventRecurrencyClass_frequency=Frecuencia
 MoccaCalendar.Code.MoccaCalendarEventRecurrencyClass_frequency_daily=diario
 MoccaCalendar.Code.MoccaCalendarEventRecurrencyClass_frequency_workdays=días laborales
 MoccaCalendar.Code.MoccaCalendarEventRecurrencyClass_frequency_weekly=semanal
+### Missing: MoccaCalendar.Code.MoccaCalendarEventRecurrencyClass_frequency_customWeekly=custom week
 MoccaCalendar.Code.MoccaCalendarEventRecurrencyClass_frequency_biweekly=quincenal
 MoccaCalendar.Code.MoccaCalendarEventRecurrencyClass_frequency_monthly=mensual
 MoccaCalendar.Code.MoccaCalendarEventRecurrencyClass_frequency_quarterly=trimestral
@@ -111,6 +160,8 @@ MoccaCalendar.Code.MoccaCalendarEventModificationClass_title=Título modificado
 MoccaCalendar.Code.MoccaCalendarEventModificationClass_startDate=Fecha de inicio modificada
 MoccaCalendar.Code.MoccaCalendarEventModificationClass_endDate=Fecha de finalización modificada
 MoccaCalendar.Code.MoccaCalendarEventModificationClass_description=Descripción modificada
+### Missing: MoccaCalendar.Code.MoccaCalendarEventModificationClass_backgroundColor=Modified background color
+### Missing: MoccaCalendar.Code.MoccaCalendarEventModificationClass_textColor=Modified text color
 
 # the modification switch
 moccacalendarevent.editswitch.label=Editar:
@@ -169,6 +220,14 @@ moccacalendar.modify.saveMessage=Modificación actualizada para una ocurrencia d
 templateProvider.calendar.name=Calendario
 ### Missing: templateProvider.calendar.description=Add a new calendar
 
+## event sheets
+### Missing: moccacalendar.sheets.generic.noevent=This page cannot be displayed in the calendar. {0}View it{1} as wiki page instead.
+### Missing: moccacalendar.sources.config.label=Configure events from source \u00AB{0}\u00BB
+
+## Calendar macro
+### Missing: rendering.macro.moccacalendar.addObject.description=This action will transform the current calendar macro in a dedicated Calendar page. This will allow further customizations of color schemes and you will find it in the Calendar overview. Note that any other content on this page will be added in the calendar description. The action is irreversible!
+### Missing: rendering.macro.moccacalendar.addObject.button=Add calendar class
+
 ## Calendar macro
 rendering.macro.moccacalendar.name=Calendario
 rendering.macro.moccacalendar.description=Muestra un Calendario
@@ -190,6 +249,43 @@ rendering.macro.moccacalendar.parameter.month.name=Mes
 rendering.macro.moccacalendar.parameter.month.description=Mes (de 0 a 11) de la fecha a mostrar al cargar el calendario. Dejar vacío para hoy.
 rendering.macro.moccacalendar.parameter.date.name=Día
 rendering.macro.moccacalendar.parameter.date.description=Día (de 1 a 31) de la fecha a mostrar al cargar el calendario. Dejar vacío para hoy.
+### Missing: rendering.macro.moccacalendar.parameter.gCal.name=gCal
+### Missing: rendering.macro.moccacalendar.parameter.gCal.description=Google calendar IDs separated by commas.
+### Missing: rendering.macro.moccacalendar.parameter.gApiKey.name=gApiKey
+### Missing: rendering.macro.moccacalendar.parameter.gApiKey.description=Key for the Google Calendar API.
+### Missing: rendering.macro.moccacalendar.parameter.iCal.name=iCal
+### Missing: rendering.macro.moccacalendar.parameter.iCal.description=The iCalendar URL.
+### Missing: xwiki.calendar.button.plainList=Agenda
 
-### Missing: xwiki.calendar.button.plainList=Agenda</content>
+# Upcoming events macro
+### Missing: rendering.macro.moccacalendar.upcomingEvents.name=Mocca Calendar (Pro) Upcoming Events
+### Missing: rendering.macro.moccacalendar.upcomingEvents.description=Displays upcoming calendar events
+### Missing: rendering.macro.moccacalendar.upcomingEvents.parameter.limit.name=limit
+### Missing: rendering.macro.moccacalendar.upcomingEvents.parameter.limit.description=The maximum number of events to list.
+
+# Upcoming events panel
+### Missing: moccacalendar.panel.upcomingEvents.header=Upcoming Events
+
+# admin section
+### Missing: admin.moccacalendar.sources.section=Calendar
+### Missing: admin.moccacalendar.sources.header=Enable Calendar Event Sources
+### Missing: admin.moccacalendar.sources.empty=There are no calendar event sources to configure.
+### Missing: admin.moccacalendar.sources.active.label=Show events from source \u00AB{0}\u00BB:
+
+# Recurrent event
+### Missing: moccacalendar.recurrent.frequency.hint=The frequency is in correlation with the selected start date.
+### Missing: moccacalendar.recurrent.weekday.0=Sunday
+### Missing: moccacalendar.recurrent.weekday.1=Monday
+### Missing: moccacalendar.recurrent.weekday.2=Tuesday
+### Missing: moccacalendar.recurrent.weekday.3=Wednesday
+### Missing: moccacalendar.recurrent.weekday.4=Thursday
+### Missing: moccacalendar.recurrent.weekday.5=Friday
+### Missing: moccacalendar.recurrent.weekday.6=Saturday
+### Missing: moccacalendar.recurrent.ordinal.1=1st
+### Missing: moccacalendar.recurrent.ordinal.2=2nd
+### Missing: moccacalendar.recurrent.ordinal.3=3rd
+### Missing: moccacalendar.recurrent.ordinal.4=4th
+### Missing: moccacalendar.recurrent.ordinal.5=5th
+### Missing: moccacalendar.recurrent.monthlyspecific.message=Every {0} {1} of the month
+</content>
 </xwikidoc>
