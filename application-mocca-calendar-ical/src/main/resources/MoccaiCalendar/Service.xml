@@ -68,7 +68,7 @@ if (xcontext.userReference == null) {
 
 def calendarDocument = xwiki.getDocument(calendarReference)
 if (calendarDocument == null || calendarDocument.isNew()) {
-  println "{{error}}Cannot access calendar [[$calendarReference&gt;&gt;$calendarReference]]{{/error}}";
+  println "{{error}}Cannot access calendar [[$services.rendering.escape($services.rendering.escape($calendarReference, 'xwiki/2.1'), 'xwiki/2.1')&gt;&gt;$services.rendering.escape($calendarReference, 'xwiki/2.1')]]{{/error}}";
 
   return ;
 }

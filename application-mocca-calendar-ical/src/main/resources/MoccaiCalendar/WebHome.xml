@@ -40,7 +40,7 @@
 #set($calendars = $services.query.xwql('from doc.object(MoccaCalendar.MoccaCalendarClass) as calendar').execute())
 #foreach ($calendar in $calendars)
   #set($calendarDocument = $xwiki.getDocument($calendar))
-  * [[$calendarDocument.plainTitle&gt;&gt;$calendarDocument.fullName]] [[**iCal**&gt;&gt;path:$xwiki.getURL('Service', 'get', "calendar=$calendarDocument.fullName")]]
+  * [[$services.rendering.escape($services.rendering.escape($calendarDocument.plainTitle, 'xwiki/2.1'), 'xwiki/2.1')&gt;&gt;$services.rendering.escape($calendarDocument.fullName, 'xwiki/2.1')]] [[**iCal**&gt;&gt;$services.rendering.escape('path:' + $xwiki.getURL('Service', 'get', "calendar=$calendarDocument.fullName"), 'xwiki/2.1')]]
 #end
 {{/velocity}}</content>
 </xwikidoc>

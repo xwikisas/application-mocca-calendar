@@ -184,13 +184,13 @@ $doc.display($field)
         #if($itemdoc.getId() == $calendarDoc.getId())
           #set($selected=" selected='selected'")
         #end
-        &lt;option value="$escapetool.html($itemdoc.getFullName())"$selected&gt;$itemdoc.getDisplayTitle()&lt;/option&gt;
+        &lt;option value="$services.rendering.escape($itemdoc.getFullName(), 'xwiki/2.1')"$selected&gt;$services.rendering.escape($itemdoc.getDisplayTitle(), 'xwiki/2.1')&lt;/option&gt;
       #end
     #end
     &lt;/select&gt;
   #end
    &lt;select id="calendarParent" name="$parentParamName" hidden&gt;
-     &lt;option value="$escapetool.html($calendarDoc.getFullName())" selected&gt;$calendarDoc.getDisplayTitle()&lt;/option&gt;
+     &lt;option value="$services.rendering.escape($calendarDoc.getFullName(), 'xwiki/2.1')" selected&gt;&lt;/option&gt;
    &lt;/select&gt;
     ; &lt;label for="${editPrefix}_title"&gt;$escapetool.xml($doc.displayPrettyName('title', false, false))
         &lt;span class="xRequired"&gt;&lt;/span&gt;&lt;/label&gt;
@@ -310,7 +310,7 @@ $doc.display($field)
   #if($eventInstance)
     #if($calendar)
     ; &lt;label for="calendar"&gt;$escapetool.xml($services.localization.render('MoccaCalendar.calendar'))&lt;/label&gt;
-    : [[$calendarDoc.getDisplayTitle()&gt;&gt;$calendarDoc.fullName]]
+    : [[$services.rendering.escape($services.rendering.escape($calendarDoc.getDisplayTitle(), 'xwiki/2.1'), 'xwiki/2.1')&gt;&gt;$services.rendering.escape($calendarDoc.fullName, 'xwiki/2.1')]]
     #end
     ; &lt;label&gt;$escapetool.xml($doc.displayPrettyName('title', false, false))&lt;/label&gt;
     : $escapetool.xml($eventInstance.getTitle())
@@ -381,7 +381,7 @@ $doc.display($field)
   #if($!{request.xpage}!="plain")
   ----
   #if($backToCalendarDoc)
-  [[$services.localization.render('MoccaCalendar.calendarevent.backlink', [ $backToCalendarDoc.getDisplayTitle()])&gt;&gt;$backToCalendarDoc]]
+  [[$services.rendering.escape($services.rendering.escape($services.localization.render('MoccaCalendar.calendarevent.backlink', [ $backToCalendarDoc.getDisplayTitle()]), 'xwiki/2.1'), 'xwiki/2.1')&gt;&gt;$services.rendering.escape($backToCalendarDoc, 'xwiki/2.1')]]
   #end
   #end
   )))
