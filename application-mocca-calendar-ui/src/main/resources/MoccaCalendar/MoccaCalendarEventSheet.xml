@@ -184,13 +184,13 @@ $doc.display($field)
         #if($itemdoc.getId() == $calendarDoc.getId())
           #set($selected=" selected='selected'")
         #end
-        &lt;option value="$services.rendering.escape($itemdoc.getFullName(), 'xwiki/2.1')"$selected&gt;$services.rendering.escape($itemdoc.getDisplayTitle(), 'xwiki/2.1')&lt;/option&gt;
+        &lt;option value="$services.rendering.escape($escapetool.xml($itemdoc.getFullName()), 'xwiki/2.1')"$selected&gt;$services.rendering.escape($itemdoc.getDisplayTitle(), 'xwiki/2.1')&lt;/option&gt;
       #end
     #end
     &lt;/select&gt;
   #end
    &lt;select id="calendarParent" name="$parentParamName" hidden&gt;
-     &lt;option value="$services.rendering.escape($calendarDoc.getFullName(), 'xwiki/2.1')" selected&gt;&lt;/option&gt;
+     &lt;option value="$services.rendering.escape($escapetool.xml($calendarDoc.getFullName()), 'xwiki/2.1')" selected&gt;&lt;/option&gt;
    &lt;/select&gt;
     ; &lt;label for="${editPrefix}_title"&gt;$escapetool.xml($doc.displayPrettyName('title', false, false))
         &lt;span class="xRequired"&gt;&lt;/span&gt;&lt;/label&gt;
