@@ -127,7 +127,7 @@
     <property>
       <code>document.observe("dom:loaded", function() {
 
-  Date.first_day_of_week = $services.localization.render('MoccaCalendar.calendar.firstDayOfWeek');
+  Date.first_day_of_week = parseInt("$escapetool.javascript($services.localization.render('MoccaCalendar.calendar.firstDayOfWeek'))");
   Date.weekdays = $services.localization.render('xwiki.calendar.dayNamesShort') ;
   ## because the date picker, unlike the FullCalendar, expects our weekday names with the n-th day, not Sunday
   for (var i=0; i&lt;Date.first_day_of_week; i++) {

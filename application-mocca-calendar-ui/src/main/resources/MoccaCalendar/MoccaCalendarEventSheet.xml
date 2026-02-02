@@ -194,7 +194,7 @@ $doc.display($field)
    &lt;/select&gt;
     ; &lt;label for="${editPrefix}_title"&gt;$escapetool.xml($doc.displayPrettyName('title', false, false))
         &lt;span class="xRequired"&gt;&lt;/span&gt;&lt;/label&gt;
-    : &lt;input id="${editPrefix}_title" type="text" name="title" value="${escapetool.xml($doc.getDisplayTitle())}" /&gt;#showvalidationmessage("val_title_already_exists")
+    : &lt;input id="${editPrefix}_title" type="text" name="title" value="$services.rendering.escape($escapetool.xml($doc.getPlainTitle()), 'xwiki/2.1')" /&gt;#showvalidationmessage("val_title_already_exists")
       &lt;span class="val_title_notempty xErrorMsg" style="display:none;"&gt;
         $escapetool.xml($services.localization.render('val_title_notempty'))&lt;/span&gt;
       &lt;span class="val_title_notvalid xErrorMsg" style="display:none;"&gt;
@@ -213,14 +213,14 @@ $doc.display($field)
     #set ($colorPickerParams = {
       'id': "${editPrefix}_backgroundColor",
       'name': "${editPrefix}_backgroundColor",
-      'value': $escapetool.xml($doc.getValue('backgroundColor'))
+      'value': $services.rendering.escape($doc.getValue('backgroundColor'), 'xwiki/2.1')
     })
     : #colorPicker($colorPickerParams)
     ; &lt;label for="${editPrefix}_textColor"&gt;$escapetool.xml($doc.displayPrettyName('textColor', false, false))&lt;/label&gt;
     #set ($colorPickerParams = {
       'id': "${editPrefix}_textColor",
       'name': "${editPrefix}_textColor",
-      'value': $escapetool.xml($doc.getValue('textColor'))
+      'value': $services.rendering.escape($doc.getValue('textColor'), 'xwiki/2.1')
     })
     : #colorPicker($colorPickerParams)
     ; &lt;label for="${editPrefix}_recurrent"&gt;$escapetool.xml($doc.displayPrettyName('recurrent', false, false))&lt;/label&gt;
@@ -269,7 +269,7 @@ $doc.display($field)
   &lt;div id="oneEventFields" data-original-format="$dateFormat"&gt;
 
     ; &lt;label for="${editOnePrefix}_title"&gt;$escapetool.xml($doc.displayPrettyName('title', false, false))&lt;span class="xRequired"&gt;&lt;/span&gt;&lt;/label&gt;
-    : &lt;input id="${editOnePrefix}_title" type="text" name="${editOnePrefix}_title" value="${escapetool.html($doc.display('title', 'view'))}" /&gt;
+    : &lt;input id="${editOnePrefix}_title" type="text" name="${editOnePrefix}_title" value="${escapetool.xml($doc.display('title', 'view'))}" /&gt;
     ; &lt;label for="${editOnePrefix}_startDate"&gt;$escapetool.xml($doc.displayPrettyName('startDate', false, false))&lt;span class="xRequired"&gt;&lt;/span&gt;&lt;/label&gt;
     : #displayDate('startDate')#showvalidationmessage("MoccaCalendar.Code.MoccaCalendarEventModificationClass.validation.startDateMissing")#showvalidationmessage("MoccaCalendar.Code.MoccaCalendarEventModificationClass.validation.startDateNotDate")
     ; &lt;label for="${editOnePrefix}_endDate"&gt;$escapetool.xml($doc.displayPrettyName('endDate', false, false))&lt;/label&gt;
@@ -280,14 +280,14 @@ $doc.display($field)
     #set ($colorPickerParams = {
       'id': "${editOnePrefix}_backgroundColor",
       'name': "${editOnePrefix}_backgroundColor",
-      'value': $escapetool.xml($doc.getValue('backgroundColor'))
+      'value': $services.rendering.escape($doc.getValue('backgroundColor'), 'xwiki/2.1')
     })
     : #colorPicker($colorPickerParams)
     ; &lt;label for="${editOnePrefix}_textColor"&gt;$escapetool.xml($doc.displayPrettyName('textColor', false, false))&lt;/label&gt;
     #set ($colorPickerParams = {
       'id': "${editOnePrefix}_textColor",
       'name': "${editOnePrefix}_textColor",
-      'value': $escapetool.xml($doc.getValue('textColor'))
+    'value': $services.rendering.escape($doc.getValue('textColor'), 'xwiki/2.1')
     })
     : #colorPicker($colorPickerParams)
     &lt;input type="hidden" name="classname" value="MoccaCalendar.Code.MoccaCalendarEventModificationClass" /&gt;
@@ -313,7 +313,7 @@ $doc.display($field)
     : [[$services.rendering.escape($services.rendering.escape($calendarDoc.getDisplayTitle(), 'xwiki/2.1'), 'xwiki/2.1')&gt;&gt;$services.rendering.escape($calendarDoc.fullName, 'xwiki/2.1')]]
     #end
     ; &lt;label&gt;$escapetool.xml($doc.displayPrettyName('title', false, false))&lt;/label&gt;
-    : $escapetool.xml($eventInstance.getTitle())
+    : $services.rendering.escape($escapetool.xml($eventInstance.getTitle()), 'xwiki/2.1')
     ; &lt;label for="startDate"&gt;$escapetool.xml($doc.displayPrettyName('startDate', false, false))&lt;/label&gt;
     : #getDateFormat('startDate' $eventInstance.isAllDay() $format) $xwiki.jodatime.getDateTimeFormatterForPattern($format).print($eventInstance.getStartDate())
     ; &lt;label for="endDate"&gt;$escapetool.xml($doc.displayPrettyName('endDate', false, false))&lt;/label&gt;
@@ -326,7 +326,7 @@ $doc.display($field)
     ; &lt;label for="backgroundColor"&gt;$escapetool.xml($doc.displayPrettyName('backgroundColor', false, false))&lt;/label&gt;
     #set ($backgroundColor = $eventInstance.getBackgroundColor())
     #set ($isCalendarDefault = (($backgroundColor == $calendarDoc.getValue('color')) &amp;&amp; ($doc.getValue('backgroundColor') == '')) )
-    : &lt;div class="moccaevent" style="border-color:${escapetool.html($backgroundColor)}"&gt;
+    : &lt;div class="moccaevent" style="border-color:$services.rendering.escape($escapetool.xml($backgroundColor), 'xwiki/2.1')"&gt;
         &amp;#160;
         #if($isCalendarDefault)
           ($escapetool.xml($services.localization.render('MoccaCalendar.calendarevent.color.defaultValue')))
@@ -335,7 +335,7 @@ $doc.display($field)
     ; &lt;label for="textColor"&gt;$escapetool.xml($doc.displayPrettyName('textColor', false, false))&lt;/label&gt;
     #set ($textColor = $eventInstance.getTextColor())
     #set ($isCalendarDefault = (($textColor == $calendarDoc.getValue('textColor')) &amp;&amp; ($doc.getValue('textColor') == '')) )
-    : &lt;div class="moccaevent" style="border-color:${escapetool.html($textColor)}"&gt;
+    : &lt;div class="moccaevent" style="border-color:$services.rendering.escape($escapetool.xml($textColor), 'xwiki/2.1')"&gt;
         &amp;#160;
         #if($isCalendarDefault)
           ($escapetool.xml($services.localization.render('MoccaCalendar.calendarevent.color.defaultValue')))
@@ -355,22 +355,22 @@ $doc.display($field)
     &lt;dl&gt;
       &lt;dt&gt;&lt;label&gt;$escapetool.xml($services.localization.render('MoccaCalendar.MoccaCalendarEventClass_title'))&lt;/label&gt;
       &lt;/dt&gt;
-      &lt;dd&gt;$request.title&lt;/dd&gt;
+      &lt;dd&gt;$!escapetool.xml($request.title)&lt;/dd&gt;
       &lt;dt&gt;&lt;label
             for="startDate"&gt;$escapetool.xml($services.localization.render('MoccaCalendar.MoccaCalendarEventClass_startDate'))&lt;/label&gt;
       &lt;/dt&gt;
-      &lt;dd&gt;$request.start&lt;/dd&gt;
+      &lt;dd&gt;$!escapetool.xml($request.start)&lt;/dd&gt;
       &lt;dt&gt;&lt;label
             for="endDate"&gt;$escapetool.xml($services.localization.render('MoccaCalendar.MoccaCalendarEventClass_endDate'))&lt;/label&gt;
       &lt;/dt&gt;
-      &lt;dd&gt;$request.end&lt;/dd&gt;
+      &lt;dd&gt;$!escapetool.xml($request.end)&lt;/dd&gt;
       &lt;dt&gt;&lt;label
             for="allDay"&gt;$escapetool.xml($services.localization.render('MoccaCalendar.MoccaCalendarEventClass_allDay'))&lt;/label&gt;
       &lt;/dt&gt;
-      &lt;dd&gt;$request.allDay&lt;/dd&gt;
+      &lt;dd&gt;$!escapetool.xml($request.allDay)&lt;/dd&gt;
       &lt;dt&gt;&lt;label for="description"&gt;$escapetool.xml($services.localization.render('description'))&lt;/label&gt;&lt;/dt&gt;
       &lt;dd&gt;
-        $request.description
+        $!escapetool.xml($request.description)
       &lt;/dd&gt;
     &lt;/dl&gt;
     #end
@@ -386,7 +386,7 @@ $doc.display($field)
   #end
   )))
 #else
-  &lt;span&gt;$services.localization.render('MoccaCalendar.calendar.readonly')&lt;/span&gt;
+  &lt;span&gt;$services.rendering.escape($escapetool.xml($services.localization.render('MoccaCalendar.calendar.readonly')), 'xwiki/2.1')&lt;/span&gt;
 #end
 {{/html}}
 ## please do not add linebreaks here, or the "save"-button will jump if there are validation errors

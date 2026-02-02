@@ -60,14 +60,14 @@
   #set ($colorPickerParams = {
     'id': 'MoccaCalendar.MoccaCalendarSubscribeClass_0_color',
     'name': 'MoccaCalendar.MoccaCalendarSubscribeClass_0_color',
-    'value': $escapetool.xml($doc.getValue('color'))
+    'value': $services.rendering.escape($doc.getValue('color'), 'xwiki/2.1')
   })
   : #colorPicker($colorPickerParams)
   ; &lt;label for="MoccaCalendar.MoccaCalendarSubscribeClass_0_textColor"&gt;$escapetool.xml($doc.displayPrettyName('textColor', false, false))&lt;/label&gt;
   #set ($colorPickerParams = {
     'id': 'MoccaCalendar.MoccaCalendarSubscribeClass_0_textColor',
     'name': 'MoccaCalendar.MoccaCalendarSubscribeClass_0_textColor',
-    'value': $escapetool.xml($doc.getValue('textColor'))
+    'value': $services.rendering.escape($doc.getValue('textColor'), 'xwiki/2.1')
   })
   : #colorPicker($colorPickerParams)
 

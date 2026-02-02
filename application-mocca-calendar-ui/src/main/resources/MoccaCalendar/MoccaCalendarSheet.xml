@@ -55,24 +55,24 @@
   #set ($colorPickerParams = {
     'id': 'MoccaCalendar.MoccaCalendarClass_0_color',
     'name': 'MoccaCalendar.MoccaCalendarClass_0_color',
-    'value': $escapetool.xml($doc.getValue('color'))
+    'value': $services.rendering.escape($doc.getValue('color'), 'xwiki/2.1')
   })
   : #colorPicker($colorPickerParams)
   ; &lt;label for="MoccaCalendar.MoccaCalendarClass_0_textColor"&gt;$escapetool.xml($doc.displayPrettyName('textColor', false, false))&lt;/label&gt;
   #set ($colorPickerParams = {
     'id': 'MoccaCalendar.MoccaCalendarClass_0_textColor',
     'name': 'MoccaCalendar.MoccaCalendarClass_0_textColor',
-    'value': $escapetool.xml($doc.getValue('textColor'))
+    'value': $services.rendering.escape($doc.getValue('textColor'), 'xwiki/2.1')
   })
   : #colorPicker($colorPickerParams)
 #else
   ; &lt;label for="MoccaCalendar.MoccaCalendarClass_0_color"&gt;$escapetool.xml($doc.displayPrettyName('color', false, false))&lt;/label&gt;
-  : &lt;div class="moccaevent" style="border-color:${escapetool.html($doc.display('color'))}"&gt;&amp;#160;&lt;/div&gt;
+  : &lt;div class="moccaevent" style="border-color:$services.rendering.escape($escapetool.xml($doc.display('color')), 'xwiki/2.1')"&gt;&amp;#160;&lt;/div&gt;
   ; &lt;label for="MoccaCalendar.MoccaCalendarClass_0_textColor"&gt;$escapetool.xml($doc.displayPrettyName('textColor', false, false))&lt;/label&gt;
   #if($doc.getValue('textColor'))
-  : &lt;div class="moccaevent" style="border-color:${escapetool.html($doc.display('textColor'))}"&gt;&amp;#160;&lt;/div&gt;
+  : &lt;div class="moccaevent" style="border-color:$services.rendering.escape($escapetool.xml($doc.display('textColor')), 'xwiki/2.1')"&gt;&amp;#160;&lt;/div&gt;
   #else
-  : $services.localization.render('MoccaCalendar.MoccaCalendarClass.textColor.unset')
+  : $services.rendering.escape($escapetool.xml($services.localization.render('MoccaCalendar.MoccaCalendarClass.textColor.unset')), 'xwiki/2.1')
   #end
 #end
   ; &lt;label for="MoccaCalendar.MoccaCalendarClass_0_description"&gt;$escapetool.xml($doc.displayPrettyName('description', false, false))&lt;/label&gt;
@@ -85,7 +85,7 @@
   #set($sources = $services.moccacalendar.getAvailableSourceConfigurations())
   #if(!$sources.isEmpty())
     #foreach($sourceName in $sources.keySet())
-=== ${services.localization.render('moccacalendar.sources.config.label', [$stringtool.capitalize($sourceName)])} ===
+=== $services.rendering.escape($escapetool.xml($services.localization.render('moccacalendar.sources.config.label', [$stringtool.capitalize($sourceName)])), 'xwiki/2.1') ===
 
       #set($configClassRef = $sources.get($sourceName))
       #set($configClassName = $services.model.serialize($configClassRef, 'compactwiki'))
