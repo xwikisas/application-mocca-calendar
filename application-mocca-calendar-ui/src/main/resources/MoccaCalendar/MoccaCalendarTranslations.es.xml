@@ -51,7 +51,7 @@ MoccaCalendar.calendar.firstDayOfWeek=1
 
 MoccaCalendar.calendarevent.viewall=Todos los eventos
 MoccaCalendar.calendarevent.create=Crear un evento
-MoccaCalendar.calendarevent.backlink=Volver al calendario &amp;#171;{0}&amp;#187;
+MoccaCalendar.calendarevent.backlink=Volver al calendario «{0}»
 MoccaCalendar.calendarevent.confirmDelete=¿Estás seguro de querer borrar el evento {0} ?
 MoccaCalendar.calendarevent.view=Evento
 MoccaCalendar.calendarevent.confirmDelete.allEventsButton=Todas las instancias

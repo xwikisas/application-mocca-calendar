@@ -125,24 +125,32 @@
       <cache>long</cache>
     </property>
     <property>
-      <code>document.observe("dom:loaded", function() {
+      <code>define('mocca-calendar-datepicker-translations', {keys: [
+    'MoccaCalendar.calendar.firstDayOfWeek',
+    'xwiki.calendar.dayNamesShort',
+    'xwiki.calendar.monthNames',
+]});
 
-  Date.first_day_of_week = parseInt("$escapetool.javascript($services.localization.render('MoccaCalendar.calendar.firstDayOfWeek'))");
-  Date.weekdays = $services.localization.render('xwiki.calendar.dayNamesShort') ;
-  ## because the date picker, unlike the FullCalendar, expects our weekday names with the n-th day, not Sunday
-  for (var i=0; i&lt;Date.first_day_of_week; i++) {
-    Date.weekdays.push(Date.weekdays.shift());
-  }
+require(['xwiki-l10n!mocca-calendar-datepicker-translations'], function (l10n) {
+  document.observe("dom:loaded", function() {
 
-  Date.months = $services.localization.render('xwiki.calendar.monthNames') ;
+    Date.first_day_of_week = parseInt(l10n['MoccaCalendar.calendar.firstDayOfWeek']);
+    Date.weekdays = l10n['xwiki.calendar.dayNamesShort'];
+    ## because the date picker, unlike the FullCalendar, expects our weekday names with the n-th day, not Sunday
+    for (var i=0; i&lt;Date.first_day_of_week; i++) {
+      Date.weekdays.push(Date.weekdays.shift());
+    }
 
-  Date.prototype.getAMPMHour = function() {
-    var hour = this.getHours();
-    return hour;
-  }
-  Date.prototype.getAMPM = function() {
-    return "";
-  }
+    Date.months = l10n['xwiki.calendar.monthNames'];
+
+    Date.prototype.getAMPMHour = function() {
+      var hour = this.getHours();
+      return hour;
+    }
+    Date.prototype.getAMPM = function() {
+      return "";
+    }
+  });
 });</code>
     </property>
     <property>

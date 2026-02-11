@@ -51,7 +51,7 @@ MoccaCalendar.calendar.plainlist.noupcomingevents=Não há eventos programados e
 
 MoccaCalendar.calendarevent.viewall=Todos os eventos
 MoccaCalendar.calendarevent.create=Criar novo evento
-MoccaCalendar.calendarevent.backlink=Voltar ao calendário &amp;\#171;{0}&amp;\#187;
+MoccaCalendar.calendarevent.backlink=Voltar ao calendário «{0}»
 MoccaCalendar.calendarevent.confirmDelete=Você realmente deseja excluir o evento {0} ?
 MoccaCalendar.calendarevent.view=Evento
 ### Missing: MoccaCalendar.calendarevent.confirmDelete.allEventsButton=All Instances

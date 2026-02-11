@@ -71,7 +71,7 @@
   #set($dateprinter = $xwiki.jodatime.getDateTimeFormatterForPattern($format))
   #set($timeprinter = $xwiki.jodatime.getDateTimeFormatterForPattern($timeformat))
   #set($html = '&lt;div class="moccaevent" style="border-color:' + $color + '"&gt;')
-  #set($html = "${html}"+'&lt;h5&gt;&lt;a href="'+${eventDoc.getURL("view")}+'"&gt;' + $escapetool.html($event.getTitle()) + '&lt;/a&gt;&lt;/h5&gt;')
+  #set($html = "${html}"+'&lt;h5&gt;&lt;a href="'+${eventDoc.getURL("view")}+'"&gt;' + $escapetool.xml($event.getTitle()) + '&lt;/a&gt;&lt;/h5&gt;')
   ##
   ## you are in a maze of twisty little ifs, all different
   ##
@@ -123,8 +123,8 @@
 #foreach($event in $events)
   #set($itemdoc = $xwiki.getDocument($event.getEventDocRef()))
   #set($item = $itemdoc.getFullName())
-  #set($color = $escapetool.html($event.getBackgroundColor()))
-  #set($textColor = $escapetool.html($event.getTextColor()))
+  #set($color = $escapetool.xml($event.getBackgroundColor()))
+  #set($textColor = $escapetool.xml($event.getTextColor()))
   #set($allDay = $event.allDay)
   #set($startdate = $event.startDate)
   #set($enddateExclusive = $event.endDateExclusive)

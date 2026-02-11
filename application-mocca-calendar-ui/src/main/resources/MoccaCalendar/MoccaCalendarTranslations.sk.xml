@@ -51,7 +51,7 @@ MoccaCalendar.calendar.firstDayOfWeek=0
 
 MoccaCalendar.calendarevent.viewall=Všetky akcie
 MoccaCalendar.calendarevent.create=Vytvoriť novú udalosť
-MoccaCalendar.calendarevent.backlink=Späť na kalendár &amp;\#171;{0}&amp;\#187;
+MoccaCalendar.calendarevent.backlink=Späť na kalendár «{0}»
 MoccaCalendar.calendarevent.confirmDelete=Naozaj chcete odstrániť udalosť {0} ?
 MoccaCalendar.calendarevent.view=Udalosť
 ### Missing: MoccaCalendar.calendarevent.confirmDelete.allEventsButton=All Instances
