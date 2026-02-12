@@ -43,11 +43,11 @@
 #else
 #set ($discard = $xwiki.ssfx.use('uicomponents/pagination/pagination.css', true))
 
-== $services.rendering.escape($services.localization.render('MoccaCalendar.calendarevent.viewall'), 'xwiki/2.1') ==
+== $services.localization.render('MoccaCalendar.calendarevent.viewall') ==
 
 {{moccacalendar calendarDoc="MoccaCalendar.Events" filter="wiki"/}}
 
-== $services.rendering.escape($services.localization.render('MoccaCalendar.calendar.viewall'), 'xwiki/2.1') ==
+== $services.localization.render('MoccaCalendar.calendar.viewall') ==
 
 #if($hasCreatePage)
 {{html}}&lt;span class="buttonwrapper"&gt;&lt;a class="button" href="$doc.getURL('create','template=MoccaCalendar.MoccaCalendarTemplate')"&gt;$escapetool.xml($services.localization.render('MoccaCalendar.calendar.create'))&lt;/a&gt;&lt;/span&gt;
@@ -71,7 +71,7 @@
 #set ($columns = ['doc.title', 'doc.creator', '_actions'])
 #livetable('moccacalendar' $columns $columnsProperties $options)
 ----
-====== $services.rendering.escape($services.localization.render('MoccaCalendar.calendar.viewSubscribed'), 'xwiki/2.1') ======
+====== $escapetool.xml($services.localization.render('MoccaCalendar.calendar.viewSubscribed')) ======
 ## Subscribed calendars livedata
 {{liveData
   id="subscribedCalendars"

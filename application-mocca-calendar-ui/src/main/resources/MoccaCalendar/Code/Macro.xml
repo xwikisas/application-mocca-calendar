@@ -192,7 +192,7 @@ if (typeof(XWiki) == "undefined" || typeof(XWiki.widgets) == "undefined" || type
     if (this.errorNotification) {
        this.errorNotification.hide()
     }
-    this.errorNotification = new XWiki.widgets.Notification("$escapetool.javascript($services.localization.render('core.widgets.confirmationBox.notification.failed'))" + purify.sanitize(errorMessage), "error");
+    this.errorNotification = new XWiki.widgets.Notification("$escapetool.javascript($services.localization.render('core.widgets.confirmationBox.notification.failed'))" + errorMessage, "error");
   },
   showCreateEventFrom: function(start, end) {
     var allDay = !start.hasTime();
@@ -299,7 +299,7 @@ if (typeof(XWiki) == "undefined" || typeof(XWiki.widgets) == "undefined" || type
         },
         {
           verticalPosition: "top",
-          title : this.interactionParameters.editMode ? "$escapetool.javascript($escapetool.xml($services.localization.render('MoccaCalendar.calendarevent.create')))" : "$escapetool.javascript($escapetool.xml($services.localization.render('MoccaCalendar.calendarevent.view')))",
+          title : this.interactionParameters.editMode ? "$escapetool.javascript($services.localization.render('MoccaCalendar.calendarevent.create'))" : "$escapetool.javascript($services.localization.render('MoccaCalendar.calendarevent.view'))",
           removeOnClose : true,
           onClose : function() {
             removeColorPickers();
@@ -1683,11 +1683,11 @@ $xwiki.ssx.use("MoccaCalendar.Code.Macro", $parameterMap)
         &lt;div class="modal-header"&gt;
           &lt;button type="button" class="close" data-dismiss="modal"&gt;&amp;times;&lt;/button&gt;
           &lt;h4 class="modal-title"&gt;
-            $escapetool.xml($services.localization.render('moccacalendarevent.livetable._actions.delete'))
+            $services.localization.render('moccacalendarevent.livetable._actions.delete')
           &lt;/h4&gt;
         &lt;/div&gt;
         &lt;div class="modal-body"&gt;
-          &lt;div&gt;$escapetool.xml($services.localization.render('MoccaCalendar.calendarevent.confirmDelete'))&lt;/div&gt;
+          &lt;div&gt;$services.localization.render('MoccaCalendar.calendarevent.confirmDelete')&lt;/div&gt;
         &lt;/div&gt;
         &lt;div class="modal-footer"&gt;
           &lt;input type="button" class="btn btn-danger do-delete-all"
@@ -1769,8 +1769,8 @@ $xwiki.ssx.use("MoccaCalendar.Code.Macro", $parameterMap)
     &lt;input type="hidden" id="add-calendar-object" data-target="$escapetool.xml($services.rendering.escape($docRef, 'xwiki/2.1'))"&gt;
 
     {{info cssClass="add-calendar-object-container"}}
-      $services.rendering.escape($services.localization.render('rendering.macro.moccacalendar.addObject.description'), 'xwiki/2.1')
-      [[**$services.rendering.escape($services.rendering.escape($services.localization.render('rendering.macro.moccacalendar.addObject.button'), 'xwiki/2.1'), 'xwiki/2.1')**&gt;&gt;$services.rendering.escape($docRef, 'xwiki/2.1')]]
+      $escapetool.xml($services.localization.render('rendering.macro.moccacalendar.addObject.description'))
+      [[**$escapetool.xml($services.localization.render('rendering.macro.moccacalendar.addObject.button'))**&gt;&gt;$services.rendering.escape($docRef, 'xwiki/2.1')]]
     {{/info}}
   {{/html}}
 #end
@@ -1950,8 +1950,8 @@ require(['xwiki-meta', 'jquery', 'moment','purify', 'gcal', 'moccaCalendar'], fu
           title: purify.sanitize(calEvent.title),
           start: calEvent.start.format(dateFormat),
           end: calEvent.end ? calEvent.end.format(dateFormat) : null,
-          allDay: calEvent.allDay ? "$escapetool.javascript($services.localization.render('moccacalendar.subscribedevent.allday.yes'))" :
-                                    "$escapetool.javascript($services.localization.render('moccacalendar.subscribedevent.allday.no'))",
+          allDay: calEvent.allDay ? "$escapetool.xml($services.localization.render('moccacalendar.subscribedevent.allday.yes'))" :
+                                    "$escapetool.xml($services.localization.render('moccacalendar.subscribedevent.allday.no'))",
           description: purify.sanitize(calEvent.description),
           readOnly: 'true'
         };
@@ -1976,7 +1976,7 @@ require(['xwiki-meta', 'jquery', 'moment','purify', 'gcal', 'moccaCalendar'], fu
 #if($year!="")    year: $!escapetool.javascript($year),#end
 #if($month!="")   month: $!escapetool.javascript($month), #end
 #if($date!="")    date: $!escapetool.javascript($date), #end
-    firstDay: parseInt("$escapetool.javascript($firstDay)"),
+    firstDay: $escapetool.javascript($firstDay),
 #if($minTime!="")    minTime: "$!escapetool.javascript($minTime)", #end
 #if($maxTime!="")    maxTime: "$!escapetool.javascript($maxTime)", #end
     editable: #if($canCreateEvents) true #else false#end ,
@@ -2002,27 +2002,27 @@ require(['xwiki-meta', 'jquery', 'moment','purify', 'gcal', 'moccaCalendar'], fu
     timeFormat: "$escapetool.javascript($timeFormat)",
     views: {
       month : {
-        columnFormat: "$escapetool.javascript($!services.localization.render('xwiki.calendar.columnFormat.month'))",
-        titleFormat: "$escapetool.javascript($!services.localization.render('xwiki.calendar.titleFormat.month'))",
-        buttonText: "$escapetool.javascript($!services.localization.render('xwiki.calendar.button.month'))"
+        columnFormat: "$!services.localization.render('xwiki.calendar.columnFormat.month')",
+        titleFormat: "$!services.localization.render('xwiki.calendar.titleFormat.month')",
+        buttonText: "$!services.localization.render('xwiki.calendar.button.month')"
       },
       week : {
-        columnFormat: "$escapetool.javascript($!services.localization.render('xwiki.calendar.columnFormat.week'))",
-        titleFormat: "$escapetool.javascript($!services.localization.render('xwiki.calendar.titleFormat.week'))",
-        buttonText: "$escapetool.javascript($!services.localization.render('xwiki.calendar.button.week'))",
+        columnFormat: "$!services.localization.render('xwiki.calendar.columnFormat.week')",
+        titleFormat: "$!services.localization.render('xwiki.calendar.titleFormat.week')",
+        buttonText: "$!services.localization.render('xwiki.calendar.button.week')",
         slotLabelFormat: "$escapetool.javascript($timeFormat)"
       },
       day : {
-        columnFormat: "$escapetool.javascript($!services.localization.render('xwiki.calendar.columnFormat.day'))",
-        titleFormat: "$escapetool.javascript($!services.localization.render('xwiki.calendar.titleFormat.day'))",
-        buttonText: "$escapetool.javascript($!services.localization.render('xwiki.calendar.button.day'))",
+        columnFormat: "$!services.localization.render('xwiki.calendar.columnFormat.day')",
+        titleFormat: "$!services.localization.render('xwiki.calendar.titleFormat.day')",
+        buttonText: "$!services.localization.render('xwiki.calendar.button.day')",
         slotLabelFormat: "$escapetool.javascript($timeFormat)"
       },
       today: {
-        buttonText: "$escapetool.javascript($!services.localization.render('xwiki.calendar.button.today'))"
+        buttonText: "$!services.localization.render('xwiki.calendar.button.today')"
       },
       plainList: {
-        buttonText: "$escapetool.javascript($!services.localization.render('xwiki.calendar.button.plainList'))"
+        buttonText: "$!services.localization.render('xwiki.calendar.button.plainList')"
       }
     }
   });
