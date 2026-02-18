@@ -396,7 +396,12 @@ if (typeof(XWiki) == "undefined" || typeof(XWiki.widgets) == "undefined" || type
        // ask the JSONService to create an unused event name for us
        new Ajax.Request( this.helper.newPageNameUrl, {
         method: 'get',
-        parameters: { 'outputSyntax': 'plain', 'newEvent' : name, 'parent': $F($("calendarParent")) },
+        parameters: {
+          'outputSyntax': 'plain',
+          'newEvent' : name,
+          'parent': $F($("calendarParent")),
+          'transformations': 'macro'
+        },
         onSuccess: function(response) {
           try {
             var error = (response.responseJSON) ? response.responseJSON['error'] : "$escapetool.javascript($services.localization.render('MoccaCalendar.generic.errormessage'))";
@@ -1882,7 +1887,8 @@ require(['xwiki-meta', 'jquery', 'moment','purify', 'gcal', 'moccaCalendar'], fu
     startfield: "startDate",
     endfield: "endDate",
     durationfield: "",
-    form_token: xwikiMeta.form_token
+    form_token: xwikiMeta.form_token,
+    transformations: 'macro'
   };
 
   // page is now ready, initialize the calendar...
