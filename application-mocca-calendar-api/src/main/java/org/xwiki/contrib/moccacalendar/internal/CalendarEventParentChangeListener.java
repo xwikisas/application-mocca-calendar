@@ -120,7 +120,8 @@ public class CalendarEventParentChangeListener implements EventListener
         //
         try {
             DocumentReference targetReference = newDocumentLocation(doc, context);
-            doc.rename(targetReference, context);
+            context.getWiki()
+                .renameDocument(doc.getDocumentReference(), targetReference, true, List.of(), List.of(), context);
             logger.debug("renamed document [{}] to [{}]", doc.getOriginalDocument().getDocumentReference(),
                 doc.getDocumentReference());
         } catch (XWikiException e) {
