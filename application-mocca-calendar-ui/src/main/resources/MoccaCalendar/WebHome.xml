@@ -71,7 +71,7 @@
 #set ($columns = ['doc.title', 'doc.creator', '_actions'])
 #livetable('moccacalendar' $columns $columnsProperties $options)
 ----
-====== $escapetool.xml($services.localization.render('MoccaCalendar.calendar.viewSubscribed')) ======
+=== $escapetool.xml($services.localization.render('MoccaCalendar.calendar.viewSubscribed')) ===
 ## Subscribed calendars livedata
 {{liveData
   id="subscribedCalendars"
