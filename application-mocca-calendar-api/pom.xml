@@ -137,6 +137,16 @@
                 </exclude>
               </archives>
             </revapi.filter>
+            <revapi.differences>
+              <differences>
+                <item>
+                  <ignore>true</ignore>
+                  <code>java.method.addedToInterface</code>
+                  <new>method javax.ws.rs.core.Response org.xwiki.contrib.moccacalendar.rest.MoccaCalendarResource::getICalContent(java.lang.String) throws org.xwiki.rest.XWikiRestException</new>
+                  <justification>Endpoint added as part of the `Release iCal Export Pro application #100` fix.</justification>
+                </item>
+              </differences>
+            </revapi.differences>
           </analysisConfiguration>
         </configuration>
       </plugin>

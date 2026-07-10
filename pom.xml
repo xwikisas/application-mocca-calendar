@@ -37,7 +37,6 @@
     <module>application-mocca-calendar-api</module>
     <module>application-mocca-calendar-ui</module>
     <module>application-mocca-calendar-xip</module>
-    <module>application-mocca-calendar-ical</module>
   </modules>
   <issueManagement>
     <system>GitHub</system>

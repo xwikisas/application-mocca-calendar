@@ -20,9 +20,9 @@
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
 -->
 
-<xwikidoc version="1.5" reference="MoccaiCalendar.Service" locale="">
-  <web>MoccaiCalendar</web>
-  <name>Service</name>
+<xwikidoc version="1.5" reference="MoccaCalendar.Code.ExportService" locale="">
+  <web>MoccaCalendar.Code</web>
+  <name>ExportService</name>
   <language/>
   <defaultLanguage/>
   <translation>0</translation>
@@ -38,7 +38,7 @@
   <hidden>true</hidden>
   <content/>
   <object>
-    <name>MoccaiCalendar.Service</name>
+    <name>MoccaCalendar.Code.ExportService</name>
     <number>0</number>
     <className>XWiki.JavaScriptExtension</className>
     <guid>b73b73aa-ff91-43eb-a2aa-11496abf803a</guid>
@@ -122,7 +122,7 @@
       </use>
     </class>
     <property>
-      <cache>long</cache>
+      <cache>default</cache>
     </property>
     <property>
       <code>require(['jquery', 'xwiki-events-bridge'], function($) {
@@ -182,93 +182,10 @@
       <name>iCalendar button injector</name>
     </property>
     <property>
-      <parse>1</parse>
+      <parse>0</parse>
     </property>
     <property>
-      <use>always</use>
-    </property>
-  </object>
-  <object>
-    <name>MoccaiCalendar.Service</name>
-    <number>0</number>
-    <className>XWiki.XWikiRights</className>
-    <guid>ca556de5-ec5f-443a-9b7a-52ba053a7343</guid>
-    <class>
-      <name>XWiki.XWikiRights</name>
-      <customClass/>
-      <customMapping/>
-      <defaultViewSheet/>
-      <defaultEditSheet/>
-      <defaultWeb/>
-      <nameField/>
-      <validationScript/>
-      <allow>
-        <defaultValue>1</defaultValue>
-        <disabled>0</disabled>
-        <displayFormType>select</displayFormType>
-        <displayType>allow</displayType>
-        <name>allow</name>
-        <number>4</number>
-        <prettyName>Allow/Deny</prettyName>
-        <unmodifiable>0</unmodifiable>
-        <classType>com.xpn.xwiki.objects.classes.BooleanClass</classType>
-      </allow>
-      <groups>
-        <cache>0</cache>
-        <disabled>0</disabled>
-        <displayType>input</displayType>
-        <multiSelect>1</multiSelect>
-        <name>groups</name>
-        <number>1</number>
-        <picker>1</picker>
-        <prettyName>Groups</prettyName>
-        <relationalStorage>0</relationalStorage>
-        <separator> </separator>
-        <size>5</size>
-        <unmodifiable>0</unmodifiable>
-        <classType>com.xpn.xwiki.objects.classes.GroupsClass</classType>
-      </groups>
-      <levels>
-        <cache>0</cache>
-        <disabled>0</disabled>
-        <displayType>select</displayType>
-        <multiSelect>1</multiSelect>
-        <name>levels</name>
-        <number>2</number>
-        <prettyName>Levels</prettyName>
-        <relationalStorage>0</relationalStorage>
-        <separator> </separator>
-        <size>3</size>
-        <unmodifiable>0</unmodifiable>
-        <classType>com.xpn.xwiki.objects.classes.LevelsClass</classType>
-      </levels>
-      <users>
-        <cache>0</cache>
-        <disabled>0</disabled>
-        <displayType>input</displayType>
-        <multiSelect>1</multiSelect>
-        <name>users</name>
-        <number>3</number>
-        <picker>1</picker>
-        <prettyName>Users</prettyName>
-        <relationalStorage>0</relationalStorage>
-        <separator> </separator>
-        <size>5</size>
-        <unmodifiable>0</unmodifiable>
-        <classType>com.xpn.xwiki.objects.classes.UsersClass</classType>
-      </users>
-    </class>
-    <property>
-      <allow>1</allow>
-    </property>
-    <property>
-      <groups/>
-    </property>
-    <property>
-      <levels>view</levels>
-    </property>
-    <property>
-      <users>XWiki.XWikiGuest</users>
+      <use>currentPage</use>
     </property>
   </object>
 </xwikidoc>

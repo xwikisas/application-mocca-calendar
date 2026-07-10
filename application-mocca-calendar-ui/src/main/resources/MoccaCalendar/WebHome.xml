@@ -42,6 +42,7 @@
   {{missingLicenseMessage extensionName="moccacalendar.extension.name"/}}
 #else
 #set ($discard = $xwiki.ssfx.use('uicomponents/pagination/pagination.css', true))
+#set ($discard = $xwiki.jsx.use('MoccaCalendar.Code.ExportService'))
 
 == $services.localization.render('MoccaCalendar.calendarevent.viewall') ==
 
