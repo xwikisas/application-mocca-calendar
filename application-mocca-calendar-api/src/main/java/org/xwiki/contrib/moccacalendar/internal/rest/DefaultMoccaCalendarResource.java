@@ -94,13 +94,13 @@ public class DefaultMoccaCalendarResource extends ModifiablePageResource impleme
     }
 
     @Override
-    public Response getICalContent(String calendarRefernce) throws XWikiRestException
+    public Response getICalContent(String calendarReference) throws XWikiRestException
     {
         try {
             ByteArrayOutputStream buffer = new ByteArrayOutputStream();
-            this.iCalGenerator.generateCalendar(calendarRefernce, buffer);
+            this.iCalGenerator.generateCalendar(calendarReference, buffer);
             return Response.ok(buffer.toByteArray()).type("text/calendar")
-                .header("Content-Disposition", "attachment; filename=\"" + calendarRefernce + ".ics\"").build();
+                .header("Content-Disposition", "attachment; filename=\"" + calendarReference + ".ics\"").build();
         } catch (AccessDeniedException e) {
             this.logger.warn("Failed to get files due to restricted rights.", e);
             throw new WebApplicationException(Response.Status.UNAUTHORIZED);

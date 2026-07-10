@@ -54,7 +54,7 @@ public interface MoccaCalendarResource
     /**
      * Get the iCal content of a given calendar.
      *
-     * @param calendarRefernce the given calendar for which to generate the ics file
+     * @param calendarReference the given calendar for which to generate the ics file
      * @return code 200 with the ics file calendar content. Return HTTP status code 404 if the calendar does not exist
      *     or if the given name is invalid, code 401 if the current user lacks the view rights on the given calendar,
      *     and code 500 if any error occurs
@@ -64,5 +64,5 @@ public interface MoccaCalendarResource
     @GET
     @Path("/ical")
     @Unstable
-    Response getICalContent(@QueryParam("calendar") String calendarRefernce) throws XWikiRestException;
+    Response getICalContent(@QueryParam("calendar") String calendarReference) throws XWikiRestException;
 }
