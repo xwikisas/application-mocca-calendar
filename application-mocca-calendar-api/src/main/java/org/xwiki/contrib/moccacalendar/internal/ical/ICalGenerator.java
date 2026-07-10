@@ -61,9 +61,6 @@ import java.util.List;
 @Component(roles = ICalGenerator.class)
 public class ICalGenerator
 {
-
-    private static final String SPACE_NAME = "MoccaCalendar";
-
     private static final String PROD_ID = "-//XWiki//iCal4j 1.0//EN";
 
     @Inject

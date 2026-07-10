@@ -54,7 +54,7 @@ import java.util.Optional;
 @Singleton
 public class ICalEventGenerator
 {
-    private static final String HOST_NAME = "atelier-medias.org";
+    private static final String UID_HOST_INFO_NAME = "atelier-medias.org";
 
     @Inject
     private Logger logger;
@@ -91,8 +91,8 @@ public class ICalEventGenerator
         VEvent event = initializeEvent(eventData, eventDocument.getTitle());
         addEventDescription(event, eventData, eventDocument);
         addEventRecurrence(eventDocument, event);
-        UidGenerator ug =
-            new FixedUidGenerator(new SimpleHostInfo(HOST_NAME), eventDocument.getDocumentReference().toString());
+        UidGenerator ug = new FixedUidGenerator(new SimpleHostInfo(UID_HOST_INFO_NAME),
+            eventDocument.getDocumentReference().toString());
         event.add(ug.generateUid());
         return event;
     }
