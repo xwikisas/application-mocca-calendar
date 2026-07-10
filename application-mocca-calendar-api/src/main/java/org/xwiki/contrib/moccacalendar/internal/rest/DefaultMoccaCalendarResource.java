@@ -19,6 +19,8 @@
  */
 package org.xwiki.contrib.moccacalendar.internal.rest;
 
+import java.io.ByteArrayOutputStream;
+import java.io.FileNotFoundException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -33,11 +35,14 @@ import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.slf4j.Logger;
 import org.xwiki.component.annotation.Component;
 import org.xwiki.contrib.moccacalendar.importJob.ImportJobRequest;
+import org.xwiki.contrib.moccacalendar.internal.ical.ICalGenerator;
 import org.xwiki.contrib.moccacalendar.internal.importJob.ImportJob;
 import org.xwiki.contrib.moccacalendar.rest.MoccaCalendarResource;
 import org.xwiki.job.Job;
 import org.xwiki.job.JobExecutor;
+import org.xwiki.rest.XWikiRestException;
 import org.xwiki.rest.internal.resources.pages.ModifiablePageResource;
+import org.xwiki.security.authorization.AccessDeniedException;
 import org.xwiki.stability.Unstable;
 
 import com.xpn.xwiki.XWikiContext;
@@ -60,11 +65,14 @@ public class DefaultMoccaCalendarResource extends ModifiablePageResource impleme
     @Inject
     private JobExecutor jobExecutor;
 
+    @Inject
+    private ICalGenerator iCalGenerator;
+
     @Override
     public Response importCalendarFile(String parentCalendar, byte[] file)
     {
         try {
-            XWikiContext wikiContext = xcontextProvider.get();
+            XWikiContext wikiContext = this.xcontextProvider.get();
             List<String> jobId = new ArrayList<>();
             jobId.add("moccacalendar");
             jobId.add("import");
@@ -79,7 +87,28 @@ public class DefaultMoccaCalendarResource extends ModifiablePageResource impleme
                 return Response.notModified().type(MediaType.TEXT_PLAIN_TYPE).build();
             }
         } catch (Exception e) {
-            logger.warn("Failed to import .ics file data. Root cause: [{}]", ExceptionUtils.getRootCauseMessage(e));
+            this.logger.warn("Failed to import .ics file data. Root cause: [{}]",
+                ExceptionUtils.getRootCauseMessage(e));
+            throw new WebApplicationException(Response.Status.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    @Override
+    public Response getICalContent(String calendar) throws XWikiRestException
+    {
+        try {
+            ByteArrayOutputStream buffer = new ByteArrayOutputStream();
+            this.iCalGenerator.generateCalendar(calendar, buffer);
+            return Response.ok(buffer.toByteArray()).type("text/calendar")
+                .header("Content-Disposition", "attachment; filename=\"" + calendar + ".ics\"").build();
+        } catch (AccessDeniedException e) {
+            this.logger.warn("Failed to get files due to restricted rights.", e);
+            throw new WebApplicationException(Response.Status.UNAUTHORIZED);
+        } catch (FileNotFoundException e) {
+            this.logger.warn("Failed to look up the given calendar.", e);
+            throw new WebApplicationException(Response.Status.NOT_FOUND);
+        } catch (Exception e) {
+            this.logger.error("Failed to generate .ics file. Root cause: [{}]", ExceptionUtils.getRootCauseMessage(e));
             throw new WebApplicationException(Response.Status.INTERNAL_SERVER_ERROR);
         }
     }
