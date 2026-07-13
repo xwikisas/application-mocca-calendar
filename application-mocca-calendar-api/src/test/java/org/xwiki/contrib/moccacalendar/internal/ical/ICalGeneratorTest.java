@@ -35,6 +35,7 @@ import org.xwiki.model.reference.DocumentReferenceResolver;
 import org.xwiki.query.Query;
 import org.xwiki.query.QueryFilter;
 import org.xwiki.query.QueryManager;
+import org.xwiki.rendering.syntax.Syntax;
 import org.xwiki.security.authorization.AccessDeniedException;
 import org.xwiki.security.authorization.ContextualAuthorizationManager;
 import org.xwiki.security.authorization.Right;
@@ -153,7 +154,7 @@ class ICalGeneratorTest
         when(this.context.getWiki()).thenReturn(this.wiki);
         when(this.referenceResolver.resolve(CALENDAR_REFERENCE)).thenReturn(this.calendarRef);
         mockDocument(this.calendarDoc, this.calendarRef);
-        when(this.calendarDoc.getTitle()).thenReturn(CALENDAR_TITLE);
+        when(this.calendarDoc.getRenderedTitle(Syntax.PLAIN_1_0, this.context)).thenReturn(CALENDAR_TITLE);
         mockDocument(this.eventDoc1, this.eventRef1);
         mockDocument(this.eventDoc2, this.eventRef2);
         mockDocument(this.eventDoc3, this.eventRef3);

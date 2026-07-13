@@ -209,7 +209,7 @@ public class ICalRecurrenceGeneratorTest
     @Test
     void customWeeklyRecurrenceDays()
     {
-        setupRecurrence("customweekly", null);
+        setupRecurrence("customWeekly", null);
         when(this.recData.getListValue("days")).thenReturn(List.of("2", "4", "6"));
         Optional<RRule> rule = this.recurrenceGenerator.getRecurrenceRule(this.eventDoc);
         assertTrue(rule.isPresent());
@@ -219,7 +219,7 @@ public class ICalRecurrenceGeneratorTest
     @Test
     void customWeeklyRecurrenceNoDays() throws Exception
     {
-        setupRecurrence("customweekly", null);
+        setupRecurrence("customWeekly", null);
         when(this.recData.getListValue("days")).thenReturn(new ArrayList<>());
         Optional<RRule> rule = this.recurrenceGenerator.getRecurrenceRule(this.eventDoc);
         assertTrue(rule.isPresent());

@@ -37,6 +37,7 @@ import org.xwiki.query.Query;
 import org.xwiki.query.QueryException;
 import org.xwiki.query.QueryFilter;
 import org.xwiki.query.QueryManager;
+import org.xwiki.rendering.syntax.Syntax;
 import org.xwiki.security.authorization.AccessDeniedException;
 import org.xwiki.security.authorization.ContextualAuthorizationManager;
 import org.xwiki.security.authorization.Right;
@@ -124,7 +125,8 @@ public class ICalGenerator
         calendar.add(new ProdId(PROD_ID));
         calendar.add(ImmutableVersion.VERSION_2_0);
         calendar.add(ImmutableCalScale.GREGORIAN);
-        calendar.add(new XProperty("X-WR-CALNAME", calendarDocument.getTitle()));
+        calendar.add(new XProperty("X-WR-CALNAME", calendarDocument.getRenderedTitle(Syntax.PLAIN_1_0,
+            this.xcontextProvider.get())));
         return calendar;
     }
 

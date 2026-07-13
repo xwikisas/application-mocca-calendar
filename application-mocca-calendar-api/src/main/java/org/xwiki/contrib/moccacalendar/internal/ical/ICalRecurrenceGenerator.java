@@ -58,7 +58,7 @@ public class ICalRecurrenceGenerator
 {
     private static final String FREQ_WEEKLY = "FREQ=WEEKLY";
 
-    private static final String FREQ_CUSTOM = "customweekly";
+    private static final String FREQ_KEY_CUSTOM = "customWeekly";
 
     private static final String FREQ_MONTHLY = "FREQ=MONTHLY";
 
@@ -77,7 +77,7 @@ public class ICalRecurrenceGenerator
         FREQUENCY_MAP.put("monthly", List.of(FREQ_MONTHLY));
         FREQUENCY_MAP.put("quarterly", List.of(FREQ_MONTHLY, "INTERVAL=3"));
         FREQUENCY_MAP.put("yearly", List.of("FREQ=YEARLY"));
-        FREQUENCY_MAP.put(FREQ_CUSTOM, List.of(FREQ_WEEKLY));
+        FREQUENCY_MAP.put(FREQ_KEY_CUSTOM, List.of(FREQ_WEEKLY));
     }
 
     static {
@@ -141,7 +141,7 @@ public class ICalRecurrenceGenerator
             this.logger.warn("Unknown recurrence frequency [{}].", frequency);
             return "";
         }
-        if (FREQ_CUSTOM.equals(frequency)) {
+        if (FREQ_KEY_CUSTOM.equals(frequency)) {
             addCustomWeeklyDays(rruleParts, recurrencyObj);
         }
 
