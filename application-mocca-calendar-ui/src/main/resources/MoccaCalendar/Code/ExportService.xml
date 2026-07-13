@@ -145,13 +145,16 @@
   var addiCalAction = function(data) {
     // Extend the Actions column with the iCal link.
     var calendarURL = icalURL + '?calendar=' + encodeURIComponent(data.data.doc_fullName);
-    var iCalAction = $(
-      '&lt;a class="action actionical"&gt;' +
+    var actionsRow = $(data.row).find('.actions');
+    if (!actionsRow.find('.actionical').length) {
+      var iCalAction = $(
+        '&lt;a class="action actionical"&gt;' +
         '&lt;span class="action-icon" title="iCal"&gt;&lt;/span&gt;' +
         '&lt;span class="action-label"&gt;iCal&lt;/span&gt;' +
-      '&lt;/a&gt;'
-    ).attr('href', calendarURL).appendTo($(data.row).find('.actions'));
-    iCalAction.find('.action-icon').append(iCalIcon.clone());
+        '&lt;/a&gt;'
+      ).attr('href', calendarURL).appendTo(actionsRow);
+      iCalAction.find('.action-icon').append(iCalIcon.clone());
+    }
   };
 
   var maybeAddiCalAction = function() {
