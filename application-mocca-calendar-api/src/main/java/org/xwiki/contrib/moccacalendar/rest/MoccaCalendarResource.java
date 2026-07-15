@@ -19,13 +19,14 @@
  */
 package org.xwiki.contrib.moccacalendar.rest;
 
+import org.xwiki.rest.XWikiRestException;
+import org.xwiki.stability.Unstable;
+
+import javax.ws.rs.GET;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.Response;
-
-import org.xwiki.rest.XWikiRestException;
-import org.xwiki.stability.Unstable;
 
 /**
  * Provides the APIs needed by the Mocca Calendar server in order to import an ical file.
@@ -39,8 +40,9 @@ public interface MoccaCalendarResource
 {
     /**
      * Import a given ical file and create a job that handles the event processing.
+     *
      * @param parentCalendar the calendar for which the events are created.
-     * @param file the file to be processed.
+     * @param file           the file to be processed.
      * @return HTML status code 202 to hint that the file had been accepted and the job started.
      * @throws XWikiRestException if an error occurred while creating the job.
      */
@@ -48,4 +50,19 @@ public interface MoccaCalendarResource
     @Path("/import")
     Response importCalendarFile(@QueryParam("parentCalendar") String parentCalendar, byte[] file)
         throws XWikiRestException;
+
+    /**
+     * Get the iCal content of a given calendar.
+     *
+     * @param calendarReference the given calendar for which to generate the ics file
+     * @return code 200 with the ics file calendar content. Return HTTP status code 404 if the calendar does not exist
+     *     or if the given name is invalid, code 401 if the current user lacks the view rights on the given calendar,
+     *     and code 500 if any error occurs
+     * @throws XWikiRestException if an error occurred during the ics file generation
+     * @since 2.20
+     */
+    @GET
+    @Path("/ical")
+    @Unstable
+    Response getICalContent(@QueryParam("calendar") String calendarReference) throws XWikiRestException;
 }
