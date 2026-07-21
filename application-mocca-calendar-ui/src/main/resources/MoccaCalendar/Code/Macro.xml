@@ -236,7 +236,7 @@ if (typeof(XWiki) == "undefined" || typeof(XWiki.widgets) == "undefined" || type
       savingBox.hide();
       this.displayError();
       if (revertFunc) revertFunc();
-    }.bind(this)).success(function (data) {
+    }.bind(this)).done(function (data) {
       if (data.success) {
         savingBox.hide();
         savedBox.show();
