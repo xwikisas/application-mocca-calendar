@@ -117,6 +117,21 @@ $doc.validate()
       <validationRegExp/>
       <classType>com.xpn.xwiki.objects.classes.BooleanClass</classType>
     </recurrent>
+    <showAuthor>
+      <customDisplay/>
+      <defaultValue>0</defaultValue>
+      <disabled>0</disabled>
+      <displayFormType>checkbox</displayFormType>
+      <displayType/>
+      <hint/>
+      <name>showAuthor</name>
+      <number>9</number>
+      <prettyName>Display Author</prettyName>
+      <unmodifiable>0</unmodifiable>
+      <validationMessage/>
+      <validationRegExp/>
+      <classType>com.xpn.xwiki.objects.classes.BooleanClass</classType>
+    </showAuthor>
     <startDate>
       <customDisplay/>
       <dateFormat>yyyy/MM/dd HH:mm</dateFormat>

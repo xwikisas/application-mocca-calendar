@@ -75,6 +75,8 @@
   : $services.localization.render('MoccaCalendar.MoccaCalendarClass.textColor.unset')
   #end
 #end
+  ; &lt;label for="MoccaCalendar.MoccaCalendarClass_0_showAuthor"&gt;$escapetool.xml($doc.displayPrettyName('showAuthor', false, false))&lt;/label&gt;
+  : $doc.display('showAuthor')
   ; &lt;label for="MoccaCalendar.MoccaCalendarClass_0_description"&gt;$escapetool.xml($doc.displayPrettyName('description', false, false))&lt;/label&gt;
   : $doc.display('description')
 #if(!${myEdit})
