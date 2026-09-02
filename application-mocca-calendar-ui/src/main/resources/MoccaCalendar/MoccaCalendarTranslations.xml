@@ -62,6 +62,7 @@ MoccaCalendar.calendarevent.confirmDelete=Do you really want to delete the event
 MoccaCalendar.calendarevent.view=Event
 MoccaCalendar.calendarevent.confirmDelete.allEventsButton=All Instances
 MoccaCalendar.calendarevent.color.defaultValue=Calendar Default
+MoccaCalendar.calendarevent.author=Author
 MoccaCalendar.generic.errormessage=Internal Server Error
 
 # Import ical file

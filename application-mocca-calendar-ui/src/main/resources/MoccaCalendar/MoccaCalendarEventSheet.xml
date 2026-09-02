@@ -330,6 +330,16 @@ $doc.display($field)
     : $doc.display('allDay')
     ; &lt;label for="description"&gt;$escapetool.xml($doc.displayPrettyName('description', false, false))&lt;/label&gt;
     : $eventInstance.getDescriptionHtml()
+    ; &lt;label for="showAuthor"&gt;$escapetool.xml($doc.displayPrettyName('showAuthor', false, false))&lt;/label&gt;
+    : $doc.display('showAuthor')
+    #if($doc.getValue('showAuthor') == 1)
+      #set($authorName = "$!xwiki.getPlainUserName($doc.creatorReference)")
+      #if($authorName == '')
+        #set($authorName = "$!xwiki.getPlainUserName($doc.authorReference)")
+      #end
+      ; &lt;label for="author"&gt;$escapetool.xml($services.localization.render('MoccaCalendar.calendarevent.author'))&lt;/label&gt;
+      : $escapetool.xml($authorName)
+    #end
     ; &lt;label for="backgroundColor"&gt;$escapetool.xml($doc.displayPrettyName('backgroundColor', false, false))&lt;/label&gt;
     #set ($backgroundColor = $eventInstance.getBackgroundColor())
     #set ($isCalendarDefault = (($backgroundColor == $calendarDoc.getValue('color')) &amp;&amp; ($doc.getValue('backgroundColor') == '')) )
