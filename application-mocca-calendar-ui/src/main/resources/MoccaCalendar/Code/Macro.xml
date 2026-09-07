@@ -2008,6 +2008,8 @@ require(['xwiki-meta', 'jquery', 'moment','purify', 'gcal', 'moccaCalendar'], fu
     eventResize: function(event, delta, revertFunc, jsEvent, ui, view) {
       calendarHelper.updateEvent(event.id, true, delta, event.start, event.end, revertFunc);
     },
+    // FullCalendar renders only the standard event fields, so the "author" value sent by the JSON service has to
+    // be placed in the DOM here, under the title.
     eventRender: function(event, element, view) {
       if (!event.author) {
         return;

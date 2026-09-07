@@ -92,7 +92,8 @@
   #end
   #set($html = "${html}" + '&lt;/p&gt;')
   #if("$!{resultMap.get('author')}" != '')
-    #set($html = "${html}" + '&lt;p class="mocca-event-author"&gt;' + $escapetool.html($resultMap.get('author')) + '&lt;/p&gt;')
+    #set($authorHtml = '&amp;lt;p class="mocca-event-author"&amp;gt;' + $escapetool.xml($resultMap.get('author')) + '&amp;lt;/p&amp;gt;')
+    #set($html = "${html}" + $authorHtml)
   #end
   #set($html = "${html}"  + $event.getDescriptionHtml() )
   #set($html = "${html}&lt;/div&gt;")

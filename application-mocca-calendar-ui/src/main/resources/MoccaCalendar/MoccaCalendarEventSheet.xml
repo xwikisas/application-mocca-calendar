@@ -214,7 +214,7 @@ $doc.display($field)
     : $doc.display('allDay')
     ; &lt;label for="${editPrefix}_description"&gt;$escapetool.xml($doc.displayPrettyName('description', false, false))&lt;/label&gt;
     : $doc.display('description')
-    ; &lt;label for="${editPrefix}_showAuthor"&gt;$escapetool.xml($doc.displayPrettyName('showAuthor', false, false))&lt;/label&gt;
+    ; &lt;label for="${editPrefix}_showAuthor"&gt;$services.rendering.escape($escapetool.xml($doc.displayPrettyName('showAuthor', false, false)), 'xwiki/2.1')&lt;/label&gt;
     : $doc.display('showAuthor')
     ; &lt;label for="${editPrefix}_backgroundColor"&gt;$escapetool.xml($doc.displayPrettyName('backgroundColor', false, false))&lt;/label&gt;
     #set ($colorPickerParams = {
@@ -330,15 +330,16 @@ $doc.display($field)
     : $doc.display('allDay')
     ; &lt;label for="description"&gt;$escapetool.xml($doc.displayPrettyName('description', false, false))&lt;/label&gt;
     : $eventInstance.getDescriptionHtml()
-    ; &lt;label for="showAuthor"&gt;$escapetool.xml($doc.displayPrettyName('showAuthor', false, false))&lt;/label&gt;
+    ; &lt;label for="showAuthor"&gt;$services.rendering.escape($escapetool.xml($doc.displayPrettyName('showAuthor', false, false)), 'xwiki/2.1')&lt;/label&gt;
     : $doc.display('showAuthor')
     #if($doc.getValue('showAuthor') == 1)
       #set($authorName = "$!xwiki.getPlainUserName($doc.creatorReference)")
       #if($authorName == '')
         #set($authorName = "$!xwiki.getPlainUserName($doc.authorReference)")
       #end
-      ; &lt;label for="author"&gt;$escapetool.xml($services.localization.render('MoccaCalendar.calendarevent.author'))&lt;/label&gt;
-      : $escapetool.xml($authorName)
+      #set($authorLabel = $services.localization.render('MoccaCalendar.calendarevent.author'))
+      ; &lt;label for="author"&gt;$services.rendering.escape($escapetool.xml($authorLabel), 'xwiki/2.1')&lt;/label&gt;
+      : $services.rendering.escape($escapetool.xml($authorName), 'xwiki/2.1')
     #end
     ; &lt;label for="backgroundColor"&gt;$escapetool.xml($doc.displayPrettyName('backgroundColor', false, false))&lt;/label&gt;
     #set ($backgroundColor = $eventInstance.getBackgroundColor())
