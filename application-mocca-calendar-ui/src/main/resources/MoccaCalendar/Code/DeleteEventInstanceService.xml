@@ -38,7 +38,6 @@
   <hidden>true</hidden>
   <content>{{velocity wiki="false"}}
 #if($xcontext.action == 'get')
-  #set($discard = $response.setContentType('application/json'))
   #set($result = {})
   #set($pageRef = $request.get('event'))
   #set($startDateStr = $request.get('instanceStart'))
@@ -51,7 +50,7 @@
   #else
     #set($discard = $result.put('error',$services.localization.render('moccacalendar.delete.startDateInvalid')))
   #end
-  $jsontool.serialize($result)
+  #jsonResponse($result)
 #else
   Service page to delete a single instance on a recurrent event
 #end

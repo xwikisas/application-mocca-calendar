@@ -48,33 +48,45 @@
 (% class='xform' %)
 (((
 #if($myEdit)
-  ; &lt;label for="MoccaCalendar.MoccaCalendarSubscribeClass_0_title"&gt;$escapetool.xml($doc.displayPrettyName('title', false, false))&lt;/label&gt;
+  ; &lt;label for="MoccaCalendar.MoccaCalendarSubscribeClass_0_title"&gt;
+    $services.rendering.escape($escapetool.xml($doc.displayPrettyName('title', false, false)), 'xwiki/2.1')&lt;/label&gt;
   : $doc.display('title')
-  ; &lt;label for="MoccaCalendar.MoccaCalendarSubscribeClass_0_iCal"&gt;$escapetool.xml($doc.displayPrettyName('iCal', false, false))&lt;/label&gt;
+  ; &lt;label for="MoccaCalendar.MoccaCalendarSubscribeClass_0_iCal"&gt;
+    $services.rendering.escape($escapetool.xml($doc.displayPrettyName('iCal', false, false)), 'xwiki/2.1')&lt;/label&gt;
   : $doc.display('iCal')
-  ; &lt;label for="MoccaCalendar.MoccaCalendarSubscribeClass_0_gCal"&gt;$escapetool.xml($doc.displayPrettyName('gCal', false, false))&lt;/label&gt;
+  ; &lt;label for="MoccaCalendar.MoccaCalendarSubscribeClass_0_gCal"&gt;
+    $services.rendering.escape($escapetool.xml($doc.displayPrettyName('gCal', false, false)), 'xwiki/2.1')&lt;/label&gt;
   : $doc.display('gCal')
-  ; &lt;label for="MoccaCalendar.MoccaCalendarSubscribeClass_0_gApiKey"&gt;$escapetool.xml($doc.displayPrettyName('gApiKey', false, false))&lt;/label&gt;
+  ; &lt;label for="MoccaCalendar.MoccaCalendarSubscribeClass_0_gApiKey"&gt;
+    $services.rendering.escape($escapetool.xml($doc.displayPrettyName('gApiKey', false, false)), 'xwiki/2.1')&lt;/label&gt;
   : $doc.display('gApiKey')
-  ; &lt;label for="MoccaCalendar.MoccaCalendarSubscribeClass_0_color"&gt;$escapetool.xml($doc.displayPrettyName('color', false, false))&lt;/label&gt;
+  ; &lt;label for="MoccaCalendar.MoccaCalendarSubscribeClass_0_color"&gt;
+    $services.rendering.escape($escapetool.xml($doc.displayPrettyName('color', false, false)), 'xwiki/2.1')&lt;/label&gt;
+  ## Since we're in a html macro with wiki="true", we need an additional escape for the xwiki syntax.
+  ## The colorPicker already handles xml escapes.
   #set ($colorPickerParams = {
     'id': 'MoccaCalendar.MoccaCalendarSubscribeClass_0_color',
     'name': 'MoccaCalendar.MoccaCalendarSubscribeClass_0_color',
-    'value': $escapetool.xml($doc.getValue('color'))
+    'value': $services.rendering.escape($doc.getValue('color'), 'xwiki/2.1')
   })
   : #colorPicker($colorPickerParams)
-  ; &lt;label for="MoccaCalendar.MoccaCalendarSubscribeClass_0_textColor"&gt;$escapetool.xml($doc.displayPrettyName('textColor', false, false))&lt;/label&gt;
+  ; &lt;label for="MoccaCalendar.MoccaCalendarSubscribeClass_0_textColor"&gt;
+    $services.rendering.escape($escapetool.xml($doc.displayPrettyName('textColor', false, false)), 'xwiki/2.1')&lt;/label&gt;
+  ## Since we're in a html macro with wiki="true", we need an additional escape for the xwiki syntax.
+  ## The colorPicker already handles xml escapes.
   #set ($colorPickerParams = {
     'id': 'MoccaCalendar.MoccaCalendarSubscribeClass_0_textColor',
     'name': 'MoccaCalendar.MoccaCalendarSubscribeClass_0_textColor',
-    'value': $escapetool.xml($doc.getValue('textColor'))
+    'value': $services.rendering.escape($doc.getValue('textColor'), 'xwiki/2.1')
   })
   : #colorPicker($colorPickerParams)
 
 #end
-  ; &lt;label for="MoccaCalendar.MoccaCalendarSubscribeClass_0_globalDsiplay"&gt;$escapetool.xml($doc.displayPrettyName('globalDisplay', false, false))&lt;/label&gt;
+  ; &lt;label for="MoccaCalendar.MoccaCalendarSubscribeClass_0_globalDsiplay"&gt;
+    $services.rendering.escape($escapetool.xml($doc.displayPrettyName('globalDisplay', false, false)), 'xwiki/2.1')&lt;/label&gt;
   : $doc.display('globalDisplay')
-  ; &lt;label for="MoccaCalendar.MoccaCalendarSubscribeClass_0_description"&gt;  $escapetool.xml($doc.displayPrettyName('description', false, false))&lt;/label&gt;
+  ; &lt;label for="MoccaCalendar.MoccaCalendarSubscribeClass_0_description"&gt;
+    $services.rendering.escape($escapetool.xml($doc.displayPrettyName('description', false, false)), 'xwiki/2.1')&lt;/label&gt;
   : $doc.display('description')
 #if(!${myEdit})
   : $doc.display('content1')

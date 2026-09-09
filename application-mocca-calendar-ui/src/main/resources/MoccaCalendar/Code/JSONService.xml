@@ -36,12 +36,7 @@
   <minorEdit>false</minorEdit>
   <syntaxId>xwiki/2.1</syntaxId>
   <hidden>true</hidden>
-  <content>{{velocity output="false"}}
-#if("$!{request.outputSyntax}" == 'plain')
-  $response.setContentType('application/json')
-#end
-{{/velocity}}
-{{velocity filter="html" wiki="false"}}
+  <content>{{velocity filter='html' wiki='false'}}
 #if($xcontext.action == 'get' &amp;&amp; $services.csrf.isTokenValid($request.form_token))
 ##
 ## macro "renderAgendaView"
@@ -71,7 +66,7 @@
   #set($dateprinter = $xwiki.jodatime.getDateTimeFormatterForPattern($format))
   #set($timeprinter = $xwiki.jodatime.getDateTimeFormatterForPattern($timeformat))
   #set($html = '&lt;div class="moccaevent" style="border-color:' + $color + '"&gt;')
-  #set($html = "${html}"+'&lt;h5&gt;&lt;a href="'+${eventDoc.getURL("view")}+'"&gt;' + $escapetool.html($event.getTitle()) + '&lt;/a&gt;&lt;/h5&gt;')
+  #set($html = "${html}"+'&lt;h5&gt;&lt;a href="'+${eventDoc.getURL("view")}+'"&gt;' + $escapetool.xml($event.getTitle()) + '&lt;/a&gt;&lt;/h5&gt;')
   ##
   ## you are in a maze of twisty little ifs, all different
   ##
@@ -82,7 +77,7 @@
     #else
        #set($html = $html + $dateprinter.print($startDate) + ' - ' + $dateprinter.print($endDate))
     #end
-    #set($html = $html + ' ' + $services.localization.render('xwiki.calendar.allDayText'))
+    #set($html = $html + ' ' + $escapetool.xml($services.localization.render('xwiki.calendar.allDayText')))
   #else
     #if($sameDay)
       #set($html = $html + $dateprinter.print($startDate) + ' - ' + $timeprinter.print($endDate))
@@ -127,8 +122,8 @@
 #foreach($event in $events)
   #set($itemdoc = $xwiki.getDocument($event.getEventDocRef()))
   #set($item = $itemdoc.getFullName())
-  #set($color = $escapetool.html($event.getBackgroundColor()))
-  #set($textColor = $escapetool.html($event.getTextColor()))
+  #set($color = $escapetool.xml($event.getBackgroundColor()))
+  #set($textColor = $escapetool.xml($event.getTextColor()))
   #set($allDay = $event.allDay)
   #set($startdate = $event.startDate)
   #set($enddateExclusive = $event.endDateExclusive)
@@ -149,7 +144,23 @@
   ## FIXME: this is currently unsupported; all events are considered movable, and the UpdateService creates error messages for those who are not.
   #set($canMove = $canEdit &amp;&amp; $event.isMovable())
   #set($canDelete = $xwiki.hasAccessLevel("delete", $xcontext.getUser(), $item))
-  #set($eventMap = {"id" : $services.model.serialize($event.getEventDocRef(),'compact'), "title" : $event.getTitle(), "url" : $itemdoc.getURL('view',"$modalViewExtraParam"), 'viewUrl' : $itemdoc.getURL('view',"$extraParam"), "editUrl" : $itemdoc.getURL('edit',"$modalViewExtraParam"), "saveUrl" : $itemdoc.getURL('save',"$extraParam"),  "deleteUrl" : $itemdoc.getURL('delete',"$extraParam"), "canEdit": $canEdit, "canDelete": $canDelete, 'canMove' : $canMove, "start" : $jsondateformat.print($startdate), "end" : $jsondateformat.print($enddateExclusive), "allDay" : $allDay, "color" : $color, "recurrent" : $event.isRecurrent() })
+  #set($eventMap = {
+    'id' : $services.model.serialize($event.getEventDocRef(),'compact'),
+    'title' : $event.getTitle(),
+    'url' : $itemdoc.getURL('view',"$modalViewExtraParam"),
+    'viewUrl' : $itemdoc.getURL('view',"$extraParam"),
+    'editUrl' : $itemdoc.getURL('edit',"$modalViewExtraParam"),
+    'saveUrl' : $itemdoc.getURL('save',"$extraParam"),
+    'deleteUrl' : $itemdoc.getURL('delete',"$extraParam"),
+    'canEdit': $canEdit,
+    'canDelete': $canDelete,
+    'canMove' : $canMove,
+    'start' : $jsondateformat.print($startdate),
+    'end' : $jsondateformat.print($enddateExclusive),
+    'allDay' : $allDay,
+    'color' : $color,
+    'recurrent' : $event.isRecurrent()
+  })
   #if("$textColor" != "")
     #set($discard = $eventMap.put("textColor", $textColor))
   #end
@@ -165,11 +176,11 @@
   #end
   ### the new fullcalendar.io caches entries when switching views, so we send the html view in every case
   ###if("$!{request.outputView}"=="plainList")
-  #renderAgendaView($event $itemdoc $eventMap)
+  #renderAgendaView($event, $itemdoc, $eventMap)
   ###end
   #set($discard = $results.add($eventMap))
 #end
-$jsontool.serialize($results)
+#jsonResponse($results)
 #else
 Service Page for the Mocca Calendar Application
 #end ## end of #if($xcontext.action == 'get')
