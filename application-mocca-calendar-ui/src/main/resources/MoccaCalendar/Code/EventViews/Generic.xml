@@ -53,23 +53,26 @@
 #set($event = $services.moccacalendar.getEventInstance($doc, null, $request.getParameter('eventSource')))
 #if(!$event)
 {{html wiki="false"}}
-$services.localization.render('moccacalendar.sheets.generic.noevent',  ["&lt;a class='wikilink' href='$escapetool.xml($doc.getURL())'&gt;", '&lt;/a&gt;'])
+#set ($escapedMessage = $escapetool.xml($services.localization.render('moccacalendar.sheets.generic.noevent',
+    ['__LINKSTART__', '__LINKEND__'])).replace('__LINKSTART__', 
+    "&lt;a class='wikilink' href='${doc.getURL()}'&gt;").replace('__LINKEND__', '&lt;/a&gt;'))
+$escapedMessage
 {{/html}}
 #else
 #getDateFormat($event.isAllDay() $format)
 #set($dateprinter = $xwiki.jodatime.getDateTimeFormatterForPattern($format))
-=== $services.rendering.escape($event.getTitle(), $doc.getSyntax()) ==
+=== $services.rendering.escape($event.getTitle(), $doc.getSyntax()) ===
 
-; $services.localization.render('MoccaCalendar.MoccaCalendarEventClass_startDate')
+; {{translation key="MoccaCalendar.MoccaCalendarEventClass_startDate"/}}
 : $dateprinter.print($event.getStartDate())
-; $services.localization.render('MoccaCalendar.MoccaCalendarEventClass_endDate')
+; {{translation key="MoccaCalendar.MoccaCalendarEventClass_endDate"/}}
 : $dateprinter.print($event.getEndDate())
-; $services.localization.render('MoccaCalendar.MoccaCalendarEventClass_description')
+; {{translation key="MoccaCalendar.MoccaCalendarEventClass_description"/}}
 : $services.rendering.escape($event.getDescription(), $doc.getSyntax())
-; $services.localization.render('MoccaCalendar.MoccaCalendarEventClass_backgroundColor')
-: $services.rendering.escape($event.getBackgroundColor(), $doc.getSyntax())
-; $services.localization.render('MoccaCalendar.MoccaCalendarEventClass_textColor')
-: $services.rendering.escape($event.getTextColor(), $doc.getSyntax())
+; {{translation key="MoccaCalendar.MoccaCalendarEventClass_backgroundColor"/}}
+: $!{services.rendering.escape($event.getBackgroundColor(), $doc.getSyntax())}
+; {{translation key="MoccaCalendar.MoccaCalendarEventClass_textColor"/}}
+: $!{services.rendering.escape($event.getTextColor(), $doc.getSyntax())}
 #end
 {{/velocity}}</content>
 </xwikidoc>
