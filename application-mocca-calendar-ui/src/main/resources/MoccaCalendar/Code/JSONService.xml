@@ -91,6 +91,10 @@
     #end
   #end
   #set($html = "${html}" + '&lt;/p&gt;')
+  #if("$!{resultMap.get('author')}" != '')
+    #set($authorHtml = '&lt;p class="mocca-event-author"&gt;' + $escapetool.xml($resultMap.get('author')) + '&lt;/p&gt;')
+    #set($html = "${html}" + $authorHtml)
+  #end
   #set($html = "${html}"  + $event.getDescriptionHtml() )
   #set($html = "${html}&lt;/div&gt;")
   #set($discard = $resultMap.put("html", $html))
@@ -148,6 +152,16 @@
   #set($eventMap = {"id" : $services.model.serialize($event.getEventDocRef(),'compact'), "title" : $event.getTitle(), "url" : $itemdoc.getURL('view',"$modalViewExtraParam"), 'viewUrl' : $itemdoc.getURL('view',"$extraParam"), "editUrl" : $itemdoc.getURL('edit',"$modalViewExtraParam"), "saveUrl" : $itemdoc.getURL('save',"$extraParam"),  "deleteUrl" : $itemdoc.getURL('delete',"$extraParam"), "canEdit": $canEdit, "canDelete": $canDelete, 'canMove' : $canMove, "start" : $jsondateformat.print($startdate), "end" : $jsondateformat.print($enddateExclusive), "allDay" : $allDay, "color" : $color, "recurrent" : $event.isRecurrent() })
   #if("$textColor" != "")
     #set($discard = $eventMap.put("textColor", $textColor))
+  #end
+  #set($eventObj = $itemdoc.getObject('MoccaCalendar.MoccaCalendarEventClass'))
+  #if($eventObj &amp;&amp; $eventObj.getValue('showAuthor') == 1)
+    #set($authorName = "$!xwiki.getPlainUserName($itemdoc.creatorReference)")
+    #if($authorName == '')
+      #set($authorName = "$!xwiki.getPlainUserName($itemdoc.authorReference)")
+    #end
+    #if($authorName != '')
+      #set($discard = $eventMap.put("author", $authorName))
+    #end
   #end
   ### the new fullcalendar.io caches entries when switching views, so we send the html view in every case
   ###if("$!{request.outputView}"=="plainList")

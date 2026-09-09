@@ -1182,6 +1182,16 @@ require(['jquery', 'xwiki-meta', 'xwiki-job-runner', 'xwiki-l10n!mocca-calendar-
 div.calendar_date_select {
   z-index: 1010;
 }
+.mocca-event-author {
+  display: block;
+  font-size: 0.85em;
+  opacity: 0.8;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.mocca-has-author .fc-content {
+  white-space: normal;
+}
 div.moccaevent {
   border-style:solid;
   border-width:0 0 0 5px;
@@ -1997,6 +2007,19 @@ require(['xwiki-meta', 'jquery', 'moment','purify', 'gcal', 'moccaCalendar'], fu
     },
     eventResize: function(event, delta, revertFunc, jsEvent, ui, view) {
       calendarHelper.updateEvent(event.id, true, delta, event.start, event.end, revertFunc);
+    },
+    // FullCalendar renders only the standard event fields, so the "author" value sent by the JSON service has to
+    // be placed in the DOM here, under the title.
+    eventRender: function(event, element, view) {
+      if (!event.author) {
+        return;
+      }
+      var title = element.find('.fc-title').first();
+      if (title.length === 0) {
+        return;
+      }
+      element.addClass('mocca-has-author');
+      title.after(jQuery('&lt;div&gt;&lt;/div&gt;').addClass('mocca-event-author').text(event.author));
     },
     aspectRatio:1.8,
     monthNames: $services.localization.render('xwiki.calendar.monthNames'),

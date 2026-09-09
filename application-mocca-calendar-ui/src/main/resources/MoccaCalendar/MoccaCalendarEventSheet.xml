@@ -91,6 +91,11 @@ $doc.display($field)
   #set($backToCalendarDoc = $calendarDoc)
 #end
 #set($discard = $doc.use($eventClass))
+#set($showAuthorParam = "${eventClass}_0_showAuthor")
+#set($eventObj = $doc.getObject($eventClass))
+#if($doc.isNew() &amp;&amp; $calendar &amp;&amp; $eventObj &amp;&amp; "$!request.getParameter($showAuthorParam)" == '')
+  #set($discard = $eventObj.set('showAuthor', $calendar.getValue('showAuthor')))
+#end
 #set($isRecurrent = ($doc.getValue('recurrent') == 1))
 #set($instanceStartStr = "$!{request.get('instanceStart')}")
 #if($isRecurrent &amp;&amp; "$instanceStartStr" != "")
@@ -209,6 +214,8 @@ $doc.display($field)
     : $doc.display('allDay')
     ; &lt;label for="${editPrefix}_description"&gt;$escapetool.xml($doc.displayPrettyName('description', false, false))&lt;/label&gt;
     : $doc.display('description')
+    ; &lt;label for="${editPrefix}_showAuthor"&gt;$services.rendering.escape($escapetool.xml($doc.displayPrettyName('showAuthor', false, false)), 'xwiki/2.1')&lt;/label&gt;
+    : $doc.display('showAuthor')
     ; &lt;label for="${editPrefix}_backgroundColor"&gt;$escapetool.xml($doc.displayPrettyName('backgroundColor', false, false))&lt;/label&gt;
     #set ($colorPickerParams = {
       'id': "${editPrefix}_backgroundColor",
@@ -323,6 +330,17 @@ $doc.display($field)
     : $doc.display('allDay')
     ; &lt;label for="description"&gt;$escapetool.xml($doc.displayPrettyName('description', false, false))&lt;/label&gt;
     : $eventInstance.getDescriptionHtml()
+    ; &lt;label for="showAuthor"&gt;$services.rendering.escape($escapetool.xml($doc.displayPrettyName('showAuthor', false, false)), 'xwiki/2.1')&lt;/label&gt;
+    : $doc.display('showAuthor')
+    #if($doc.getValue('showAuthor') == 1)
+      #set($authorName = "$!xwiki.getPlainUserName($doc.creatorReference)")
+      #if($authorName == '')
+        #set($authorName = "$!xwiki.getPlainUserName($doc.authorReference)")
+      #end
+      #set($authorLabel = $services.localization.render('MoccaCalendar.calendarevent.author'))
+      ; &lt;label for="author"&gt;$services.rendering.escape($escapetool.xml($authorLabel), 'xwiki/2.1')&lt;/label&gt;
+      : $services.rendering.escape($escapetool.xml($authorName), 'xwiki/2.1')
+    #end
     ; &lt;label for="backgroundColor"&gt;$escapetool.xml($doc.displayPrettyName('backgroundColor', false, false))&lt;/label&gt;
     #set ($backgroundColor = $eventInstance.getBackgroundColor())
     #set ($isCalendarDefault = (($backgroundColor == $calendarDoc.getValue('color')) &amp;&amp; ($doc.getValue('backgroundColor') == '')) )

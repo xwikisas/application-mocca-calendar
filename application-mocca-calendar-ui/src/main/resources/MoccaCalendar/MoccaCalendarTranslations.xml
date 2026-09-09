@@ -62,6 +62,7 @@ MoccaCalendar.calendarevent.confirmDelete=Do you really want to delete the event
 MoccaCalendar.calendarevent.view=Event
 MoccaCalendar.calendarevent.confirmDelete.allEventsButton=All Instances
 MoccaCalendar.calendarevent.color.defaultValue=Calendar Default
+MoccaCalendar.calendarevent.author=Author
 MoccaCalendar.generic.errormessage=Internal Server Error
 
 # Import ical file
@@ -86,6 +87,7 @@ MoccaCalendar.MoccaCalendarClass_textColor=Text color of entries in the calendar
 MoccaCalendar.MoccaCalendarClass_description=Description
 MoccaCalendar.MoccaCalendarClass_content1=Content
 MoccaCalendar.MoccaCalendarClass.textColor.unset=(white)
+MoccaCalendar.MoccaCalendarClass_showAuthor=Display the event author
 
 # Subscribe class fields
 MoccaCalendar.MoccaCalendarSubscribeClass_title=Title
@@ -135,6 +137,7 @@ MoccaCalendar.MoccaCalendarEventClass_backgroundColor=Background color
 MoccaCalendar.MoccaCalendarEventClass_textColor=Text color
 MoccaCalendar.MoccaCalendarEventClass_allDay=All day
 MoccaCalendar.MoccaCalendarEventClass_recurrent=Recurrent
+MoccaCalendar.MoccaCalendarEventClass_showAuthor=Display the event author
 
 # Calendar Source Configuration Class fields
 MoccaCalendar.Code.DefaultEventSourceConfigClass.source={0} as Events
