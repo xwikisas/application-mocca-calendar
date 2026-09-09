@@ -1830,11 +1830,11 @@ $xwiki.ssx.use("MoccaCalendar.Code.Macro", $parameterMap)
     #set ($class = $document.getObject('MoccaCalendar.MoccaCalendarSubscribeClass'))
     #if ($class.getValue('globalDisplay') == '1')
       #set ($discard =  $properties.add({
-      'iCal': $class.getValue('iCal'),
-      'gCal': $class.getValue('gCal'),
-      'gApiKey': $class.getValue('gApiKey'),
-      'color': $class.getValue('color'),
-      'textColor': $class.getValue('textColor')
+      'iCal': $escapetool.xml($class.getValue('iCal')),
+      'gCal': $escapetool.xml($class.getValue('gCal')),
+      'gApiKey': $escapetool.xml($class.getValue('gApiKey')),
+      'color': $escapetool.xml($class.getValue('color')),
+      'textColor': $escapetool.xml($class.getValue('textColor'))
       }))
     #end
   #end
