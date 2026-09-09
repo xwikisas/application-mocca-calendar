@@ -142,7 +142,8 @@ public class CalendarEventImporter
     {
         // Sanitize the given HTML content and convert it to XWiki syntax prior to adding it to the given object field.
         // This is done in order to offer the user a less technical way to edit the content.
-        String cleanHTMLContent = Jsoup.clean(htmlContent, Safelist.basic());
+        String htmlContentWithBreaks = htmlContent.replace("\n", "<br>");
+        String cleanHTMLContent = Jsoup.clean(htmlContentWithBreaks, Safelist.basic());
         String convertedContent = htmlConverter.fromHTML(cleanHTMLContent, Syntax.XWIKI_2_1.toIdString());
 
         eventObj.set(property, convertedContent, wikiContextProvider.get());

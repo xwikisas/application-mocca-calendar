@@ -28,6 +28,8 @@ import net.fortuna.ical4j.model.property.RRule;
 import net.fortuna.ical4j.util.FixedUidGenerator;
 import net.fortuna.ical4j.util.SimpleHostInfo;
 import net.fortuna.ical4j.util.UidGenerator;
+
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.xwiki.component.annotation.Component;
 import org.xwiki.contrib.moccacalendar.internal.EventConstants;
@@ -89,7 +91,7 @@ public class ICalEventGenerator
             return null;
         }
         VEvent event = initializeEvent(eventData, eventDocument.getTitle());
-        addEventDescription(event, eventData, eventDocument);
+        addEventDescription(event, eventData);
         addEventRecurrence(eventDocument, event);
         UidGenerator ug = new FixedUidGenerator(new SimpleHostInfo(UID_HOST_INFO_NAME),
             eventDocument.getDocumentReference().toString());
@@ -132,15 +134,12 @@ public class ICalEventGenerator
         return event;
     }
 
-    private void addEventDescription(VEvent event, BaseObject eventData, XWikiDocument eventDocument)
+    private void addEventDescription(VEvent event, BaseObject eventData)
     {
         String propertyDescription = eventData.getStringValue(EventConstants.PROPERTY_DESCRIPTION_NAME);
-        if (propertyDescription != null) {
+        if (!StringUtils.isBlank(propertyDescription)) {
             // Normalize line endings: \n to \r\n (iCal requires \r\n)
-            XWikiContext wikiContext = this.xcontextProvider.get();
-            propertyDescription = propertyDescription.replaceAll("([^\r])\\n", "$1\r\n");
-            String description = propertyDescription + "\r\n\r\n" + eventDocument.getExternalURL("view", wikiContext);
-            event.add(new Description(description));
+            event.add(new Description(propertyDescription.replaceAll("([^\r])\\n", "$1\r\n")));
         }
     }
 }
