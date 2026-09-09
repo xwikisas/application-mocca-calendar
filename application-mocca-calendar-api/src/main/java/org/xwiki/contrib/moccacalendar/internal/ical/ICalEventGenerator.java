@@ -19,15 +19,15 @@
  */
 package org.xwiki.contrib.moccacalendar.internal.ical;
 
-import com.xpn.xwiki.XWikiContext;
-import com.xpn.xwiki.doc.XWikiDocument;
-import com.xpn.xwiki.objects.BaseObject;
-import net.fortuna.ical4j.model.component.VEvent;
-import net.fortuna.ical4j.model.property.Description;
-import net.fortuna.ical4j.model.property.RRule;
-import net.fortuna.ical4j.util.FixedUidGenerator;
-import net.fortuna.ical4j.util.SimpleHostInfo;
-import net.fortuna.ical4j.util.UidGenerator;
+import java.time.Instant;
+import java.time.LocalDate;
+import java.time.ZoneId;
+import java.util.Date;
+import java.util.Optional;
+
+import javax.inject.Inject;
+import javax.inject.Named;
+import javax.inject.Singleton;
 
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
@@ -36,15 +36,18 @@ import org.xwiki.contrib.moccacalendar.internal.EventConstants;
 import org.xwiki.model.reference.DocumentReference;
 import org.xwiki.model.reference.DocumentReferenceResolver;
 
-import javax.inject.Inject;
-import javax.inject.Named;
-import javax.inject.Provider;
-import javax.inject.Singleton;
-import java.time.Instant;
-import java.time.LocalDate;
-import java.time.ZoneId;
-import java.util.Date;
-import java.util.Optional;
+import com.xpn.xwiki.doc.XWikiDocument;
+import com.xpn.xwiki.objects.BaseObject;
+
+import net.fortuna.ical4j.model.ParameterList;
+import net.fortuna.ical4j.model.component.VEvent;
+import net.fortuna.ical4j.model.property.Color;
+import net.fortuna.ical4j.model.property.Description;
+import net.fortuna.ical4j.model.property.RRule;
+import net.fortuna.ical4j.model.property.XProperty;
+import net.fortuna.ical4j.util.FixedUidGenerator;
+import net.fortuna.ical4j.util.SimpleHostInfo;
+import net.fortuna.ical4j.util.UidGenerator;
 
 /**
  * Generates a {@link VEvent} based on the given XWikiDocument.
@@ -68,9 +71,6 @@ public class ICalEventGenerator
     @Inject
     private ICalRecurrenceGenerator recurrenceGenerator;
 
-    @Inject
-    private Provider<XWikiContext> xcontextProvider;
-
     /**
      * Creates a VEvent from the given event document.
      *
@@ -92,6 +92,8 @@ public class ICalEventGenerator
         }
         VEvent event = initializeEvent(eventData, eventDocument.getTitle());
         addEventDescription(event, eventData);
+        addEventColors(event, eventData);
+        addShowAuthor(event, eventData);
         addEventRecurrence(eventDocument, event);
         UidGenerator ug = new FixedUidGenerator(new SimpleHostInfo(UID_HOST_INFO_NAME),
             eventDocument.getDocumentReference().toString());
@@ -140,6 +142,27 @@ public class ICalEventGenerator
         if (!StringUtils.isBlank(propertyDescription)) {
             // Normalize line endings: \n to \r\n (iCal requires \r\n)
             event.add(new Description(propertyDescription.replaceAll("([^\r])\\n", "$1\r\n")));
+        }
+    }
+
+    private void addEventColors(VEvent event, BaseObject eventData)
+    {
+        String backgroundColor = eventData.getStringValue(EventConstants.PROPERTY_BACKGROUNDCOLOR_NAME);
+        String textColor = eventData.getStringValue(EventConstants.PROPERTY_TEXTCOLOR_NAME);
+
+        if (!StringUtils.isBlank(backgroundColor)) {
+            event.add(new Color(new ParameterList(), backgroundColor));
+        }
+        if (!StringUtils.isBlank(textColor)) {
+            event.add(new XProperty("X-MOCCA-TEXT-COLOR", textColor));
+        }
+    }
+
+    private void addShowAuthor(VEvent event, BaseObject eventData)
+    {
+        String showAuthor = eventData.getStringValue(EventConstants.PROPERTY_SHOW_AUTHOR);
+        if (!StringUtils.isBlank(showAuthor)) {
+            event.add(new XProperty("X-MOCCA-SHOW-AUTHOR", showAuthor));
         }
     }
 }

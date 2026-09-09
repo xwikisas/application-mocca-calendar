@@ -23,12 +23,14 @@ import java.time.LocalDateTime;
 import java.time.ZoneOffset;
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
 
 import javax.inject.Inject;
 import javax.inject.Named;
 import javax.inject.Provider;
 import javax.inject.Singleton;
 
+import org.apache.commons.lang3.StringUtils;
 import org.jsoup.Jsoup;
 import org.jsoup.safety.Safelist;
 import org.xwiki.component.annotation.Component;
@@ -61,6 +63,11 @@ public class CalendarEventImporter
 {
     private static final String NEW_EVENT_HOME = "WebHome";
 
+    private static final Map<String, String> PROPERTIES_MAP = Map.of(
+        "X-MOCCA-TEXT-COLOR", EventConstants.PROPERTY_TEXTCOLOR_NAME,
+        "X-MOCCA-SHOW-AUTHOR", EventConstants.PROPERTY_SHOW_AUTHOR
+        );
+
     @Inject
     private HTMLConverter htmlConverter;
 
@@ -85,9 +92,7 @@ public class CalendarEventImporter
             documentReferenceResolver.resolve(EventConstants.MOCCA_CALENDAR_EVENT_CLASS_NAME);
         BaseObject eventObj = eventDoc.newXObject(eventClassRef, wikiContext);
 
-        addConvertedPropertyToObject(component.getDescription(), eventObj, EventConstants.PROPERTY_DESCRIPTION_NAME);
-        addConvertedPropertyToObject(component.getTitle(), eventObj, EventConstants.PROPERTY_TITLE_NAME);
-
+        setBasicProperties(component, eventObj);
         int allDay = component.isAllDay() ? 1 : 0;
         eventObj.set(EventConstants.PROPERTY_ALLDAY_NAME, allDay, wikiContext);
         if (allDay == 1) {
@@ -138,15 +143,37 @@ public class CalendarEventImporter
         return eventDoc;
     }
 
+    private void setBasicProperties(CalendarEvent component, BaseObject eventObj)
+    {
+        addConvertedPropertyToObject(component.getDescription(), eventObj, EventConstants.PROPERTY_DESCRIPTION_NAME);
+        addConvertedPropertyToObject(component.getTitle(), eventObj, EventConstants.PROPERTY_TITLE_NAME);
+        addConvertedPropertyToObject(component.getColor(), eventObj, EventConstants.PROPERTY_BACKGROUNDCOLOR_NAME);
+        setMetadataProperties(component.getMeta(), eventObj);
+    }
+
     private void addConvertedPropertyToObject(String htmlContent, BaseObject eventObj, String property)
     {
         // Sanitize the given HTML content and convert it to XWiki syntax prior to adding it to the given object field.
         // This is done in order to offer the user a less technical way to edit the content.
-        String htmlContentWithBreaks = htmlContent.replace("\n", "<br>");
-        String cleanHTMLContent = Jsoup.clean(htmlContentWithBreaks, Safelist.basic());
-        String convertedContent = htmlConverter.fromHTML(cleanHTMLContent, Syntax.XWIKI_2_1.toIdString());
+        if (!StringUtils.isBlank(htmlContent)) {
+            String htmlContentWithBreaks = htmlContent.replace("\n", "<br>");
+            String cleanHTMLContent = Jsoup.clean(htmlContentWithBreaks, Safelist.basic());
+            String convertedContent = this.htmlConverter.fromHTML(cleanHTMLContent, Syntax.XWIKI_2_1.toIdString());
+            eventObj.set(property, convertedContent, this.wikiContextProvider.get());
+        }
+    }
 
-        eventObj.set(property, convertedContent, wikiContextProvider.get());
+    private void setMetadataProperties(Map<String, Object> meta, BaseObject eventObj)
+    {
+        if (meta == null) {
+            return;
+        }
+
+        for (Map.Entry<String, Object> entry : meta.entrySet()) {
+            if (PROPERTIES_MAP.containsKey(entry.getKey())) {
+                addConvertedPropertyToObject(entry.getValue().toString(), eventObj, PROPERTIES_MAP.get(entry.getKey()));
+            }
+        }
     }
 
     private void setRecurrence(XWikiDocument eventDoc, CalendarEvent component) throws XWikiException
