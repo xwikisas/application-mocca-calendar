@@ -70,6 +70,8 @@ public final class EventConstants
     public static final String PROPERTY_FREQUENCY_NAME = "frequency";
     /** the name of the start date property for event deletion objects. */
     public static final String PROPERTY_STARTDATE_OF_DELETED_NAME = "eventOrigStartDate";
+    /** the name of the show author property for event objects. */
+    public static final String PROPERTY_SHOW_AUTHOR = "showAuthor";
     /** the name of the original start date property for event modification objects. */
     public static final String PROPERTY_ORIG_STARTDATE_OF_MODIFIED_NAME = PROPERTY_STARTDATE_OF_DELETED_NAME;
     // public static final String PROPERTY__NAME = "";
