@@ -42,16 +42,6 @@ public abstract class AbstractSourceConfigurationClassInitializer extends Abstra
     /** The name of the field to store of the source is active or not. */
     public static final String ACTIVE_FIELD = "active";
 
-    /**
-     * The name of the field storing the background color used to display the events of the source.
-     */
-    public static final String BACKGROUND_COLOR_FIELD = "backgroundColor";
-
-    /**
-     * The name of the field storing the text color used to display the events of the source.
-     */
-    public static final String TEXT_COLOR_FIELD = "textColor";
-
     // you know, because checkstyle
     private static final List<String> CODE_SPACE = Arrays.asList("MoccaCalendar", "Code");
 
@@ -72,8 +62,8 @@ public abstract class AbstractSourceConfigurationClassInitializer extends Abstra
     protected void createClass(BaseClass xclass)
     {
         xclass.addBooleanField(ACTIVE_FIELD, "", "checkbox", Boolean.FALSE);
-        xclass.addTextField(BACKGROUND_COLOR_FIELD, "", COLOR_FIELD_SIZE);
-        xclass.addTextField(TEXT_COLOR_FIELD, "", COLOR_FIELD_SIZE);
+        xclass.addTextField(EventConstants.PROPERTY_BACKGROUNDCOLOR_NAME, "", COLOR_FIELD_SIZE);
+        xclass.addTextField(EventConstants.PROPERTY_TEXTCOLOR_NAME, "", COLOR_FIELD_SIZE);
     }
 
     /**

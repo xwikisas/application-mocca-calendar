@@ -673,10 +673,8 @@ public class MoccaCalendarScriptService implements ScriptService
                 BaseObject sourceConfig = (configClass != null) ? calendarDoc.getXObject(configClass) :
                     calendarDoc.getXObject(defaultConfigClass,
                         DefaultSourceConfigurationClassInitializer.SOURCE_NAME_FIELD, sourceName);
-                backgroundColor = getSafeObjectProperty(sourceConfig,
-                    AbstractSourceConfigurationClassInitializer.BACKGROUND_COLOR_FIELD);
-                textColor =
-                    getSafeObjectProperty(sourceConfig, AbstractSourceConfigurationClassInitializer.TEXT_COLOR_FIELD);
+                backgroundColor = getSafeObjectProperty(sourceConfig, EventConstants.PROPERTY_BACKGROUNDCOLOR_NAME);
+                textColor = getSafeObjectProperty(sourceConfig, EventConstants.PROPERTY_TEXTCOLOR_NAME);
 
                 // if no colors are configured for the source, use the ones of the calendar showing its events
                 if (backgroundColor.isEmpty() || textColor.isEmpty()) {
@@ -694,11 +692,11 @@ public class MoccaCalendarScriptService implements ScriptService
                 XWikiDocument globalPrefs = context.getWiki().getDocument(GLOBAL_SETTINGS_PAGE, context);
                 BaseObject globalConfig = globalPrefs.getXObject(defaultConfigClass,
                     DefaultSourceConfigurationClassInitializer.SOURCE_NAME_FIELD, sourceName);
-                backgroundColor = backgroundColor.isEmpty() ? getSafeObjectProperty(globalConfig,
-                    AbstractSourceConfigurationClassInitializer.BACKGROUND_COLOR_FIELD) : backgroundColor;
-                textColor = textColor.isEmpty() ?
-                    getSafeObjectProperty(globalConfig, AbstractSourceConfigurationClassInitializer.TEXT_COLOR_FIELD) :
-                    textColor;
+                backgroundColor = backgroundColor.isEmpty() ?
+                    getSafeObjectProperty(globalConfig, EventConstants.PROPERTY_BACKGROUNDCOLOR_NAME) : backgroundColor;
+                textColor =
+                    textColor.isEmpty() ? getSafeObjectProperty(globalConfig, EventConstants.PROPERTY_TEXTCOLOR_NAME) :
+                        textColor;
             }
         } catch (XWikiException e) {
             logger.warn("could not read the colors configured for the source [{}]", sourceName, e);
