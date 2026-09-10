@@ -19,20 +19,21 @@
  */
 package org.xwiki.contrib.moccacalendar.internal.ical;
 
-import com.xpn.xwiki.XWikiContext;
-import com.xpn.xwiki.XWikiException;
-import com.xpn.xwiki.doc.XWikiDocument;
-import net.fortuna.ical4j.data.CalendarOutputter;
-import net.fortuna.ical4j.model.Calendar;
-import net.fortuna.ical4j.model.component.VEvent;
-import net.fortuna.ical4j.model.property.ProdId;
-import net.fortuna.ical4j.model.property.XProperty;
-import net.fortuna.ical4j.model.property.immutable.ImmutableCalScale;
-import net.fortuna.ical4j.model.property.immutable.ImmutableVersion;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.io.OutputStream;
+import java.util.List;
+
+import javax.inject.Inject;
+import javax.inject.Named;
+import javax.inject.Provider;
+import javax.inject.Singleton;
+
 import org.apache.commons.lang3.StringUtils;
 import org.xwiki.component.annotation.Component;
 import org.xwiki.model.reference.DocumentReference;
 import org.xwiki.model.reference.DocumentReferenceResolver;
+import org.xwiki.model.reference.EntityReferenceSerializer;
 import org.xwiki.query.Query;
 import org.xwiki.query.QueryException;
 import org.xwiki.query.QueryFilter;
@@ -42,14 +43,17 @@ import org.xwiki.security.authorization.AccessDeniedException;
 import org.xwiki.security.authorization.ContextualAuthorizationManager;
 import org.xwiki.security.authorization.Right;
 
-import javax.inject.Inject;
-import javax.inject.Named;
-import javax.inject.Provider;
-import javax.inject.Singleton;
-import java.io.FileNotFoundException;
-import java.io.IOException;
-import java.io.OutputStream;
-import java.util.List;
+import com.xpn.xwiki.XWikiContext;
+import com.xpn.xwiki.XWikiException;
+import com.xpn.xwiki.doc.XWikiDocument;
+
+import net.fortuna.ical4j.data.CalendarOutputter;
+import net.fortuna.ical4j.model.Calendar;
+import net.fortuna.ical4j.model.component.VEvent;
+import net.fortuna.ical4j.model.property.ProdId;
+import net.fortuna.ical4j.model.property.XProperty;
+import net.fortuna.ical4j.model.property.immutable.ImmutableCalScale;
+import net.fortuna.ical4j.model.property.immutable.ImmutableVersion;
 
 /**
  * Generates iCalendar (ICS) output for Mocca Calendar events. This class converts Mocca Calendar events to iCalendar
@@ -67,6 +71,10 @@ public class ICalGenerator
     @Inject
     @Named("current")
     private DocumentReferenceResolver<String> referenceResolver;
+
+    @Inject
+    @Named("local")
+    private EntityReferenceSerializer<String> localSerializer;
 
     @Inject
     private Provider<XWikiContext> xcontextProvider;
@@ -88,10 +96,10 @@ public class ICalGenerator
      * Generates an iCalendar file for the specified calendar document.
      *
      * @param calendarReference the full name or reference of the calendar document
-     * @param outputStream      the output stream to write the iCalendar data to
-     * @throws IOException           if an error occurs while writing to the output stream
-     * @throws QueryException        if an error occurs while querying for events
-     * @throws XWikiException        if an error occurs while accessing the XWiki document
+     * @param outputStream the output stream to write the iCalendar data to
+     * @throws IOException if an error occurs while writing to the output stream
+     * @throws QueryException if an error occurs while querying for events
+     * @throws XWikiException if an error occurs while accessing the XWiki document
      * @throws AccessDeniedException if the user does not have permission to view the calendar
      */
     public void generateCalendar(String calendarReference, OutputStream outputStream)
@@ -108,7 +116,7 @@ public class ICalGenerator
             throw new FileNotFoundException(String.format("Cannot access calendar [%s].", calendarReference));
         }
         Calendar calendar = createCalendar(calendarDocument);
-        addEvents(calendar, calendarReference, context);
+        addEvents(calendar, docRef, context);
         CalendarOutputter outputter = new CalendarOutputter();
         outputter.output(calendar, outputStream);
     }
@@ -125,24 +133,27 @@ public class ICalGenerator
         calendar.add(new ProdId(PROD_ID));
         calendar.add(ImmutableVersion.VERSION_2_0);
         calendar.add(ImmutableCalScale.GREGORIAN);
-        calendar.add(new XProperty("X-WR-CALNAME", calendarDocument.getRenderedTitle(Syntax.PLAIN_1_0,
-            this.xcontextProvider.get())));
+        calendar.add(new XProperty("X-WR-CALNAME",
+            calendarDocument.getRenderedTitle(Syntax.PLAIN_1_0, this.xcontextProvider.get())));
         return calendar;
     }
 
     /**
      * Queries and adds all events from the specified calendar to the iCalendar object.
      *
-     * @param calendar          the iCalendar object to add events to
+     * @param calendar the iCalendar object to add events to
      * @param calendarReference the reference of the calendar document
-     * @param context           the current XWiki context
+     * @param context the current XWiki context
      */
-    private void addEvents(Calendar calendar, String calendarReference, XWikiContext context)
+    private void addEvents(Calendar calendar, DocumentReference calendarReference, XWikiContext context)
         throws QueryException, XWikiException
     {
         Query query = this.queryManager.createQuery(
-            "from doc.object(MoccaCalendar.MoccaCalendarEventClass) as event where doc.parent = :parent", Query.XWQL);
-        query.bindValue("parent", calendarReference);
+            "from doc.object(MoccaCalendar.MoccaCalendarEventClass) as event where doc.space like :space escape '\\'",
+            Query.XWQL);
+        String escapedSpaceValue =
+            escapeLikeWithBackslash(this.localSerializer.serialize(calendarReference.getLastSpaceReference())) + ".%";
+        query.bindValue("space", escapedSpaceValue);
         query.addFilter(this.documentFilter);
         List<DocumentReference> eventDocRefs = query.execute();
         for (DocumentReference eventDocRef : eventDocRefs) {
@@ -156,4 +167,8 @@ public class ICalGenerator
         }
     }
 
+    private String escapeLikeWithBackslash(String s)
+    {
+        return s.replace("\\", "\\\\").replace("%", "\\%").replace("_", "\\_");
+    }
 }
