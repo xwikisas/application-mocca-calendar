@@ -118,7 +118,16 @@
             #set ($propertyId = "${xclass.name}_${configObject.number}_$property.name")
             ; &lt;label for="$escapetool.xml($propertyId)"&gt; $escapetool.xml($property.translatedPrettyName) &lt;/label&gt;
               &lt;span class="xHint"&gt;$!escapetool.xml($services.localization.render($property.hint))&lt;/span&gt;
+            #if($property.name == 'backgroundColor' || $property.name == 'textColor')
+              #set ($colorPickerParams = {
+                'id': $propertyId,
+                'name': $propertyId,
+                'value': $escapetool.xml($configObject.getValue($property.name))
+              })
+            : #colorPicker($colorPickerParams)
+            #else
             : $doc.display($property.name, 'edit')
+            #end
           #end
         #end
       #end ## if $configObject != $null

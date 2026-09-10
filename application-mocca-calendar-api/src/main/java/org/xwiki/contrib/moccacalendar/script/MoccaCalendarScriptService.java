@@ -322,6 +322,10 @@ public class MoccaCalendarScriptService implements ScriptService
             logger.error("error while fetching recurrent events", e);
         }
 
+        // The calendar in which the events of the sources are displayed; null if the events of the complete wiki
+        // are shown, in which case the global configuration of the source is used to color its events.
+        final DocumentReference calendarRef = (filter == null || "wiki".equals(filter)) ? null : parentRef;
+
         for (Map.Entry<String, EventSource> meetings : eventSources.entrySet()) {
             if (!sourceIsActive(meetings, filter, parentRef)) {
                 continue;
@@ -341,9 +345,9 @@ public class MoccaCalendarScriptService implements ScriptService
                 parentRef, sortAscending);
             if (meetingEvents != null) {
                 for (EventInstance meeting : meetingEvents) {
-                    setEventColors(meeting, null);
                     meeting.setSource(meetings.getKey());
                 }
+                setSourceEventColors(meetingEvents, meetings.getKey(), meetings.getValue(), calendarRef);
                 events.addAll(meetingEvents);
             }
         }
@@ -637,6 +641,80 @@ public class MoccaCalendarScriptService implements ScriptService
         if (event.getTextColor() == null || event.getTextColor().isEmpty()) {
             textColor = textColor.isEmpty() ? calendarTextColor : textColor;
             event.setTextColor(textColor);
+        }
+    }
+
+    /**
+     * Set the colors used to display the events of an event source. The colors are taken from the configuration of the
+     * source in the calendar the events are displayed in. If they are not set there, the colors of that calendar are
+     * used, so that the events of the source look like the ones of the containing calendar. For a calendar showing the
+     * events of the complete wiki the colors set in the global configuration of the source are used instead.
+     *
+     * @param events the events created by the source
+     * @param sourceName the name of the event source
+     * @param source the event source
+     * @param calendarRef the page containing the calendar the events are displayed in; null if the calendar shows
+     *     the events of the complete wiki
+     */
+    private void setSourceEventColors(List<EventInstance> events, String sourceName, EventSource source,
+        DocumentReference calendarRef)
+    {
+        final XWikiContext context = xcontextProvider.get();
+        final DocumentReference defaultConfigClass =
+            new DocumentReference(DefaultSourceConfigurationClassInitializer.getConfigurationClass(),
+                new WikiReference(context.getWikiId()));
+        String backgroundColor = "";
+        String textColor = "";
+
+        try {
+            if (calendarRef != null) {
+                XWikiDocument calendarDoc = context.getWiki().getDocument(calendarRef, context);
+                LocalDocumentReference configClass = source.getConfigurationClass();
+                BaseObject sourceConfig = (configClass != null) ? calendarDoc.getXObject(configClass) :
+                    calendarDoc.getXObject(defaultConfigClass,
+                        DefaultSourceConfigurationClassInitializer.SOURCE_NAME_FIELD, sourceName);
+                backgroundColor = getSafeObjectProperty(sourceConfig,
+                    AbstractSourceConfigurationClassInitializer.BACKGROUND_COLOR_FIELD);
+                textColor =
+                    getSafeObjectProperty(sourceConfig, AbstractSourceConfigurationClassInitializer.TEXT_COLOR_FIELD);
+
+                // if no colors are configured for the source, use the ones of the calendar showing its events
+                if (backgroundColor.isEmpty() || textColor.isEmpty()) {
+                    BaseObject calendarData = calendarDoc.getXObject(
+                        calendarDoc.resolveClassReference(EventConstants.MOCCA_CALENDAR_CLASS_NAME));
+                    backgroundColor =
+                        backgroundColor.isEmpty() ? getSafeObjectProperty(calendarData, "color") : backgroundColor;
+                    textColor = textColor.isEmpty() ?
+                        getSafeObjectProperty(calendarData, EventConstants.PROPERTY_TEXTCOLOR_NAME) : textColor;
+                }
+            }
+
+            // a calendar covering the complete wiki uses the colors from the global configuration of the source
+            if (backgroundColor.isEmpty() || textColor.isEmpty()) {
+                XWikiDocument globalPrefs = context.getWiki().getDocument(GLOBAL_SETTINGS_PAGE, context);
+                BaseObject globalConfig = globalPrefs.getXObject(defaultConfigClass,
+                    DefaultSourceConfigurationClassInitializer.SOURCE_NAME_FIELD, sourceName);
+                backgroundColor = backgroundColor.isEmpty() ? getSafeObjectProperty(globalConfig,
+                    AbstractSourceConfigurationClassInitializer.BACKGROUND_COLOR_FIELD) : backgroundColor;
+                textColor = textColor.isEmpty() ?
+                    getSafeObjectProperty(globalConfig, AbstractSourceConfigurationClassInitializer.TEXT_COLOR_FIELD) :
+                    textColor;
+            }
+        } catch (XWikiException e) {
+            logger.warn("could not read the colors configured for the source [{}]", sourceName, e);
+        }
+
+        for (EventInstance event : events) {
+            if (event.getBackgroundColor() == null || event.getBackgroundColor().isEmpty()) {
+                event.setBackgroundColor(backgroundColor);
+            }
+            if (event.getTextColor() == null || event.getTextColor().isEmpty()) {
+                event.setTextColor(textColor);
+            }
+            if (backgroundColor.isEmpty() || textColor.isEmpty()) {
+                // nothing configured for the source: fall back on the calendar the event page belongs to, if any
+                setEventColors(event, null);
+            }
         }
     }
 
