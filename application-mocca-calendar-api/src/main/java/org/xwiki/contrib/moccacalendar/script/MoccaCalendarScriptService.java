@@ -36,6 +36,7 @@ import javax.inject.Named;
 import javax.inject.Provider;
 import javax.inject.Singleton;
 
+import org.apache.commons.lang3.StringUtils;
 import org.joda.time.DateTime;
 import org.slf4j.Logger;
 import org.xwiki.component.annotation.Component;
@@ -645,10 +646,12 @@ public class MoccaCalendarScriptService implements ScriptService
     }
 
     /**
-     * Set the colors used to display the events of an event source. The colors are taken from the configuration of the
-     * source in the calendar the events are displayed in. If they are not set there, the colors of that calendar are
-     * used, so that the events of the source look like the ones of the containing calendar. For a calendar showing the
-     * events of the complete wiki the colors set in the global configuration of the source are used instead.
+     * Set the colors used to display the events of an event source.
+     * Firstly, we attempt to get the configured colors from the source configuration of the calendar the events are
+     * displayed in. If they are not set there, the colors of that calendar are used, so that the events of the source
+     * look like the ones of the containing calendar. Finally, when no color could be found so far, either because
+     * nothing is configured in that calendar or because the calendar covers the complete wiki and there is no
+     * containing calendar, the colors from the global configuration of the source are used.
      *
      * @param events the events created by the source
      * @param sourceName the name of the event source
@@ -659,8 +662,8 @@ public class MoccaCalendarScriptService implements ScriptService
     private void setSourceEventColors(List<EventInstance> events, String sourceName, EventSource source,
         DocumentReference calendarRef)
     {
-        final XWikiContext context = xcontextProvider.get();
-        final DocumentReference defaultConfigClass =
+        XWikiContext context = xcontextProvider.get();
+        DocumentReference defaultConfigClass =
             new DocumentReference(DefaultSourceConfigurationClassInitializer.getConfigurationClass(),
                 new WikiReference(context.getWikiId()));
         String backgroundColor = "";
@@ -687,7 +690,7 @@ public class MoccaCalendarScriptService implements ScriptService
                 }
             }
 
-            // a calendar covering the complete wiki uses the colors from the global configuration of the source
+            // fallback on the global configuration of the source
             if (backgroundColor.isEmpty() || textColor.isEmpty()) {
                 XWikiDocument globalPrefs = context.getWiki().getDocument(GLOBAL_SETTINGS_PAGE, context);
                 BaseObject globalConfig = globalPrefs.getXObject(defaultConfigClass,
@@ -703,15 +706,11 @@ public class MoccaCalendarScriptService implements ScriptService
         }
 
         for (EventInstance event : events) {
-            if (event.getBackgroundColor() == null || event.getBackgroundColor().isEmpty()) {
+            if (StringUtils.isBlank(event.getBackgroundColor())) {
                 event.setBackgroundColor(backgroundColor);
             }
-            if (event.getTextColor() == null || event.getTextColor().isEmpty()) {
+            if (StringUtils.isBlank(event.getTextColor())) {
                 event.setTextColor(textColor);
-            }
-            if (backgroundColor.isEmpty() || textColor.isEmpty()) {
-                // nothing configured for the source: fall back on the calendar the event page belongs to, if any
-                setEventColors(event, null);
             }
         }
     }
