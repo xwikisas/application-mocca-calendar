@@ -445,7 +445,7 @@
       )))
       (% class="moccacal-event-info" %)(((
         (% class="moccacal-event-title" %)(((
-          [[$event.getTitle()&gt;&gt;$event.getEventDocRef()]]
+          [[$services.rendering.escape($services.rendering.escape($event.getTitle(), 'xwiki/2.1'), 'xwiki/2.1')&gt;&gt;$services.rendering.escape($event.getEventDocRef(), 'xwiki/2.1')]]
         )))
         (% class="moccacal-event-schedule" %)(((
           $services.icon.render('calendar') $dateTimeInfo

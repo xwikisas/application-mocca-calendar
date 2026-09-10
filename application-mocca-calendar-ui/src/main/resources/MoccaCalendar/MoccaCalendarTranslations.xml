@@ -57,7 +57,7 @@ MoccaCalendar.calendarevent.viewall=All events
 MoccaCalendar.calendarevent.create=Create new event
 MoccaCalendar.calendarevent.import=Import .ics file
 MoccaCalendar.calendarevent.import.title=Import the events from a calendar using an .ics file
-MoccaCalendar.calendarevent.backlink=Back to calendar &amp;#171;{0}&amp;#187;
+MoccaCalendar.calendarevent.backlink=Back to calendar «{0}»
 MoccaCalendar.calendarevent.confirmDelete=Do you really want to delete the event {0} ?
 MoccaCalendar.calendarevent.view=Event
 MoccaCalendar.calendarevent.confirmDelete.allEventsButton=All Instances
@@ -237,7 +237,7 @@ templateProvider.calendar.description=Add a new calendar
 
 ## event sheets
 moccacalendar.sheets.generic.noevent=This page cannot be displayed in the calendar. {0}View it{1} as wiki page instead.
-moccacalendar.sources.config.label=Configure events from source \u00AB{0}\u00BB
+moccacalendar.sources.config.label=Configure events from source «{0}»
 
 ## Calendar macro
 rendering.macro.moccacalendar.addObject.description=This action will transform the current calendar macro in a dedicated Calendar page. This will allow further customizations of color schemes and you will find it in the Calendar overview. Note that any other content on this page will be added in the calendar description. The action is irreversible!
@@ -287,6 +287,7 @@ admin.moccacalendar.sources.empty=There are no calendar event sources to configu
 admin.moccacalendar.sources.active.label=Show events from source \u00AB{0}\u00BB:
 admin.moccacalendar.sources.backgroundColor.label=Background color for events from source \u00AB{0}\u00BB:
 admin.moccacalendar.sources.textColor.label=Text color for events from source \u00AB{0}\u00BB:
+admin.moccacalendar.sources.active.label=Show events from source «{0}»:
 
 # Recurrent event
 moccacalendar.recurrent.frequency.hint=The frequency is in correlation with the selected start date.

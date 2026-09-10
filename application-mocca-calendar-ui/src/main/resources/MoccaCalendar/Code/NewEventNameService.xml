@@ -37,11 +37,8 @@
   <syntaxId>xwiki/2.1</syntaxId>
   <hidden>true</hidden>
   <content>{{velocity wiki="false"}}
-#if("$!{request.outputSyntax}" == 'plain')
-  $response.setContentType('application/json')
-#end
 #if($xcontext.action == 'get')
-  #set($eventName = "$!{escapetool.xml($request.newEvent)}")
+  #set($eventName = $escapetool.xml($request.newEvent))
   #if($eventName == "")
     #set($eventName = "event")
   #end
@@ -60,7 +57,7 @@
     #set($eventSpaceRef = $services.model.createSpaceReference("${eventName}_${xwiki.jodatime.getDateTime().getMillis()}", $parentRef))
     #set($eventName = $eventSpaceRef.getName())
   #end
-  $jsontool.serialize( { 'name' : $eventName, 'parent' : $services.model.serialize( $parentRef ) } )
+  #jsonResponse( { 'name' : $eventName, 'parent' : $services.model.serialize( $parentRef ) } )
 #end
 {{/velocity}}</content>
 </xwikidoc>
