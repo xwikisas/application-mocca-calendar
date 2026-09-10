@@ -63,7 +63,7 @@ public class CalendarEventImporter
 {
     private static final String NEW_EVENT_HOME = "WebHome";
 
-    private static final Map<String, String> PROPERTIES_MAP = Map.of(
+    private static final Map<String, String> PROPERTY_MAP = Map.of(
         "X-MOCCA-TEXT-COLOR", EventConstants.PROPERTY_TEXTCOLOR_NAME,
         "X-MOCCA-SHOW-AUTHOR", EventConstants.PROPERTY_SHOW_AUTHOR
         );
@@ -169,10 +169,8 @@ public class CalendarEventImporter
             return;
         }
 
-        for (Map.Entry<String, Object> entry : meta.entrySet()) {
-            if (PROPERTIES_MAP.containsKey(entry.getKey())) {
-                addConvertedPropertyToObject(entry.getValue().toString(), eventObj, PROPERTIES_MAP.get(entry.getKey()));
-            }
+        for (Map.Entry<String, String> entry : PROPERTY_MAP.entrySet()) {
+            addConvertedPropertyToObject(meta.getOrDefault(entry.getKey(), "").toString(), eventObj, entry.getValue());
         }
     }
 
