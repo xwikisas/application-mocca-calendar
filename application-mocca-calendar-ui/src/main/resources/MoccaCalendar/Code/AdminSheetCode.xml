@@ -87,8 +87,8 @@
   : $configObject.display('source', 'hidden') $configObject.display('active', 'edit')
   ## the colors used for the events of this source when they are shown in a calendar covering the whole wiki
   #foreach($colorField in ['backgroundColor', 'textColor'])
-    #set ($colorFieldId = "${configClass}_${configObject.number}_${colorField}")
-    #set ($colorPickerParams = {
+    #set($colorFieldId = "${configClass}_${configObject.number}_${colorField}")
+    #set($colorPickerParams = {
       'id': $colorFieldId,
       'name': $colorFieldId,
       'value': $escapetool.xml($configObject.getValue($colorField))
