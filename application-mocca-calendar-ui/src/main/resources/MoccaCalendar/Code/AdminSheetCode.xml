@@ -43,7 +43,7 @@
 #if($sources.isEmpty())
 
 {{info}}
-$services.localization.render('admin.moccacalendar.sources.empty')
+{{translation key='admin.moccacalendar.sources.empty'/}}
 {{/info}}
 
 #else
@@ -83,7 +83,7 @@ $services.localization.render('admin.moccacalendar.sources.empty')
 (% class="compact" %)
 #foreach($sourceName in $sources)
   #set($configObject = $sourceConfig.get($sourceName)) ##
-  ; {{html clean="false"}}&lt;label for="${configClass}_${configObject.number}_active"&gt;{{/html}}${services.localization.render('admin.moccacalendar.sources.active.label', [$stringtool.capitalize($sourceName)])}{{html clean="false"}}&lt;/label&gt;{{/html}}
+  ; {{html clean='false'}}&lt;label for="${configClass}_${configObject.number}_active"&gt;{{/html}}{{translation key='admin.moccacalendar.sources.active.label' parameters="$stringtool.capitalize($sourceName)"/}}{{html clean='false'}}&lt;/label&gt;{{/html}}
   : $configObject.display('source', 'hidden') $configObject.display('active', 'edit')
   ## the colors used for the events of this source when they are shown in a calendar covering the whole wiki
   #foreach($colorField in ['backgroundColor', 'textColor'])
@@ -103,7 +103,7 @@ $services.localization.render('admin.moccacalendar.sources.empty')
           &lt;div class="bottombuttons"&gt;
             &lt;p class="admin-buttons"&gt;
               &lt;span class="buttonwrapper"&gt;
-                 #set($buttonText = "$services.localization.render('admin.save')")
+                 #set($buttonText = "${escapetool.xml($services.localization.render('admin.save'))}")
                 &lt;input class="button" type="submit" name="action_saveandcontinue" value="$buttonText" /&gt;
               &lt;/span&gt;
             &lt;/p&gt;
