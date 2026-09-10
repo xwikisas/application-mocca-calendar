@@ -149,8 +149,11 @@ public class ICalGenerator
         throws QueryException, XWikiException
     {
         Query query = this.queryManager.createQuery(
-            "from doc.object(MoccaCalendar.MoccaCalendarEventClass) as event where doc.space like :space", Query.XWQL);
-        query.bindValue("space", this.localSerializer.serialize(calendarReference.getLastSpaceReference()) + ".%");
+            "from doc.object(MoccaCalendar.MoccaCalendarEventClass) as event where doc.space like :space escape '\\'",
+            Query.XWQL);
+        String escapedSpaceValue =
+            escapeLikeWithBackslash(this.localSerializer.serialize(calendarReference.getLastSpaceReference())) + ".%";
+        query.bindValue("space", escapedSpaceValue);
         query.addFilter(this.documentFilter);
         List<DocumentReference> eventDocRefs = query.execute();
         for (DocumentReference eventDocRef : eventDocRefs) {
@@ -162,5 +165,10 @@ public class ICalGenerator
                 }
             }
         }
+    }
+
+    private String escapeLikeWithBackslash(String s)
+    {
+        return s.replace("\\", "\\\\").replace("%", "\\%").replace("_", "\\_");
     }
 }
