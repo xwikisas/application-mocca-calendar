@@ -85,6 +85,19 @@
   #set($configObject = $sourceConfig.get($sourceName)) ##
   ; {{html clean='false'}}&lt;label for="${configClass}_${configObject.number}_active"&gt;{{/html}}{{translation key='admin.moccacalendar.sources.active.label' parameters="$stringtool.capitalize($sourceName)"/}}{{html clean='false'}}&lt;/label&gt;{{/html}}
   : $configObject.display('source', 'hidden') $configObject.display('active', 'edit')
+  ## the colors used for the events of this source when they are shown in a calendar covering the whole wiki
+  #foreach($colorField in ['backgroundColor', 'textColor'])
+    #set($colorFieldId = "${configClass}_${configObject.number}_${colorField}")
+    #set($colorPickerParams = {
+      'id': $colorFieldId,
+      'name': $colorFieldId,
+      'value': $configObject.getValue($colorField)
+    })
+  ; {{html clean='false'}}&lt;label for="$escapetool.xml($colorFieldId)"&gt;{{/html}}
+  {{translation key="admin.moccacalendar.sources.${colorField}.label" parameters="$stringtool.capitalize($sourceName)"/}}
+  {{html clean='false'}}&lt;/label&gt;{{/html}}
+  : {{html clean='false'}}#colorPicker($colorPickerParams){{/html}}
+  #end
 #end
 
 ## copy from the AdminSheet

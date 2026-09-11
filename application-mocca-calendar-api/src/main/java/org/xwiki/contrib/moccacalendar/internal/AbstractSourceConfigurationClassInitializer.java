@@ -45,6 +45,8 @@ public abstract class AbstractSourceConfigurationClassInitializer extends Abstra
     // you know, because checkstyle
     private static final List<String> CODE_SPACE = Arrays.asList("MoccaCalendar", "Code");
 
+    private static final int COLOR_FIELD_SIZE = 30;
+
     /**
      * Initialize a configuration class by its class name only.
      * The space for the class will be the default code space for the calendar.
@@ -60,6 +62,8 @@ public abstract class AbstractSourceConfigurationClassInitializer extends Abstra
     protected void createClass(BaseClass xclass)
     {
         xclass.addBooleanField(ACTIVE_FIELD, "", "checkbox", Boolean.FALSE);
+        xclass.addTextField(EventConstants.PROPERTY_BACKGROUNDCOLOR_NAME, "", COLOR_FIELD_SIZE);
+        xclass.addTextField(EventConstants.PROPERTY_TEXTCOLOR_NAME, "", COLOR_FIELD_SIZE);
     }
 
     /**

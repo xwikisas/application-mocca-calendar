@@ -143,13 +143,20 @@ MoccaCalendar.MoccaCalendarEventClass_showAuthor=Display the event author
 MoccaCalendar.Code.DefaultEventSourceConfigClass.source={0} as Events
 MoccaCalendar.Code.DefaultEventSourceConfigClass_active=Active
 MoccaCalendar.Code.DefaultEventSourceConfigClass_active.hint=If active, events from this source will be shown in this calendar.
+MoccaCalendar.Code.DefaultEventSourceConfigClass_backgroundColor=Background color
+MoccaCalendar.Code.DefaultEventSourceConfigClass_backgroundColor.hint=Background color used for the events of this source. If empty, the color of this calendar is used.
+MoccaCalendar.Code.DefaultEventSourceConfigClass_textColor=Text color
+MoccaCalendar.Code.DefaultEventSourceConfigClass_textColor.hint=Text color used for the events of this source. If empty, the text color of this calendar is used.
 
 MoccaCalendar.Code.MeetingsSourceConfigClass.source=Meetings as Events
 MoccaCalendar.Code.MeetingsSourceConfigClass_active=Active
 MoccaCalendar.Code.MeetingsSourceConfigClass_active.hint=If active, meetings will be shown in this calendar.
 MoccaCalendar.Code.MeetingsSourceConfigClass_meetings=Meetings location
 MoccaCalendar.Code.MeetingsSourceConfigClass_meetings.hint=The location from which meetings are shown.
-
+MoccaCalendar.Code.MeetingsSourceConfigClass_backgroundColor=Background color
+MoccaCalendar.Code.MeetingsSourceConfigClass_backgroundColor.hint=Background color used for the meetings shown in this calendar. If empty, the color of this calendar is used.
+MoccaCalendar.Code.MeetingsSourceConfigClass_textColor=Text color
+MoccaCalendar.Code.MeetingsSourceConfigClass_textColor.hint=Text color used for the meetings shown in this calendar. If empty, the text color of this calendar is used.
 
 # modification class fields
 MoccaCalendar.Code.MoccaCalendarEventRecurrencyClass_frequency=Frequency
@@ -277,6 +284,8 @@ admin.moccacalendar.sources.section=Calendar
 admin.moccacalendar.sources.header=Enable Calendar Event Sources
 admin.moccacalendar.sources.empty=There are no calendar event sources to configure.
 admin.moccacalendar.sources.active.label=Show events from source «{0}»:
+admin.moccacalendar.sources.backgroundColor.label=Background color for events from source «{0}»:
+admin.moccacalendar.sources.textColor.label=Text color for events from source «{0}»:
 
 # Recurrent event
 moccacalendar.recurrent.frequency.hint=The frequency is in correlation with the selected start date.
