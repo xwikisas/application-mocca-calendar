@@ -133,7 +133,7 @@
               #set ($colorPickerParams = {
                 'id': $propertyId,
                 'name': $propertyId,
-                'value': $escapetool.xml($configObject.getValue($property.name))
+                'value': $services.rendering.escape($configObject.getValue($property.name), 'xwiki/2.1')
               })
             : #colorPicker($colorPickerParams)
             #else
