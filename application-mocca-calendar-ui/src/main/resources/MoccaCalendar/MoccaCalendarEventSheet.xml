@@ -573,6 +573,25 @@ require(['jquery', 'xwiki-l10n!mocca-calendar-recurrent'], function($, l10n) {
     }
   });
 
+ // Keep the duration of the event when its start date is moved, like other calendar applications do.
+  const datePairs = [
+    ['MoccaCalendar\\.MoccaCalendarEventClass_0_startDate',
+      'MoccaCalendar\\.MoccaCalendarEventClass_0_endDate'],
+    ['MoccaCalendar\\.Code\\.MoccaCalendarEventModificationClass_0_startDate',
+      'MoccaCalendar\\.Code\\.MoccaCalendarEventModificationClass_0_endDate']
+  ];
+
+  datePairs.forEach(function (datePair) {
+    $(document).on('dp.change', '#' + datePair[0], function (event) {
+      const $endDate = $('#' + datePair[1]);
+      const endPicker = $endDate.data('DateTimePicker');
+      if (!event.date || !event.oldDate || !endPicker || !endPicker.date()) {
+        return;
+      }
+      endPicker.date(endPicker.date().clone().add(event.date.diff(event.oldDate), 'ms'));
+    });
+  });
+
   const dayMap = [
     { name: 'weekday.0', value: 1 },
     { name: 'weekday.1', value: 2 },
