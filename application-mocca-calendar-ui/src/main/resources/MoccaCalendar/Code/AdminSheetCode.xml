@@ -91,7 +91,7 @@
     #set($colorPickerParams = {
       'id': $colorFieldId,
       'name': $colorFieldId,
-      'value': $escapetool.xml($configObject.getValue($colorField))
+      'value': $configObject.getValue($colorField)
     })
   ; {{html clean='false'}}&lt;label for="$escapetool.xml($colorFieldId)"&gt;{{/html}}
   {{translation key="admin.moccacalendar.sources.${colorField}.label" parameters="$stringtool.capitalize($sourceName)"/}}
