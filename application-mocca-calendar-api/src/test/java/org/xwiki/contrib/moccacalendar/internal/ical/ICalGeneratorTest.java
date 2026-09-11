@@ -19,12 +19,15 @@
  */
 package org.xwiki.contrib.moccacalendar.internal.ical;
 
-import com.xpn.xwiki.XWiki;
-import com.xpn.xwiki.XWikiContext;
-import com.xpn.xwiki.doc.XWikiDocument;
-import net.fortuna.ical4j.model.component.VEvent;
-import net.fortuna.ical4j.util.FixedUidGenerator;
-import net.fortuna.ical4j.util.SimpleHostInfo;
+import java.io.ByteArrayOutputStream;
+import java.io.FileNotFoundException;
+import java.nio.charset.StandardCharsets;
+import java.time.Instant;
+import java.util.List;
+
+import javax.inject.Named;
+import javax.inject.Provider;
+
 import org.apache.commons.lang3.StringUtils;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -32,6 +35,8 @@ import org.junit.jupiter.api.extension.RegisterExtension;
 import org.mockito.Mock;
 import org.xwiki.model.reference.DocumentReference;
 import org.xwiki.model.reference.DocumentReferenceResolver;
+import org.xwiki.model.reference.EntityReferenceSerializer;
+import org.xwiki.model.reference.SpaceReference;
 import org.xwiki.query.Query;
 import org.xwiki.query.QueryFilter;
 import org.xwiki.query.QueryManager;
@@ -45,15 +50,18 @@ import org.xwiki.test.junit5.mockito.ComponentTest;
 import org.xwiki.test.junit5.mockito.InjectMockComponents;
 import org.xwiki.test.junit5.mockito.MockComponent;
 
-import javax.inject.Named;
-import javax.inject.Provider;
-import java.io.ByteArrayOutputStream;
-import java.io.FileNotFoundException;
-import java.nio.charset.StandardCharsets;
-import java.time.Instant;
-import java.util.List;
+import com.xpn.xwiki.XWiki;
+import com.xpn.xwiki.XWikiContext;
+import com.xpn.xwiki.doc.XWikiDocument;
 
-import static org.junit.jupiter.api.Assertions.*;
+import net.fortuna.ical4j.model.component.VEvent;
+import net.fortuna.ical4j.util.FixedUidGenerator;
+import net.fortuna.ical4j.util.SimpleHostInfo;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.doThrow;
@@ -69,7 +77,9 @@ class ICalGeneratorTest
 {
     private static final String EVENT_TIME = "2026-01-15T09:00:00Z";
 
-    private static final String CALENDAR_REFERENCE = "Space.Calendar";
+    private static final String CALENDAR_REFERENCE = "Space.Calendar.WebHome";
+
+    private static final String CALENDAR_SPACE_REFERENCE = "Space.Calendar";
 
     private static final String CALENDAR_TITLE = "Test Calendar";
 
@@ -82,6 +92,10 @@ class ICalGeneratorTest
     @MockComponent
     @Named("current")
     private DocumentReferenceResolver<String> referenceResolver;
+
+    @MockComponent
+    @Named("local")
+    private EntityReferenceSerializer<String> localSerializer;
 
     @MockComponent
     private Provider<XWikiContext> xcontextProvider;
@@ -113,6 +127,9 @@ class ICalGeneratorTest
 
     @Mock
     private DocumentReference calendarRef;
+
+    @Mock
+    private SpaceReference calendarSpace;
 
     @Mock
     private XWikiDocument eventDoc1;
@@ -170,8 +187,10 @@ class ICalGeneratorTest
         when(this.wiki.getDocument(this.eventRef6, this.context)).thenReturn(this.eventDoc6);
         when(this.eventDoc6.isNew()).thenReturn(true);
         when(this.queryManager.createQuery(anyString(), eq(Query.XWQL))).thenReturn(this.query);
-        when(this.query.bindValue(eq("parent"), eq(CALENDAR_REFERENCE))).thenReturn(this.query);
-        when(this.query.addFilter(eq(this.documentFilter))).thenReturn(this.query);
+        when(this.query.bindValue("parent", CALENDAR_REFERENCE)).thenReturn(this.query);
+        when(this.query.addFilter(this.documentFilter)).thenReturn(this.query);
+        when(this.calendarRef.getLastSpaceReference()).thenReturn(this.calendarSpace);
+        when(this.localSerializer.serialize(this.calendarSpace)).thenReturn(CALENDAR_SPACE_REFERENCE);
     }
 
     @Test
@@ -235,7 +254,8 @@ class ICalGeneratorTest
         ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
         this.iCalGenerator.generateCalendar(CALENDAR_REFERENCE, outputStream);
         assertEquals(
-            "One ore more components have errors: ValidationResult{entries=[ValidationEntry{message='Calendar must " + "contain at least one component', level=ERROR, context='VCALENDAR'}]}",
+            "One ore more components have errors: ValidationResult{entries=[ValidationEntry{message='Calendar must "
+                + "contain at least one component', level=ERROR, context='VCALENDAR'}]}",
             this.logCapture.getMessage(0));
     }
 

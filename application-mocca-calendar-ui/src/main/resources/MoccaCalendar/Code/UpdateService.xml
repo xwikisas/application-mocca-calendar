@@ -37,6 +37,7 @@
   <syntaxId>xwiki/2.0</syntaxId>
   <hidden>true</hidden>
   <content>{{velocity}}
+#if ($xcontext.action == 'get')
 #set($result = { 'success' : false })
 #set($page = $request.page)
 #set($startfield = "startDate")
@@ -90,19 +91,17 @@
 		#if($success)
 			#set($discard = $pagedoc.save($services.localization.render('moccacalendar.updates.eventUpdated'), false))
 		#else
-                	#set($discard = $result.put('message',  $services.localization.render('moccacalendar.updates.valuesinvalid')))
+        #set($discard = $result.put('message', $services.localization.render('moccacalendar.updates.valuesinvalid')))
 		#end
             #end
 	#else
-            #set($discard = $result.put('message',  $services.localization.render('moccacalendar.updates.nodocument')))
+    #set($discard = $result.put('message', $services.localization.render('moccacalendar.updates.nodocument')))
 	#end
 #else
   #set($discard = $result.set('message', $services.localization.render('moccacalendar.updates.nodocument')))
 #end
 #set($discard = $result.put('success', $success))
-#if("$!{request.outputSyntax}" == 'plain')
-  $response.setContentType('application/json')
+#jsonResponse($result)
 #end
-$jsontool.serialize($result)
 {{/velocity}}</content>
 </xwikidoc>

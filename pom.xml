@@ -31,8 +31,8 @@
   <name>Calendar Application - Parent POM</name>
   <packaging>pom</packaging>
   <properties>
-    <licensing.version>1.32.3</licensing.version>
-    <fullcalendar.version>2.5.4</fullcalendar.version>
+    <licensing.version>1.32.4</licensing.version>
+    <fullcalendar.version>2.5.5</fullcalendar.version>
   </properties>
   <modules>
     <module>application-mocca-calendar-api</module>

@@ -176,7 +176,7 @@
     <property>
       <content>{{velocity}}
 #set ($discard = $xwiki.ssx.use('MoccaCalendar.Code.UpcomingEventsPanel'))
-#panelheader($services.localization.render('moccacalendar.panel.upcomingEvents.header'))
+#panelheader($escapetool.xml($services.localization.render('moccacalendar.panel.upcomingEvents.header')))
 {{moccacalendar.upcomingEvents/}}
 #panelfooter()
 {{/velocity}}</content>
