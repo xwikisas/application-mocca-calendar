@@ -2077,8 +2077,8 @@ require(
 #if($month!="")   month: parseInt("$!escapetool.javascript($month)"), #end
 #if($date!="")    date: parseInt("$!escapetool.javascript($date)"), #end
     firstDay: parseInt("$!escapetool.javascript($firstDay)"),
-#if($minTime!="")    minTime: parseInt("$!escapetool.javascript($minTime)"), #end
-#if($maxTime!="")    maxTime: parseInt("$!escapetool.javascript($maxTime)"), #end
+#if($minTime!="")    minTime: "$!escapetool.javascript($minTime)", #end
+#if($maxTime!="")    maxTime: "$!escapetool.javascript($maxTime)", #end
     editable: #if($canCreateEvents) true #else false#end ,
     selectable: #if($canCreateEvents) true #else false#end ,
     selectHelper: true,
