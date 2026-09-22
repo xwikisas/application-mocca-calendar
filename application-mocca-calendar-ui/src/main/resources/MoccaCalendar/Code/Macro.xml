@@ -2130,6 +2130,7 @@ require(
       if (!scrollTimeStr) {
         return;
       }
+      // 2 requestAnimationFrame calls ensure FullCalendar's row heights are fully settled before we read offsets
       requestAnimationFrame(function() {
         requestAnimationFrame(function() {
           var wrapper = calendar.closest('.mocca-calendar-scroll-wrapper');
