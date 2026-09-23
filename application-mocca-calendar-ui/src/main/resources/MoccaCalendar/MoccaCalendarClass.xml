@@ -86,6 +86,20 @@
       <validationRegExp/>
       <classType>com.xpn.xwiki.objects.classes.TextAreaClass</classType>
     </description>
+    <scrollTime>
+      <customDisplay/>
+      <disabled>0</disabled>
+      <hint/>
+      <name>scrollTime</name>
+      <number>7</number>
+      <picker>1</picker>
+      <prettyName>Scroll time</prettyName>
+      <size>30</size>
+      <unmodifiable>0</unmodifiable>
+      <validationMessage/>
+      <validationRegExp/>
+      <classType>com.xpn.xwiki.objects.classes.StringClass</classType>
+    </scrollTime>
     <showAuthor>
       <customDisplay/>
       <defaultValue>0</defaultValue>
