@@ -1271,17 +1271,6 @@ div.xdialog-box-moccacal-modal-popup #recurrentFields dl {
 body .fc {
   padding-right: 1px; /* odd hack to avoid scrollbars in FF at times */
 }
-.mocca-calendar-scroll-wrapper {
-  max-height: 800px;
-  overflow-y: auto;
-}
-.mocca-calendar-scroll-wrapper .fc-toolbar {
-  position: sticky;
-  top: 0;
-  background-color: #fff;
-  z-index: 2;
-  padding-top: 0.2em;
-}
 div.calendar-buttons {
   position: relative;
   margin-top: 2.4em;
@@ -1367,6 +1356,10 @@ div.calendar-buttons span.buttonwrapper {
 #recurrentDays .xwiki-form-listclass:has(input[type="checkbox"]:checked) {
   background-color: @btn-primary-bg;
   color: @btn-primary-color;
+}
+
+.fc-scroller.fc-time-grid-container {
+  max-height: 450px;
 }</code>
     </property>
     <property>
@@ -1660,7 +1653,6 @@ $xwiki.ssx.use("MoccaCalendar.Code.Macro", $parameterMap)
     #set($maxTime = "$maxTime:00")
   #end
 #end
-#set($scrollTime = "")
 #set($year = $xcontext.macro.params.year)
 #if(!$year)
  #set($year = "")
@@ -1895,12 +1887,6 @@ $xwiki.ssx.use("MoccaCalendar.Code.Macro", $parameterMap)
 #if($xcontext.action=='view')
 #set ($xwikiCalendarDoc = $xwiki.getDocument($calendarDoc))
 #set ($calendarObject = $xwikiCalendarDoc.getObject('MoccaCalendar.MoccaCalendarClass'))
-#if($calendarObject)
-  #set($scrollTime = $calendarObject.getValue('scrollTime'))
-#end
-#if("$!scrollTime" == '')
-  #set($scrollTime = "08:00:00")
-#end
 #if ($filter == 'page' &amp;&amp; !$calendarObject)
   #addCalendarObject($calendarDoc)
 #end
@@ -1917,9 +1903,7 @@ $xwiki.ssx.use("MoccaCalendar.Code.Macro", $parameterMap)
 &lt;/div&gt;
 ## end create event link
 #end
-&lt;div class="mocca-calendar-scroll-wrapper"&gt;
 &lt;div id="calendar${calcounter}"&gt;&lt;/div&gt;
-&lt;/div&gt;
 &lt;script type="text/javascript"&gt;
 require.config({
   paths: {
@@ -2125,25 +2109,8 @@ require(
       element.addClass('mocca-has-author');
       title.after(jQuery('&lt;div&gt;&lt;/div&gt;').addClass('mocca-event-author').text(event.author));
     },
-    eventAfterAllRender: function(view) {
-      var scrollTimeStr = "$!escapetool.javascript($scrollTime)";
-      if (!scrollTimeStr) {
-        return;
-      }
-      // 2 requestAnimationFrame calls ensure FullCalendar's row heights are fully settled before we read offsets
-      requestAnimationFrame(function() {
-        requestAnimationFrame(function() {
-          var wrapper = calendar.closest('.mocca-calendar-scroll-wrapper');
-          var targetRow = calendar.find('.fc-slats tr[data-time="' + scrollTimeStr + '"]');
-          if (wrapper.length &amp;&amp; targetRow.length) {
-            var offset = targetRow.offset().top - wrapper.offset().top + wrapper.scrollTop();
-            wrapper.scrollTop(offset);
-          }
-        });
-      });
-    },
     aspectRatio:1.8,
-    height: 'auto',
+    scrollTime: "08:00:00",
     monthNames: monthNamesCfg,
     monthNamesShort: monthNamesShortCfg,
     dayNames: dayNamesCfg,
