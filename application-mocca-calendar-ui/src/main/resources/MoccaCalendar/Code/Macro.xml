@@ -1359,7 +1359,7 @@ div.calendar-buttons span.buttonwrapper {
 }
 
 .fc-scroller.fc-time-grid-container {
-  max-height: 450px;
+  max-height: 600px;
 }</code>
     </property>
     <property>
