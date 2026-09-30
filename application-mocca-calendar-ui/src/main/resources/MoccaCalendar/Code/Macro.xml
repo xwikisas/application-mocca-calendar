@@ -1356,6 +1356,10 @@ div.calendar-buttons span.buttonwrapper {
 #recurrentDays .xwiki-form-listclass:has(input[type="checkbox"]:checked) {
   background-color: @btn-primary-bg;
   color: @btn-primary-color;
+}
+
+.fc-scroller.fc-time-grid-container {
+  max-height: 600px;
 }</code>
     </property>
     <property>
@@ -2106,6 +2110,7 @@ require(
       title.after(jQuery('&lt;div&gt;&lt;/div&gt;').addClass('mocca-event-author').text(event.author));
     },
     aspectRatio:1.8,
+    scrollTime: "08:00:00",
     monthNames: monthNamesCfg,
     monthNamesShort: monthNamesShortCfg,
     dayNames: dayNamesCfg,
@@ -2640,7 +2645,7 @@ Mocca Calendar Macro
       </type>
     </class>
     <property>
-      <defaultValue>8:00</defaultValue>
+      <defaultValue/>
     </property>
     <property>
       <description>First time to show in the calendar. Users won't see hours before this time. Leave empty for default (8:00)</description>
@@ -2730,7 +2735,7 @@ Mocca Calendar Macro
       </type>
     </class>
     <property>
-      <defaultValue>23:00</defaultValue>
+      <defaultValue/>
     </property>
     <property>
       <description>Last time to show in the calendar. Users won't see hours after this time. Leave empty for default (23:00)</description>
