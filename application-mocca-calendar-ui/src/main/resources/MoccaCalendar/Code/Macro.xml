@@ -393,9 +393,10 @@ if (typeof(XWiki) == "undefined" || typeof(XWiki.widgets) == "undefined" || type
     },
 
     closeDialog: function($super, event) {
-      // Ignore calls coming from an already closed popup (e.g. its Esc shortcut was not unregistered),
-      // otherwise removing its detached dialog fails and blocks closing the current popup.
+      // Skip a stale popup whose dialog was already removed, $super's dialog.remove() throws on a detached element.
       if (!this.dialog || !this.dialog.parentNode) {
+        // $super (and its own detachKeyListeners) is skipped above, so it's done here to avoid leaking the shortcut.
+        this.detachKeyListeners();
         return;
       }
       $super(event);
