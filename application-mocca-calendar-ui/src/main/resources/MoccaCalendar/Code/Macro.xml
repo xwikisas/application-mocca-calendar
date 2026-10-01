@@ -392,6 +392,15 @@ if (typeof(XWiki) == "undefined" || typeof(XWiki.widgets) == "undefined" || type
       this.savedBox.hide();
     },
 
+    closeDialog: function($super, event) {
+      // Ignore calls coming from an already closed popup (e.g. its Esc shortcut was not unregistered),
+      // otherwise removing its detached dialog fails and blocks closing the current popup.
+      if (!this.dialog || !this.dialog.parentNode) {
+        return;
+      }
+      $super(event);
+    },
+
     loadEditForm: function(event) {
       event.stop();
       this.interactionParameters.editMode = true;
