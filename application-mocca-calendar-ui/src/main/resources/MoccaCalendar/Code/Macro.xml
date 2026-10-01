@@ -618,7 +618,10 @@ if (typeof(XWiki) == "undefined" || typeof(XWiki.widgets) == "undefined" || type
             }
             buttons.insert('&lt;span class="buttonwrapper"&gt;&lt;a href="#" id="cancel-moccacalendar-event" class="secondary button"&gt;' + purify.sanitize(l10n['cancel']) + '&lt;/a&gt;&lt;/span&gt;');
             buttons.down('#cancel-moccacalendar-event').observe('click', this.closeDialog.bind(this));
-            $("MoccaCalendarEvent.MoccaCalendarEventClass_0_title").focus();
+            var titleInput = $('MoccaCalendar.MoccaCalendarEventClass_0_title');
+            if (titleInput) {
+              titleInput.focus();
+            }
           } else {
             var leftGroup = new Element('div', {'class':'btn-group btn-group-left'});
             buttons.insert(leftGroup);
