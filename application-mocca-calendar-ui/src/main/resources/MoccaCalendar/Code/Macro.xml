@@ -334,6 +334,10 @@ if (typeof(XWiki) == "undefined" || typeof(XWiki.widgets) == "undefined" || type
             : purify.sanitize(l10n['MoccaCalendar.calendarevent.view']),
           removeOnClose : true,
           onClose : function() {
+            // Without this, shortcuts would stay silently disabled for the rest of the session after the first modal close.
+            if (document.activeElement &amp;&amp; this.dialog.contains(document.activeElement)) {
+              document.activeElement.blur();
+            }
             removeColorPickers();
             document.stopObserving('xwiki:moccacalendar:editmode');
             document.stopObserving('xwiki:moccacalendar:instancesaved');
