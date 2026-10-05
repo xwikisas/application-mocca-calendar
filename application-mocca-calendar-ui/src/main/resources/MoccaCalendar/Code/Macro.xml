@@ -334,6 +334,10 @@ if (typeof(XWiki) == "undefined" || typeof(XWiki.widgets) == "undefined" || type
             : purify.sanitize(l10n['MoccaCalendar.calendarevent.view']),
           removeOnClose : true,
           onClose : function() {
+            // Without this, shortcuts would stay silently disabled for the rest of the session after the first modal close.
+            if (document.activeElement &amp;&amp; this.dialog.contains(document.activeElement)) {
+              document.activeElement.blur();
+            }
             removeColorPickers();
             document.stopObserving('xwiki:moccacalendar:editmode');
             document.stopObserving('xwiki:moccacalendar:instancesaved');
@@ -383,6 +387,14 @@ if (typeof(XWiki) == "undefined" || typeof(XWiki.widgets) == "undefined" || type
       this.loadEventContent();
       this.showDialog();
       this.setClass("moccacal-modal-popup");
+      // Keep the page keyboard shortcuts (e.g. 'e' for edit) from firing while the modal is open.
+      this.dialog.writeAttribute('tabindex', '-1');
+      this.dialog.observe('keydown', function(event) {
+        if (event.key !== 'Escape') {
+          event.stopPropagation();
+        }
+      });
+      this.dialog.focus();
 
       this.savingBox = new XWiki.widgets.Notification(
         purify.sanitize(l10n['core.widgets.confirmationBox.notification.inProgress']), 'inprogress', {inactive: true});
@@ -394,6 +406,7 @@ if (typeof(XWiki) == "undefined" || typeof(XWiki.widgets) == "undefined" || type
 
     loadEditForm: function(event) {
       event.stop();
+      this.dialog.focus();
       this.interactionParameters.editMode = true;
       this.loadEventContent();
     },
@@ -618,7 +631,7 @@ if (typeof(XWiki) == "undefined" || typeof(XWiki.widgets) == "undefined" || type
             }
             buttons.insert('&lt;span class="buttonwrapper"&gt;&lt;a href="#" id="cancel-moccacalendar-event" class="secondary button"&gt;' + purify.sanitize(l10n['cancel']) + '&lt;/a&gt;&lt;/span&gt;');
             buttons.down('#cancel-moccacalendar-event').observe('click', this.closeDialog.bind(this));
-            $("MoccaCalendarEvent.MoccaCalendarEventClass_0_title").focus();
+            $("MoccaCalendar.MoccaCalendarEventClass_0_title").focus();
           } else {
             var leftGroup = new Element('div', {'class':'btn-group btn-group-left'});
             buttons.insert(leftGroup);
