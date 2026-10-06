@@ -298,7 +298,7 @@ if (typeof(XWiki) == "undefined" || typeof(XWiki.widgets) == "undefined" || type
 
   XWiki.MoccaCalendar.Helper.setCalendarView = function(value) {
     var cookieName = 'MoccaCalendar_view=';
-    document.cookie = cookieName + value + "; path=/";
+    document.cookie = cookieName + value + "; path=/; max-age=" + (180 * 24 * 60 * 60);
   };
 
   function removeColorPickers() {
