@@ -404,6 +404,14 @@ if (typeof(XWiki) == "undefined" || typeof(XWiki.widgets) == "undefined" || type
       this.savedBox.hide();
     },
 
+    closeDialog: function($super, event) {
+      // Skip a stale popup whose dialog was already removed, $super's dialog.remove() throws on a detached element.
+      if (!this.dialog || !this.dialog.parentNode) {
+        return;
+      }
+      $super(event);
+    },
+
     loadEditForm: function(event) {
       event.stop();
       this.dialog.focus();
