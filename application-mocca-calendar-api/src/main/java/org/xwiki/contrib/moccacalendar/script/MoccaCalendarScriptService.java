@@ -903,6 +903,17 @@ public class MoccaCalendarScriptService implements ScriptService
         return event;
     }
 
+    /**
+     * @param event an event instance, as returned by {@link #getEventInstance(Document, Date)}
+     * @return a preview of the event description: its first paragraph and its images (key {@code html}), and whether
+     *     some content was left out (key {@code truncated})
+     * @since 2.20.2
+     */
+    public Map<String, Object> getDescriptionPreview(EventInstance event)
+    {
+        return Utils.getDescriptionPreview(event.getDescriptionHtml());
+    }
+
     private void sortEvents(final List<EventInstance> events, final boolean ascending)
     {
         Collections.sort(events, new Comparator<EventInstance>()

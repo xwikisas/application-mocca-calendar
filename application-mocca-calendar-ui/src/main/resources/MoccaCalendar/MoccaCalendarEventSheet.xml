@@ -415,7 +415,22 @@ $doc.display($field)
     ; &lt;label for="description"&gt;
         $services.rendering.escape($escapetool.xml($doc.displayPrettyName('description', false, false)), 'xwiki/2.1')
       &lt;/label&gt;
-    : $eventInstance.getDescriptionHtml()
+    #if ($request.xpage == 'plain')
+      ## Modal preview: first paragraph and images only. The HTML is inserted in wiki syntax, so the double curly braces
+      ## are encoded to prevent the description from being interpreted as macros (same as CKEditor.ContentSheet).
+      #set ($descriptionPreview = $services.moccacalendar.getDescriptionPreview($eventInstance))
+      #if ("$!instanceStartStr" != '')
+        #set ($eventViewURL = $doc.getURL('view', "instanceStart=$escapetool.url($instanceStartStr)"))
+      #else
+        #set ($eventViewURL = $doc.getURL('view'))
+      #end
+    : &lt;div class="moccacal-description-preview"&gt;$descriptionPreview.html.replace('{{', '&amp;#123;&amp;#123;')&lt;/div&gt;##
+&lt;a class="moccacal-description-more" href="$services.rendering.escape($escapetool.xml($eventViewURL), 'xwiki/2.1')"#if (!$descriptionPreview.truncated) hidden#end&gt;$services.rendering.escape($escapetool.xml($services.localization.render('MoccaCalendar.calendarevent.description.more')), 'xwiki/2.1')&lt;/a&gt;
+
+    #else
+    ## Same curly braces encoding as for the modal preview above.
+    : $!eventInstance.getDescriptionHtml().replace('{{', '&amp;#123;&amp;#123;')
+    #end
     ; &lt;label for="showAuthor"&gt;$services.rendering.escape($escapetool.xml($doc.displayPrettyName('showAuthor', false, false)), 'xwiki/2.1')&lt;/label&gt;
     : $doc.display('showAuthor')
     #if($doc.getValue('showAuthor') == 1)
