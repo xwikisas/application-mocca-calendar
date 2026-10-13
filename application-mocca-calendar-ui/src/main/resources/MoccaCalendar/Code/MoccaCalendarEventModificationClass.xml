@@ -364,7 +364,7 @@
           }
           $$('form #oneEventFields input').each(removeIndex)
           $$('form #oneEventFields textarea').each(removeIndex)
-          // The WYSIWYG editor references the description field by name.
+          // The HTML conversion on save looks up the description field by this name.
           $$('form #oneEventFields input[name="RequiresHTMLConversion"]').each(function(elem) {
             elem.value = elem.value.replace(/_-[0-9]+_/, '_')
           })
