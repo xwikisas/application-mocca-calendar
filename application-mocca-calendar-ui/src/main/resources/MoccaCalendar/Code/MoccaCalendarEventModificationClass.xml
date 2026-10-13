@@ -63,7 +63,7 @@
       <contenttype>---</contenttype>
       <customDisplay/>
       <disabled>0</disabled>
-      <editor>Text</editor>
+      <editor>Wysiwyg</editor>
       <name>description</name>
       <number>6</number>
       <picker>0</picker>
@@ -277,6 +277,12 @@
       setOriginalDateFormat();
     }
     if (action == 'action_save' || action == 'action_saveandcontinue' || action == 'save-moccacalendar-event') {
+      // Let the WYSIWYG editor update its form field (the HTML is converted to wiki syntax on save).
+      var beforeSave = jQuery.Event('xwiki:actions:beforeSave');
+      jQuery(document).trigger(beforeSave, {form: $('mocca-event-edit-form')});
+      if (beforeSave.isDefaultPrevented()) {
+        return
+      }
       new Ajax.Request(
          new XWiki.Document( new XWiki.DocumentReference('', ['MoccaCalendar','Code'], 'EventModificationService')).getURL('get'),
          {
@@ -358,6 +364,10 @@
           }
           $$('form #oneEventFields input').each(removeIndex)
           $$('form #oneEventFields textarea').each(removeIndex)
+          // The WYSIWYG editor references the description field by name.
+          $$('form #oneEventFields input[name="RequiresHTMLConversion"]').each(function(elem) {
+            elem.value = elem.value.replace(/_-[0-9]+_/, '_')
+          })
         }
     }
   }
