@@ -306,7 +306,10 @@ if (typeof(XWiki) == "undefined" || typeof(XWiki.widgets) == "undefined" || type
       jQuery('#' + jQuery(this).data('colpickId')).remove();
     });
   }
-  
+
+  // The modal is reopened for each event, but the CKEditor listeners configuring its editors are added only once.
+  var modalEditorsConfigured = false;
+
   //
   // the dialog to show / edit events
   //
@@ -409,6 +412,7 @@ if (typeof(XWiki) == "undefined" || typeof(XWiki.widgets) == "undefined" || type
       if (!this.dialog || !this.dialog.parentNode) {
         return;
       }
+      this.destroyEditors();
       $super(event);
     },
 
@@ -501,6 +505,14 @@ if (typeof(XWiki) == "undefined" || typeof(XWiki.widgets) == "undefined" || type
         saveUrl = this.interactionParameters.event.saveUrl;
       }
       this.content.writeAttribute('action', saveUrl + '&amp;xpage=plain&amp;ajax=true');
+      // Let the WYSIWYG editor update its form field (the HTML is converted to wiki syntax on save).
+      var beforeSave = jQuery.Event('xwiki:actions:beforeSave');
+      jQuery(document).trigger(beforeSave, {form: this.content});
+      if (beforeSave.isDefaultPrevented()) {
+        this.saving = false;
+        this.savingBox.hide();
+        return;
+      }
       let formData = new FormData(this.content);
       if (formData.get('MoccaCalendar.MoccaCalendarEventClass_0_allDay') == 1) {
         this.content.querySelectorAll('input.datetime').forEach(dateInput =&gt; {
@@ -532,6 +544,8 @@ if (typeof(XWiki) == "undefined" || typeof(XWiki.widgets) == "undefined" || type
           try {
             this.saving = false;
             var responseText = e.responseText;
+            // The returned form gets new editors, which need the names of the current ones.
+            this.destroyEditors();
             $("forminnercontent").innerHTML = responseText;
             this.savingBox.hide();
             if (e.status &gt; 400) { this.helper.displayError(); }
@@ -600,8 +614,75 @@ if (typeof(XWiki) == "undefined" || typeof(XWiki.widgets) == "undefined" || type
       });
     },
 
+    /** Trim the editors of the event modal to the essentials; the slash menu still gives access to the rest. */
+    configureModalEditors: function() {
+      var trimEditorConfig = this.trimEditorConfig;
+      require(['xwiki-ckeditor'], function(ckeditorPromise) {
+        ckeditorPromise.done(function(ckeditor) {
+          if (modalEditorsConfigured) {
+            return;
+          }
+          modalEditorsConfigured = true;
+          var configure = function(editor) {
+            editor.once('configLoaded', function() {
+              if (editor.element &amp;&amp; editor.element.$.closest('#mocca-event-edit-form')) {
+                editor.__moccaModal = true;
+                trimEditorConfig(editor.config);
+              }
+            });
+          };
+          ckeditor.on('instanceCreated', event =&gt; configure(event.editor));
+          // Editors created while CKEditor was loading haven't loaded their configuration yet (it's asynchronous).
+          Object.values(ckeditor.instances).filter(editor =&gt; editor.status === 'unloaded').forEach(configure);
+        });
+      });
+    },
+
+    trimEditorConfig: function(config) {
+      config.removeButtons = [config.removeButtons, 'Source,Replace,Blockquote,Undo,Redo,Maximize']
+        .filter(Boolean).join(',');
+      // Removing the plugin also disables typing ':' to insert emojis.
+      config.removePlugins = [config.removePlugins, 'emoji'].filter(Boolean).join(',');
+      config.removeQuickActions = (config.removeQuickActions || []).concat('emoji');
+      var insertMenu = config.toolbarMenus &amp;&amp; config.toolbarMenus.insert;
+      if (insertMenu) {
+        // Copy: the menu definitions are shared with the other editors on the page.
+        config.toolbarMenus = Object.assign({}, config.toolbarMenus, {insert: Object.assign({}, insertMenu, {
+          groups: insertMenu.groups.filter(group =&gt; group.id !== 'macros' &amp;&amp; group.id !== 'otherMacros')
+        })});
+      }
+    },
+
+    /** Destroy the editors of the modal when it closes, so that their instance names are free when it's reopened. */
+    destroyEditors: function() {
+      Object.values((window.CKEDITOR || {}).instances || {}).filter(editor =&gt; editor.__moccaModal)
+        .forEach(editor =&gt; editor.destroy(true));
+    },
+
+    /** Show the link to the event page when the description preview is cut by its line limit. */
+    revealDescriptionMoreLink: function(formcontent) {
+      var preview = formcontent.down('.moccacal-description-preview &gt; *');
+      var moreLink = formcontent.down('.moccacal-description-more');
+      if (!preview || !moreLink) {
+        return;
+      }
+      var check = function() {
+        if (preview.scrollHeight &gt; preview.clientHeight) {
+          moreLink.removeAttribute('hidden');
+        }
+      };
+      check();
+      // Images change the height once loaded.
+      preview.select('img').invoke('observe', 'load', check);
+    },
+
     loadEventContent: function() {
       var url;
+      if (this.interactionParameters.editMode &amp;&amp;
+          this.helper.createEventBaseUrl.indexOf('disabled=disabled') === -1) {
+        // Before the form is loaded, so that the editor created for it gets the modal configuration.
+        this.configureModalEditors();
+      }
       if (this.interactionParameters.isNew) {
         url = this.interactionParameters.pageURL;
       } else {
@@ -641,6 +722,7 @@ if (typeof(XWiki) == "undefined" || typeof(XWiki.widgets) == "undefined" || type
             buttons.down('#cancel-moccacalendar-event').observe('click', this.closeDialog.bind(this));
             $("MoccaCalendar.MoccaCalendarEventClass_0_title").focus();
           } else {
+            this.revealDescriptionMoreLink(formcontent);
             var leftGroup = new Element('div', {'class':'btn-group btn-group-left'});
             buttons.insert(leftGroup);
             if (this.interactionParameters.event.canEdit) {
@@ -1381,6 +1463,24 @@ div.calendar-buttons span.buttonwrapper {
 
 .fc-scroller.fc-time-grid-container {
   max-height: 600px;
+}
+
+/* Event description preview in the modal: first paragraph or list (at most 10 lines) and small images, the rest is
+   on the event page. */
+.moccacal-description-preview &gt; :first-child {
+  /* Fallback for browsers without the lh unit (10 lines at the default line height). */
+  max-height: 14.3em;
+  max-height: ~"10lh";
+  overflow: hidden;
+}
+.moccacal-description-preview p {
+  margin-bottom: 0.5em;
+}
+.moccacal-description-preview img {
+  max-height: 8em;
+  max-width: 100%;
+  width: auto;
+  height: auto;
 }</code>
     </property>
     <property>
@@ -1611,7 +1711,9 @@ div.calendar-buttons span.buttonwrapper {
       <async_enabled>0</async_enabled>
     </property>
     <property>
-      <code>{{velocity output="false"}}
+      <code>{{include reference="CKEditor.VelocityMacros"/}}
+
+{{velocity output="false"}}
 #set ($parameterMap = {})
 #if ($themeDoc)
   ## If a theme doc is found, we add the theme to the ssx requests to make sure that the cache is properly updated.
@@ -1743,6 +1845,11 @@ $xwiki.ssx.use("MoccaCalendar.Code.Macro", $parameterMap)
 #set($right = "agendaDay,agendaWeek,month,plainList")
 
 #set($canCreateEvents = $xwiki.hasAccessLevel("edit", $xcontext.getUser(), $calendarDoc))
+## The event modal loads its form with xpage=plain, which doesn't include skin extensions, so the description editor
+## has to be loaded with the calendar.
+#if ($canCreateEvents &amp;&amp; $disableCreationEvent == '')
+  #importCKEditorResources
+#end
 
 ## Macro for the modal that's used on deleting an event
 #macro(showDeleteEventsModal)
