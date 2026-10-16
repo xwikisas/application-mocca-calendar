@@ -20,7 +20,6 @@
 package org.xwiki.contrib.moccacalendar.internal;
 
 import java.util.Date;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -203,9 +202,6 @@ public final class Utils
                 .append("</p>");
         }
 
-        Map<String, Object> result = new HashMap<>();
-        result.put("html", preview.toString());
-        result.put("truncated", truncated);
-        return result;
+        return Map.of("html", preview.toString(), "truncated", truncated);
     }
 }

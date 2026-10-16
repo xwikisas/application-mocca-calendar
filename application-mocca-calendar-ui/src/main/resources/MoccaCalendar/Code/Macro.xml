@@ -306,7 +306,10 @@ if (typeof(XWiki) == "undefined" || typeof(XWiki.widgets) == "undefined" || type
       jQuery('#' + jQuery(this).data('colpickId')).remove();
     });
   }
-  
+
+  // The modal is reopened for each event, but the CKEditor listeners configuring its editors are added only once.
+  var modalEditorsConfigured = false;
+
   //
   // the dialog to show / edit events
   //
@@ -614,10 +617,10 @@ if (typeof(XWiki) == "undefined" || typeof(XWiki.widgets) == "undefined" || type
       var trimEditorConfig = this.trimEditorConfig;
       require(['xwiki-ckeditor'], function(ckeditorPromise) {
         ckeditorPromise.done(function(ckeditor) {
-          if (ckeditor.__moccaModalEditors) {
+          if (modalEditorsConfigured) {
             return;
           }
-          ckeditor.__moccaModalEditors = true;
+          modalEditorsConfigured = true;
           var configure = function(editor) {
             editor.once('configLoaded', function() {
               if (editor.element &amp;&amp; editor.element.$.closest('#mocca-event-edit-form')) {
@@ -648,13 +651,13 @@ if (typeof(XWiki) == "undefined" || typeof(XWiki.widgets) == "undefined" || type
       }
     },
 
-    /** Otherwise reopening the modal fails because the editor instance name is already taken. */
+    /** Destroy the editors of the modal when it closes, so that their instance names are free when it's reopened. */
     destroyEditors: function() {
       Object.values((window.CKEDITOR || {}).instances || {}).filter(editor =&gt; editor.__moccaModal)
         .forEach(editor =&gt; editor.destroy(true));
     },
 
-    /** Show the link to the event page when the description preview is cut by its line limit (see the CSS). */
+    /** Show the link to the event page when the description preview is cut by its line limit. */
     revealDescriptionMoreLink: function(formcontent) {
       var preview = formcontent.down('.moccacal-description-preview &gt; *');
       var moreLink = formcontent.down('.moccacal-description-more');

@@ -277,7 +277,7 @@
       setOriginalDateFormat();
     }
     if (action == 'action_save' || action == 'action_saveandcontinue' || action == 'save-moccacalendar-event') {
-      // Let the WYSIWYG editor update its form field (the HTML is converted to wiki syntax on save).
+      // The form is sent with Ajax, so let the WYSIWYG editor update its form field first.
       var beforeSave = jQuery.Event('xwiki:actions:beforeSave');
       jQuery(document).trigger(beforeSave, {form: $('mocca-event-edit-form')});
       if (beforeSave.isDefaultPrevented()) {
@@ -314,17 +314,21 @@
     }
   }
 
+  // The WYSIWYG editor manages the HTML conversion marker of its field: it starts in source mode if the marker is
+  // disabled, and then saves its HTML without conversion. The field itself is disabled, so it isn't sent anyway.
+  var NOT_HTML_CONVERSION_MARKER = ':not([name="RequiresHTMLConversion"])'
+
   function editOnlyThisInstance() {
     // here we tell the default handler in the main "Macro" code not to save
     // if we are in the edit dialog modal
     document.fire('xwiki:moccacalendar:editmode', {'oneInstance' : true})
     $$("#mocca-event-edit-form input#save-moccacalendar-event").each(function (e) { e.observe('click', onSaveClick) } )
     $('allEventsFields').hide()
-    $$('#allEventsFields input').each(disable)
+    $$('#allEventsFields input' + NOT_HTML_CONVERSION_MARKER).each(disable)
     $$('#allEventsFields textarea').each(disable)
     $$('input[name=language]').each(disable)
     $$('#oneEventFields textarea').each(enable)
-    $$('#oneEventFields input').each(enable)
+    $$('#oneEventFields input' + NOT_HTML_CONVERSION_MARKER).each(enable)
     $('oneEventFields').show()
   }
 
@@ -332,11 +336,11 @@
     document.fire('xwiki:moccacalendar:editmode', {'oneInstance' : false})
     $$("#mocca-event-edit-form input#save-moccacalendar-event").each(function (e) { e.stopObserving('click', onSaveClick) } )
     $('oneEventFields').hide()
-    $$('#oneEventFields input').each(disable)
+    $$('#oneEventFields input' + NOT_HTML_CONVERSION_MARKER).each(disable)
     $$('#oneEventFields textarea').each(disable)
     $$('input[name=language]').each(enable)
     $$('#allEventsFields textarea').each(enable)
-    $$('#allEventsFields input').each(enable)
+    $$('#allEventsFields input' + NOT_HTML_CONVERSION_MARKER).each(enable)
     $('allEventsFields').show()
   }
 
