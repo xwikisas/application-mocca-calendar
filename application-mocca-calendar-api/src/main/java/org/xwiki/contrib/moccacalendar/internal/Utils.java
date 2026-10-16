@@ -165,7 +165,6 @@ public final class Utils
     public static Map<String, Object> getDescriptionPreview(String descriptionHtml)
     {
         Document html = Jsoup.parseBodyFragment(StringUtils.defaultString(descriptionHtml));
-        // Keep the output on a single line because it is inserted in wiki syntax.
         html.outputSettings().prettyPrint(false);
         Elements blocks = html.body().children();
         Element firstTextBlock =
