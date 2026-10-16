@@ -905,8 +905,8 @@ public class MoccaCalendarScriptService implements ScriptService
 
     /**
      * @param event an event instance, as returned by {@link #getEventInstance(Document, Date)}
-     * @return a preview of the event description: its first paragraph and its images (key {@code html}), and whether
-     *     some content was left out (key {@code truncated})
+     * @return a preview of the event description: its first paragraph or list and at most two images (key
+     *     {@code html}), and whether some content was left out (key {@code truncated})
      * @since 2.20.2
      */
     public Map<String, Object> getDescriptionPreview(EventInstance event)
