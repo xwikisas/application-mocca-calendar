@@ -544,6 +544,8 @@ if (typeof(XWiki) == "undefined" || typeof(XWiki.widgets) == "undefined" || type
           try {
             this.saving = false;
             var responseText = e.responseText;
+            // The returned form gets new editors, which need the names of the current ones.
+            this.destroyEditors();
             $("forminnercontent").innerHTML = responseText;
             this.savingBox.hide();
             if (e.status &gt; 400) { this.helper.displayError(); }
