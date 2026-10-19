@@ -67,6 +67,8 @@ public class MeetingEventSource implements EventSource
     private static final String MEETING_ENTRY_CLASS_NAME = "Meeting.Code.MeetingClass";
     private static final String MEETING_TEMPLATE_PAGE = "Meeting.Code.MeetingTemplate";
 
+    private static final String MEETING_EXTENSION_ID = "com.xwiki.meeting:application-meeting-ui";
+
     @Inject
     private Provider<XWikiContext> xcontextProvider;
 
@@ -106,6 +108,12 @@ public class MeetingEventSource implements EventSource
     public LocalDocumentReference getConfigurationClass()
     {
         return MeetingsSourceConfigurationClassInitializer.classRef();
+    }
+
+    @Override
+    public String getExtensionId()
+    {
+        return MEETING_EXTENSION_ID;
     }
 
     /**

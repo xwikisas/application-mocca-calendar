@@ -30,6 +30,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
+import java.util.TreeMap;
 
 import javax.inject.Inject;
 import javax.inject.Named;
@@ -49,7 +50,9 @@ import org.xwiki.contrib.moccacalendar.internal.EventConstants;
 import org.xwiki.contrib.moccacalendar.internal.Utils;
 import org.xwiki.contrib.moccacalendar.internal.utils.DefaultEventAssembly;
 import org.xwiki.contrib.moccacalendar.internal.utils.EventQuery;
+import org.xwiki.extension.repository.InstalledExtensionRepository;
 import org.xwiki.model.EntityType;
+import org.xwiki.model.namespace.WikiNamespace;
 import org.xwiki.model.reference.DocumentReference;
 import org.xwiki.model.reference.DocumentReferenceResolver;
 import org.xwiki.model.reference.EntityReference;
@@ -143,6 +146,9 @@ public class MoccaCalendarScriptService implements ScriptService
 
     @Inject
     private WikiDescriptorManager wikiDescriptorManager;
+
+    @Inject
+    private InstalledExtensionRepository installedExtensionRepository;
 
     @Inject
     private Logger logger;
@@ -496,6 +502,30 @@ public class MoccaCalendarScriptService implements ScriptService
             logger.trace("check availability of source [{}]", name);
             return eventSources.get(name).isAvailable();
         }).collect(ArrayList::new, ArrayList::add, ArrayList::addAll);
+    }
+
+    /**
+     * Returns the event sources that are not available, but would become available by installing an extension. Sources
+     * whose extension is already installed on the current wiki (or on the whole farm) are left out, so that
+     * administrators are not asked to install an extension that is there, e.g. when its availability check failed.
+     *
+     * @return a map from the event source name to the id of the extension to install, not null
+     * @see EventSource#getExtensionId()
+     * @since 2.20.2
+     */
+    public Map<String, String> getInstallableSources()
+    {
+        String namespace = new WikiNamespace(xcontextProvider.get().getWikiId()).serialize();
+        Map<String, String> sources = new TreeMap<>();
+        for (Map.Entry<String, EventSource> source : eventSources.entrySet()) {
+            String extensionId = source.getValue().getExtensionId();
+            if (extensionId != null && !source.getValue().isAvailable()
+                && installedExtensionRepository.getInstalledExtension(extensionId, namespace) == null)
+            {
+                sources.put(source.getKey(), extensionId);
+            }
+        }
+        return sources;
     }
 
     /**
