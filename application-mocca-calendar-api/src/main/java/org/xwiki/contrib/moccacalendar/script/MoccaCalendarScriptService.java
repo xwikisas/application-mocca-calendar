@@ -511,7 +511,6 @@ public class MoccaCalendarScriptService implements ScriptService
      *
      * @return a map from the event source name to the id of the extension to install, not null
      * @see EventSource#getExtensionId()
-     * @since 2.20.2
      */
     public Map<String, String> getInstallableSources()
     {

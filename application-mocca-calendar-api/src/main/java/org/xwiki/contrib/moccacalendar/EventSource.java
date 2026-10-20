@@ -112,8 +112,7 @@ public interface EventSource
      * The default implementation returns {@code null}, which means that the source does not depend on an optional
      * extension, so nothing is displayed for it while it is unavailable.
      *
-     * @return an extension id (e.g. {@code groupId:artifactId}), or {@code null}
-     * @since 2.20.2
+     * @return an extension id
      */
     default String getExtensionId()
     {
