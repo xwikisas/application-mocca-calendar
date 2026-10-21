@@ -37,7 +37,6 @@ import com.xpn.xwiki.api.Document;
  * @since 2.11
  */
 @Role
-@Unstable
 public interface EventSource
 {
 
@@ -113,7 +112,9 @@ public interface EventSource
      * extension, so nothing is displayed for it while it is unavailable.
      *
      * @return an extension id
+     * @since 2.22.0
      */
+    @Unstable
     default String getExtensionId()
     {
         return null;

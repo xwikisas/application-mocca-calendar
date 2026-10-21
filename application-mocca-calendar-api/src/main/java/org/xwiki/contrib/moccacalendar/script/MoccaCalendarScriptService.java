@@ -67,6 +67,7 @@ import org.xwiki.query.QueryFilter;
 import org.xwiki.query.QueryManager;
 import org.xwiki.rendering.syntax.Syntax;
 import org.xwiki.script.service.ScriptService;
+import org.xwiki.stability.Unstable;
 import org.xwiki.wiki.descriptor.WikiDescriptor;
 import org.xwiki.wiki.descriptor.WikiDescriptorManager;
 import org.xwiki.wiki.manager.WikiManagerException;
@@ -511,7 +512,9 @@ public class MoccaCalendarScriptService implements ScriptService
      *
      * @return a map from the event source name to the id of the extension to install, not null
      * @see EventSource#getExtensionId()
+     * @since 2.22.0
      */
+    @Unstable
     public Map<String, String> getInstallableSources()
     {
         String namespace = new WikiNamespace(xcontextProvider.get().getWikiId()).serialize();
