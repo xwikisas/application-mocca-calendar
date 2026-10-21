@@ -23,15 +23,15 @@
   <parent>
     <groupId>com.xwiki.parent</groupId>
     <artifactId>xwikisas-parent-platform</artifactId>
-    <version>15.10</version>
+    <version>15.10-6</version>
   </parent>
   <groupId>com.xwiki.mocca-calendar</groupId>
   <artifactId>application-mocca-calendar</artifactId>
-  <version>2.20.2-SNAPSHOT</version>
+  <version>2.21.1-SNAPSHOT</version>
   <name>Calendar Application - Parent POM</name>
   <packaging>pom</packaging>
   <properties>
-    <licensing.version>1.33</licensing.version>
+    <licensing.version>1.33.1</licensing.version>
     <fullcalendar.version>2.5.5</fullcalendar.version>
   </properties>
   <modules>
