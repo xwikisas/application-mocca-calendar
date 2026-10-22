@@ -61,6 +61,7 @@ MoccaCalendar.calendarevent.confirmDelete=Voulez-vous vraiment supprimer l''év�
 MoccaCalendar.calendarevent.view=Événement
 MoccaCalendar.calendarevent.confirmDelete.allEventsButton=Touts les instances
 MoccaCalendar.calendarevent.color.defaultValue=Calendrier par défaut
+MoccaCalendar.calendarevent.author=Auteur
 MoccaCalendar.generic.errormessage=Erreur interne au serveur
 
 # Import ical file
@@ -85,6 +86,7 @@ MoccaCalendar.MoccaCalendarClass_textColor=Couleur du texte des saisies dans la 
 MoccaCalendar.MoccaCalendarClass_description=Description
 MoccaCalendar.MoccaCalendarClass_content1=Contenue
 MoccaCalendar.MoccaCalendarClass.textColor.unset=(Blanc)
+MoccaCalendar.MoccaCalendarClass_showAuthor=Affiche l'auteur de l'évènement
 
 # Subscribe class fields
 MoccaCalendar.MoccaCalendarSubscribeClass_title=Titre
@@ -103,7 +105,7 @@ moccacalendar.subscribedevent.allday.no=Non
 
 # Live table generic keys
 moccacalendar.livetable.doc.title=Calendrier
-moccacalendar.livetable.doc.subscribed=Abonnements à des calendriers
+moccacalendar.livetable.doc.subscribed=Abonnement à un calendrier
 moccacalendar.livetable.doc.name=Nom de la page
 moccacalendar.livetable.doc.space=Espace
 moccacalendar.livetable.doc.fullname=Nom complet de la page
@@ -133,16 +135,25 @@ MoccaCalendar.MoccaCalendarEventClass_backgroundColor=Couleur de l'arrière plan
 MoccaCalendar.MoccaCalendarEventClass_textColor=Couleur du texte
 MoccaCalendar.MoccaCalendarEventClass_allDay=Toute la journée
 MoccaCalendar.MoccaCalendarEventClass_recurrent=Toutes les instances
+MoccaCalendar.MoccaCalendarEventClass_showAuthor=Affiche l'auteur de l'évènement
 
 # Calendar Source Configuration Class fields
 MoccaCalendar.Code.DefaultEventSourceConfigClass.source={0} comme Événements
 MoccaCalendar.Code.DefaultEventSourceConfigClass_active=Actif
 MoccaCalendar.Code.DefaultEventSourceConfigClass_active.hint=Si actif, les évènements de cette source seront affichés dans ce calendrier.
+MoccaCalendar.Code.DefaultEventSourceConfigClass_backgroundColor=Couleur de fond
+MoccaCalendar.Code.DefaultEventSourceConfigClass_backgroundColor.hint=Couleur de fond utilisée pour les évènements de cette source. Si laissé vide, la couleur du calendrier sera utilisée.
+MoccaCalendar.Code.DefaultEventSourceConfigClass_textColor=Couleur du texte
+MoccaCalendar.Code.DefaultEventSourceConfigClass_textColor.hint=Couleur du texte utilisée pour les évènements de cette source. Si laissé vide, la couleur du calendrier sera utilisée.
 MoccaCalendar.Code.MeetingsSourceConfigClass.source=Réunion comme des évènements
 MoccaCalendar.Code.MeetingsSourceConfigClass_active=Actif
 MoccaCalendar.Code.MeetingsSourceConfigClass_active.hint=Si actif, les réunions seront affichées dans ce calendrier.
 MoccaCalendar.Code.MeetingsSourceConfigClass_meetings=Emplacement des réunions
 MoccaCalendar.Code.MeetingsSourceConfigClass_meetings.hint=L'emplacement depuis lequel les réunions sont affichées.
+MoccaCalendar.Code.MeetingsSourceConfigClass_backgroundColor=Couleur de fond
+MoccaCalendar.Code.MeetingsSourceConfigClass_backgroundColor.hint=Couleur de fond utilisée pour les réunions affichées dans le calendrier. Si laissé vide, la couleur de ce calendrier sera utilisée.
+MoccaCalendar.Code.MeetingsSourceConfigClass_textColor=Couleur du texte
+MoccaCalendar.Code.MeetingsSourceConfigClass_textColor.hint=Couleur du texte utilisée pour les réunions affichées dans le calendrier. Si laissé vide, la couleur de ce calendrier sera utilisée.
 
 # modification class fields
 MoccaCalendar.Code.MoccaCalendarEventRecurrencyClass_frequency=Fréquence
@@ -271,6 +282,8 @@ admin.moccacalendar.sources.section=Calendrier
 admin.moccacalendar.sources.header=Autorisé des sources pour les événements du calendrier
 admin.moccacalendar.sources.empty=Il n'y a pas de source d'événements de calendrier à configurer.
 admin.moccacalendar.sources.active.label=Afficher les événements de la source «{0}» :
+admin.moccacalendar.sources.backgroundColor.label=Couleur de fond utilisée pour les évènements de la source "{0}" :
+admin.moccacalendar.sources.textColor.label=Couleur du texte utilisée pour les évènements de la source "{0}" :
 
 # Recurrent event
 moccacalendar.recurrent.frequency.hint=La fréquence est en corrélation avec la date de démarrage sélectionnée.
