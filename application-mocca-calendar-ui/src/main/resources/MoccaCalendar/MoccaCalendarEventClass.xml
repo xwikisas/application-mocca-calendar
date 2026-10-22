@@ -76,7 +76,7 @@ $doc.validate()
       <contenttype>---</contenttype>
       <customDisplay/>
       <disabled>0</disabled>
-      <editor>Text</editor>
+      <editor>Wysiwyg</editor>
       <name>description</name>
       <number>4</number>
       <picker>0</picker>
