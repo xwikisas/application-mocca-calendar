@@ -147,6 +147,9 @@ class ICalGeneratorTest
     private XWikiDocument eventDoc6;
 
     @Mock
+    private XWikiDocument eventDoc7;
+
+    @Mock
     private DocumentReference eventRef1;
 
     @Mock
@@ -164,6 +167,9 @@ class ICalGeneratorTest
     @Mock
     private DocumentReference eventRef6;
 
+    @Mock
+    private DocumentReference eventRef7;
+
     @BeforeEach
     void setUp() throws Exception
     {
@@ -176,12 +182,15 @@ class ICalGeneratorTest
         mockDocument(this.eventDoc2, this.eventRef2);
         mockDocument(this.eventDoc3, this.eventRef3);
         mockDocument(this.eventDoc4, this.eventRef4);
+        mockDocument(this.eventDoc7, this.eventRef7);
         generateVEvent(this.eventDoc1, Instant.parse(EVENT_TIME), Instant.parse(EVENT_TIME).plusSeconds(3600),
             "Event" + " 1");
         generateVEvent(this.eventDoc2, Instant.parse(EVENT_TIME), Instant.parse(EVENT_TIME).plusSeconds(5400),
             "Event 2");
         generateVEvent(this.eventDoc3, Instant.parse(EVENT_TIME), Instant.parse(EVENT_TIME).plusSeconds(7200),
             "Event 3");
+        generateVEvent(this.eventDoc7, Instant.parse(EVENT_TIME), Instant.parse(EVENT_TIME).plusSeconds(100),
+            "Event 7");
         when(this.eventGenerator.createEvent(this.eventDoc4)).thenReturn(null);
         when(this.wiki.getDocument(this.eventRef5, this.context)).thenReturn(null);
         when(this.wiki.getDocument(this.eventRef6, this.context)).thenReturn(this.eventDoc6);
@@ -191,6 +200,13 @@ class ICalGeneratorTest
         when(this.query.addFilter(this.documentFilter)).thenReturn(this.query);
         when(this.calendarRef.getLastSpaceReference()).thenReturn(this.calendarSpace);
         when(this.localSerializer.serialize(this.calendarSpace)).thenReturn(CALENDAR_SPACE_REFERENCE);
+        when(this.contextualAuthorizationManager.hasAccess(Right.VIEW, this.eventRef1)).thenReturn(true);
+        when(this.contextualAuthorizationManager.hasAccess(Right.VIEW, this.eventRef2)).thenReturn(true);
+        when(this.contextualAuthorizationManager.hasAccess(Right.VIEW, this.eventRef3)).thenReturn(true);
+        when(this.contextualAuthorizationManager.hasAccess(Right.VIEW, this.eventRef4)).thenReturn(true);
+        when(this.contextualAuthorizationManager.hasAccess(Right.VIEW, this.eventRef5)).thenReturn(true);
+        when(this.contextualAuthorizationManager.hasAccess(Right.VIEW, this.eventRef6)).thenReturn(true);
+        when(this.contextualAuthorizationManager.hasAccess(Right.VIEW, this.eventRef7)).thenReturn(false);
     }
 
     @Test
@@ -223,7 +239,8 @@ class ICalGeneratorTest
     void generateCalendarTimedEvents() throws Exception
     {
         when(this.query.execute()).thenReturn(
-            List.of(this.eventRef1, this.eventRef2, this.eventRef3, this.eventRef4, this.eventRef5, this.eventRef6));
+            List.of(this.eventRef1, this.eventRef2, this.eventRef3, this.eventRef4, this.eventRef5, this.eventRef6,
+                this.eventRef7));
 
         ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
         this.iCalGenerator.generateCalendar(CALENDAR_REFERENCE, outputStream);
@@ -243,6 +260,7 @@ class ICalGeneratorTest
         assertTrue(output.contains("DTEND:20260115T110000Z"));
         assertTrue(output.contains("SUMMARY:Event 3"));
         assertFalse(output.contains("SUMMARY:Event 4"));
+        assertFalse(output.contains("SUMMARY:Event 7"));
         assertEquals(3, StringUtils.countMatches(output, "BEGIN:VEVENT"));
     }
 

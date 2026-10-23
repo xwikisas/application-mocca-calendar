@@ -157,11 +157,13 @@ public class ICalGenerator
         query.addFilter(this.documentFilter);
         List<DocumentReference> eventDocRefs = query.execute();
         for (DocumentReference eventDocRef : eventDocRefs) {
-            XWikiDocument eventDocument = context.getWiki().getDocument(eventDocRef, context);
-            if (eventDocument != null && !eventDocument.isNew()) {
-                VEvent event = this.eventGenerator.createEvent(eventDocument);
-                if (event != null) {
-                    calendar.add(event);
+            if (this.contextualAuthorizationManager.hasAccess(Right.VIEW, eventDocRef)) {
+                XWikiDocument eventDocument = context.getWiki().getDocument(eventDocRef, context);
+                if (eventDocument != null && !eventDocument.isNew()) {
+                    VEvent event = this.eventGenerator.createEvent(eventDocument);
+                    if (event != null) {
+                        calendar.add(event);
+                    }
                 }
             }
         }
