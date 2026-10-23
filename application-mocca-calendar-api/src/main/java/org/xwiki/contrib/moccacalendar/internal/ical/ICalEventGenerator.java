@@ -47,6 +47,7 @@ import net.fortuna.ical4j.model.property.RRule;
 import net.fortuna.ical4j.model.property.XProperty;
 import net.fortuna.ical4j.util.FixedUidGenerator;
 import net.fortuna.ical4j.util.SimpleHostInfo;
+import net.fortuna.ical4j.util.Strings;
 import net.fortuna.ical4j.util.UidGenerator;
 
 /**
@@ -151,7 +152,8 @@ public class ICalEventGenerator
         String textColor = eventData.getStringValue(EventConstants.PROPERTY_TEXTCOLOR_NAME);
 
         if (!StringUtils.isBlank(backgroundColor)) {
-            event.add(new Color(new ParameterList(), backgroundColor));
+            // Make sure the color value is properly encoded.
+            event.add(new Color(new ParameterList(), Strings.escape(backgroundColor)));
         }
         if (!StringUtils.isBlank(textColor)) {
             event.add(new XProperty("X-MOCCA-TEXT-COLOR", textColor));

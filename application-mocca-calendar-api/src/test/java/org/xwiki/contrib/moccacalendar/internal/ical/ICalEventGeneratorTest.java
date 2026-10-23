@@ -152,6 +152,36 @@ public class ICalEventGeneratorTest
         assertNull(event.getDateTimeEnd());
     }
 
+    @Test
+    void createEventWithSpecialCharacters()
+    {
+        String value = "Line 1\r\nLine 2;a,b\\c";
+        String multiLineValue = "Line 1\\nLine 2\\;a\\,b\\\\c\r\n";
+        createEventData(Instant.parse("2026-02-20T14:00:00Z"), null, false);
+        when(this.eventDoc.getTitle()).thenReturn(value);
+        when(this.eventData.getStringValue(EventConstants.PROPERTY_DESCRIPTION_NAME)).thenReturn(value);
+        when(this.eventData.getStringValue(EventConstants.PROPERTY_BACKGROUNDCOLOR_NAME)).thenReturn(value);
+        when(this.eventData.getStringValue(EventConstants.PROPERTY_TEXTCOLOR_NAME)).thenReturn(value);
+        when(this.eventData.getStringValue(EventConstants.PROPERTY_SHOW_AUTHOR)).thenReturn(value);
+        VEvent event = this.eventGenerator.createEvent(this.eventDoc);
+        String output = event.toString();
+        assertTrue(output.contains("\r\nSUMMARY:" + multiLineValue));
+        assertTrue(output.contains("\r\nDESCRIPTION:" + multiLineValue));
+        assertTrue(output.contains("\r\nCOLOR:" + multiLineValue));
+        assertTrue(output.contains("\r\nX-MOCCA-TEXT-COLOR:" + multiLineValue));
+        assertTrue(output.contains("\r\nX-MOCCA-SHOW-AUTHOR:" + multiLineValue));
+        assertFalse(output.contains("\r\nLine 2"));
+    }
+
+    @Test
+    void createEventWithColors()
+    {
+        createEventData(Instant.parse("2026-02-20T14:00:00Z"), null, false);
+        when(this.eventData.getStringValue(EventConstants.PROPERTY_BACKGROUNDCOLOR_NAME)).thenReturn("#3a87ad");
+        VEvent event = this.eventGenerator.createEvent(this.eventDoc);
+        assertTrue(event.toString().contains("COLOR:#3a87ad\r\n"));
+    }
+
     private void createEventData(Instant start, Instant end, boolean allDay)
     {
         Date startDate = start != null ? Date.from(start) : null;
