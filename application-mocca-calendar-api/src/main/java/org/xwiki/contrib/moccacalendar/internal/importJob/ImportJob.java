@@ -35,7 +35,10 @@ import org.xwiki.fullcalendar.model.CalendarEvent;
 import org.xwiki.job.AbstractJob;
 import org.xwiki.job.GroupedJob;
 import org.xwiki.job.JobGroupPath;
+import org.xwiki.model.reference.DocumentReference;
 import org.xwiki.stability.Unstable;
+import org.xwiki.user.UserReference;
+import org.xwiki.user.UserReferenceResolver;
 
 import com.xpn.xwiki.XWiki;
 import com.xpn.xwiki.XWikiContext;
@@ -66,6 +69,10 @@ public class ImportJob extends AbstractJob<ImportJobRequest, ImportJobStatus> im
 
     @Inject
     private CalendarEventImporter calendarEventImporter;
+
+    @Inject
+    @Named("document")
+    private UserReferenceResolver<DocumentReference> resolver;
 
     @Override
     public String getType()
@@ -131,7 +138,10 @@ public class ImportJob extends AbstractJob<ImportJobRequest, ImportJobStatus> im
             XWikiContext wikiContext = wikiContextProvider.get();
             XWiki wiki = wikiContext.getWiki();
             progressManager.startStep(this);
+            UserReference userReference = this.resolver.resolve(this.request.getUserReference());
             for (XWikiDocument calendarEvent : eventDocuments) {
+                calendarEvent.getAuthors().setCreator(userReference);
+                calendarEvent.getAuthors().setEffectiveMetadataAuthor(userReference);
                 wiki.saveDocument(calendarEvent, wikiContext);
             }
             progressManager.endStep(this);

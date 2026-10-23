@@ -26,6 +26,7 @@ import java.util.List;
 
 import javax.inject.Inject;
 import javax.inject.Named;
+import javax.inject.Provider;
 import javax.inject.Singleton;
 import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.MediaType;
@@ -34,18 +35,28 @@ import javax.ws.rs.core.Response;
 import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.slf4j.Logger;
 import org.xwiki.component.annotation.Component;
+import org.xwiki.container.Container;
+import org.xwiki.container.servlet.ServletRequest;
 import org.xwiki.contrib.moccacalendar.importJob.ImportJobRequest;
+import org.xwiki.contrib.moccacalendar.internal.EventConstants;
 import org.xwiki.contrib.moccacalendar.internal.ical.ICalGenerator;
 import org.xwiki.contrib.moccacalendar.internal.importJob.ImportJob;
 import org.xwiki.contrib.moccacalendar.rest.MoccaCalendarResource;
+import org.xwiki.csrf.CSRFToken;
 import org.xwiki.job.Job;
 import org.xwiki.job.JobExecutor;
+import org.xwiki.model.reference.DocumentReference;
+import org.xwiki.model.reference.DocumentReferenceResolver;
+import org.xwiki.model.reference.EntityReferenceSerializer;
 import org.xwiki.rest.XWikiRestException;
 import org.xwiki.rest.internal.resources.pages.ModifiablePageResource;
 import org.xwiki.security.authorization.AccessDeniedException;
+import org.xwiki.security.authorization.ContextualAuthorizationManager;
+import org.xwiki.security.authorization.Right;
 import org.xwiki.stability.Unstable;
 
 import com.xpn.xwiki.XWikiContext;
+import com.xpn.xwiki.doc.XWikiDocument;
 
 /**
  * Default implementation of {@link MoccaCalendarResource}.
@@ -59,6 +70,8 @@ import com.xpn.xwiki.XWikiContext;
 @Singleton
 public class DefaultMoccaCalendarResource extends ModifiablePageResource implements MoccaCalendarResource
 {
+    private static final String CALENDAR_NOT_FOUND = "Failed to look up the given calendar.";
+
     @Inject
     private Logger logger;
 
@@ -68,10 +81,28 @@ public class DefaultMoccaCalendarResource extends ModifiablePageResource impleme
     @Inject
     private ICalGenerator iCalGenerator;
 
+    @Inject
+    private Provider<Container> containerProvider;
+
+    @Inject
+    private CSRFToken csrf;
+
+    @Inject
+    private ContextualAuthorizationManager contextualAuthorizationManager;
+
+    @Inject
+    @Named("current")
+    private DocumentReferenceResolver<String> referenceResolver;
+
+    @Inject
+    private EntityReferenceSerializer<String> serializer;
+
     @Override
     public Response importCalendarFile(String parentCalendar, byte[] file)
     {
         try {
+            validateCSRF();
+            DocumentReference calendarRef = getEditableCalendar(parentCalendar);
             XWikiContext wikiContext = this.xcontextProvider.get();
             List<String> jobId = new ArrayList<>();
             jobId.add("moccacalendar");
@@ -79,13 +110,21 @@ public class DefaultMoccaCalendarResource extends ModifiablePageResource impleme
             jobId.add(parentCalendar);
             Job job = this.jobExecutor.getJob(jobId);
             if (job == null) {
+                // Pass the absolute reference so that the job creates the events where the rights were checked.
                 ImportJobRequest importJobRequest =
-                    new ImportJobRequest(jobId, file, parentCalendar, wikiContext.getUserReference());
+                    new ImportJobRequest(jobId, file, this.serializer.serialize(calendarRef),
+                        wikiContext.getUserReference());
                 this.jobExecutor.execute(ImportJob.JOB_TYPE, importJobRequest);
                 return Response.status(202).type(MediaType.TEXT_PLAIN_TYPE).build();
             } else {
                 return Response.notModified().type(MediaType.TEXT_PLAIN_TYPE).build();
             }
+        } catch (AccessDeniedException | SecurityException e) {
+            this.logger.warn("Authorization error while attempting to import calendar file.", e);
+            throw new WebApplicationException(Response.Status.UNAUTHORIZED);
+        } catch (FileNotFoundException e) {
+            this.logger.warn(CALENDAR_NOT_FOUND, e);
+            throw new WebApplicationException(Response.Status.NOT_FOUND);
         } catch (Exception e) {
             this.logger.warn("Failed to import .ics file data. Root cause: [{}]",
                 ExceptionUtils.getRootCauseMessage(e));
@@ -102,14 +141,42 @@ public class DefaultMoccaCalendarResource extends ModifiablePageResource impleme
             return Response.ok(buffer.toByteArray()).type("text/calendar")
                 .header("Content-Disposition", "attachment; filename=\"" + calendarReference + ".ics\"").build();
         } catch (AccessDeniedException e) {
-            this.logger.warn("Failed to get files due to restricted rights.", e);
+            this.logger.warn("Authorization error while attempting to generate ICal content.", e);
             throw new WebApplicationException(Response.Status.UNAUTHORIZED);
         } catch (FileNotFoundException e) {
-            this.logger.warn("Failed to look up the given calendar.", e);
+            this.logger.warn(CALENDAR_NOT_FOUND, e);
             throw new WebApplicationException(Response.Status.NOT_FOUND);
         } catch (Exception e) {
             this.logger.error("Failed to generate .ics file. Root cause: [{}]", ExceptionUtils.getRootCauseMessage(e));
             throw new WebApplicationException(Response.Status.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    /**
+     * Events are imported only under an existing calendar, so the edit right is checked on the calendar space, where
+     * the events are created.
+     */
+    private DocumentReference getEditableCalendar(String calendarReference) throws Exception
+    {
+        DocumentReference calendarRef = this.referenceResolver.resolve(calendarReference);
+        this.contextualAuthorizationManager.checkAccess(Right.VIEW, calendarRef);
+        XWikiContext context = this.xcontextProvider.get();
+        XWikiDocument calendarDoc = context.getWiki().getDocument(calendarRef, context);
+        DocumentReference calendarClassRef =
+            calendarDoc.resolveClassReference(EventConstants.MOCCA_CALENDAR_CLASS_NAME);
+        if (calendarDoc.getXObject(calendarClassRef) == null) {
+            throw new FileNotFoundException(String.format("No calendar found at [%s].", calendarRef));
+        }
+        this.contextualAuthorizationManager.checkAccess(Right.EDIT, calendarRef.getLastSpaceReference());
+        return calendarRef;
+    }
+
+    private void validateCSRF()
+    {
+        ServletRequest request = (ServletRequest) this.containerProvider.get().getRequest();
+        String token = request.getHttpServletRequest().getHeader("xwiki-form-token");
+        if (!this.csrf.isTokenValid(token)) {
+            throw new SecurityException("Invalid CSRF token.");
         }
     }
 }
