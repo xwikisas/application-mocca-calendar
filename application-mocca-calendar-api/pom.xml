@@ -32,7 +32,7 @@
   <description>API for the Calendar Application (Pro)</description>
   <properties>
     <!-- Test coverage -->
-    <xwiki.jacoco.instructionRatio>0.20</xwiki.jacoco.instructionRatio>
+    <xwiki.jacoco.instructionRatio>0.23</xwiki.jacoco.instructionRatio>
     <!-- Name to display by the Extension Manager -->
     <xwiki.extension.name>Calendar Application API</xwiki.extension.name>
   </properties>
@@ -144,6 +144,14 @@
                   <code>java.method.addedToInterface</code>
                   <new>method javax.ws.rs.core.Response org.xwiki.contrib.moccacalendar.rest.MoccaCalendarResource::getICalContent(java.lang.String) throws org.xwiki.rest.XWikiRestException</new>
                   <justification>Endpoint added as part of the `Release iCal Export Pro application #100` fix.</justification>
+                </item>
+                <item>
+                  <ignore>true</ignore>
+                  <code>java.method.parameterTypeChanged</code>
+                  <old>parameter javax.ws.rs.core.Response org.xwiki.contrib.moccacalendar.rest.MoccaCalendarResource::importCalendarFile(java.lang.String, ===byte[]===) throws org.xwiki.rest.XWikiRestException</old>
+                  <new>parameter javax.ws.rs.core.Response org.xwiki.contrib.moccacalendar.rest.MoccaCalendarResource::importCalendarFile(java.lang.String, ===java.io.InputStream===) throws org.xwiki.rest.XWikiRestException</new>
+                  <justification>Unstable API: the imported file is now streamed instead of being fully buffered by the REST framework.</justification>
+                  <criticality>documented</criticality>
                 </item>
               </differences>
             </revapi.differences>

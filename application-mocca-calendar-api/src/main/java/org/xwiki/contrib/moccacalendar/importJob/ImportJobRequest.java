@@ -35,7 +35,10 @@ import org.xwiki.stability.Unstable;
 @Unstable
 public class ImportJobRequest extends AbstractRequest
 {
-    private byte[] file;
+    /**
+     * Transient so that the (potentially large) imported content is never persisted with the job status.
+     */
+    private transient byte[] file;
 
     private String parentRef;
 
@@ -74,6 +77,17 @@ public class ImportJobRequest extends AbstractRequest
     public byte[] getFile()
     {
         return file;
+    }
+
+    /**
+     * Release the content of the given file, so that it's not kept in memory along with the job status once it has
+     * been processed.
+     *
+     * @since 2.21.1
+     */
+    public void clearFile()
+    {
+        this.file = null;
     }
 
     /**

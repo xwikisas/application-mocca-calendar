@@ -19,13 +19,15 @@
  */
 package org.xwiki.contrib.moccacalendar.internal.rest;
 
+import java.io.ByteArrayInputStream;
 import java.io.FileNotFoundException;
+import java.io.InputStream;
 import java.io.OutputStream;
+import java.nio.charset.StandardCharsets;
 import java.util.List;
 
 import javax.inject.Named;
 import javax.inject.Provider;
-import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.Response;
 
@@ -34,14 +36,14 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
-import org.xwiki.container.Container;
-import org.xwiki.container.servlet.ServletRequest;
 import org.xwiki.contrib.moccacalendar.importJob.ImportJobRequest;
 import org.xwiki.contrib.moccacalendar.internal.EventConstants;
 import org.xwiki.contrib.moccacalendar.internal.ical.ICalGenerator;
 import org.xwiki.contrib.moccacalendar.internal.importJob.ImportJob;
 import org.xwiki.csrf.CSRFToken;
+import org.xwiki.job.Job;
 import org.xwiki.job.JobExecutor;
+import org.xwiki.job.Request;
 import org.xwiki.model.reference.DocumentReference;
 import org.xwiki.model.reference.DocumentReferenceResolver;
 import org.xwiki.model.reference.EntityReferenceSerializer;
@@ -60,15 +62,20 @@ import com.xpn.xwiki.XWiki;
 import com.xpn.xwiki.XWikiContext;
 import com.xpn.xwiki.doc.XWikiDocument;
 import com.xpn.xwiki.objects.BaseObject;
+import com.xpn.xwiki.plugin.fileupload.FileUploadPlugin;
+import com.xpn.xwiki.web.XWikiRequest;
 
+import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
 
 /**
@@ -91,6 +98,10 @@ class DefaultMoccaCalendarResourceTest
     private static final DocumentReference CALENDAR_CLASS_REF =
         new DocumentReference("xwiki", "MoccaCalendar", "MoccaCalendarClass");
 
+    private static final List<String> JOB_ID = List.of("moccacalendar", "import", CALENDAR_REFERENCE);
+
+    private static final long MAX_SIZE = 10;
+
     private static final String TOKEN_HEADER = "xwiki-form-token";
 
     private static final String TOKEN = "token";
@@ -106,9 +117,6 @@ class DefaultMoccaCalendarResourceTest
 
     @MockComponent
     private Provider<XWikiContext> xcontextProvider;
-
-    @MockComponent
-    private Provider<Container> containerProvider;
 
     @MockComponent
     private CSRFToken csrf;
@@ -135,16 +143,10 @@ class DefaultMoccaCalendarResourceTest
     private XWiki wiki;
 
     @Mock
+    private XWikiRequest request;
+
+    @Mock
     private XWikiDocument calendarDoc;
-
-    @Mock
-    private Container container;
-
-    @Mock
-    private ServletRequest servletRequest;
-
-    @Mock
-    private HttpServletRequest httpServletRequest;
 
     @BeforeComponent
     void configure()
@@ -156,14 +158,15 @@ class DefaultMoccaCalendarResourceTest
     @BeforeEach
     void setUp() throws Exception
     {
-        when(this.containerProvider.get()).thenReturn(this.container);
-        when(this.container.getRequest()).thenReturn(this.servletRequest);
-        when(this.servletRequest.getHttpServletRequest()).thenReturn(this.httpServletRequest);
-        when(this.httpServletRequest.getHeader(TOKEN_HEADER)).thenReturn(TOKEN);
+        when(this.request.getHeader(TOKEN_HEADER)).thenReturn(TOKEN);
         when(this.csrf.isTokenValid(TOKEN)).thenReturn(true);
         when(this.referenceResolver.resolve(CALENDAR_REFERENCE)).thenReturn(CALENDAR_REF);
         when(this.serializer.serialize(CALENDAR_REF)).thenReturn(ABSOLUTE_CALENDAR_REFERENCE);
         when(this.context.getWiki()).thenReturn(this.wiki);
+        when(this.context.getRequest()).thenReturn(this.request);
+        when(this.request.getContentLengthLong()).thenReturn(-1L);
+        when(this.wiki.getSpacePreference(FileUploadPlugin.UPLOAD_MAXSIZE_PARAMETER, CALENDAR_SPACE_REF, "",
+            this.context)).thenReturn(String.valueOf(MAX_SIZE));
         when(this.wiki.getDocument(CALENDAR_REF, this.context)).thenReturn(this.calendarDoc);
         when(this.calendarDoc.resolveClassReference(EventConstants.MOCCA_CALENDAR_CLASS_NAME))
             .thenReturn(CALENDAR_CLASS_REF);
@@ -183,7 +186,7 @@ class DefaultMoccaCalendarResourceTest
     void getICalContentWithoutCSRFToken() throws Exception
     {
         // The export is a read-only request, so it doesn't need any CSRF token.
-        when(this.httpServletRequest.getHeader(TOKEN_HEADER)).thenReturn(null);
+        when(this.request.getHeader(TOKEN_HEADER)).thenReturn(null);
 
         Response response = this.resource.getICalContent(CALENDAR_REFERENCE);
 
@@ -222,14 +225,19 @@ class DefaultMoccaCalendarResourceTest
     @Test
     void importCalendarFile() throws Exception
     {
-        Response response = this.resource.importCalendarFile(CALENDAR_REFERENCE, new byte[0]);
+        byte[] content = "0123456789".getBytes(StandardCharsets.UTF_8);
+
+        Response response = this.resource.importCalendarFile(CALENDAR_REFERENCE, new ByteArrayInputStream(content));
 
         assertEquals(202, response.getStatus());
         verify(this.contextualAuthorizationManager).checkAccess(Right.EDIT, CALENDAR_SPACE_REF);
-        ArgumentCaptor<ImportJobRequest> request = ArgumentCaptor.forClass(ImportJobRequest.class);
-        verify(this.jobExecutor).execute(eq(ImportJob.JOB_TYPE), request.capture());
+        ArgumentCaptor<Request> requestCaptor = ArgumentCaptor.forClass(Request.class);
+        verify(this.jobExecutor).execute(eq(ImportJob.JOB_TYPE), requestCaptor.capture());
+        ImportJobRequest importJobRequest = (ImportJobRequest) requestCaptor.getValue();
+        assertEquals(JOB_ID, importJobRequest.getId());
         // The job must create the events where the rights were checked.
-        assertEquals(ABSOLUTE_CALENDAR_REFERENCE, request.getValue().getParentRef());
+        assertEquals(ABSOLUTE_CALENDAR_REFERENCE, importJobRequest.getParentRef());
+        assertArrayEquals(content, importJobRequest.getFile());
     }
 
     @Test
@@ -237,11 +245,13 @@ class DefaultMoccaCalendarResourceTest
     {
         doThrow(AccessDeniedException.class).when(this.contextualAuthorizationManager)
             .checkAccess(Right.EDIT, CALENDAR_SPACE_REF);
+        InputStream file = mock(InputStream.class);
 
         WebApplicationException exception = assertThrows(WebApplicationException.class,
-            () -> this.resource.importCalendarFile(CALENDAR_REFERENCE, new byte[0]));
+            () -> this.resource.importCalendarFile(CALENDAR_REFERENCE, file));
 
         assertEquals(401, exception.getResponse().getStatus());
+        verifyNoInteractions(file);
         verify(this.jobExecutor, never()).execute(any(), any());
         assertEquals(IMPORT_AUTHORIZATION_ERROR, this.logCapture.getMessage(0));
     }
@@ -250,11 +260,13 @@ class DefaultMoccaCalendarResourceTest
     void importCalendarFileNotInCalendar() throws Exception
     {
         when(this.calendarDoc.getXObject(CALENDAR_CLASS_REF)).thenReturn(null);
+        InputStream file = mock(InputStream.class);
 
         WebApplicationException exception = assertThrows(WebApplicationException.class,
-            () -> this.resource.importCalendarFile(CALENDAR_REFERENCE, new byte[0]));
+            () -> this.resource.importCalendarFile(CALENDAR_REFERENCE, file));
 
         assertEquals(404, exception.getResponse().getStatus());
+        verifyNoInteractions(file);
         verify(this.jobExecutor, never()).execute(any(), any());
         assertEquals("Failed to look up the given calendar.", this.logCapture.getMessage(0));
     }
@@ -263,12 +275,80 @@ class DefaultMoccaCalendarResourceTest
     void importCalendarFileInvalidCSRFToken() throws Exception
     {
         when(this.csrf.isTokenValid(TOKEN)).thenReturn(false);
+        InputStream file = mock(InputStream.class);
 
         WebApplicationException exception = assertThrows(WebApplicationException.class,
-            () -> this.resource.importCalendarFile(CALENDAR_REFERENCE, new byte[0]));
+            () -> this.resource.importCalendarFile(CALENDAR_REFERENCE, file));
 
         assertEquals(401, exception.getResponse().getStatus());
+        verifyNoInteractions(file);
         verify(this.jobExecutor, never()).execute(any(), any());
         assertEquals(IMPORT_AUTHORIZATION_ERROR, this.logCapture.getMessage(0));
+    }
+
+    @Test
+    void importCalendarFileWithoutRequest() throws Exception
+    {
+        when(this.context.getRequest()).thenReturn(null);
+        InputStream file = mock(InputStream.class);
+
+        WebApplicationException exception = assertThrows(WebApplicationException.class,
+            () -> this.resource.importCalendarFile(CALENDAR_REFERENCE, file));
+
+        assertEquals(401, exception.getResponse().getStatus());
+        verify(this.csrf).isTokenValid(null);
+        verifyNoInteractions(file);
+        verify(this.jobExecutor, never()).execute(any(), any());
+        assertEquals(IMPORT_AUTHORIZATION_ERROR, this.logCapture.getMessage(0));
+    }
+
+    @Test
+    void importCalendarFileTooLargeResponse() throws Exception
+    {
+        byte[] content = "0123456789X".getBytes(StandardCharsets.UTF_8);
+
+        Response response = this.resource.importCalendarFile(CALENDAR_REFERENCE, new ByteArrayInputStream(content));
+
+        assertEquals(413, response.getStatus());
+        verify(this.jobExecutor, never()).execute(anyString(), any());
+    }
+
+    @Test
+    void importCalendarFileWithDefaultMaxSize() throws Exception
+    {
+        when(this.wiki.getSpacePreference(FileUploadPlugin.UPLOAD_MAXSIZE_PARAMETER, CALENDAR_SPACE_REF, "",
+            this.context)).thenReturn("");
+        byte[] content = "0123456789X".getBytes(StandardCharsets.UTF_8);
+
+        Response response = this.resource.importCalendarFile(CALENDAR_REFERENCE, new ByteArrayInputStream(content));
+
+        assertEquals(202, response.getStatus());
+        verify(this.jobExecutor).execute(eq(ImportJob.JOB_TYPE), any());
+    }
+
+    @Test
+    void importCalendarFileWithTooLargeContentLength() throws Exception
+    {
+        when(this.request.getContentLengthLong()).thenReturn(MAX_SIZE + 1);
+        InputStream file = mock(InputStream.class);
+
+        Response response = this.resource.importCalendarFile(CALENDAR_REFERENCE, file);
+
+        assertEquals(413, response.getStatus());
+        verifyNoInteractions(file);
+        verify(this.jobExecutor, never()).execute(anyString(), any());
+    }
+
+    @Test
+    void importCalendarFileWhenJobAlreadyRunning() throws Exception
+    {
+        when(this.jobExecutor.getJob(JOB_ID)).thenReturn(mock(Job.class));
+        InputStream file = mock(InputStream.class);
+
+        Response response = this.resource.importCalendarFile(CALENDAR_REFERENCE, file);
+
+        assertEquals(304, response.getStatus());
+        verifyNoInteractions(file);
+        verify(this.jobExecutor, never()).execute(anyString(), any());
     }
 }

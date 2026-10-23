@@ -19,7 +19,9 @@
  */
 package org.xwiki.contrib.moccacalendar.internal.importJob;
 
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import javax.inject.Inject;
@@ -100,8 +102,15 @@ public class ImportJob extends AbstractJob<ImportJobRequest, ImportJobStatus> im
     protected void runInternal()
     {
         try {
+            byte[] icsFileContent;
+            try {
+                icsFileContent = getICSFileContent(this.request.getFile());
+            } finally {
+                // Don't keep the imported content in memory with the job status.
+                this.request.clearFile();
+            }
             List<CalendarEvent> calendarEventsJson =
-                fullCalendarManager.getICalEventsFromFile(getICSFileContent(request.getFile()), null, null, true);
+                this.fullCalendarManager.getICalEventsFromFile(icsFileContent, null, null, true);
             List<XWikiDocument> eventDocuments = new ArrayList<>();
             this.progressManager.pushLevelProgress(calendarEventsJson.size() + 1, this);
 
@@ -150,12 +159,22 @@ public class ImportJob extends AbstractJob<ImportJobRequest, ImportJobStatus> im
 
     private byte[] getICSFileContent(byte[] importedFileContent)
     {
-        String importedFileString = new String(importedFileContent);
-        int beginIndex = importedFileString.indexOf(CalendarKeys.ICS_CALENDAR_CALENDAR_BEGIN);
-        int endIndex = importedFileString.indexOf(CalendarKeys.ICS_CALENDAR_CALENDAR_END)
-            + CalendarKeys.ICS_CALENDAR_CALENDAR_END.length();
-        String filteredCalendarContent = importedFileString.substring(beginIndex, endIndex);
+        if (importedFileContent == null) {
+            throw new IllegalArgumentException("No .ics file content to import.");
+        }
+        // ISO-8859-1 maps each byte to one char, so indexes in the string are byte offsets in the original content
+        // (and the ASCII delimiters are found as-is in UTF-8 content).
+        String content = new String(importedFileContent, StandardCharsets.ISO_8859_1);
+        int beginIndex = content.indexOf(CalendarKeys.ICS_CALENDAR_CALENDAR_BEGIN);
+        int endIndex = beginIndex < 0 ? -1 : content.indexOf(CalendarKeys.ICS_CALENDAR_CALENDAR_END, beginIndex);
+        if (endIndex < 0) {
+            throw new IllegalArgumentException("The imported file is not a valid .ics file.");
+        }
+        endIndex += CalendarKeys.ICS_CALENDAR_CALENDAR_END.length();
+        if (beginIndex == 0 && endIndex == importedFileContent.length) {
+            return importedFileContent;
+        }
 
-        return filteredCalendarContent.getBytes();
+        return Arrays.copyOfRange(importedFileContent, beginIndex, endIndex);
     }
 }

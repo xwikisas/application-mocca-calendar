@@ -19,14 +19,16 @@
  */
 package org.xwiki.contrib.moccacalendar.rest;
 
-import org.xwiki.rest.XWikiRestException;
-import org.xwiki.stability.Unstable;
+import java.io.InputStream;
 
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.Response;
+
+import org.xwiki.rest.XWikiRestException;
+import org.xwiki.stability.Unstable;
 
 /**
  * Provides the APIs needed by the Mocca Calendar server in order to import an ical file.
@@ -42,13 +44,15 @@ public interface MoccaCalendarResource
      * Import a given ical file and create a job that handles the event processing.
      *
      * @param parentCalendar the calendar for which the events are created.
-     * @param file           the file to be processed.
-     * @return HTML status code 202 to hint that the file had been accepted and the job started.
+     * @param file the content of the file to be processed. Its size can't exceed the configured
+     *     {@code upload_maxsize}.
+     * @return HTML status code 202 to hint that the file had been accepted and the job started, or code 413 if the file
+     *     is too large.
      * @throws XWikiRestException if an error occurred while creating the job.
      */
     @POST
     @Path("/import")
-    Response importCalendarFile(@QueryParam("parentCalendar") String parentCalendar, byte[] file)
+    Response importCalendarFile(@QueryParam("parentCalendar") String parentCalendar, InputStream file)
         throws XWikiRestException;
 
     /**

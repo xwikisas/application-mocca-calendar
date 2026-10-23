@@ -21,29 +21,28 @@ package org.xwiki.contrib.moccacalendar.internal.rest;
 
 import java.io.ByteArrayOutputStream;
 import java.io.FileNotFoundException;
+import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
 
 import javax.inject.Inject;
 import javax.inject.Named;
-import javax.inject.Provider;
 import javax.inject.Singleton;
 import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
+import org.apache.commons.io.input.BoundedInputStream;
 import org.apache.commons.lang3.exception.ExceptionUtils;
+import org.apache.commons.lang3.math.NumberUtils;
 import org.slf4j.Logger;
 import org.xwiki.component.annotation.Component;
-import org.xwiki.container.Container;
-import org.xwiki.container.servlet.ServletRequest;
 import org.xwiki.contrib.moccacalendar.importJob.ImportJobRequest;
 import org.xwiki.contrib.moccacalendar.internal.EventConstants;
 import org.xwiki.contrib.moccacalendar.internal.ical.ICalGenerator;
 import org.xwiki.contrib.moccacalendar.internal.importJob.ImportJob;
 import org.xwiki.contrib.moccacalendar.rest.MoccaCalendarResource;
 import org.xwiki.csrf.CSRFToken;
-import org.xwiki.job.Job;
 import org.xwiki.job.JobExecutor;
 import org.xwiki.model.reference.DocumentReference;
 import org.xwiki.model.reference.DocumentReferenceResolver;
@@ -57,6 +56,7 @@ import org.xwiki.stability.Unstable;
 
 import com.xpn.xwiki.XWikiContext;
 import com.xpn.xwiki.doc.XWikiDocument;
+import com.xpn.xwiki.plugin.fileupload.FileUploadPlugin;
 
 /**
  * Default implementation of {@link MoccaCalendarResource}.
@@ -82,9 +82,6 @@ public class DefaultMoccaCalendarResource extends ModifiablePageResource impleme
     private ICalGenerator iCalGenerator;
 
     @Inject
-    private Provider<Container> containerProvider;
-
-    @Inject
     private CSRFToken csrf;
 
     @Inject
@@ -98,21 +95,34 @@ public class DefaultMoccaCalendarResource extends ModifiablePageResource impleme
     private EntityReferenceSerializer<String> serializer;
 
     @Override
-    public Response importCalendarFile(String parentCalendar, byte[] file)
+    public Response importCalendarFile(String parentCalendar, InputStream file)
     {
         try {
             validateCSRF();
             DocumentReference calendarRef = getEditableCalendar(parentCalendar);
-            XWikiContext wikiContext = this.xcontextProvider.get();
             List<String> jobId = new ArrayList<>();
             jobId.add("moccacalendar");
             jobId.add("import");
             jobId.add(parentCalendar);
-            Job job = this.jobExecutor.getJob(jobId);
-            if (job == null) {
+            if (this.jobExecutor.getJob(jobId) == null) {
+                XWikiContext wikiContext = this.xcontextProvider.get();
+                // Read the limit from the calendar space, like the UI does, since there's no relevant context document.
+                String maxSizeValue = wikiContext.getWiki().getSpacePreference(
+                    FileUploadPlugin.UPLOAD_MAXSIZE_PARAMETER, calendarRef.getLastSpaceReference(), "", wikiContext);
+                long maxSize = NumberUtils.toLong(maxSizeValue, FileUploadPlugin.UPLOAD_DEFAULT_MAXSIZE);
+                // Fail fast when the client announces a body that is too large.
+                if (wikiContext.getRequest() != null && wikiContext.getRequest().getContentLengthLong() > maxSize) {
+                    return fileTooLargeResponse();
+                }
+                // The announced length can't be trusted (or can be missing): read at most one byte more than allowed,
+                // which is enough to detect a file that is too large without loading it entirely.
+                byte[] fileContent = new BoundedInputStream(file, maxSize + 1).readAllBytes();
+                if (fileContent.length > maxSize) {
+                    return fileTooLargeResponse();
+                }
                 // Pass the absolute reference so that the job creates the events where the rights were checked.
                 ImportJobRequest importJobRequest =
-                    new ImportJobRequest(jobId, file, this.serializer.serialize(calendarRef),
+                    new ImportJobRequest(jobId, fileContent, this.serializer.serialize(calendarRef),
                         wikiContext.getUserReference());
                 this.jobExecutor.execute(ImportJob.JOB_TYPE, importJobRequest);
                 return Response.status(202).type(MediaType.TEXT_PLAIN_TYPE).build();
@@ -160,6 +170,7 @@ public class DefaultMoccaCalendarResource extends ModifiablePageResource impleme
     {
         DocumentReference calendarRef = this.referenceResolver.resolve(calendarReference);
         this.contextualAuthorizationManager.checkAccess(Right.VIEW, calendarRef);
+        this.contextualAuthorizationManager.checkAccess(Right.EDIT, calendarRef.getLastSpaceReference());
         XWikiContext context = this.xcontextProvider.get();
         XWikiDocument calendarDoc = context.getWiki().getDocument(calendarRef, context);
         DocumentReference calendarClassRef =
@@ -167,16 +178,20 @@ public class DefaultMoccaCalendarResource extends ModifiablePageResource impleme
         if (calendarDoc.getXObject(calendarClassRef) == null) {
             throw new FileNotFoundException(String.format("No calendar found at [%s].", calendarRef));
         }
-        this.contextualAuthorizationManager.checkAccess(Right.EDIT, calendarRef.getLastSpaceReference());
         return calendarRef;
     }
 
     private void validateCSRF()
     {
-        ServletRequest request = (ServletRequest) this.containerProvider.get().getRequest();
-        String token = request.getHttpServletRequest().getHeader("xwiki-form-token");
+        XWikiContext context = this.xcontextProvider.get();
+        String token = context.getRequest() != null ? context.getRequest().getHeader("xwiki-form-token") : null;
         if (!this.csrf.isTokenValid(token)) {
             throw new SecurityException("Invalid CSRF token.");
         }
+    }
+
+    private Response fileTooLargeResponse()
+    {
+        return Response.status(413).type(MediaType.TEXT_PLAIN_TYPE).build();
     }
 }
