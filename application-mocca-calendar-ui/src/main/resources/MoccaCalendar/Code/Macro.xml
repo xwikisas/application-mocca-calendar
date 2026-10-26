@@ -1073,13 +1073,12 @@ require(['jquery', 'xwiki-meta', 'xwiki-job-runner', 'purify', 'xwiki-l10n!mocca
   const checkImportJob = function(selectedCalendar) {
     let documentReference = XWiki.Model.resolve('MoccaCalendar.Code.ImportJobResource', XWiki.EntityType.DOCUMENT);
     var targetURL = new XWiki.Document(documentReference).getURL('get');
-    var targetJobId = ['moccacalendar', 'import', selectedCalendar];
     var data = [];
     data.push(
       {name: 'outputSyntax', value: 'plain'},
       {name: 'sheet', value: 'MoccaCalendar.Code.ImportJobResource'},
       {name: 'action', value: 'jobStatus'},
-      {name: 'jobId', value: targetJobId.join('/')},
+      {name: 'selectedCalendar', value: selectedCalendar},
       {name: 'data', value: 'jobStatus'},
       {name: 'form_token', value: xwikiMeta.form_token}
     );
@@ -1094,13 +1093,13 @@ require(['jquery', 'xwiki-meta', 'xwiki-job-runner', 'purify', 'xwiki-l10n!mocca
             outputSyntax: 'plain',
             sheet: 'MoccaCalendar.Code.ImportJobResource',
             data: 'jobStatus',
-            jobId: jobId.join('/')
+            selectedCalendar: selectedCalendar
           }
         };
       }
     }).run(targetURL, data)).then((response) =&gt; {
       if (response.error !== null) {
-        throw new Error(response.error.message);
+        throw new Error(response.error);
       } else {
         document.dispatchEvent(new Event('calendarImportCompleted'));
         notification.replace(new XWiki.widgets.Notification(

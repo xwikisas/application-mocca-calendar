@@ -42,7 +42,7 @@
   #set ($importJobStatusJSON = {
     'id': $importJobStatus.request.id,
     'state': $importJobStatus.state,
-    'error': $importJobStatus.error,
+    'error': $importJobStatus.error.message,
     'progress': {
       'offset': $importJobStatus.progress.offset
     }
@@ -53,10 +53,14 @@
 
 {{velocity}}
 #if ($xcontext.action == 'get')
-  #if ("$!request.action" != '' &amp;&amp; !$services.csrf.isTokenValid($request.form_token))
+  #if ("$!request.selectedCalendar" == '' || $request.selectedCalendar.startsWith('..'))
+    #set ($discard = $response.sendError(400, 'Calendar name rejected'))
+  #elseif ("$!request.action" != '' &amp;&amp; !$services.csrf.isTokenValid($request.form_token))
     #set ($discard = $response.sendError(401, 'CSRF token verification failed!'))
+  #elseif (!$services.security.authorization.hasAccess('edit', $request.selectedCalendar))
+    #set ($discard = $response.sendError(403, 'Missing necessary rights on the target calendar'))
   #elseif ($request.data == 'jobStatus')
-    #set ($importJobId = $request.jobId.split('/'))
+    #set ($importJobId = ['moccacalendar', 'import', $request.selectedCalendar])
     #returnImportJobStatusJSON($importJobId)
   #end
 #end
