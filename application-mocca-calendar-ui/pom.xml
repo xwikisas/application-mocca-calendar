@@ -143,12 +143,6 @@
               <type>configuration</type>
             </entry>
           </entries>
-        </configuration>
-      </plugin>
-      <plugin>
-        <groupId>org.xwiki.commons</groupId>
-        <artifactId>xwiki-commons-tool-xar-plugin</artifactId>
-        <configuration>
           <visibleTechnicalPages>
             <visibleTechnicalPage>.*/MoccaCalendar/WebHome\.xml</visibleTechnicalPage>
             <visibleTechnicalPage>.*/MoccaCalendar/Events/WebHome\.xml</visibleTechnicalPage>
