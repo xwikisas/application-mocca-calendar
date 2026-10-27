@@ -128,10 +128,15 @@ public final class Utils
         XWikiDocument eventDoc = eventData.getOwnerDocument();
         String idString = eventDoc.getSyntax().toIdString();
         String description = eventData.getStringValue(descriptionPropertyName);
-        event
-            .setDescription(eventDoc.getRenderedContent(description, idString, Syntax.PLAIN_1_0.toIdString(), context));
-        event.setDescriptionHtml(
-            eventDoc.getRenderedContent(description, idString, Syntax.HTML_5_0.toIdString(), context));
+        // Execute the description with the rights of the user who last saved the object data (the effective metadata
+        // author), not of the content author, which an object save doesn't change. Clone the document to avoid
+        // changing the cached instance.
+        XWikiDocument secureDoc = eventDoc.clone();
+        secureDoc.getAuthors().setContentAuthor(eventDoc.getAuthors().getEffectiveMetadataAuthor());
+        event.setDescription(eventDoc.getRenderedContent(description, idString, Syntax.PLAIN_1_0.toIdString(), false,
+            secureDoc, context));
+        event.setDescriptionHtml(eventDoc.getRenderedContent(description, idString, Syntax.HTML_5_0.toIdString(),
+            false, secureDoc, context));
     }
 
 }
