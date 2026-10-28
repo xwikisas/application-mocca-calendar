@@ -179,6 +179,10 @@ public class CalendarEventParentChangeListener implements EventListener
 
         logger.trace("new location for document [{}] is computed to [{}]", docRef, targetReference);
 
+        if (!context.getWiki().checkAccess("edit", new XWikiDocument(targetReference), context)) {
+            throw new XWikiException("User has no edit rights on the event target move location", new Exception());
+        }
+
         return targetReference;
     }
 
