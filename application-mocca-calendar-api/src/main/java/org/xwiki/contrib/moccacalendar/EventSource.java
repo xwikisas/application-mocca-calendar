@@ -37,7 +37,6 @@ import com.xpn.xwiki.api.Document;
  * @since 2.11
  */
 @Role
-@Unstable
 public interface EventSource
 {
 
@@ -102,6 +101,21 @@ public interface EventSource
      * @see DefaultSourceConfigurationClassInitializer
      */
     default LocalDocumentReference getConfigurationClass()
+    {
+        return null;
+    }
+
+    /**
+     * The id of the extension that has to be installed for this source to become available.
+     * It is used to point administrators to that extension while {@link #isAvailable()} returns {@code false}.
+     * The default implementation returns {@code null}, which means that the source does not depend on an optional
+     * extension, so nothing is displayed for it while it is unavailable.
+     *
+     * @return an extension id
+     * @since 2.22.0
+     */
+    @Unstable
+    default String getExtensionId()
     {
         return null;
     }

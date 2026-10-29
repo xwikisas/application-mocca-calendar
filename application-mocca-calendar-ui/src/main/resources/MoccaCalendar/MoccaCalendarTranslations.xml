@@ -283,9 +283,14 @@ moccacalendar.panel.upcomingEvents.header=Upcoming Events
 admin.moccacalendar.sources.section=Calendar
 admin.moccacalendar.sources.header=Enable Calendar Event Sources
 admin.moccacalendar.sources.empty=There are no calendar event sources to configure.
-admin.moccacalendar.sources.active.label=Show events from source «{0}»:
-admin.moccacalendar.sources.backgroundColor.label=Background color for events from source «{0}»:
-admin.moccacalendar.sources.textColor.label=Text color for events from source «{0}»:
+admin.moccacalendar.sources.description=Event sources let events from other applications appear in calendars alongside regular calendar events.
+admin.moccacalendar.sources.list=The following extensions offer sources for calendar events:
+admin.moccacalendar.sources.backgroundColor.shortLabel=Background
+admin.moccacalendar.sources.textColor.shortLabel=Text
+admin.moccacalendar.sources.backgroundColor.title=Background color for events from source «{0}»
+admin.moccacalendar.sources.textColor.title=Text color for events from source «{0}»
+admin.moccacalendar.sources.install=Install extension
+admin.moccacalendar.sources.meetings.name=Meeting Application (Pro)
 
 # Recurrent event
 moccacalendar.recurrent.frequency.hint=The frequency is in correlation with the selected start date.

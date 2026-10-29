@@ -40,7 +40,8 @@
 ## note: do not use this page directly, but "AdminSheet" instead
 ## we do all the form field stuff by ourselves as we might not have a configuration object for all sources
 #set($sources = $services.moccacalendar.getAvailableSources())
-#if($sources.isEmpty())
+#set($installableSources = $services.moccacalendar.getInstallableSources())
+#if($sources.isEmpty() &amp;&amp; $installableSources.isEmpty())
 
 {{info}}
 {{translation key='admin.moccacalendar.sources.empty'/}}
@@ -55,7 +56,7 @@
 #set($configDoc = $xwiki.getDocument('MoccaCalendar.Code.GlobalSettings'))
 #set($sourceConfig = {})
 #set($addedObjects = [])
-#set($needsSave = $configDoc.isNew())
+#set($needsSave = $configDoc.isNew() &amp;&amp; !$sources.isEmpty())
 #if($needsSave)
   #set($discard = $configDoc.setHidden(true))
 #end
@@ -73,40 +74,99 @@
 #if($needsSave)
   #set($discard = $configDoc.save())
 #end
+## a source can provide its display name with a translation key following this naming convention,
+## otherwise its capitalized name is used
+#macro(getSourceDisplayName $sourceName $return)
+  #set($sourceNameKey = "admin.moccacalendar.sources.${sourceName}.name")
+  #if($services.localization.get($sourceNameKey))
+    #set($sourceDisplayNameResult = $services.localization.render($sourceNameKey))
+  #else
+    #set($sourceDisplayNameResult = $stringtool.capitalize($sourceName))
+  #end
+  #set($return = $NULL)
+  #setVariable("$return" $sourceDisplayNameResult)
+#end
+#set($discard = $xwiki.ssx.use('MoccaCalendar.Code.AdminSheetCode'))
 {{html clean="false" wiki="false"}}
+  &lt;p&gt;$escapetool.xml($services.localization.render('admin.moccacalendar.sources.description'))&lt;/p&gt;
+  &lt;p&gt;&lt;strong&gt;$escapetool.xml($services.localization.render('admin.moccacalendar.sources.list'))&lt;/strong&gt;&lt;/p&gt;
   &lt;form action="$escapetool.xml($configDoc.getURL('save'))" method="post"&gt;
           &lt;input type="hidden" name="xredirect" value="$escapetool.xml($xredirect)" /&gt;
           &lt;input type="hidden" name="form_token" value="$!{services.csrf.getToken()}" /&gt;
           &lt;input type="hidden" name="xhidden" value="1" /&gt;
+&lt;div class="list-group moccacalendar-sources"&gt;
 {{/html}}
 
-(% class="compact" %)
 #foreach($sourceName in $sources)
-  #set($configObject = $sourceConfig.get($sourceName)) ##
-  ; {{html clean='false'}}&lt;label for="${configClass}_${configObject.number}_active"&gt;{{/html}}{{translation key='admin.moccacalendar.sources.active.label' parameters="$stringtool.capitalize($sourceName)"/}}{{html clean='false'}}&lt;/label&gt;{{/html}}
-  : $configObject.display('source', 'hidden') $configObject.display('active', 'edit')
+  #set($configObject = $sourceConfig.get($sourceName))
+  #getSourceDisplayName($sourceName $sourceDisplayName)
+  #set($activeFieldId = "${configClass}_${configObject.number}_active")
+
+{{html clean="false" wiki="false"}}
+&lt;div class="list-group-item clearfix"&gt;
   ## the colors used for the events of this source when they are shown in a calendar covering the whole wiki
+  &lt;div class="pull-right form-inline"&gt;
   #foreach($colorField in ['backgroundColor', 'textColor'])
     #set($colorFieldId = "${configClass}_${configObject.number}_${colorField}")
+    #set($colorTitleKey = "admin.moccacalendar.sources.${colorField}.title")
     #set($colorPickerParams = {
       'id': $colorFieldId,
       'name': $colorFieldId,
-      'value': $configObject.getValue($colorField)
+      'value': $configObject.getValue($colorField),
+      'size': 7,
+      'title': $services.localization.render($colorTitleKey, [$sourceDisplayName])
     })
-  ; {{html clean='false'}}&lt;label for="$escapetool.xml($colorFieldId)"&gt;{{/html}}
-  {{translation key="admin.moccacalendar.sources.${colorField}.label" parameters="$stringtool.capitalize($sourceName)"/}}
-  {{html clean='false'}}&lt;/label&gt;{{/html}}
-  : {{html clean='false'}}#colorPicker($colorPickerParams){{/html}}
+    #set($colorLabel = $services.localization.render("admin.moccacalendar.sources.${colorField}.shortLabel"))
+    &lt;label for="$escapetool.xml($colorFieldId)"&gt;$escapetool.xml($colorLabel)&lt;/label&gt;
+    #colorPicker($colorPickerParams)
   #end
+  &lt;/div&gt;
+  ## same padding and height as the color picker inputs, so that the source name is aligned with them
+  &lt;div class="form-control-static"&gt;
+{{/html}}
+
+$configObject.display('source', 'hidden')
+
+$configObject.display('active', 'edit')
+
+{{html clean="false" wiki="false"}}
+    &lt;label for="$escapetool.xml($activeFieldId)"&gt;$escapetool.xml($sourceDisplayName)&lt;/label&gt;
+  &lt;/div&gt;
+&lt;/div&gt;
+{{/html}}
+
+#end
+#foreach($installableSource in $installableSources.entrySet())
+  #getSourceDisplayName($installableSource.key $sourceDisplayName)
+  #set($sourceCheckboxId = "moccacalendar-source-${installableSource.key}")
+  ## search for the extension in the Extension Manager
+  #set($installParams = {'section': 'XWiki.Extensions', 'search': $installableSource.value})
+  #set($installURL = $xwiki.getURL('XWiki.XWikiPreferences', 'admin', $escapetool.url($installParams)))
+  #set($installLabel = $services.localization.render('admin.moccacalendar.sources.install'))
+
+{{html clean="false" wiki="false"}}
+&lt;div class="list-group-item clearfix"&gt;
+  &lt;a class="pull-right" href="$escapetool.xml($installURL)"&gt;
+    $services.icon.renderHTML('download') $escapetool.xml($installLabel)
+  &lt;/a&gt;
+  &lt;input type="checkbox" id="$escapetool.xml($sourceCheckboxId)" disabled="disabled" /&gt;
+  &lt;label for="$escapetool.xml($sourceCheckboxId)" class="text-muted"&gt;
+    $escapetool.xml($sourceDisplayName)
+  &lt;/label&gt;
+&lt;/div&gt;
+{{/html}}
+
 #end
 
 ## copy from the AdminSheet
 {{html clean="false" wiki="false"}}
+&lt;/div&gt;
           &lt;div class="bottombuttons"&gt;
             &lt;p class="admin-buttons"&gt;
               &lt;span class="buttonwrapper"&gt;
                  #set($buttonText = "${escapetool.xml($services.localization.render('admin.save'))}")
-                &lt;input class="button" type="submit" name="action_saveandcontinue" value="$buttonText" /&gt;
+                &lt;input class="button" type="submit" name="action_saveandcontinue" value="$buttonText"
+                  #if($sources.isEmpty())disabled="disabled" #end/&gt;
               &lt;/span&gt;
             &lt;/p&gt;
           &lt;/div&gt; ## bottombuttons
@@ -117,4 +177,127 @@
 {{/html}}
 #end
 {{/velocity}}</content>
+  <object>
+    <name>MoccaCalendar.Code.AdminSheetCode</name>
+    <number>0</number>
+    <className>XWiki.StyleSheetExtension</className>
+    <guid>80dd634a-246d-446d-9344-6e7a72329a34</guid>
+    <class>
+      <name>XWiki.StyleSheetExtension</name>
+      <customClass/>
+      <customMapping/>
+      <defaultViewSheet/>
+      <defaultEditSheet/>
+      <defaultWeb/>
+      <nameField/>
+      <validationScript/>
+      <cache>
+        <cache>0</cache>
+        <defaultValue>long</defaultValue>
+        <disabled>0</disabled>
+        <displayType>select</displayType>
+        <freeText>forbidden</freeText>
+        <largeStorage>0</largeStorage>
+        <multiSelect>0</multiSelect>
+        <name>cache</name>
+        <number>5</number>
+        <prettyName>Caching policy</prettyName>
+        <relationalStorage>0</relationalStorage>
+        <separator> </separator>
+        <separators>|, </separators>
+        <size>1</size>
+        <unmodifiable>0</unmodifiable>
+        <values>long|short|default|forbid</values>
+        <classType>com.xpn.xwiki.objects.classes.StaticListClass</classType>
+      </cache>
+      <code>
+        <contenttype>PureText</contenttype>
+        <disabled>0</disabled>
+        <editor>PureText</editor>
+        <name>code</name>
+        <number>2</number>
+        <prettyName>Code</prettyName>
+        <restricted>0</restricted>
+        <rows>20</rows>
+        <size>50</size>
+        <unmodifiable>0</unmodifiable>
+        <classType>com.xpn.xwiki.objects.classes.TextAreaClass</classType>
+      </code>
+      <contentType>
+        <cache>0</cache>
+        <disabled>0</disabled>
+        <displayType>select</displayType>
+        <freeText>forbidden</freeText>
+        <largeStorage>0</largeStorage>
+        <multiSelect>0</multiSelect>
+        <name>contentType</name>
+        <number>6</number>
+        <prettyName>Content Type</prettyName>
+        <relationalStorage>0</relationalStorage>
+        <separator> </separator>
+        <separators>|, </separators>
+        <size>1</size>
+        <unmodifiable>0</unmodifiable>
+        <values>CSS|LESS</values>
+        <classType>com.xpn.xwiki.objects.classes.StaticListClass</classType>
+      </contentType>
+      <name>
+        <disabled>0</disabled>
+        <name>name</name>
+        <number>1</number>
+        <prettyName>Name</prettyName>
+        <size>30</size>
+        <unmodifiable>0</unmodifiable>
+        <classType>com.xpn.xwiki.objects.classes.StringClass</classType>
+      </name>
+      <parse>
+        <disabled>0</disabled>
+        <displayFormType>select</displayFormType>
+        <displayType>yesno</displayType>
+        <name>parse</name>
+        <number>4</number>
+        <prettyName>Parse content</prettyName>
+        <unmodifiable>0</unmodifiable>
+        <classType>com.xpn.xwiki.objects.classes.BooleanClass</classType>
+      </parse>
+      <use>
+        <cache>0</cache>
+        <disabled>0</disabled>
+        <displayType>select</displayType>
+        <freeText>forbidden</freeText>
+        <largeStorage>0</largeStorage>
+        <multiSelect>0</multiSelect>
+        <name>use</name>
+        <number>3</number>
+        <prettyName>Use this extension</prettyName>
+        <relationalStorage>0</relationalStorage>
+        <separator> </separator>
+        <separators>|, </separators>
+        <size>1</size>
+        <unmodifiable>0</unmodifiable>
+        <values>currentPage|onDemand|always</values>
+        <classType>com.xpn.xwiki.objects.classes.StaticListClass</classType>
+      </use>
+    </class>
+    <property>
+      <cache>long</cache>
+    </property>
+    <property>
+      <code>.moccacalendar-sources label {
+  font-weight: normal;
+}</code>
+    </property>
+    <property>
+      <contentType>CSS</contentType>
+    </property>
+    <property>
+      <name>Calendar Event Sources Administration</name>
+    </property>
+    <property>
+      <parse>0</parse>
+    </property>
+    <property>
+      <use>onDemand</use>
+    </property>
+  </object>
 </xwikidoc>
