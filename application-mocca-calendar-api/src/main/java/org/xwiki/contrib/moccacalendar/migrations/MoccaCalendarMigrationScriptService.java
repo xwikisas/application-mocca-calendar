@@ -24,13 +24,17 @@ import java.util.Map;
 
 import javax.inject.Inject;
 import javax.inject.Named;
+import javax.inject.Provider;
 import javax.inject.Singleton;
 
 import org.slf4j.Logger;
 import org.xwiki.component.annotation.Component;
 import org.xwiki.query.QueryException;
 import org.xwiki.script.service.ScriptService;
+import org.xwiki.security.authorization.ContextualAuthorizationManager;
+import org.xwiki.security.authorization.Right;
 
+import com.xpn.xwiki.XWikiContext;
 import com.xpn.xwiki.XWikiException;
 
 /**
@@ -44,10 +48,22 @@ import com.xpn.xwiki.XWikiException;
 @Component
 public class MoccaCalendarMigrationScriptService implements ScriptService
 {
+    /**
+     * The maximal number of events that can be migrated in one call, matching the largest choice of the migration page.
+     */
+    private static final int MAX_LIMIT = 10000;
+
+    private static final String ERROR_MESSAGE = "errorMessage";
 
     @Inject
     @Named("org.xwiki.contrib.moccacalendar.migrations.AddReccurrentProperty")
     private AddReccurrentProperty recurrentMigrator;
+
+    @Inject
+    private ContextualAuthorizationManager authorization;
+
+    @Inject
+    private Provider<XWikiContext> xcontextProvider;
 
     @Inject
     private Logger logger;
@@ -55,10 +71,14 @@ public class MoccaCalendarMigrationScriptService implements ScriptService
     /**
      * count the number of unmigrated events from the recurrent event feature.
      *
-     * @return the number of event pages that have not been migrated.
+     * @return the number of event pages that have not been migrated, or -1 if they could not be counted or if the
+     *         current user is not an administrator of the current wiki
      */
     public long countUnmigratedEventsForRecurrency()
     {
+        if (!hasWikiAdminRight()) {
+            return -1;
+        }
 
         try {
             long allEvents = recurrentMigrator.countAllEvents();
@@ -77,21 +97,37 @@ public class MoccaCalendarMigrationScriptService implements ScriptService
      * @param limit the maximal number of events to migrate at once
      * @return a map with two keys:
      *    &quot;migrationCount&quot; contains the number of (possibly) migrated events
-     *    and &quot;errorMessage&quot; contains the message if an error happened
+     *    and &quot;errorMessage&quot; contains the message if an error happened, including when the current user is
+     *    not an administrator of the current wiki or when the limit is out of bounds
      */
     public Map<String, Object> migrateEventsForRecurrenty(final int offset, final int limit)
     {
         Map<String, Object> results = new HashMap<String, Object>();
+
+        if (!hasWikiAdminRight()) {
+            results.put(ERROR_MESSAGE, "Only wiki administrators can migrate events.");
+            return results;
+        }
+        if (offset < 0 || limit <= 0 || limit > MAX_LIMIT) {
+            results.put(ERROR_MESSAGE, String.format("The offset must be non-negative and the limit between 1 and %d.",
+                MAX_LIMIT));
+            return results;
+        }
 
         try {
             int count = recurrentMigrator.addRecurrentPropertyToEvents(offset, limit);
             results.put("migrationCount", count);
         } catch (QueryException | XWikiException e) {
             logger.error("failure to migrate events", e);
-            results.put("errorMessage", e.getLocalizedMessage());
+            results.put(ERROR_MESSAGE, e.getLocalizedMessage());
         }
 
         return results;
+    }
+
+    private boolean hasWikiAdminRight()
+    {
+        return this.authorization.hasAccess(Right.ADMIN, this.xcontextProvider.get().getWikiReference());
     }
 
 }

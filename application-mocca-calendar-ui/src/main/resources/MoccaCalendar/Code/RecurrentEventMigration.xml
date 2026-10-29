@@ -37,7 +37,9 @@
   <syntaxId>xwiki/2.1</syntaxId>
   <hidden>true</hidden>
   <content>{{velocity}}
-#if("$!{request.outputSyntax}" != 'plain') ##
+#if (!$services.security.authorization.hasAccess('admin', $services.wiki.currentWikiReference))
+  {{error}}$services.rendering.escape($services.localization.render('notallowed'), 'xwiki/2.1'){{/error}}
+#elseif("$!{request.outputSyntax}" != 'plain') ##
   #set($count = $services.moccacalendarmigration.countUnmigratedEventsForRecurrency()) ##
 == Events to migrate ==
 
@@ -52,6 +54,7 @@
 
     #if($count &gt;= 0)
       &lt;form id="migrationform" class="xFormInline"&gt;
+        &lt;input type="hidden" name="form_token" value="$!escapetool.xml($services.csrf.token)" /&gt;
         &lt;fieldset&gt;
           &lt;label for="stepSize"&gt;Number of events to check at once&lt;/label&gt;
           &lt;select id="stepSize" name="stepSize"&gt;
@@ -73,9 +76,14 @@
 {{/velocity}}
 {{velocity wiki="false"}}
 #if("$!{request.outputSyntax}" == 'plain')
+#if (!$services.security.authorization.hasAccess('admin', $services.wiki.currentWikiReference))
+  #set($result = { 'errorMessage' : $services.localization.render('notallowed')})
+#elseif ($request.method != 'POST' || !$services.csrf.isTokenValid($request.form_token))
+  #set($result = { 'errorMessage' : 'invalid request'})
+#else
   #set($offset = $numbertool.toNumber($request.getParameter('offset')))
   #set($limit = $numbertool.toNumber($request.getParameter('stepSize')))
-  #if($limit &gt; 0 &amp;&amp; $offset &gt;=0)
+  #if("$!limit" != '' &amp;&amp; "$!offset" != '')
     #set($result =  $services.moccacalendarmigration.migrateEventsForRecurrenty($offset, $limit))
     #if(!$result['errorMessage'])
       #set($discard = $result.put('remainingCount', $services.moccacalendarmigration.countUnmigratedEventsForRecurrency()))
@@ -83,6 +91,7 @@
   #else
     #set($result = { 'errorMessage' : 'parameter "offset" or "stepSize" is missing'})
   #end
+#end
   #jsonResponse($result)
 #end
 {{/velocity}}
@@ -203,8 +212,13 @@
     new Ajax.Request(
       new XWiki.Document( new XWiki.DocumentReference('', ['MoccaCalendar','Code'], 'RecurrentEventMigration')).getURL('get'),
       {
-        method: 'get',
-        parameters: 'outputSyntax=plain&amp;offset='+counter+'&amp;stepSize='+stepSize,
+        method: 'post',
+        parameters: {
+          outputSyntax: 'plain',
+          offset: counter,
+          stepSize: stepSize,
+          form_token: $('migrationform').down('input[name=form_token]').value
+        },
         onSuccess: function(response) {
           console.log(response)
           if (response.responseJSON.errorMessage) {
