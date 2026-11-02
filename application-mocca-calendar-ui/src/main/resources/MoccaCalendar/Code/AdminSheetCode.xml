@@ -125,6 +125,8 @@
   &lt;div class="form-control-static"&gt;
 {{/html}}
 
+## the hidden field holding the name of the source this config object belongs to, followed by the checkbox that
+## enables or disables the source (its label, the source display name, is added in the html block below)
 $configObject.display('source', 'hidden')
 
 $configObject.display('active', 'edit')
