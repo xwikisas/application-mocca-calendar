@@ -262,7 +262,7 @@ if (typeof(XWiki) == "undefined" || typeof(XWiki.widgets) == "undefined" || type
     if (endDate) { params += "&amp;endDate=" + endDate.format(); }
     params += "&amp;allDay=" + (startDate.hasTime()?"":"1");
     var url = this.updateEventUrl + params;
-    jQuery.ajax(url).fail(function (data) {
+    jQuery.ajax({url: url, type: 'POST', data: {'form_token': this.formToken}}).fail(function (data) {
       savingBox.hide();
       this.displayError();
       if (revertFunc) revertFunc();
@@ -578,7 +578,7 @@ if (typeof(XWiki) == "undefined" || typeof(XWiki.widgets) == "undefined" || type
         purify.sanitize(l10n['core.widgets.confirmationBox.notification.inProgress']), 'inprogress');
       new Ajax.Request(this.helper.deleteEventInstanceUrl, {
         method: 'post',
-        parameters: {'instanceStart' : this.interactionParameters.event.start.format('YYYY-MM-DD[T]HH:mm'), 'event' : this.interactionParameters.event.id, 'outputSyntax':'plain' },
+        parameters: {'instanceStart' : this.interactionParameters.event.start.format('YYYY-MM-DD[T]HH:mm'), 'event' : this.interactionParameters.event.id, 'outputSyntax':'plain', 'form_token': this.helper.formToken },
         onSuccess: function(response) {
           if (response.status == 0) {
             return;
@@ -1016,7 +1016,8 @@ require(['jquery', 'xwiki-meta', 'xwiki-job-runner', 'purify', 'xwiki-l10n!mocca
       XWiki.EntityType.DOCUMENT);
     var targetUrl = new XWiki.Document(documentReference).getURL();
     var params = {
-      'documentRef': target
+      'documentRef': target,
+      'form_token': xwikiMeta.form_token
     };
     $.ajax({
       url: targetUrl,

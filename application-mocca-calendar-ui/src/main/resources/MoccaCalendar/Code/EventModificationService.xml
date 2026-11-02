@@ -38,15 +38,22 @@
   <hidden>true</hidden>
   <content>{{velocity}}
 #set($eventDocStr = $request.getParameter('eventDoc'))
-#if($eventDocStr)
-  #set($eventDoc = $xwiki.getDocument($eventDocStr))
-  #if ($request.getParameter('modificationIsNew') == 'true')
-    #set($newModification = $eventDoc.addObjectFromRequest())
-    #set($discard = $eventDoc.save($services.localization.render('moccacalendar.modify.createMessage'), true))
+#set($modificationClass = 'MoccaCalendar.Code.MoccaCalendarEventModificationClass')
+#if ($request.method == 'POST')
+  #if (!$services.csrf.isTokenValid($request.form_token) || $request.getParameter('classname') != $modificationClass)
+    #set($discard = $response.setStatus(403))
+  #elseif ("$!eventDocStr" == '')
+    #set($discard = $response.setStatus(400))
   #else
-    #set($updated = $eventDoc.updateObjectsFromRequest($request.getParameter('classname')))
-    ## here we could check that $updated.size() == 1; otherwise something went wrong
-    #set($discard = $eventDoc.save($services.localization.render('moccacalendar.modify.saveMessage'), true))
+    #set($eventDoc = $xwiki.getDocument($eventDocStr))
+    #if ($request.getParameter('modificationIsNew') == 'true')
+      #set($newModification = $eventDoc.addObjectFromRequest())
+      #set($discard = $eventDoc.save($services.localization.render('moccacalendar.modify.createMessage'), true))
+    #else
+      #set($updated = $eventDoc.updateObjectsFromRequest($modificationClass))
+      ## here we could check that $updated.size() == 1; otherwise something went wrong
+      #set($discard = $eventDoc.save($services.localization.render('moccacalendar.modify.saveMessage'), true))
+    #end
   #end
 #end
 {{/velocity}}</content>

@@ -40,9 +40,13 @@
   ## To be replaced with the rest endpoint call after
   ## XWIKI-20704: NullPointerException (NPE) when accessing objects with ComputedField properties from REST is fixed.
   #if ($request.method == 'POST')
-    #set ($targetDocument = $xwiki.getDocument($request.documentRef))
-    #set ($object = $targetDocument.getObject('MoccaCalendar.MoccaCalendarClass', true))
-    #set ($discard = $targetDocument.save())
+    #if ($services.csrf.isTokenValid($request.form_token))
+      #set ($targetDocument = $xwiki.getDocument($request.documentRef))
+      #set ($object = $targetDocument.getObject('MoccaCalendar.MoccaCalendarClass', true))
+      #set ($discard = $targetDocument.save())
+    #else
+      #set ($discard = $response.setStatus(403))
+    #end
   #end
 {{/velocity}}
 </content>

@@ -37,7 +37,10 @@
   <syntaxId>xwiki/2.0</syntaxId>
   <hidden>true</hidden>
   <content>{{velocity}}
-#if ($xcontext.action == 'get')
+#if ($xcontext.action == 'get' &amp;&amp; !($request.method == 'POST' &amp;&amp; $services.csrf.isTokenValid($request.form_token)))
+  #set($discard = $response.setStatus(403))
+  #jsonResponse({ 'success' : false })
+#elseif ($xcontext.action == 'get')
 #set($result = { 'success' : false })
 #set($page = $request.page)
 #set($startfield = "startDate")
