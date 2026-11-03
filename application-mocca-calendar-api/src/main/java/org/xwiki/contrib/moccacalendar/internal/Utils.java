@@ -20,7 +20,15 @@
 package org.xwiki.contrib.moccacalendar.internal;
 
 import java.util.Date;
+import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
+import org.apache.commons.lang3.StringUtils;
+import org.jsoup.Jsoup;
+import org.jsoup.nodes.Document;
+import org.jsoup.nodes.Element;
+import org.jsoup.select.Elements;
 import org.xwiki.contrib.moccacalendar.EventInstance;
 import org.xwiki.rendering.syntax.Syntax;
 import org.xwiki.stability.Unstable;
@@ -44,6 +52,16 @@ public final class Utils
      * the hard wired guess of the duration of an event where the end date is missing.
      */
     private static final int EVENT_DURATION_MIN = 30;
+
+    private static final String PARAGRAPH = "p";
+
+    private static final List<String> PREVIEW_TEXT_BLOCKS = List.of(PARAGRAPH, "ul", "ol");
+
+    private static final List<String> PREVIEW_IMAGE_BLOCKS = List.of(PARAGRAPH, "figure");
+
+    private static final String IMAGE = "img";
+
+    private static final int PREVIEW_MAX_IMAGES = 2;
 
     private Utils()
     {
@@ -139,4 +157,55 @@ public final class Utils
             false, secureDoc, context));
     }
 
+    /**
+     * Shortens a rendered event description for a preview: keeps its first paragraph or list, whichever comes first,
+     * and at most {@value #PREVIEW_MAX_IMAGES} images (the ones of the first paragraph or list, then the ones of the
+     * other paragraphs and figures). Everything else is left out.
+     *
+     * @param descriptionHtml the description rendered as HTML
+     * @return the preview HTML under the {@code html} key, and under the {@code truncated} key whether some content was
+     *     left out
+     * @since 2.20.2
+     */
+    public static Map<String, Object> getDescriptionPreview(String descriptionHtml)
+    {
+        Document html = Jsoup.parseBodyFragment(StringUtils.defaultString(descriptionHtml));
+        html.outputSettings().prettyPrint(false);
+        Elements blocks = html.body().children();
+        Element firstTextBlock =
+            blocks.stream().filter(block -> PREVIEW_TEXT_BLOCKS.contains(block.tagName()) && block.hasText())
+                .findFirst().orElse(null);
+
+        // The images of the first paragraph or list come first, then the ones of the other paragraphs and figures.
+        Elements images = firstTextBlock != null ? firstTextBlock.select(IMAGE) : new Elements();
+        int firstTextBlockImages = images.size();
+        boolean truncated = false;
+        for (Element block : blocks) {
+            if (block != firstTextBlock) {
+                // Everything else is left out, except the images of paragraphs and figures.
+                boolean isImageBlock = PREVIEW_IMAGE_BLOCKS.contains(block.tagName());
+                truncated |= block.hasText() || !isImageBlock;
+                if (isImageBlock) {
+                    images.addAll(block.select(IMAGE));
+                }
+            }
+        }
+        if (images.size() > PREVIEW_MAX_IMAGES) {
+            images.subList(PREVIEW_MAX_IMAGES, images.size()).forEach(Element::remove);
+            truncated = true;
+        }
+
+        StringBuilder preview = new StringBuilder();
+        if (firstTextBlock != null) {
+            preview.append(firstTextBlock.outerHtml());
+        }
+        List<Element> otherImages = images.subList(Math.min(firstTextBlockImages, PREVIEW_MAX_IMAGES),
+            Math.min(images.size(), PREVIEW_MAX_IMAGES));
+        if (!otherImages.isEmpty()) {
+            preview.append("<p>").append(otherImages.stream().map(Element::outerHtml).collect(Collectors.joining()))
+                .append("</p>");
+        }
+
+        return Map.of("html", preview.toString(), "truncated", truncated);
+    }
 }
