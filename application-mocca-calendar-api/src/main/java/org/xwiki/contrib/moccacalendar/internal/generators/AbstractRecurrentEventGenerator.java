@@ -27,6 +27,7 @@ import java.util.List;
 
 import javax.inject.Inject;
 
+import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.joda.time.DateTime;
 import org.slf4j.Logger;
 import org.xwiki.contrib.moccacalendar.EventInstance;
@@ -53,8 +54,15 @@ public abstract class AbstractRecurrentEventGenerator implements RecurrentEventG
      */
     protected static final int MAX_INSTANCES = 1000;
 
+    /**
+     * A limit for how many event instances to generate to reach the requested calendar view. Used to avoid excessive
+     * computation of unrealistic calendar views (e.g. viewing events starting in year 2300) 100.000 daily events ~= 273
+     * years
+     */
+    protected static final int MAX_SKIPPED_INSTANCES = 100_000;
+
     @Inject
-    private Logger logger;
+    protected Logger logger;
 
     /**
      * increment the calendar by the period of the event.
@@ -123,12 +131,15 @@ public abstract class AbstractRecurrentEventGenerator implements RecurrentEventG
         Calendar cal = Calendar.getInstance();
     
         cal.setTime(startDate);
-    
-        // stupid, inefficient, but should work
-        while (cal.getTimeInMillis() + duration < dateFrom.getTime()) {
-            incrementCalendarByOnePeriod(cal);
+
+        try {
+            jumpToFirstEventAfterDate(cal, duration, dateFrom);
+        } catch (Exception e) {
+            logger.warn("Error while computing first recurrent event occurrence for [{}]. Cause: [{}]", event,
+                ExceptionUtils.getRootCauseMessage(e));
+            return List.of();
         }
-    
+
         List<EventInstance> eventInstances = new ArrayList<>();
         // FIXME: isn't it endDate instead of the start date that should be after dateFrom instead ?
         while (cal.getTime().compareTo(dateTo) <= 0) {
@@ -149,4 +160,27 @@ public abstract class AbstractRecurrentEventGenerator implements RecurrentEventG
         return eventInstances;
     }
 
+    /**
+     * Move the calendar from the start of the first instance of the recurrent event to the start of the first instance
+     * ending at or after {@code dateFrom}. This implementation increments it one period at a time; subclasses should
+     * override it to jump there directly.
+     *
+     * @param cal the calendar, set to the start of the first instance of the event
+     * @param duration the duration of an instance in milliseconds
+     * @param dateFrom the date at or after which the instance should end
+     * @throws Exception if something went wrong while jumping to the event (e.g. the recurrent event starting too
+     *     far in the past.
+     */
+    protected void jumpToFirstEventAfterDate(Calendar cal, final long duration, final Date dateFrom) throws Exception
+    {
+        int i = 0;
+        // stupid, inefficient, but should work
+        while (cal.getTimeInMillis() + duration < dateFrom.getTime()) {
+            incrementCalendarByOnePeriod(cal);
+            i += 1;
+            if (i > MAX_SKIPPED_INSTANCES) {
+                throw new Exception("Event recurrence limit reached.");
+            }
+        }
+    }
 }

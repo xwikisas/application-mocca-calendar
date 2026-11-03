@@ -28,6 +28,7 @@ import java.util.stream.Collectors;
 import javax.inject.Named;
 import javax.inject.Singleton;
 
+import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.joda.time.DateTime;
 import org.xwiki.component.annotation.Component;
 import org.xwiki.contrib.moccacalendar.EventInstance;
@@ -60,8 +61,12 @@ public class CustomWeeklyEventGenerator extends AbstractRecurrentEventGenerator
         Calendar cal = Calendar.getInstance();
         cal.setTime(startDate);
         cal.set(Calendar.DAY_OF_WEEK, 7);
-        while (cal.getTimeInMillis() + duration <= dateFrom.getTime()) {
-            incrementCalendarByOnePeriod(cal);
+        try {
+            jumpToFirstEventAfterDate(cal, duration, dateFrom);
+        } catch (Exception e) {
+            logger.warn("Error while computing first recurrent event occurrence for [{}]. Cause: [{}]", event,
+                ExceptionUtils.getRootCauseMessage(e));
+            return List.of();
         }
         List<Object> rawDays = (List<Object>) event.getListValue("days");
         List<Integer> days =
