@@ -20,7 +20,9 @@
 package org.xwiki.contrib.moccacalendar.internal.generators;
 
 import java.util.ArrayList;
+import java.time.temporal.ChronoUnit;
 import java.util.Calendar;
+import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -54,15 +56,27 @@ public class CustomWeeklyEventGenerator extends AbstractRecurrentEventGenerator
     }
 
     @Override
+    protected void jumpToFirstEventAfterDate(Calendar cal, long duration, Date dateFrom)
+    {
+        jumpByWholePeriods(cal, ChronoUnit.WEEKS, 1, duration, dateFrom);
+    }
+
+    @Override
     protected List<EventInstance> createEventInstances(final XWikiDocument event, final Date startDate,
         final long duration, final Date dateFrom, final Date dateTo)
     {
         Calendar cal = Calendar.getInstance();
         cal.setTime(startDate);
         cal.set(Calendar.DAY_OF_WEEK, 7);
-        while (cal.getTimeInMillis() + duration <= dateFrom.getTime()) {
-            incrementCalendarByOnePeriod(cal);
+
+        try {
+            jumpToFirstEventAfterDate(cal, duration, dateFrom);
+        } catch (IllegalArgumentException e) {
+            this.logger.warn("Failed to find the first instance of [{}] after [{}]: [{}]", event, dateFrom,
+                e.getMessage());
+            return Collections.emptyList();
         }
+
         List<Object> rawDays = (List<Object>) event.getListValue("days");
         List<Integer> days =
             rawDays.stream().map(Object::toString).map(Integer::parseInt).sorted().collect(Collectors.toList());

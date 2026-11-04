@@ -19,7 +19,10 @@
  */
 package org.xwiki.contrib.moccacalendar.internal.generators;
 
+import java.time.temporal.ChronoUnit;
 import java.util.Calendar;
+import java.util.Date;
+import java.util.concurrent.TimeUnit;
 
 import javax.inject.Named;
 import javax.inject.Singleton;
@@ -47,5 +50,16 @@ public class WorkDaysEventGenerator extends AbstractRecurrentEventGenerator
             cal.add(Calendar.DAY_OF_YEAR, 1);
         } while (cal.get(Calendar.DAY_OF_WEEK) == Calendar.SATURDAY
             || cal.get(Calendar.DAY_OF_WEEK) == Calendar.SUNDAY);
+    }
+
+    @Override
+    protected void jumpToFirstEventAfterDate(Calendar cal, long duration, Date dateFrom)
+    {
+        // Jumping whole weeks can skip the work days between dateFrom and the landing day, and would land on a weekend
+        // if the event started on one. So stop more than a week before dateFrom (8 days, in case of a DST change) and
+        // increment the remaining days one by one, which only stops on work days.
+        jumpByWholePeriods(cal, ChronoUnit.WEEKS, 1, duration,
+            new Date(dateFrom.getTime() - TimeUnit.DAYS.toMillis(8)));
+        super.jumpToFirstEventAfterDate(cal, duration, dateFrom);
     }
 }
