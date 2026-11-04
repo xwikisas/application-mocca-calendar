@@ -17,7 +17,7 @@
  * You should have received a copy of the GNU Lesser General Public
  * License along with this software; if not, write to the Free
  * Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
- * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
+ * 02110-1301 USA, or see the FSF site: https://www.fsf.org.
 -->
 
 <xwikidoc version="1.5" reference="MoccaCalendar.MoccaCalendarTranslations" locale="fr">
@@ -281,9 +281,14 @@ moccacalendar.panel.upcomingEvents.header=Événements à venir
 admin.moccacalendar.sources.section=Calendrier
 admin.moccacalendar.sources.header=Autorisé des sources pour les événements du calendrier
 admin.moccacalendar.sources.empty=Il n'y a pas de source d'événements de calendrier à configurer.
-admin.moccacalendar.sources.active.label=Afficher les événements de la source «{0}» :
-admin.moccacalendar.sources.backgroundColor.label=Couleur de fond utilisée pour les évènements de la source "{0}" :
-admin.moccacalendar.sources.textColor.label=Couleur du texte utilisée pour les évènements de la source "{0}" :
+admin.moccacalendar.sources.description=Les sources d'évènements laissent des évènements d'autres applications apparaitre dans les calendriers aux côtés des évènements des calendriers standards.
+admin.moccacalendar.sources.list=Les extensions suivantes offrent des sources pour des évènements de calendrier :
+admin.moccacalendar.sources.backgroundColor.shortLabel=Fond
+admin.moccacalendar.sources.textColor.shortLabel=Texte
+admin.moccacalendar.sources.backgroundColor.title=Couleur de fond pour les évènements du calendrier «{0}»
+admin.moccacalendar.sources.textColor.title=Couleur du texte pour les évènements de la source «{0}»
+admin.moccacalendar.sources.install=Installer l'extension
+admin.moccacalendar.sources.meetings.name=Meeting Application (Pro)
 
 # Recurrent event
 moccacalendar.recurrent.frequency.hint=La fréquence est en corrélation avec la date de démarrage sélectionnée.
