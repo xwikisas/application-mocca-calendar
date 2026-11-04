@@ -20,7 +20,9 @@
 package org.xwiki.contrib.moccacalendar.internal.generators;
 
 import java.util.ArrayList;
+import java.time.temporal.ChronoUnit;
 import java.util.Calendar;
+import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -55,19 +57,27 @@ public class CustomWeeklyEventGenerator extends AbstractRecurrentEventGenerator
     }
 
     @Override
+    protected void jumpToFirstEventAfterDate(Calendar cal, long duration, Date dateFrom)
+    {
+        jumpByWholePeriods(cal, ChronoUnit.WEEKS, 1, duration, dateFrom);
+    }
+
+    @Override
     protected List<EventInstance> createEventInstances(final XWikiDocument event, final Date startDate,
         final long duration, final Date dateFrom, final Date dateTo)
     {
         Calendar cal = Calendar.getInstance();
         cal.setTime(startDate);
+        Calendar start = (Calendar) cal.clone();
         cal.set(Calendar.DAY_OF_WEEK, 7);
         try {
             jumpToFirstEventAfterDate(cal, duration, dateFrom);
         } catch (Exception e) {
             logger.warn("Error while computing first recurrent event occurrence for [{}]. Cause: [{}]", event,
                 ExceptionUtils.getRootCauseMessage(e));
-            return List.of();
+            return Collections.emptyList();
         }
+
         List<Object> rawDays = (List<Object>) event.getListValue("days");
         List<Integer> days =
             rawDays.stream().map(Object::toString).map(Integer::parseInt).sorted().collect(Collectors.toList());
@@ -76,6 +86,7 @@ public class CustomWeeklyEventGenerator extends AbstractRecurrentEventGenerator
             // We go over each day requested by the recurrence and check if it is in the given date interval
             for (int day : days) {
                 cal.set(Calendar.DAY_OF_WEEK, day);
+                resetTimeOfDay(cal, start);
                 long recurrenceTime = cal.getTimeInMillis();
                 if (recurrenceTime >= dateFrom.getTime() && recurrenceTime + duration <= dateTo.getTime()) {
                     EventInstance instance = new EventInstance();

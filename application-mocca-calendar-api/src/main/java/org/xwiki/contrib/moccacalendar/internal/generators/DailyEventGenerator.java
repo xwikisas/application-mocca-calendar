@@ -19,7 +19,9 @@
  */
 package org.xwiki.contrib.moccacalendar.internal.generators;
 
+import java.time.temporal.ChronoUnit;
 import java.util.Calendar;
+import java.util.Date;
 
 import javax.inject.Named;
 import javax.inject.Singleton;
@@ -43,5 +45,11 @@ public class DailyEventGenerator extends AbstractRecurrentEventGenerator
     protected void incrementCalendarByOnePeriod(Calendar cal, int... pos)
     {
         cal.add(Calendar.DAY_OF_YEAR, 1);
+    }
+
+    @Override
+    protected void jumpToFirstEventAfterDate(Calendar cal, long duration, Date dateFrom)
+    {
+        jumpByWholePeriods(cal, ChronoUnit.DAYS, 1, duration, dateFrom);
     }
 }

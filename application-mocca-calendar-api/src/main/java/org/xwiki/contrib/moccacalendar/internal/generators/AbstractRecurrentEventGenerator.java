@@ -19,6 +19,9 @@
  */
 package org.xwiki.contrib.moccacalendar.internal.generators;
 
+import java.time.Instant;
+import java.time.ZonedDateTime;
+import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Collections;
@@ -123,6 +126,51 @@ public abstract class AbstractRecurrentEventGenerator implements RecurrentEventG
         return createEventInstances(event, startDate, duration, actualDateFrom, actualDateTo);
     }
 
+    /**
+     * Implementation helper for {@link #jumpToFirstEventAfterDate(Calendar, long, Date)} for events repeating every
+     * {@code amount} {@code unit}s. The instance is counted from the start of the event, so that e.g. a monthly event
+     * on the 31st still lands on March 31 after jumping over February.
+     *
+     * @param cal the calendar, set to the start of the first instance of the event
+     * @param unit the unit of the period of the event
+     * @param amount the number of units in the period of the event
+     * @param duration the duration of an instance in milliseconds
+     * @param dateFrom the date at or after which the instance should end
+     */
+    protected static void jumpByWholePeriods(Calendar cal, ChronoUnit unit, int amount, long duration, Date dateFrom)
+    {
+        ZonedDateTime start = cal.toInstant().atZone(cal.getTimeZone().toZoneId());
+        ZonedDateTime target = Instant.ofEpochMilli(dateFrom.getTime() - duration).atZone(start.getZone());
+        // Adding the whole periods between them to the start doesn't go past the target.
+        long periods = Math.max(unit.between(start, target) / amount, 0);
+        ZonedDateTime first = start.plus(periods * amount, unit);
+        // The periods computed above are rounded down, so reaching the target date can take one extra period. When the
+        // date gets clamped (e.g. January 31 + 1 month = February 28), a second extra period is needed, otherwise it
+        // can still fall short.
+        for (int extra = 1; extra <= 2 && first.isBefore(target); extra++) {
+            first = start.plus((periods + extra) * amount, unit);
+        }
+        cal.setTimeInMillis(first.toInstant().toEpochMilli());
+    }
+
+    /**
+     * Set the time of day of the calendar back to the one of the start of the event. Moving a calendar through the hour
+     * skipped when DST starts shifts its time, and the shift would otherwise carry over to the next instances.
+     *
+     * @param cal the calendar to fix
+     * @param start the start of the event
+     */
+    protected static void resetTimeOfDay(Calendar cal, Calendar start)
+    {
+        // Only the fields that changed: setting the same time again would move an instance in the hour repeated when
+        // DST ends from its first occurrence (summer time) to its second one.
+        for (int field : new int[] { Calendar.HOUR_OF_DAY, Calendar.MINUTE, Calendar.SECOND, Calendar.MILLISECOND }) {
+            if (cal.get(field) != start.get(field)) {
+                cal.set(field, start.get(field));
+            }
+        }
+    }
+
     // separate helper method to actually create the events
     // to keep checkstyle from complaining
     protected List<EventInstance> createEventInstances(final XWikiDocument event, final Date startDate,
@@ -131,13 +179,14 @@ public abstract class AbstractRecurrentEventGenerator implements RecurrentEventG
         Calendar cal = Calendar.getInstance();
     
         cal.setTime(startDate);
+        Calendar start = (Calendar) cal.clone();
 
         try {
             jumpToFirstEventAfterDate(cal, duration, dateFrom);
         } catch (Exception e) {
             logger.warn("Error while computing first recurrent event occurrence for [{}]. Cause: [{}]", event,
                 ExceptionUtils.getRootCauseMessage(e));
-            return List.of();
+            return Collections.emptyList();
         }
 
         List<EventInstance> eventInstances = new ArrayList<>();
@@ -155,6 +204,7 @@ public abstract class AbstractRecurrentEventGenerator implements RecurrentEventG
             }
 
             incrementCalendarByOnePeriod(cal);
+            resetTimeOfDay(cal, start);
         }
     
         return eventInstances;
@@ -162,25 +212,24 @@ public abstract class AbstractRecurrentEventGenerator implements RecurrentEventG
 
     /**
      * Move the calendar from the start of the first instance of the recurrent event to the start of the first instance
-     * ending at or after {@code dateFrom}. This implementation increments it one period at a time; subclasses should
+     * ending at or after {@code dateFrom}. This implementation increments it one period at a time; subclasses can
      * override it to jump there directly.
      *
      * @param cal the calendar, set to the start of the first instance of the event
      * @param duration the duration of an instance in milliseconds
      * @param dateFrom the date at or after which the instance should end
-     * @throws Exception if something went wrong while jumping to the event (e.g. the recurrent event starting too
-     *     far in the past.
+     * @throws IllegalArgumentException if reaching that instance takes more than a million periods
      */
-    protected void jumpToFirstEventAfterDate(Calendar cal, final long duration, final Date dateFrom) throws Exception
+    protected void jumpToFirstEventAfterDate(Calendar cal, final long duration, final Date dateFrom)
     {
-        int i = 0;
-        // stupid, inefficient, but should work
-        while (cal.getTimeInMillis() + duration < dateFrom.getTime()) {
-            incrementCalendarByOnePeriod(cal);
-            i += 1;
-            if (i > MAX_SKIPPED_INSTANCES) {
-                throw new Exception("Event recurrence limit reached.");
+        Calendar start = (Calendar) cal.clone();
+        // Give up after a million periods (about 2,740 years of daily events) instead of looping for a long time.
+        for (int increments = 0; cal.getTimeInMillis() + duration < dateFrom.getTime(); increments++) {
+            if (increments >= MAX_SKIPPED_INSTANCES) {
+                throw new IllegalArgumentException("Recurrent event starts too far in the past.");
             }
+            incrementCalendarByOnePeriod(cal);
+            resetTimeOfDay(cal, start);
         }
     }
 }

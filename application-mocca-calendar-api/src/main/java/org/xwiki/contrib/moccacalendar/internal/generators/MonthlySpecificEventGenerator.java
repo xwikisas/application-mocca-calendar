@@ -74,11 +74,39 @@ public class MonthlySpecificEventGenerator extends AbstractRecurrentEventGenerat
     }
 
     @Override
+    protected void jumpToFirstEventAfterDate(Calendar cal, long duration, Date dateFrom)
+    {
+        int occurrence = getOccurrence(cal);
+        Calendar start = (Calendar) cal.clone();
+        Calendar target = Calendar.getInstance();
+        target.setTimeInMillis(dateFrom.getTime() - duration);
+        int months = (target.get(Calendar.YEAR) - cal.get(Calendar.YEAR)) * 12 + target.get(Calendar.MONTH)
+            - cal.get(Calendar.MONTH) - 1;
+        if (months > 0) {
+            // Go to the same day of the week in the month before the target: the instances of that month are all
+            // before the target, and incrementing from there finds the occurrence of the following month.
+            int dayOfWeek = cal.get(Calendar.DAY_OF_WEEK);
+            cal.set(Calendar.DAY_OF_MONTH, 1);
+            cal.add(Calendar.MONTH, months);
+            while (cal.get(Calendar.DAY_OF_WEEK) != dayOfWeek) {
+                cal.add(Calendar.DAY_OF_MONTH, 1);
+            }
+        }
+        // The first increment reaches the target's month; if its occurrence is still before the target, the next
+        // month's always comes after it.
+        for (int extra = 1; extra <= 2 && cal.getTimeInMillis() + duration < dateFrom.getTime(); extra++) {
+            incrementCalendarByOnePeriod(cal, occurrence);
+            resetTimeOfDay(cal, start);
+        }
+    }
+
+    @Override
     protected List<EventInstance> createEventInstances(final XWikiDocument event, final Date startDate,
         final long duration, final Date dateFrom, final Date dateTo)
     {
         Calendar cal = Calendar.getInstance();
         cal.setTime(startDate);
+        Calendar start = (Calendar) cal.clone();
         int occurrence = getOccurrence(cal);
         try {
             jumpToFirstEventAfterDate(cal, duration, dateFrom);
@@ -100,6 +128,7 @@ public class MonthlySpecificEventGenerator extends AbstractRecurrentEventGenerat
             }
 
             incrementCalendarByOnePeriod(cal, occurrence);
+            resetTimeOfDay(cal, start);
         }
 
         return eventInstances;

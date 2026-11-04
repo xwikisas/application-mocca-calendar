@@ -19,7 +19,9 @@
  */
 package org.xwiki.contrib.moccacalendar.internal.generators;
 
+import java.time.temporal.ChronoUnit;
 import java.util.Calendar;
+import java.util.Date;
 
 import javax.inject.Named;
 import javax.inject.Singleton;
@@ -43,5 +45,11 @@ public class BiWeeklyEventGenerator extends AbstractRecurrentEventGenerator
     protected void incrementCalendarByOnePeriod(Calendar cal, int... pos)
     {
         cal.add(Calendar.WEEK_OF_YEAR, 2);
+    }
+
+    @Override
+    protected void jumpToFirstEventAfterDate(Calendar cal, long duration, Date dateFrom)
+    {
+        jumpByWholePeriods(cal, ChronoUnit.WEEKS, 2, duration, dateFrom);
     }
 }
