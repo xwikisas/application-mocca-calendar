@@ -76,6 +76,7 @@ public class MonthlySpecificEventGenerator extends AbstractRecurrentEventGenerat
     protected void jumpToFirstEventAfterDate(Calendar cal, long duration, Date dateFrom)
     {
         int occurrence = getOccurrence(cal);
+        Calendar start = (Calendar) cal.clone();
         Calendar target = Calendar.getInstance();
         target.setTimeInMillis(dateFrom.getTime() - duration);
         int months = (target.get(Calendar.YEAR) - cal.get(Calendar.YEAR)) * 12 + target.get(Calendar.MONTH)
@@ -94,6 +95,7 @@ public class MonthlySpecificEventGenerator extends AbstractRecurrentEventGenerat
         // month's always comes after it.
         for (int extra = 1; extra <= 2 && cal.getTimeInMillis() + duration < dateFrom.getTime(); extra++) {
             incrementCalendarByOnePeriod(cal, occurrence);
+            resetTimeOfDay(cal, start);
         }
     }
 
@@ -103,6 +105,7 @@ public class MonthlySpecificEventGenerator extends AbstractRecurrentEventGenerat
     {
         Calendar cal = Calendar.getInstance();
         cal.setTime(startDate);
+        Calendar start = (Calendar) cal.clone();
         int occurrence = getOccurrence(cal);
 
         jumpToFirstEventAfterDate(cal, duration, dateFrom);
@@ -120,6 +123,7 @@ public class MonthlySpecificEventGenerator extends AbstractRecurrentEventGenerat
             }
 
             incrementCalendarByOnePeriod(cal, occurrence);
+            resetTimeOfDay(cal, start);
         }
 
         return eventInstances;

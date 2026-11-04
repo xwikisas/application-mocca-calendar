@@ -31,8 +31,8 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 /**
- * Unit tests for the {@link AbstractRecurrentEventGenerator#jumpToFirstEventAfterDate(Calendar, long, Date)} variants of the
- * generators.
+ * Unit tests for the {@link AbstractRecurrentEventGenerator#jumpToFirstEventAfterDate(Calendar, long, Date)} variants
+ * of the generators.
  *
  * @version $Id$
  */
@@ -93,7 +93,7 @@ class AbstractRecurrentEventGeneratorTest
     }
 
     @Test
-    void jumpToFirstEventAfterDateGivesUpAfterMaxSkippedInstances()
+    void jumpToFirstEventAfterDateGivesUpAfterAMillionPeriods()
     {
         // A daily generator without a jump of its own, so that it goes through the default loop.
         AbstractRecurrentEventGenerator generator = new AbstractRecurrentEventGenerator()
@@ -104,20 +104,14 @@ class AbstractRecurrentEventGeneratorTest
                 cal.add(Calendar.DAY_OF_YEAR, 1);
             }
         };
-        Date start = date(2000, Calendar.JANUARY, 1);
-        Calendar lastReachable = Calendar.getInstance();
-        lastReachable.setTime(start);
-        lastReachable.add(Calendar.DAY_OF_YEAR, AbstractRecurrentEventGenerator.MAX_SKIPPED_INSTANCES);
-
-        // Reaching the instance at dateFrom takes exactly MAX_SKIPPED_INSTANCES increments.
         Calendar cal = Calendar.getInstance();
-        cal.setTime(start);
-        generator.jumpToFirstEventAfterDate(cal, HOUR, lastReachable.getTime());
-        assertEquals(lastReachable.getTime(), cal.getTime());
+        cal.setTime(date(2000, Calendar.JANUARY, 1));
+        Date justReachable = date(4737, Calendar.NOVEMBER, 28);
+        generator.jumpToFirstEventAfterDate(cal, HOUR, justReachable);
+        assertEquals(justReachable, cal.getTime());
 
-        // The instance at dateFrom ends before it, so the next one would take one more increment.
-        cal.setTime(start);
-        Date tooFar = new Date(lastReachable.getTimeInMillis() + 2 * HOUR);
+        cal.setTime(date(2000, Calendar.JANUARY, 1));
+        Date tooFar = new Date(justReachable.getTime() + 2 * HOUR);
         assertThrows(IllegalArgumentException.class, () -> generator.jumpToFirstEventAfterDate(cal, HOUR, tooFar));
     }
 

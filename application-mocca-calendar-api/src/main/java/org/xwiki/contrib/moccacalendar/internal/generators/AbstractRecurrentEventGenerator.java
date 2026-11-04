@@ -152,6 +152,24 @@ public abstract class AbstractRecurrentEventGenerator implements RecurrentEventG
         cal.setTimeInMillis(first.toInstant().toEpochMilli());
     }
 
+    /**
+     * Set the time of day of the calendar back to the one of the start of the event. Moving a calendar through the hour
+     * skipped when DST starts shifts its time, and the shift would otherwise carry over to the next instances.
+     *
+     * @param cal the calendar to fix
+     * @param start the start of the event
+     */
+    protected static void resetTimeOfDay(Calendar cal, Calendar start)
+    {
+        // Only the fields that changed: setting the same time again would move an instance in the hour repeated when
+        // DST ends from its first occurrence (summer time) to its second one.
+        for (int field : new int[] { Calendar.HOUR_OF_DAY, Calendar.MINUTE, Calendar.SECOND, Calendar.MILLISECOND }) {
+            if (cal.get(field) != start.get(field)) {
+                cal.set(field, start.get(field));
+            }
+        }
+    }
+
     // separate helper method to actually create the events
     // to keep checkstyle from complaining
     protected List<EventInstance> createEventInstances(final XWikiDocument event, final Date startDate,
@@ -160,6 +178,7 @@ public abstract class AbstractRecurrentEventGenerator implements RecurrentEventG
         Calendar cal = Calendar.getInstance();
     
         cal.setTime(startDate);
+        Calendar start = (Calendar) cal.clone();
 
         try {
             jumpToFirstEventAfterDate(cal, duration, dateFrom);
@@ -184,6 +203,7 @@ public abstract class AbstractRecurrentEventGenerator implements RecurrentEventG
             }
 
             incrementCalendarByOnePeriod(cal);
+            resetTimeOfDay(cal, start);
         }
     
         return eventInstances;
@@ -201,12 +221,14 @@ public abstract class AbstractRecurrentEventGenerator implements RecurrentEventG
      */
     protected void jumpToFirstEventAfterDate(Calendar cal, final long duration, final Date dateFrom)
     {
+        Calendar start = (Calendar) cal.clone();
         // Give up after a million periods (about 2,740 years of daily events) instead of looping for a long time.
         for (int increments = 0; cal.getTimeInMillis() + duration < dateFrom.getTime(); increments++) {
-            if (increments >= MAX_SKIPPED_INSTANCES) {
+            if (increments >= 1_000_000) {
                 throw new IllegalArgumentException("Recurrent event starts too far in the past.");
             }
             incrementCalendarByOnePeriod(cal);
+            resetTimeOfDay(cal, start);
         }
     }
 }

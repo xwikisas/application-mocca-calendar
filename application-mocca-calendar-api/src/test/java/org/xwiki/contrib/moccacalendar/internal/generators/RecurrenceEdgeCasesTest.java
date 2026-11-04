@@ -152,7 +152,6 @@ class RecurrenceEdgeCasesTest
      * An instance in the hour skipped when DST starts is moved one hour later, and only that one.
      */
     @Test
-    @Disabled("Fails on master as well as with the uncommitted generator changes.")
     void dailyInTheDstGapOnlyMovesTheSkippedInstance()
     {
         assertEquals(List.of("2026-03-28 02:30", "2026-03-29 03:30", "2026-03-30 02:30"),
@@ -164,7 +163,6 @@ class RecurrenceEdgeCasesTest
      * Sunday, which has no instance, but the days after it still used to drift one hour earlier.
      */
     @Test
-    @Disabled("Fails on master as well as with the uncommitted generator changes.")
     void workDaysAfterTheDstGapKeepTheirTime()
     {
         // 2026-03-27 is a Friday.
@@ -176,7 +174,6 @@ class RecurrenceEdgeCasesTest
      * A custom weekly event in the hour skipped when DST starts is moved one hour later, and only that one.
      */
     @Test
-    @Disabled("Fails on master as well as with the uncommitted generator changes.")
     void customWeeklyInTheDstGapOnlyMovesTheSkippedInstance()
     {
         // Sundays, 2026-03-15 is a Sunday.
@@ -189,7 +186,6 @@ class RecurrenceEdgeCasesTest
      * only that one.
      */
     @Test
-    @Disabled("Fails on master as well as with the uncommitted generator changes.")
     void monthlySpecificInTheDstGapOnlyMovesTheSkippedInstance()
     {
         // 2025-11-30 is the 5th Sunday of November, 2026-03-29 the 5th Sunday of March.
@@ -237,8 +233,8 @@ class RecurrenceEdgeCasesTest
     /**
      * An instance overlapping the start of the viewed range is part of it, as for the other generators.
      */
-    @Test
     @Disabled("Fails on master as well as with the uncommitted generator changes.")
+    @Test
     void customWeeklyIncludesInstanceOverlappingDateFrom()
     {
         assertEquals(List.of("2026-01-05 10:00"),
@@ -252,8 +248,8 @@ class RecurrenceEdgeCasesTest
     /**
      * An instance overlapping the end of the viewed range is part of it, as for the other generators.
      */
-    @Test
     @Disabled("Fails on master as well as with the uncommitted generator changes.")
+    @Test
     void customWeeklyIncludesInstanceOverlappingDateTo()
     {
         assertEquals(List.of("2026-01-05 10:00"),
@@ -280,8 +276,8 @@ class RecurrenceEdgeCasesTest
     /**
      * A custom weekly event happens on Sundays also where weeks start on Monday.
      */
-    @Test
     @Disabled("Fails on master as well as with the uncommitted generator changes.")
+    @Test
     void customWeeklyOnSundayWhereWeeksStartOnMonday()
     {
         Locale.setDefault(Locale.FRANCE);

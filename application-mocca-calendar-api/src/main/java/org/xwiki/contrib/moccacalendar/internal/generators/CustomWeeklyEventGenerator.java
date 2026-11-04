@@ -67,6 +67,7 @@ public class CustomWeeklyEventGenerator extends AbstractRecurrentEventGenerator
     {
         Calendar cal = Calendar.getInstance();
         cal.setTime(startDate);
+        Calendar start = (Calendar) cal.clone();
         cal.set(Calendar.DAY_OF_WEEK, 7);
 
         try {
@@ -85,6 +86,7 @@ public class CustomWeeklyEventGenerator extends AbstractRecurrentEventGenerator
             // We go over each day requested by the recurrence and check if it is in the given date interval
             for (int day : days) {
                 cal.set(Calendar.DAY_OF_WEEK, day);
+                resetTimeOfDay(cal, start);
                 long recurrenceTime = cal.getTimeInMillis();
                 if (recurrenceTime >= dateFrom.getTime() && recurrenceTime + duration <= dateTo.getTime()) {
                     EventInstance instance = new EventInstance();
