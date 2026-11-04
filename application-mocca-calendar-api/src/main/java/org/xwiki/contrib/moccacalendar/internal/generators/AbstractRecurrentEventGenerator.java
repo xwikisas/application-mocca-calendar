@@ -30,6 +30,7 @@ import java.util.List;
 
 import javax.inject.Inject;
 
+import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.joda.time.DateTime;
 import org.slf4j.Logger;
 import org.xwiki.contrib.moccacalendar.EventInstance;
@@ -182,9 +183,9 @@ public abstract class AbstractRecurrentEventGenerator implements RecurrentEventG
 
         try {
             jumpToFirstEventAfterDate(cal, duration, dateFrom);
-        } catch (IllegalArgumentException e) {
-            this.logger.warn("Failed to find the first instance of [{}] after [{}]: [{}]", event, dateFrom,
-                e.getMessage());
+        } catch (Exception e) {
+            logger.warn("Error while computing first recurrent event occurrence for [{}]. Cause: [{}]", event,
+                ExceptionUtils.getRootCauseMessage(e));
             return Collections.emptyList();
         }
 
@@ -224,7 +225,7 @@ public abstract class AbstractRecurrentEventGenerator implements RecurrentEventG
         Calendar start = (Calendar) cal.clone();
         // Give up after a million periods (about 2,740 years of daily events) instead of looping for a long time.
         for (int increments = 0; cal.getTimeInMillis() + duration < dateFrom.getTime(); increments++) {
-            if (increments >= 1_000_000) {
+            if (increments >= MAX_SKIPPED_INSTANCES) {
                 throw new IllegalArgumentException("Recurrent event starts too far in the past.");
             }
             incrementCalendarByOnePeriod(cal);

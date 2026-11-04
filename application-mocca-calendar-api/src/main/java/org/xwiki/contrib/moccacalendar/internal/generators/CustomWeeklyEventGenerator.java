@@ -30,6 +30,7 @@ import java.util.stream.Collectors;
 import javax.inject.Named;
 import javax.inject.Singleton;
 
+import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.joda.time.DateTime;
 import org.xwiki.component.annotation.Component;
 import org.xwiki.contrib.moccacalendar.EventInstance;
@@ -69,12 +70,11 @@ public class CustomWeeklyEventGenerator extends AbstractRecurrentEventGenerator
         cal.setTime(startDate);
         Calendar start = (Calendar) cal.clone();
         cal.set(Calendar.DAY_OF_WEEK, 7);
-
         try {
             jumpToFirstEventAfterDate(cal, duration, dateFrom);
-        } catch (IllegalArgumentException e) {
-            this.logger.warn("Failed to find the first instance of [{}] after [{}]: [{}]", event, dateFrom,
-                e.getMessage());
+        } catch (Exception e) {
+            logger.warn("Error while computing first recurrent event occurrence for [{}]. Cause: [{}]", event,
+                ExceptionUtils.getRootCauseMessage(e));
             return Collections.emptyList();
         }
 

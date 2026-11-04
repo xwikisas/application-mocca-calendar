@@ -27,6 +27,7 @@ import java.util.List;
 import javax.inject.Named;
 import javax.inject.Singleton;
 
+import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.joda.time.DateTime;
 import org.xwiki.component.annotation.Component;
 import org.xwiki.contrib.moccacalendar.EventInstance;
@@ -107,9 +108,13 @@ public class MonthlySpecificEventGenerator extends AbstractRecurrentEventGenerat
         cal.setTime(startDate);
         Calendar start = (Calendar) cal.clone();
         int occurrence = getOccurrence(cal);
-
-        jumpToFirstEventAfterDate(cal, duration, dateFrom);
-
+        try {
+            jumpToFirstEventAfterDate(cal, duration, dateFrom);
+        } catch (Exception e) {
+            logger.warn("Error while computing first recurrent event occurrence for [{}]. Cause: [{}]", event,
+                ExceptionUtils.getRootCauseMessage(e));
+            return List.of();
+        }
         List<EventInstance> eventInstances = new ArrayList<>();
         while (cal.getTime().compareTo(dateTo) <= 0) {
             EventInstance instance = new EventInstance();
