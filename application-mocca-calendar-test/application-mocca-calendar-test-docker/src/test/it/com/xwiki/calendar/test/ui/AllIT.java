@@ -21,6 +21,7 @@ package com.xwiki.calendar.test.ui;
 
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
+import org.junit.jupiter.api.Order;
 import org.xwiki.test.docker.junit5.UITest;
 
 /**
@@ -29,18 +30,48 @@ import org.xwiki.test.docker.junit5.UITest;
  * @version $Id$
  * @since 2.11
  */
-@UITest(properties = {
-    // XWiki needs the mailsender plugin JAR to be present before it starts since it's not an extension and it
-    // cannot be provisioned after XWiki is started!
+@UITest(extraJARs = {
     "org.xwiki.platform:xwiki-platform-mailsender:15.10",
-    // MailSender plugin uses MailSenderConfiguration from xwiki-platform-mail-api so we need to provide an
-    // implementation for it.
-    "org.xwiki.platform:xwiki-platform-mail-send-default:15.10" }, resolveExtraJARs = true)
+    "org.xwiki.platform:xwiki-platform-jodatime:15.10",
+    "org.xwiki.platform:xwiki-platform-mail-send-default:15.10",
+    "org.xwiki.platform:xwiki-platform-legacy-rendering-macro-include:15.10" }, resolveExtraJARs = true,
+    properties = { "xwikiCfgPlugins=com.xpn.xwiki.plugin.jodatime.JodaTimePlugin,"
+        + "com.xpn.xwiki.plugin.mailsender.MailSenderPlugin",
+    "xwikiPropertiesAdditionalProperties=test.prchecker.excludePattern=.*:MoccaCalendar\\.MoccaCalendarEventSheet" })
 class AllIT
 {
     @Nested
+    @Order(1)
     @DisplayName("Overall Calendar UI")
     class NestedCalendarIT extends CalendarIT
+    {
+    }
+
+    @Nested
+    @Order(2)
+    @DisplayName("Calendar events: editing, colors, hours, drag & drop")
+    class NestedCalendarEventIT extends CalendarEventIT
+    {
+    }
+
+    @Nested
+    @Order(3)
+    @DisplayName("Recurrent events")
+    class NestedRecurrentEventIT extends RecurrentEventIT
+    {
+    }
+
+    @Nested
+    @Order(4)
+    @DisplayName("Calendar macros")
+    class NestedCalendarMacroIT extends CalendarMacroIT
+    {
+    }
+
+    @Nested
+    @Order(5)
+    @DisplayName("iCal export, subscription and import")
+    class NestedICalIT extends ICalIT
     {
     }
 }

@@ -69,6 +69,14 @@
       <scope>runtime</scope>
       <version>${platform.version}</version>
     </dependency>
+    <!-- The calendar class displays its title and content with AppWithinMinutes, which the test WAR doesn't bundle. -->
+    <dependency>
+      <groupId>org.xwiki.platform</groupId>
+      <artifactId>xwiki-platform-appwithinminutes-ui</artifactId>
+      <type>xar</type>
+      <scope>runtime</scope>
+      <version>${platform.version}</version>
+    </dependency>
     <!-- Test dependencies -->
     <dependency>
       <groupId>org.xwiki.platform</groupId>
@@ -80,6 +88,12 @@
       <groupId>org.xwiki.platform</groupId>
       <artifactId>xwiki-platform-panels-test-pageobjects</artifactId>
       <version>${platform.version}</version>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>com.xwiki.mocca-calendar</groupId>
+      <artifactId>application-mocca-calendar-test-pageobjects</artifactId>
+      <version>${project.version}</version>
       <scope>test</scope>
     </dependency>
   </dependencies>
